@@ -25,7 +25,9 @@ import classNames from 'classnames/bind';
 //import api from '../middleware/api'
 //import rootReducer from '../reducers'
 
-import d3 from 'd3';
+import * as d3 from "d3";
+// import { brush } from 'd3'
+
 
 const REQUEST_POSTS = 'REQUEST_POSTS';
 const RECEIVE_POSTS = 'RECEIVE_POSTS';
@@ -184,16 +186,16 @@ class Graph extends React.Component {
 
         // only new packets!
         _.forEach(this.props.packets, (d, i) => {
-            graph.addNode(d.document.GetaptTelnr);
-            graph.addNode(d.document.Gekozennummer);
-            graph.addLink(d.document.GetaptTelnr, d.document.Gekozennummer);
+            graph.addNode(d.fields.document.GetaptTelnr, d);
+            graph.addNode(d.fields.document.Gekozennummer, d);
+            graph.addLink(d.fields.document.GetaptTelnr, d.fields.document.Gekozennummer);
         });
 
         this.state.graph.update();
     }
     render() {
         //console.debug("render graph");
-        return <div ref="graph">loading graph</div>;
+        return <svg ref="graph"></svg>;
 
         const { nodes, links, edges } = this.state;
 
@@ -261,6 +263,17 @@ const i18n = {
     messages: {
     }
 };
+
+class Results extends React.Component {
+    constructor(props){
+        super(props);
+
+    }
+    render() {
+        //console.debug("render graph");
+        return <div>results</div>;
+    }
+}
 
 
 class SearchBox extends React.Component {
@@ -371,12 +384,10 @@ function entries(state = {
     total: 0,
     packets: [],
 }, action) {
-    console.debug("entries", action, action.type);
-
     switch (action.type) {
         case REQUEST_PACKETS:
-            console.debug("sock request packets", action);
             sock.ws.postMessage({query: action.query});
+
             return Object.assign({}, state, {
                 isFetching: true,
                 didInvalidate: false
@@ -387,31 +398,20 @@ function entries(state = {
                 isFetching: true,
                 didInvalidate: false
             })
-            /*
-        case REQUEST_PACKETS:
-            console.debug("REQUEST PACKETS");
-            return Object.assign({}, state, {
-                isFetching: true,
-                didInvalidate: false
-            })
-            */
         case RECEIVE_PACKETS:
-            //
-            //state.packets = _.concat(state.packets, action.packets);
-            // console.debug("RECEIVING PACKETS", action.packets, state.packets.length);
-            //
-            // merge
-            //gpackets = state.packets;
-            state.packets = [];
+            state.packets = _.concat(state.packets, []);
 
-            _.forEach(action.packets.hits.hits, (d, i) => {
-                state.packets.push(d._source);
+	    console.debug(action.packets);
+
+            _.forEach(action.packets.results.hits.hits, (d, i) => {
+                state.packets.push({ q: action.packets.query, fields: d._source});
             });
+
             console.debug("Received packets: ", action.packets);
 
             return Object.assign({}, state, {
                 packets: state.packets,
-                isFetching: true,
+                isFetching: false,
                 didInvalidate: false
             })
         case REQUEST_POSTS:
@@ -549,148 +549,6 @@ function receivePackets(packets, opts = {
     }
 }
 
-
-function fetchEntries(opts={
-    from: 0,
-    size: 50
-}) {
-    var qry = {
-        aggs: {
-            "Products.Vendor": {
-                terms : { 
-                    field : "Products.Vendor.raw",
-                    size: 50
-                }
-            },
-            "Products.Product": {
-                terms : { 
-                    field : "Products.Product.raw",
-                    size: 50
-                }
-            },
-            "Products.Version": {
-                terms : { 
-                    field : "Products.Version.raw",
-                    size: 50
-                }
-            },
-            "Cvss.AccessVector": {
-                terms : { 
-                    field : "Cvss.AccessVector.raw",
-                    size: 50
-                }
-            },
-            "Cvss.AccessComplexity": {
-                terms : { 
-                    field : "Cvss.AccessComplexity.raw",
-                    size: 50
-                }
-            },
-            "Cvss.Authentication": {
-                terms : { 
-                    field : "Cvss.Authentication.raw",
-                    size: 50
-                }
-            },
-            "Cvss.ConfidentialityImpact": {
-                terms : { 
-                    field : "Cvss.ConfidentialityImpact.raw",
-                    size: 50
-                }
-            },
-            "Cvss.IntegrityImpact": {
-                terms : { 
-                    field : "Cvss.IntegrityImpact.raw",
-                    size: 50
-                }
-            },
-            "Cvss.AvailabilityImpact": {
-                terms : { 
-                    field : "Cvss.AvailabilityImpact.raw",
-                    size: 50
-                }
-            }
-        },
-        query: {
-            bool: {
-                must: {
-                    query: {
-                        match_all: {}
-                    }
-                }
-            }
-        },
-        sort: {
-            "PublishedDatetime": "desc"
-        },
-        highlight: {
-                "tags_schema" : "styled",
-                "pre_tags" : ["<hl1>", "<hl2>"],
-                "post_tags" : ["</hl1>", "</hl2>"],
-                "require_field_match": false,
-                "fields" : {
-                    "*": {
-                        number_of_fragments: 0
-                    }
-                }
-        }
-    };
-
-    let must = [];
-
-    _.forEach({ 
-        "Products.Vendor.raw": opts.vendors,
-        "Products.Product.raw": opts.products,
-        "Products.Version.raw": opts.versions,
-        "Cvss.AccessVector.raw": opts.access_vectors,
-        "Cvss.AccessComplexity.raw": opts.access_complexities,
-        "Cvss.Authentication.raw": opts.authentications,
-        "Cvss.ConfidentialityImpact.raw": opts.confidentiality_impacts,
-        "Cvss.IntegrityImpact.raw": opts.integrity_impacts,
-        "Cvss.AvailabilityImpact.raw": opts.availability_impacts,
-    }, (items, bucket) => {
-        must = _.concat(must, _.reduce(_.castArray(items || []), function (result, value) { 
-                let term = {}
-                term[bucket]= value;
-
-                result.push({
-                    term: term
-                });
-                return result;
-            }, [])
-        );
-    });
-
-    if (must.length > 0) {
-        _.assign(qry.query.bool.must, {
-            filter: { 
-                bool: {
-                    must : must
-                }
-            }
-        });
-
-    }
-
-    if (opts.q ) {
-       _.assign(qry.query.bool.must, {
-            query: {
-                query_string: {
-                    query: opts.q
-                }
-            }       
-        });
-    }
-
-    store.dispatch(requestEntries());
-
-    fetch("http://api.cvedb.info/vulndb/entry/_search?from="+opts.from+"&size=" + opts.size, {
-        method: "POST",
-        body: JSON.stringify(qry)
-    }).then(response => response.json())
-      .then(json => store.dispatch(receiveEntries(json, opts)));
-}
-
 function fetchPackets(opts={
     from: 0,
     size: 50,
@@ -738,6 +596,7 @@ class RootView extends React.Component {
         this.state = { 
             docs:[], 
             error: null, 
+	    searches: [],
             currentNode: null,
         }
     }
@@ -774,18 +633,19 @@ class RootView extends React.Component {
     }
     loadMoreItems() {
         console.debug("loadMoreItems");
+/*
         fetchEntries({
             ...this.props.location.query, 
             from:this.props.hits.length,
             size: 50
         });
+*/
     }
     onSearchChange(q) {
+	// add query to state
+	this.state.searches.push({q: q});
+
         fetchPackets({ query: q});
-        //alert(q);
-        ////browserHistory.push({ query: _.assign(this.props.location.query, {q: q})});
-        //
-        //
     }
     shouldComponentUpdate(nextProps, nextState) {
         console.debug("shouldComponentUpdate", nextProps);
@@ -856,57 +716,51 @@ class RootView extends React.Component {
         this.setState({currentNode: node});
     }
     render() {
-        console.debug("bala", this.props);
-
         if (this.state.error != null) {
             return <div>{this.state.error.code}</div>
         }
 
-
         var that =this;
 
-        let protocols = _.map(this.state.protocols, (protocol) => {
+        let searches = _.map(this.state.searches, (search) => {
             var divStyle = {
-                color: that.colorLink(protocol.port),
+                // color: that.colorLink(protocol.port),
             };
 
-            return <div key={protocol.port} style={ divStyle }>{ protocol.port }</div>
+            return <div style={ divStyle }>{ search.q }</div>
         });
 
-        let currentNode = null;
-        
-        if (this.state.currentNode) {
-            currentNode = <div>
-                <b>Summary</b>
-                <div><b>IP</b><span>{ this.state.currentNode.ip }</span></div>
-                <div><span>{ this.state.currentNode.host }</span></div>
-                <div>WHOIS HERE</div>
-                <div>PROTOCOLS here</div>
-                <div>HOSTS here</div>
-                <div>PACKETS here</div>
-                </div>;
-        }
+	let results = <Results className="results" />;
 
-        return <div>
-                    <SearchBox isFetching={this.props.isFetching} total={this.props.total} q= { this.state.q } onChange={this.onSearchChange.bind(this)}/>
-                    <Graph width="1000" height="1000" packets={this.props.packets} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
-                    <div className="info">
-                        <b>Packets:</b>
-                        { this.props.packets.length }
-
-                        { currentNode }
+        return <div className="container">
+		    <div className="row">
+			<div className="col-xs-9 col-sm-9">
+			    <div className="row">
+				<SearchBox isFetching={this.props.isFetching} total={this.props.total} q= { this.state.q } onChange={this.onSearchChange.bind(this)}/>
+			    </div>
+			    <div className="row">
+				<Graph width="1000" height="1000" packets={this.props.packets} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
+			    </div>
+			</div>
+			<div className="col-xs-3 col-sm-3">
+			    <div className="row">
+			    <b>Records:</b> { this.props.packets.length }
+			    </div>
+			    <div className="row">
+			    { searches }
+			    </div>
+			    <div className="row">
+			    { results }
+			    </div>
+			</div>
+		    </div>
+		    <div className="row">
                     </div>
-                    <div className="info">
-                        <b>Hosts:</b>
-                              { _.map(this.state.nodes, (node) => 
-                                      <div key={node.ip}>{ node.host }</div>
-                              )
-                            }
+		    <div className="row">
                     </div>
-                    <div className="info">
-                        <b>Protocols:</b>
-                        {protocols}
+                    <div className="row">
                     </div>
+		    <footer>footer</footer>
             </div>;
 
         var filters = [];
@@ -1099,16 +953,22 @@ const mapStateToProps = (state, ownProps) => {
 
 const history = syncHistoryWithStore(browserHistory, store);
 
-history.listen(location => fetchEntries({...location.query, from: 0, size: 50}));
+// history.listen(location => fetchEntries({...location.query, from: 0, size: 50}));
 
 ReactDOM.render((
   <App/>
 ), document.getElementById('root'))
 
 function myGraph(el) {
+var links = [];
+var nodes = [];
+
     // Add and remove elements on the graph object
-    this.addNode = function (id) {
-        nodes.push({"id":id});
+    this.addNode = function (id, o) {
+        if (findNode(id) !== undefined)
+	    return;
+
+        nodes.push({"id":id, data: o});
         // update();
     }
 
@@ -1130,11 +990,20 @@ function myGraph(el) {
         var sourceNode = findNode(sourceId);
         var targetNode = findNode(targetId);
 
-        if((sourceNode !== undefined) && (targetNode !== undefined)) {
-            links.push({"source": sourceNode, "target": targetNode});
-            //update();
-        }
+	if((sourceNode === undefined) || (targetNode === undefined)) {
+	    return;
+	}
+
+        for (var i=0; i < links.length; i++) {
+            if (links[i].source === sourceNode && 
+			links[i].target === targetNode )
+		return;
+        };
+
+	links.push({"source": sourceNode, "target": targetNode});
     }
+//good sample (canvas):
+    // https://plnkr.co/edit/iadT0ikcpKELU0eaE9f6?p=preview
 
     var findNode = function (id) {
         for (var i=0; i < nodes.length; i++) {
@@ -1151,12 +1020,40 @@ function myGraph(el) {
     }
 
     // set up the D3 visualisation in the specified element
-    var w = 800, // $(el).innerWidth(),
-        h = 800; // $(el).innerHeight();
+    var width = 1000, // $(el).innerWidth(),
+        height = 1000; // $(el).innerHeight();
 
-    var vis = this.vis = d3.select(el).append("svg:svg")
-        .attr("width", w)
-        .attr("height", h);
+
+    // unmount
+    // d3.select("svg").remove(); 
+
+    console.debug(el);
+
+    var vis = this.vis = d3.select(el)
+        .attr("width", width)
+        .attr("height", height);
+
+    var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+    var simulation = d3.forceSimulation()
+	.stop()
+        .force("link", d3.forceLink().id(function(d) { d.id; }))
+        .force("charge", d3.forceManyBody())
+        .force("center", d3.forceCenter(width / 2, height / 2));
+	.on("tick", () => {
+	    link
+		.attr("x1", function(d) { return d.source.x; })
+		.attr("y1", function(d) { return d.source.y; })
+		.attr("x2", function(d) { return d.target.x; })
+		.attr("y2", function(d) { return d.target.y; });
+
+	    node
+		.attr("cx", function(d) { return d.x; })
+		.attr("cy", function(d) { return d.y; });
+	});
+
+
+    /*
 
     var force = d3.layout.force()
         .gravity(.05)
@@ -1166,14 +1063,16 @@ function myGraph(el) {
 
     var nodes = force.nodes(),
         links = force.links();
+        */
 
-    this.update = function () {
+    this.update = function (nodes, links) {
+/*
         var link = vis.selectAll("line.link")
             .data(links, function(d) { return d.source.id + "-" + d.target.id; });
 
         link.enter().insert("line")
             .attr("strokeWidth", "1")
-            .attr("stroke", "#eee")
+            .attr("stroke", "#ccc")
             .attr("class", "link");
 
         link.exit().remove();
@@ -1183,7 +1082,10 @@ function myGraph(el) {
 
         var nodeEnter = node.enter().append("g")
             .attr("class", "node")
-            .call(force.drag);
+            .call(d3.drag()
+		    .on("start", dragstarted)
+		    .on("drag", dragged)
+		    .on("end", dragended));
 
         nodeEnter.append("circle")
             .attr("class", "node")
@@ -1201,7 +1103,9 @@ function myGraph(el) {
             .text(function(d) {return d.id});
 
         node.exit().remove();
+*/
 
+/*
         force.on("tick", function() {
           link.attr("x1", function(d) { return d.source.x; })
               .attr("y1", function(d) { return d.source.y; })
@@ -1209,12 +1113,101 @@ function myGraph(el) {
               .attr("y2", function(d) { return d.target.y; });
 
           node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-        });
+
+*/
+	console.debug("links", vis.append("g")
+	    .attr("class", "links")
+ 	    .selectAll("line")._groups);
+
+	var link = vis.append("g")
+	    .attr("class", "links")
+ 	    .selectAll("line")
+	    .data(links, function(d) { return d.source.id + "-" + d.target.id; })
+	    .enter().append("line")
+	    .attr("stroke-width", function(d) { return 1; /*Math.sqrt(d.value); */ })
+            .attr("strokeWidth", "1")
+            .attr("stroke", "#ccc")
+            .attr("class", "link");
+
+	link.append("title")
+            .attr("class", "nodetext")
+            .attr("dx", 12)
+            .attr("dy", ".35em")
+	    .text(function(d) { return "TEST"; /* + d.source.id + "-" + d.target.id; */ });
+
+	vis.selectAll("line").exit().remove();
+
+	var node = vis.append("g")
+	    .attr("class", "nodes")
+	    .selectAll("circle")
+	    .data(nodes, function(d) { console.debug(d.id); return d.id;})
+	    .enter()
+	    .append("circle")
+	    .attr("r", 5)
+	    .attr("fill",  function(d) { 
+		console.debug(d);
+		switch (d.data.q) {
+		    case "willem":
+			return "red";
+		    case "bas":
+			return "blue";
+		    default:
+			return "green";
+		}
+	    })
+	.call(d3.drag()
+		.on("start", dragstarted)
+		.on("drag", dragged)
+		.on("end", dragended));
+
+	node.append("title")
+            .attr("class", "nodetext")
+            .attr("dx", 12)
+            .attr("dy", ".35em")
+	    .text(function(d) { return "Test" /*+ d.id*/; });
+
+/*
+        node.append("text")
+            .attr("class", "nodetext")
+            .attr("dx", 12)
+            .attr("dy", ".35em")
+            .text(function(d) {return d.id});
+*/
+
+	vis.selectAll("circle").exit().remove();
+
+	console.debug("d3", d3);
+	console.debug("vis", vis);
+
+	simulation
+	    .nodes(nodes);
+
+	simulation.force("link")
+	    .links(links);
+
+	  simulation.restart();
 
         // Restart the force layout.
-        force.start();
+        //force.start();
     }
 
+function dragstarted(d) {
+console.debug("drag started", d.x, d.y);
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+          d.fy = d.y;
+}
+
+function dragged(d) {
+      d.fx = d3.event.x;
+        d.fy = d3.event.y;
+}
+
+function dragended(d) {
+   if (!d3.event.active) simulation.alphaTarget(0);
+        d.fx = null;
+          d.fy = null;
+          }
     // Make it all go
     // update();
 }
