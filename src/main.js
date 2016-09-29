@@ -47,6 +47,247 @@ var Rectangle = React.createClass({
     }
 });
 
+
+
+var network = {
+    // Start data
+    graph: {
+	"nodes":[
+	],
+	"links":[
+	]
+    },
+    simulation: {},
+    // Graph design
+    width: 1600,
+    height: 1600,
+    lines: {
+	stroke: {
+	    color: "#ccc",
+	    thickness: 2
+	}
+    },
+    nodes: {
+	fill: {
+	    color: "#333"
+	},
+	stroke: {
+	    color: "#fff",
+	    thickness: 3
+	},
+	sizeRange: [8,30]
+    },
+    setup: function(el){
+
+	var i=document.createElement("canvas");
+	i.id = "networkCanvas";
+	i.width = "1600";
+	i.height = "1600";
+	el.appendChild(i);
+	/*
+	   $('<canvas/>').attr({
+	   'id':'networkCanvas',
+	   'width':this.width,
+	   'height':this.height
+	   }).appendTo(el);
+
+*/
+	this.canvas = document.getElementById('networkCanvas');
+	this.context = this.canvas.getContext('2d');
+
+	d3.select(this.canvas)
+	    .on("mousemove", this.mousemoved)
+	    .call(d3.drag()
+		    .subject(this.dragsubject.bind(this))
+		    .on("start", this.dragstarted.bind(this))
+		    .on("drag", this.dragged.bind(this))
+		    .on("end", this.dragended.bind(this)));
+
+	this.simulation = d3.forceSimulation()
+	    .stop()
+	    .force("link",d3.forceLink().id((d)=>{return d.id}))
+	    .force("change",d3.forceManyBody())
+	    .force("center",d3.forceCenter())
+	    // .force("collide",d3.forceCollide().radius((d)=>{return d.force;}).iterations(2))
+	    .on("tick",()=>{
+		this.ticked();
+	    });
+
+	    this.render(this.graph);
+	},
+	  forceScale: function(node){
+	      var scale = d3.scaleLog().domain(this.nodes.sizeRange).range(this.nodes.sizeRange.slice().reverse());
+	      return node.r + scale(node.r);
+	  },
+	render: function(graph){
+	    var countExtent = d3.extent(graph.nodes,function(d){return d.connections}),
+	    radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(this.nodes.sizeRange);
+
+	    // Let D3 figure out the forces
+	    for(var i=0,ii=graph.nodes.length;i<ii;i++) {
+		var node = graph.nodes[i];
+
+		node.r = radiusScale(node.connections);
+		node.force = this.forceScale(node);
+
+
+	    };
+
+	    // Add new data to old data
+	    this.graph.nodes = this.graph.nodes.concat(graph.nodes);
+	    this.graph.links = this.graph.links.concat(graph.links);
+
+	    // Feed to simulation
+	    this.simulation
+		.nodes(this.graph.nodes);
+
+	    this.simulation.force("link")
+		.links(this.graph.links);
+
+	    this.simulation.alpha(0.3).restart();
+	},
+	ticked: function(){
+	  if(!this.graph) {
+			return false;
+		}
+
+		this.context.clearRect(0,0,this.width,this.height);
+		this.context.save();
+		this.context.translate(this.width / 2, this.height / 2);
+
+		this.context.beginPath();
+		this.graph.links.forEach((d)=>{
+			this.context.moveTo(d.source.x, d.source.y);
+			this.context.lineTo(d.target.x, d.target.y);
+		});
+		this.context.strokeStyle = this.lines.stroke.color;
+		this.context.lineWidth = this.lines.stroke.thickness;
+
+		this.context.stroke();
+		
+		this.graph.nodes.forEach((d)=>{
+			this.context.beginPath();
+			
+			this.context.moveTo(d.x + d.r, d.y);
+			this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
+
+			this.context.fillStyle = d.colour;
+			this.context.strokeStyle =this.nodes.stroke.color;
+			this.context.lineWidth = this.nodes.stroke.thickness;
+			this.context.fill();
+			this.context.stroke();
+		});
+	
+		this.context.restore();
+	},
+dragstarted: function() {
+      if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
+        d3.event.subject.fx = d3.event.subject.x;
+          d3.event.subject.fy = d3.event.subject.y;
+},
+dragged: function() {
+      d3.event.subject.fx = d3.event.x;
+        d3.event.subject.fy = d3.event.y;
+},
+dragended: function() {
+      if (!d3.event.active) this.simulation.alphaTarget(0);
+        d3.event.subject.fx = null;
+          d3.event.subject.fy = null;
+},
+dragsubject: function() {
+// find node
+return this.graph.nodes[0];
+
+  return this.simulation.find(d3.event.x, d3.event.y, 20);
+/*
+    for (i = this.graph.nodes.length - 1; i >= 0; --i) {
+            point = this.graph.nodes[i];
+                dx = x - point[0];
+                    dy = y - point[1];
+                        if (dx * dx + dy * dy < radius * radius) {
+                                  point.x = transform.applyX(point[0]);
+                                        point.y = transform.applyY(point[1]);
+                                              return point;
+                                                  }
+                          }
+*/
+
+//      console.debug("drag subject");
+  //  return this.simulation.find(d3.event.x - this.width / 2, d3.event.y - this.height / 2, 1.0);
+},
+
+ mousemoved: function() {
+/*
+    var a = this.parentNode, m = d3.mouse(this), d = this.simulation.find(m[0] - width / 2, m[1] - height / 2, searchRadius);
+    if (!d) return a.removeAttribute("href"), a.removeAttribute("title");
+    a.setAttribute("href", "http://bl.ocks.org/" + (d.user ? d.user + "/" : "") + d.id);
+    a.setAttribute("title", d.id + (d.user ? " by " + d.user : "") + (d.description ? "\n" + d.description : ""));
+*/
+},
+/*
+dragstarted: function() {
+    if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
+    d3.event.subject.fx = d3.event.subject.x;
+    d3.event.subject.fy = d3.event.subject.y;
+},
+
+dragged: function() {
+    d3.event.subject.fx = d3.event.x;
+    d3.event.subject.fy = d3.event.y;
+},
+
+dragended: function() {
+    if (!d3.event.active) this.simulation.alphaTarget(0);
+    d3.event.subject.fx = null;
+    d3.event.subject.fy = null;
+},
+*/
+
+drawLink: function(d) {
+    context.moveTo(d.source.x, d.source.y);
+    context.lineTo(d.target.x, d.target.y);
+},
+
+ drawNode: function(d) {
+    context.moveTo(d.x + 3, d.y);
+    context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
+}
+	
+  
+};
+
+var lastId = 9;
+
+var getRandomColor = function(q){
+    switch (q) {
+	case "willem":
+	    return "red";
+	case "bas":
+	    return "blue";
+	default:
+	    return "green";
+    }
+/*
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+*/
+}
+
+var addNode = function(n, l){
+  var newGraph = {
+    nodes: n,
+    links: l
+  };
+  console.log(newGraph);
+  network.render(newGraph);
+};
+
+
+
 class Graph extends React.Component {
 
   static propTypes = {
@@ -84,8 +325,12 @@ class Graph extends React.Component {
         console.debug("state", this.state);
         console.debug("componentDidMount", this.refs["graph"]);
 
-        this.state.graph = new myGraph(this.refs["graph"]);
+      //  this.state.graph = new myGraph(this.refs["graph"]);
 
+      network.setup(this.refs["graph"]);
+  
+  //$("#addNode").click(addNode);
+//});
         return;
         console.debug("componentdidmount", this.state);
 
@@ -184,18 +429,40 @@ class Graph extends React.Component {
     // componentWillReceiveProps(nextProps) {
         var {graph} = this.state;
 
-        // only new packets!
-        _.forEach(this.props.packets, (d, i) => {
-            graph.addNode(d.fields.document.GetaptTelnr, d);
-            graph.addNode(d.fields.document.Gekozennummer, d);
-            graph.addLink(d.fields.document.GetaptTelnr, d.fields.document.Gekozennummer);
-        });
+	var nodes = [];
+	var links = [];
 
-        this.state.graph.update();
+		// only new packets!
+	_.forEach(this.props.packets, (d, i) => {
+	    nodes.push({
+		id: d.fields.document.GetaptTelnr,
+		query: d.q,
+		name: d.fields.document.GetaptTelnr,
+		colour: getRandomColor(d.q),
+		connections: 1
+	    });
+
+	    nodes.push({
+		id: d.fields.document.Gekozennummer,
+		query: d.q,
+		name: d.fields.document.Gekozennummer,
+		colour: getRandomColor(d.q),
+		connections: 1
+	    });
+
+	    links.push({
+		source: d.fields.document.GetaptTelnr,
+		target: d.fields.document.Gekozennummer
+	    });
+	});
+
+	addNode(nodes, links);
+
+        //this.state.graph.update();
     }
     render() {
         //console.debug("render graph");
-        return <svg ref="graph"></svg>;
+        return <div ref="graph"></div>;
 
         const { nodes, links, edges } = this.state;
 
@@ -287,7 +554,8 @@ class SearchBox extends React.Component {
         e.preventDefault();
 
         let q = this.refs.q.value;
-        this.props.onChange(q);
+this.props.onChange(q);
+
     }
     componentDidUpdate(prevProps, prevState) {
         /*
@@ -739,7 +1007,7 @@ class RootView extends React.Component {
 				<SearchBox isFetching={this.props.isFetching} total={this.props.total} q= { this.state.q } onChange={this.onSearchChange.bind(this)}/>
 			    </div>
 			    <div className="row">
-				<Graph width="1000" height="1000" packets={this.props.packets} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
+				<Graph width="1600" height="1600" packets={this.props.packets} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
 			    </div>
 			</div>
 			<div className="col-xs-3 col-sm-3">
@@ -1029,6 +1297,7 @@ var nodes = [];
 
     console.debug(el);
 
+/*
     var vis = this.vis = d3.select(el)
         .attr("width", width)
         .attr("height", height);
@@ -1052,6 +1321,7 @@ var nodes = [];
 		.attr("cy", function(d) { return d.y; });
 	});
 
+*/
 
     /*
 
@@ -1191,23 +1461,6 @@ var nodes = [];
         //force.start();
     }
 
-function dragstarted(d) {
-console.debug("drag started", d.x, d.y);
-  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-          d.fy = d.y;
-}
-
-function dragged(d) {
-      d.fx = d3.event.x;
-        d.fy = d3.event.y;
-}
-
-function dragended(d) {
-   if (!d3.event.active) simulation.alphaTarget(0);
-        d.fx = null;
-          d.fy = null;
-          }
     // Make it all go
     // update();
 }
