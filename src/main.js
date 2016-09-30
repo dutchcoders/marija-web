@@ -60,7 +60,7 @@ var network = {
     simulation: {},
     // Graph design
     width: 1600,
-    height: 1600,
+    height: 800,
     lines: {
 	stroke: {
 	    color: "#ccc",
@@ -78,20 +78,12 @@ var network = {
 	sizeRange: [8,30]
     },
     setup: function(el){
-
 	var i=document.createElement("canvas");
 	i.id = "networkCanvas";
 	i.width = "1600";
-	i.height = "1600";
+	i.height = "800";
 	el.appendChild(i);
-	/*
-	   $('<canvas/>').attr({
-	   'id':'networkCanvas',
-	   'width':this.width,
-	   'height':this.height
-	   }).appendTo(el);
 
-*/
 	this.canvas = document.getElementById('networkCanvas');
 	this.context = this.canvas.getContext('2d');
 
@@ -123,18 +115,26 @@ var network = {
 	    var countExtent = d3.extent(graph.nodes,function(d){return d.connections}),
 	    radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(this.nodes.sizeRange);
 
-	    // Let D3 figure out the forces
-	    for(var i=0,ii=graph.nodes.length;i<ii;i++) {
-		var node = graph.nodes[i];
+	    var that = this;
+	    _.each(graph.nodes, function(node){
+		var n = _.find(that.graph.nodes, {id: node.id});
+		if (n ) {
+		    // increase number of connections, and radius
+		    n.connections++;
+		n.r = radiusScale(n.connections);
+		n.force = that.forceScale(n);
+// todo(nl5887): add to node that result multiple searches, eg create multiple parts
+		    return;
+		}
 
 		node.r = radiusScale(node.connections);
-		node.force = this.forceScale(node);
+		node.force = that.forceScale(node);
 
-
-	    };
+		that.graph.nodes.push(node);
+	    });
 
 	    // Add new data to old data
-	    this.graph.nodes = this.graph.nodes.concat(graph.nodes);
+	    // this.graph.nodes = this.graph.nodes.concat(graph.nodes);
 	    this.graph.links = this.graph.links.concat(graph.links);
 
 	    // Feed to simulation
@@ -146,135 +146,86 @@ var network = {
 
 	    this.simulation.alpha(0.3).restart();
 	},
-	ticked: function(){
-	  if(!this.graph) {
-			return false;
-		}
+    ticked: function(){
+	if(!this.graph) {
+	    return false;
+	}
 
-		this.context.clearRect(0,0,this.width,this.height);
-		this.context.save();
-		this.context.translate(this.width / 2, this.height / 2);
+	this.context.clearRect(0,0,this.width,this.height);
+	this.context.save();
+	this.context.translate(this.width / 2, this.height / 2);
 
-		this.context.beginPath();
-		this.graph.links.forEach((d)=>{
-			this.context.moveTo(d.source.x, d.source.y);
-			this.context.lineTo(d.target.x, d.target.y);
-		});
-		this.context.strokeStyle = this.lines.stroke.color;
-		this.context.lineWidth = this.lines.stroke.thickness;
+	this.context.beginPath();
 
-		this.context.stroke();
-		
-		this.graph.nodes.forEach((d)=>{
-			this.context.beginPath();
-			
-			this.context.moveTo(d.x + d.r, d.y);
-			this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
+	this.graph.links.forEach((d)=>{
+	    this.context.moveTo(d.source.x, d.source.y);
+	    this.context.lineTo(d.target.x, d.target.y);
+	});
 
-			this.context.fillStyle = d.colour;
-			this.context.strokeStyle =this.nodes.stroke.color;
-			this.context.lineWidth = this.nodes.stroke.thickness;
-			this.context.fill();
-			this.context.stroke();
-		});
-	
-		this.context.restore();
-	},
-dragstarted: function() {
-      if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
-        d3.event.subject.fx = d3.event.subject.x;
-          d3.event.subject.fy = d3.event.subject.y;
+	this.context.strokeStyle = this.lines.stroke.color;
+	this.context.lineWidth = this.lines.stroke.thickness;
+
+	this.context.stroke();
+
+	this.graph.nodes.forEach((d)=>{
+	    this.context.beginPath();
+
+	    this.context.moveTo(d.x + d.r, d.y);
+	    this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
+
+	    this.context.fillStyle = d.color;
+	    this.context.strokeStyle =this.nodes.stroke.color;
+	    this.context.lineWidth = this.nodes.stroke.thickness;
+	    this.context.fill();
+	    this.context.stroke();
+
+this.context.fillStyle = d.color;
+this.context.fillText(d.id,d.x + 5,d.y - 5);
+	});
+
+	this.context.restore();
+    },
+    dragstarted: function() {
+	if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
+	d3.event.subject.fx = d3.event.subject.x;
+	d3.event.subject.fy = d3.event.subject.y;
+    },
+    dragged: function() {
+	d3.event.subject.fx = d3.event.x;
+	d3.event.subject.fy = d3.event.y;
+    },
+    dragended: function() {
+	if (!d3.event.active) this.simulation.alphaTarget(0);
+	d3.event.subject.fx = null;
+	d3.event.subject.fy = null;
+    },
+    dragsubject: function() {
+	// find node
+	//return this.graph.nodes[0];
+console.debug("dragsubject", d3.event, this.simulation.find(d3.event.x, d3.event.y, 20));
+	return this.simulation.find(d3.event.x, d3.event.y, 20);
 },
-dragged: function() {
-      d3.event.subject.fx = d3.event.x;
-        d3.event.subject.fy = d3.event.y;
-},
-dragended: function() {
-      if (!d3.event.active) this.simulation.alphaTarget(0);
-        d3.event.subject.fx = null;
-          d3.event.subject.fy = null;
-},
-dragsubject: function() {
-// find node
-return this.graph.nodes[0];
-
-  return this.simulation.find(d3.event.x, d3.event.y, 20);
-/*
-    for (i = this.graph.nodes.length - 1; i >= 0; --i) {
-            point = this.graph.nodes[i];
-                dx = x - point[0];
-                    dy = y - point[1];
-                        if (dx * dx + dy * dy < radius * radius) {
-                                  point.x = transform.applyX(point[0]);
-                                        point.y = transform.applyY(point[1]);
-                                              return point;
-                                                  }
-                          }
-*/
-
-//      console.debug("drag subject");
-  //  return this.simulation.find(d3.event.x - this.width / 2, d3.event.y - this.height / 2, 1.0);
-},
-
  mousemoved: function() {
-/*
-    var a = this.parentNode, m = d3.mouse(this), d = this.simulation.find(m[0] - width / 2, m[1] - height / 2, searchRadius);
-    if (!d) return a.removeAttribute("href"), a.removeAttribute("title");
-    a.setAttribute("href", "http://bl.ocks.org/" + (d.user ? d.user + "/" : "") + d.id);
-    a.setAttribute("title", d.id + (d.user ? " by " + d.user : "") + (d.description ? "\n" + d.description : ""));
-*/
 },
-/*
-dragstarted: function() {
-    if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
-    d3.event.subject.fx = d3.event.subject.x;
-    d3.event.subject.fy = d3.event.subject.y;
-},
-
-dragged: function() {
-    d3.event.subject.fx = d3.event.x;
-    d3.event.subject.fy = d3.event.y;
-},
-
-dragended: function() {
-    if (!d3.event.active) this.simulation.alphaTarget(0);
-    d3.event.subject.fx = null;
-    d3.event.subject.fy = null;
-},
-*/
-
 drawLink: function(d) {
     context.moveTo(d.source.x, d.source.y);
     context.lineTo(d.target.x, d.target.y);
 },
-
  drawNode: function(d) {
     context.moveTo(d.x + 3, d.y);
     context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
 }
-	
-  
 };
 
 var lastId = 9;
 
 var getRandomColor = function(q){
-    switch (q) {
-	case "willem":
-	    return "red";
-	case "bas":
-	    return "blue";
-	default:
-	    return "green";
-    }
-/*
     var letters = '0123456789ABCDEF';
     var color = '#';
     for (var i = 0; i < 6; i++ ) {
         color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
-*/
 }
 
 var addNode = function(n, l){
@@ -438,7 +389,7 @@ class Graph extends React.Component {
 		id: d.fields.document.GetaptTelnr,
 		query: d.q,
 		name: d.fields.document.GetaptTelnr,
-		colour: getRandomColor(d.q),
+		color: d.color,
 		connections: 1
 	    });
 
@@ -446,7 +397,7 @@ class Graph extends React.Component {
 		id: d.fields.document.Gekozennummer,
 		query: d.q,
 		name: d.fields.document.Gekozennummer,
-		colour: getRandomColor(d.q),
+		color: d.color,
 		connections: 1
 	    });
 
@@ -651,10 +602,11 @@ function entries(state = {
     didInvalidate: false,
     total: 0,
     packets: [],
+    searches: [],
 }, action) {
     switch (action.type) {
         case REQUEST_PACKETS:
-            sock.ws.postMessage({query: action.query});
+            sock.ws.postMessage({query: action.query, color: action.color});
 
             return Object.assign({}, state, {
                 isFetching: true,
@@ -667,18 +619,18 @@ function entries(state = {
                 didInvalidate: false
             })
         case RECEIVE_PACKETS:
+	    state.searches.push({q: action.packets.query, color: action.packets.color, count: action.packets.results.hits.hits.length});
+
             state.packets = _.concat(state.packets, []);
-
-	    console.debug(action.packets);
-
             _.forEach(action.packets.results.hits.hits, (d, i) => {
-                state.packets.push({ q: action.packets.query, fields: d._source});
+                state.packets.push({ q: action.packets.query, color: action.packets.color, fields: d._source});
             });
 
             console.debug("Received packets: ", action.packets);
 
             return Object.assign({}, state, {
                 packets: state.packets,
+		searches: state.searches,
                 isFetching: false,
                 didInvalidate: false
             })
@@ -752,7 +704,7 @@ export default class FlowWS {
     this.websocket.send(
       JSON.stringify({
         event_type: 1,
-        query: data.query,
+        ...data,
       })
     );
   }
@@ -799,17 +751,18 @@ function receiveEntries(entries, opts = {
     }
 }
 
-function requestPackets(query) {
+function requestPackets(opts) {
     return {
         type: REQUEST_PACKETS,
         receivedAt: Date.now(),
-        query: query,
+	...opts,
     }
 }
 
 function receivePackets(packets, opts = {
     from: 0
 }) {
+console.debug("receivePackets", packets);
     return {
         type: RECEIVE_PACKETS,
         packets: packets, // json.data.children.map(child => child.data),
@@ -820,9 +773,12 @@ function receivePackets(packets, opts = {
 function fetchPackets(opts={
     from: 0,
     size: 50,
-    query: ""
+    query: "",
+    color: "", 
 }) {
-    store.dispatch(requestPackets(opts.query));
+console.debug("fetchPackets", opts);
+
+    store.dispatch(requestPackets(opts));
     //sock.ws.postMessage();
     /*
     store.dispatch({
@@ -911,9 +867,8 @@ class RootView extends React.Component {
     }
     onSearchChange(q) {
 	// add query to state
-	this.state.searches.push({q: q});
-
-        fetchPackets({ query: q});
+var color = getRandomColor() ;
+        fetchPackets({ query: q, color: color });
     }
     shouldComponentUpdate(nextProps, nextState) {
         console.debug("shouldComponentUpdate", nextProps);
@@ -990,24 +945,26 @@ class RootView extends React.Component {
 
         var that =this;
 
-        let searches = _.map(this.state.searches, (search) => {
+console.debug("searches", this.props);
+
+        let searches = _.map(this.props.searches, (search) => {
             var divStyle = {
-                // color: that.colorLink(protocol.port),
+                color: search.color,
             };
 
-            return <div style={ divStyle }>{ search.q }</div>
+            return <div style={ divStyle }>{ search.q } ({search.count})</div>
         });
 
 	let results = <Results className="results" />;
 
-        return <div className="container">
+        return <div className="container-fluid">
 		    <div className="row">
 			<div className="col-xs-9 col-sm-9">
 			    <div className="row">
 				<SearchBox isFetching={this.props.isFetching} total={this.props.total} q= { this.state.q } onChange={this.onSearchChange.bind(this)}/>
 			    </div>
 			    <div className="row">
-				<Graph width="1600" height="1600" packets={this.props.packets} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
+				<Graph width="1600" height="800" packets={this.props.packets} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
 			    </div>
 			</div>
 			<div className="col-xs-3 col-sm-3">
@@ -1207,13 +1164,14 @@ class RootView extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
+console.debug("mapStateToProps", state);
     return {
           ...ownProps,
           isFetching: state.entries.isFetching,
           noMoreHits: state.entries.noMoreHits,
           hits: state.entries.hits,
           packets: state.entries.packets,
-          packets2: state.packets,
+	  searches: state.entries.searches,
           aggs: state.entries.aggs,
           total: state.entries.total
     }
