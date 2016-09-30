@@ -87,9 +87,12 @@ var network = {
 	this.canvas = document.getElementById('networkCanvas');
 	this.context = this.canvas.getContext('2d');
 
-	d3.select(this.canvas)
-	    .on("mousemove", this.mousemoved)
+var width = 1600, height=800;
+
+	var canvas = d3.select(this.canvas);
+	canvas
 	    .call(d3.drag()
+	    .container(canvas.node())
 		    .subject(this.dragsubject.bind(this))
 		    .on("start", this.dragstarted.bind(this))
 		    .on("drag", this.dragged.bind(this))
@@ -97,14 +100,29 @@ var network = {
 
 	this.simulation = d3.forceSimulation()
 	    .stop()
-	    .force("link",d3.forceLink().id((d)=>{return d.id}))
-	    .force("change",d3.forceManyBody())
-	    .force("center",d3.forceCenter())
+    .force("link", d3.forceLink().id(function(d) { return d.id; }))
+        .force("charge", d3.forceManyBody()) // .strength(-10).distanceMax(300))
+            //.force("center", d3.forceCenter(width / 2, height / 2))
+.force("center",d3.forceCenter())
+            .force("vertical", d3.forceY().strength(0.018))
+            .force("horizontal", d3.forceX().strength(0.006))
+
+//	    .force("link",d3.forceLink().id((d)=>{return d.id}))
+//	    .force("change",d3.forceManyBody())
+//	    .force("center",d3.forceCenter())
 	    // .force("collide",d3.forceCollide().radius((d)=>{return d.force;}).iterations(2))
 	    .on("tick",()=>{
 		this.ticked();
 	    });
 
+/*
+var zoom = d3.behavior.zoom()
+    .translate([0, 0])
+    .scale(1)
+    .scaleExtent([1, 8])
+    .on("zoom", zoomed);<Paste>
+
+*/
 	    this.render(this.graph);
 	},
 	  forceScale: function(node){
@@ -153,6 +171,7 @@ var network = {
 
 	this.context.clearRect(0,0,this.width,this.height);
 	this.context.save();
+
 	this.context.translate(this.width / 2, this.height / 2);
 
 	this.context.beginPath();
@@ -170,6 +189,7 @@ var network = {
 	this.graph.nodes.forEach((d)=>{
 	    this.context.beginPath();
 
+// for each part
 	    this.context.moveTo(d.x + d.r, d.y);
 	    this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
 
@@ -179,8 +199,8 @@ var network = {
 	    this.context.fill();
 	    this.context.stroke();
 
-this.context.fillStyle = d.color;
-this.context.fillText(d.id,d.x + 5,d.y - 5);
+	    this.context.fillStyle = d.color;
+	    this.context.fillText(d.id,d.x + 5,d.y - 5);
 	});
 
 	this.context.restore();
@@ -200,21 +220,19 @@ this.context.fillText(d.id,d.x + 5,d.y - 5);
 	d3.event.subject.fy = null;
     },
     dragsubject: function() {
-	// find node
-	//return this.graph.nodes[0];
-console.debug("dragsubject", d3.event, this.simulation.find(d3.event.x, d3.event.y, 20));
-	return this.simulation.find(d3.event.x, d3.event.y, 20);
-},
- mousemoved: function() {
-},
-drawLink: function(d) {
-    context.moveTo(d.source.x, d.source.y);
-    context.lineTo(d.target.x, d.target.y);
-},
- drawNode: function(d) {
-    context.moveTo(d.x + 3, d.y);
-    context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
-}
+	// adjust
+	return this.simulation.find(d3.event.x - (this.width / 2), d3.event.y - (this.height / 2), 20);
+    },
+    mousemoved: function() {
+    },
+    drawLink: function(d) {
+	context.moveTo(d.source.x, d.source.y);
+	context.lineTo(d.target.x, d.target.y);
+    },
+    drawNode: function(d) {
+	context.moveTo(d.x + 3, d.y);
+	context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
+    }
 };
 
 var lastId = 9;
