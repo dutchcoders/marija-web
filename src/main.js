@@ -31,6 +31,7 @@ import * as d3 from "d3";
 
 const REQUEST_POSTS = 'REQUEST_POSTS';
 const RECEIVE_POSTS = 'RECEIVE_POSTS';
+const CHANGE_SELECTED_NODE = 'CHANGE_SELECTED_NODE';
 const REQUEST_PACKETS = 'REQUEST_PACKETS';
 const AUTH_CONNECTED = 'AUTH_CONNECTED';
 const RECEIVE_PACKETS = 'RECEIVE_PACKETS';
@@ -50,6 +51,8 @@ var Rectangle = React.createClass({
 
 
 var network = {
+    onmouseover: function(n) {
+    },
     // Start data
     graph: {
 	"nodes":[
@@ -87,12 +90,13 @@ var network = {
 	this.canvas = document.getElementById('networkCanvas');
 	this.context = this.canvas.getContext('2d');
 
-var width = 1600, height=800;
+	var width = 1600, height=800;
 
 	var canvas = d3.select(this.canvas);
 	canvas
+	    .on("mousemove", this.mousemove.bind(this))
 	    .call(d3.drag()
-	    .container(canvas.node())
+		    .container(canvas.node())
 		    .subject(this.dragsubject.bind(this))
 		    .on("start", this.dragstarted.bind(this))
 		    .on("drag", this.dragged.bind(this))
@@ -100,22 +104,23 @@ var width = 1600, height=800;
 
 	this.simulation = d3.forceSimulation()
 	    .stop()
-    .force("link", d3.forceLink().id(function(d) { return d.id; }))
-        .force("charge", d3.forceManyBody()) // .strength(-10).distanceMax(300))
-            //.force("center", d3.forceCenter(width / 2, height / 2))
-.force("center",d3.forceCenter())
-            .force("vertical", d3.forceY().strength(0.018))
-            .force("horizontal", d3.forceX().strength(0.006))
+	    .force("link", d3.forceLink().id(function(d) { return d.id; }))
+	    .force("charge", d3.forceManyBody()) // .strength(-10).distanceMax(300))
+	    //.force("center", d3.forceCenter(width / 2, height / 2))
+	    .force("center",d3.forceCenter())
+	    .force("vertical", d3.forceY().strength(0.018))
+	    .force("horizontal", d3.forceX().strength(0.006))
 
-//	    .force("link",d3.forceLink().id((d)=>{return d.id}))
-//	    .force("change",d3.forceManyBody())
-//	    .force("center",d3.forceCenter())
+	    //	    .force("link",d3.forceLink().id((d)=>{return d.id}))
+	    //	    .force("change",d3.forceManyBody())
+	    //	    .force("center",d3.forceCenter())
 	    // .force("collide",d3.forceCollide().radius((d)=>{return d.force;}).iterations(2))
 	    .on("tick",()=>{
 		this.ticked();
 	    });
 
-/*
+// have a mouse move as well
+	/*
 var zoom = d3.behavior.zoom()
     .translate([0, 0])
     .scale(1)
@@ -125,45 +130,45 @@ var zoom = d3.behavior.zoom()
 */
 	    this.render(this.graph);
 	},
-	  forceScale: function(node){
-	      var scale = d3.scaleLog().domain(this.nodes.sizeRange).range(this.nodes.sizeRange.slice().reverse());
-	      return node.r + scale(node.r);
-	  },
-	render: function(graph){
-	    var countExtent = d3.extent(graph.nodes,function(d){return d.connections}),
-	    radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(this.nodes.sizeRange);
+    forceScale: function(node){
+	var scale = d3.scaleLog().domain(this.nodes.sizeRange).range(this.nodes.sizeRange.slice().reverse());
+	return node.r + scale(node.r);
+    },
+    render: function(graph){
+	var countExtent = d3.extent(graph.nodes,function(d){return d.connections}),
+	radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(this.nodes.sizeRange);
 
-	    var that = this;
-	    _.each(graph.nodes, function(node){
-		var n = _.find(that.graph.nodes, {id: node.id});
-		if (n ) {
-		    // increase number of connections, and radius
-		    n.connections++;
+	var that = this;
+	_.each(graph.nodes, function(node){
+	    var n = _.find(that.graph.nodes, {id: node.id});
+	    if (n ) {
+		n.connections++;
+
 		n.r = radiusScale(n.connections);
 		n.force = that.forceScale(n);
-// todo(nl5887): add to node that result multiple searches, eg create multiple parts
-		    return;
-		}
 
-		node.r = radiusScale(node.connections);
-		node.force = that.forceScale(node);
+		// todo(nl5887): add to node that result multiple searches, eg create multiple parts
+		return;
+	    }
 
-		that.graph.nodes.push(node);
-	    });
+	    node.r = radiusScale(node.connections);
+	    node.force = that.forceScale(node);
+	    that.graph.nodes.push(node);
+	});
 
-	    // Add new data to old data
-	    // this.graph.nodes = this.graph.nodes.concat(graph.nodes);
-	    this.graph.links = this.graph.links.concat(graph.links);
+	// Add new data to old data
+	// this.graph.nodes = this.graph.nodes.concat(graph.nodes);
+	this.graph.links = this.graph.links.concat(graph.links);
 
-	    // Feed to simulation
-	    this.simulation
-		.nodes(this.graph.nodes);
+	// Feed to simulation
+	this.simulation
+	    .nodes(this.graph.nodes);
 
-	    this.simulation.force("link")
-		.links(this.graph.links);
+	this.simulation.force("link")
+	    .links(this.graph.links);
 
-	    this.simulation.alpha(0.3).restart();
-	},
+	this.simulation.alpha(0.3).restart();
+    },
     ticked: function(){
 	if(!this.graph) {
 	    return false;
@@ -189,8 +194,10 @@ var zoom = d3.behavior.zoom()
 	this.graph.nodes.forEach((d)=>{
 	    this.context.beginPath();
 
-// for each part
 	    this.context.moveTo(d.x + d.r, d.y);
+
+	    // for each different query, show a part. This will show that the edge
+	    //  has been found in multiple queries.
 	    this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
 
 	    this.context.fillStyle = d.color;
@@ -204,6 +211,23 @@ var zoom = d3.behavior.zoom()
 	});
 
 	this.context.restore();
+    },
+    mousemove: function() {
+	var subject = this.simulation.find(d3.event.x - (this.width / 2), d3.event.y - (this.height / 2), 20);
+if (subject === undefined) {
+return;
+}
+
+this.onmouseover(subject);
+// this.onnodeover(subject);
+	//console.debug("mousemove", d3.event, subject);
+////subject.color = "#000";
+
+	/*
+	   if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
+	   d3.event.subject.fx = d3.event.subject.x;
+	   d3.event.subject.fy = d3.event.subject.y;
+	   */
     },
     dragstarted: function() {
 	if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
@@ -276,6 +300,9 @@ class Graph extends React.Component {
             clusters: {},
             start: new Date(),
             time: 0,
+	    n: {
+		id: 'test',
+	    },
             ticks: 0
     };
 
@@ -295,6 +322,13 @@ class Graph extends React.Component {
         console.debug("componentDidMount", this.refs["graph"]);
 
       //  this.state.graph = new myGraph(this.refs["graph"]);
+
+	var $this = this;
+
+	network.onmouseover = function(n) {
+	    console.debug("onmouse over node", n, this);
+	    store.dispatch(changeSelectedNode({node:n}));
+	}.bind(this);
 
       network.setup(this.refs["graph"]);
   
@@ -484,6 +518,7 @@ class Graph extends React.Component {
         });
         return (
                 <div>
+		    { this.state.n.id }
                     <svg {...this.props}>
                     {lines}
                     {circles}
@@ -619,10 +654,16 @@ function entries(state = {
     noMoreHits: false,
     didInvalidate: false,
     total: 0,
+    node: null,
     packets: [],
     searches: [],
 }, action) {
     switch (action.type) {
+        case CHANGE_SELECTED_NODE:
+console.debug("selected node", action);
+            return Object.assign({}, state, {
+		node: action.node,
+            })
         case REQUEST_PACKETS:
             sock.ws.postMessage({query: action.query, color: action.color});
 
@@ -766,6 +807,14 @@ function receiveEntries(entries, opts = {
         from: opts.from,
         entries: entries, // json.data.children.map(child => child.data),
         receivedAt: Date.now()
+    }
+}
+
+function changeSelectedNode(opts) {
+    return {
+        type: CHANGE_SELECTED_NODE,
+        receivedAt: Date.now(),
+	...opts,
     }
 }
 
@@ -973,8 +1022,26 @@ console.debug("searches", this.props);
             return <div style={ divStyle }>{ search.q } ({search.count})</div>
         });
 
+let node = null;
+
+if (this.props.node) {
+        node = _.map(this.props.packets, (packet) => {
+		if (packet.fields.document.GetaptTelnr!=this.props.node.id &&
+			packet.fields.document.Gekozennummer!=this.props.node.id) {
+			return;
+		}
+		return <div> 
+			    <div>{ packet.fields.document.GetaptTelnr }</div>
+			    <div>{ packet.fields.document.Gekozennummer }</div>
+			    <div>{ packet.fields.document.BEVINDINGEN }</div>
+			    <div>{ packet.fields.document.GETAPT_PERSOON }</div>
+			</div>;
+	});
+}
+
 	let results = <Results className="results" />;
 
+console.debug(this.props);
         return <div className="container-fluid">
 		    <div className="row">
 			<div className="col-xs-9 col-sm-9">
@@ -994,6 +1061,9 @@ console.debug("searches", this.props);
 			    </div>
 			    <div className="row">
 			    { results }
+			    </div>
+			    <div className="row">
+			    {node}
 			    </div>
 			</div>
 		    </div>
@@ -1188,6 +1258,7 @@ console.debug("mapStateToProps", state);
           isFetching: state.entries.isFetching,
           noMoreHits: state.entries.noMoreHits,
           hits: state.entries.hits,
+          node: state.entries.node,
           packets: state.entries.packets,
 	  searches: state.entries.searches,
           aggs: state.entries.aggs,
