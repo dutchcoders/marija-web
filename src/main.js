@@ -28,6 +28,7 @@ import * as d3 from "d3";
 const REQUEST_POSTS = 'REQUEST_POSTS';
 const RECEIVE_POSTS = 'RECEIVE_POSTS';
 const SELECT_NODE = 'SELECT_NODE';
+const HIGHLIGHT_NODES = 'HIGHLIGHT_NODES';
 const CLEAR_SELECTION = 'CLEAR_SELECTION';
 const REQUEST_PACKETS = 'REQUEST_PACKETS';
 const AUTH_CONNECTED = 'AUTH_CONNECTED';
@@ -41,6 +42,8 @@ var network = {
 	"nodes":[
 	],
 	"links":[
+	],
+	"highlight_nodes": [
 	]
     },
     simulation: {},
@@ -113,6 +116,9 @@ var network = {
 	var scale = d3.scaleLog().domain(this.nodes.sizeRange).range(this.nodes.sizeRange.slice().reverse());
 	return node.r + scale(node.r);
     },
+    highlight: function(nodes){
+	this.graph.highlight_nodes = nodes;
+    },
     render: function(graph){
 	var countExtent = d3.extent(graph.nodes,function(d){return d.connections}),
 	radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(this.nodes.sizeRange);
@@ -176,13 +182,20 @@ var network = {
 	    //  has been found in multiple queries.
 	    this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
 
-	    this.context.fillStyle = d.color;
+	    var color = d.color;
+	    if ( _.findIndex(this.graph.highlight_nodes, function(o) {
+		return o == d.id
+	    })!=-1) {
+		color = "black";
+	    }
+
+	    this.context.fillStyle = color;
 	    this.context.strokeStyle =this.nodes.stroke.color;
 	    this.context.lineWidth = this.nodes.stroke.thickness;
 	    this.context.fill();
 	    this.context.stroke();
 
-	    this.context.fillStyle = d.color;
+	    this.context.fillStyle = color;
 	    this.context.fillText(d.id,d.x + 5,d.y - 5);
 	});
 
@@ -247,6 +260,7 @@ class Graph extends React.Component {
     this.state = {
 	nodes: [],
 	links: [],
+	highlight_nodes: [],
 	edges: [],
 	clusters: {},
 	start: new Date(),
@@ -287,9 +301,9 @@ class Graph extends React.Component {
         console.debug("will receive props", nextProps);
     }
     componentDidUpdate(prevProps, prevState) {
-
+	console.debug("highlight", this.props.highlight_nodes);
         console.debug("updated", this.props.packets);
-    // componentWillReceiveProps(nextProps) {
+
         var {graph} = this.state;
 
 	var nodes = [];
@@ -321,8 +335,10 @@ class Graph extends React.Component {
 
 	network.render({
 	    nodes: nodes,
-	    links: links
+	    links: links,
 	});
+
+	    network.highlight(this.props.highlight_nodes);
     }
     render() {
         return <div ref="graph"></div>;
@@ -368,6 +384,7 @@ function entries(state = {
     didInvalidate: false,
     total: 0,
     node: [],
+    highlight_nodes: [],
     packets: [],
     searches: [],
 }, action) {
@@ -375,6 +392,10 @@ function entries(state = {
 	case CLEAR_SELECTION:
 	    return Object.assign({}, state, {
 		node: [],
+	    })
+	case HIGHLIGHT_NODES:
+	    return Object.assign({}, state, {
+		highlight_nodes: action.nodes,
 	    })
 	case SELECT_NODE:
 /*
@@ -552,6 +573,14 @@ function selectNode(opts) {
     }
 }
 
+function highlightNodes(opts) {
+    return {
+        type: HIGHLIGHT_NODES,
+        receivedAt: Date.now(),
+	...opts,
+    }
+}
+
 function fetchPackets(opts={
     from: 0,
     size: 50,
@@ -632,6 +661,10 @@ class RootView extends React.Component {
     handleClearSelection() {
 	store.dispatch(clearSelection());
     }
+    handleMouseOver(nr1, nr2) {
+	console.debug("test", "getapttelnr", nr1, nr2);
+	store.dispatch(highlightNodes({ nodes: [nr1, nr2] }));
+    }
     render() {
         if (this.state.error != null) {
             return <div>{this.state.error.code}</div>
@@ -658,7 +691,7 @@ class RootView extends React.Component {
 			    packet.fields.document.Gekozennummer!=node.id) {
 			return;
 		    }
-		    return <div> 
+		    return <div onMouseOver={ this.handleMouseOver.bind(this, packet.fields.document.GetaptTelnr, packet.fields.document.Gekozennummer  ) }> 
 			    <div>
 				<span>{ packet.fields.document.GetaptTelnr }</span> -&gt; <span>{ packet.fields.document.Gekozennummer }</span>	
 			    </div>
@@ -677,7 +710,7 @@ class RootView extends React.Component {
 				<SearchBox isFetching={this.props.isFetching} total={this.props.total} q= { this.state.q } onSubmit={this.onSearchSubmit.bind(this)}/>
 			    </div>
 			    <div className="row">
-				<Graph width="1600" height="800" packets={this.props.packets} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
+				<Graph width="1600" height="800" packets={this.props.packets} highlight_nodes={this.props.highlight_nodes} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
 			    </div>
 			</div>
 			<div className="col-xs-3 col-sm-3">
@@ -715,6 +748,7 @@ const mapStateToProps = (state, ownProps) => {
           node: state.entries.node,
           packets: state.entries.packets,
 	  searches: state.entries.searches,
+	  highlight_nodes: state.entries.highlight_nodes,
           aggs: state.entries.aggs,
           total: state.entries.total
     }
