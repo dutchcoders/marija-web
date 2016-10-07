@@ -309,28 +309,29 @@ class Graph extends React.Component {
 	var nodes = [];
 	var links = [];
 
-		// only new packets!
+        var fields = this.props.fields;
+        // only new packets!
 	_.forEach(this.props.packets, (d, i) => {
-	    nodes.push({
-		id: d.fields.document.GetaptTelnr,
-		query: d.q,
-		name: d.fields.document.GetaptTelnr,
-		color: d.color,
-		connections: 1
-	    });
+            // should we hash the id?
+            _.forEach(fields, (field) => {
+                nodes.push({
+                    id: d.fields.document[field],
+                    query: d.q,
+                    name: d.fields.document[field],
+                    color: d.color,
+                    connections: 1
+                });
+            });
 
-	    nodes.push({
-		id: d.fields.document.Gekozennummer,
-		query: d.q,
-		name: d.fields.document.Gekozennummer,
-		color: d.color,
-		connections: 1
-	    });
-
-	    links.push({
-		source: d.fields.document.GetaptTelnr,
-		target: d.fields.document.Gekozennummer
-	    });
+            // create links of every possible source and target combination
+            _.forEach(fields, (source) => {
+                _.forEach(fields, (target) => {
+                    links.push({
+                        source: d.fields.document[source],
+                        target: d.fields.document[target],
+                    });
+                });
+            });
 	});
 
 	network.render({
@@ -338,7 +339,7 @@ class Graph extends React.Component {
 	    links: links,
 	});
 
-	    network.highlight(this.props.highlight_nodes);
+        network.highlight(this.props.highlight_nodes);
     }
     render() {
         return <div ref="graph"></div>;
@@ -356,23 +357,38 @@ class SearchBox extends React.Component {
         super(props);
 
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.state = { q: props.q };
+        this.state = { 
+            q: props.q, 
+            selectValue: this.props.indexes[0], 
+        };
     }
     handleSubmit(e) {
 	e.preventDefault();
 
-	let q = this.refs.q.value;
-	this.props.onSubmit(q);
+        let q = this.refs.q.value;
+        this.props.onSubmit(q, this.state.selectValue);
+    }
+    handleChange(e){
+        this.setState({selectValue:e.target.value});
     }
     componentDidUpdate(prevProps, prevState) {
     }
     render() {
+	let indexes = null;
+	if (this.props.indexes) {
+	    let options = _.map(this.props.indexes, (index) => {
+                return <option value={index}>{ index }</option>;
+	    });
+            indexes = <select onChange={this.handleChange.bind(this)} value={this.state.selectValue}>{options}</select>;
+	}
+
         let loader = classNames({ 'sk-search-box__loader': true, 'sk-spinning-loader': true, 'is-hidden': !this.props.isFetching });
         return <div className="sk-search-box">
-                    <form onSubmit={this.handleSubmit}>
+                    <form onSubmit={this.handleSubmit.bind(this)}>
                          <div className="sk-search-box__icon glyphicon glyphicon-search" ></div>
                          <input ref="q" className="" placeholder="query" /*onChange={this.onChange.bind(this)}*/ value={ this.state.q }/>
                         <div data-qa="loader" className={loader}></div>
+                        { indexes }
                     </form>
                 </div>
     }
@@ -385,6 +401,14 @@ function entries(state = {
     total: 0,
     node: [],
     highlight_nodes: [],
+    fields: [
+        "GetaptTelnr", 
+        "Gekozennummer"
+    ],
+    indexes: [
+        "http://172.16.84.1:9200/octopus/",
+        "http://127.0.0.1:9200/octopus/",
+    ],
     packets: [],
     searches: [],
 }, action) {
@@ -415,7 +439,7 @@ function entries(state = {
 		node: nodes,
 	    })
 	case REQUEST_PACKETS:
-	    sock.ws.postMessage({query: action.query, color: action.color});
+	    sock.ws.postMessage({query: action.query, index: action.index, color: action.color});
 
 	    return Object.assign({}, state, {
 		isFetching: true,
@@ -520,7 +544,8 @@ export default class FlowWS {
 
 const sock = {
     ws: null,
-    URL: 'ws://127.0.0.1:8089/ws',
+    URL: 'ws://' + "127.0.0.1:8089" + '/ws',
+    // URL: 'ws://' + location.host + '/ws',
     wsDispatcher: (msg) => {
 	const { session } = store.getState();
 	console.debug("wsDispatcher", store.getState());
@@ -584,6 +609,7 @@ function highlightNodes(opts) {
 function fetchPackets(opts={
     from: 0,
     size: 50,
+    index: "",
     query: "",
     color: "", 
 }) {
@@ -645,8 +671,8 @@ class RootView extends React.Component {
     }
     loadMoreItems() {
     }
-    onSearchSubmit(q) {
-        fetchPackets({ query: q, color: getRandomColor() });
+    onSearchSubmit(q, index) {
+        fetchPackets({ query: q, index: index, color: getRandomColor() });
     }
     shouldComponentUpdate(nextProps, nextState) {
         console.debug("shouldComponentUpdate", nextProps);
@@ -672,8 +698,6 @@ class RootView extends React.Component {
 
         var that =this;
 
-	console.debug("searches", this.props);
-
         let searches = _.map(this.props.searches, (search) => {
             var divStyle = {
                 color: search.color,
@@ -683,7 +707,6 @@ class RootView extends React.Component {
         });
 
 	let nodes = null;
-
 	if (this.props.node) {
 	    nodes = _.map(this.props.node, (node) => {
 		return  _.map(this.props.packets, (packet) => {
@@ -703,14 +726,22 @@ class RootView extends React.Component {
 	    });
 	}
 
+	let fields = null;
+	if (this.props.fields) {
+	    let options = _.map(this.props.fields, (field) => {
+                return <option value={ field }>{ field }</option>;
+	    });
+            fields = <select>{ options }</select>;
+	}
+
         return <div className="container-fluid">
 		    <div className="row">
 			<div className="col-xs-9 col-sm-9">
 			    <div className="row">
-				<SearchBox isFetching={this.props.isFetching} total={this.props.total} q= { this.state.q } onSubmit={this.onSearchSubmit.bind(this)}/>
+				<SearchBox isFetching={this.props.isFetching} total={this.props.total} q= { this.state.q } onSubmit={this.onSearchSubmit.bind(this)} indexes = {this.props.indexes}/>
 			    </div>
 			    <div className="row">
-				<Graph width="1600" height="800" packets={this.props.packets} highlight_nodes={this.props.highlight_nodes} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
+				<Graph width="1600" height="800" fields={this.props.fields} packets={this.props.packets} highlight_nodes={this.props.highlight_nodes} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
 			    </div>
 			</div>
 			<div className="col-xs-3 col-sm-3">
@@ -731,6 +762,7 @@ class RootView extends React.Component {
 		    <div className="row">
                     </div>
 		    <div className="row">
+                        { fields }
                     </div>
                     <div className="row">
                     </div>
@@ -747,6 +779,8 @@ const mapStateToProps = (state, ownProps) => {
           hits: state.entries.hits,
           node: state.entries.node,
           packets: state.entries.packets,
+          indexes: state.entries.indexes,
+          fields: state.entries.fields,
 	  searches: state.entries.searches,
 	  highlight_nodes: state.entries.highlight_nodes,
           aggs: state.entries.aggs,
