@@ -7,12 +7,15 @@ import {Table, Column, Cell} from 'fixed-data-table';
 import _ from 'lodash';
 import { browserHistory, Router, Route, Link } from 'react-router'
 import { Provider } from 'react-redux'
-import { dispatch, createStore, combineReducers, applyMiddleware } from 'redux'
+import { dispatch, compose, createStore, combineReducers, applyMiddleware } from 'redux'
 import { connect } from 'react-redux'
 import * as redux from 'redux'
 import {Intl,FormattedDate, FormattedNumber}  from 'react-intl-es6'
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
 import ReactList from 'react-list';
+
+import SkyLight from 'react-skylight';
+
 
 import ipaddr from "ipaddr.js";
 import Waypoint from 'react-waypoint';
@@ -30,6 +33,10 @@ const RECEIVE_POSTS = 'RECEIVE_POSTS';
 const SELECT_NODE = 'SELECT_NODE';
 const HIGHLIGHT_NODES = 'HIGHLIGHT_NODES';
 const CLEAR_SELECTION = 'CLEAR_SELECTION';
+const ADD_FIELD = 'ADD_FIELD';
+const DELETE_FIELD = 'DELETE_FIELD';
+const ADD_INDEX = 'ADD_INDEX';
+const DELETE_INDEX = 'DELETE_INDEX';
 const REQUEST_PACKETS = 'REQUEST_PACKETS';
 const AUTH_CONNECTED = 'AUTH_CONNECTED';
 const RECEIVE_PACKETS = 'RECEIVE_PACKETS';
@@ -123,6 +130,8 @@ var network = {
 	var countExtent = d3.extent(graph.nodes,function(d){return d.connections}),
 	radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(this.nodes.sizeRange);
 
+        var newNodes = false;
+
 	var that = this;
 	_.each(graph.nodes, function(node){
 	    var n = _.find(that.graph.nodes, {id: node.id});
@@ -130,18 +139,23 @@ var network = {
 		n.connections++;
 
 		n.r = radiusScale(n.connections);
-		n.force = that.forceScale(n);
+		//n.force = that.forceScale(n);
 
 		// todo(nl5887): add to node that result multiple searches, eg create multiple parts
 		return;
 	    }
 
 	    node.r = radiusScale(node.connections);
-	    node.force = that.forceScale(node);
+	    //node.force = that.forceScale(node);
 	    that.graph.nodes.push(node);
+
+            newNodes = true;
 	});
 
 	this.graph.links = this.graph.links.concat(graph.links);
+
+        if (!newNodes) 
+            return;
 
 	this.simulation
 	    .nodes(this.graph.nodes);
@@ -309,35 +323,47 @@ class Graph extends React.Component {
 	var nodes = [];
 	var links = [];
 
-        var fields = this.props.fields;
-        // only new packets!
-	_.forEach(this.props.packets, (d, i) => {
-            // should we hash the id?
-            _.forEach(fields, (field) => {
-                nodes.push({
-                    id: d.fields.document[field],
-                    query: d.q,
-                    name: d.fields.document[field],
-                    color: d.color,
-                    connections: 1
-                });
-            });
+        if (this.props.packets.length > 0) {
+            var fields = this.props.fields;
+            // only new packets!
+            _.forEach(this.props.packets, (d, i) => {
+                // should we hash the id?
+                _.forEach(fields, (field) => {
+                    if (d.fields.document[field] === undefined)
+                            return;
 
-            // create links of every possible source and target combination
-            _.forEach(fields, (source) => {
-                _.forEach(fields, (target) => {
-                    links.push({
-                        source: d.fields.document[source],
-                        target: d.fields.document[target],
+                    nodes.push({
+                        id: d.fields.document[field],
+                        query: d.q,
+                        name: d.fields.document[field],
+                        color: d.color,
+                        connections: 1
+                    });
+                });
+
+                // create links of every possible source and target combination
+                _.forEach(fields, (source) => {
+                    if (d.fields.document[source] === undefined)
+                        return;
+                    _.forEach(fields, (target) => {
+                        if (d.fields.document[target] === undefined)
+                            return;
+
+                        links.push({
+                            source: d.fields.document[source],
+                            target: d.fields.document[target],
+                        });
                     });
                 });
             });
-	});
 
-	network.render({
-	    nodes: nodes,
-	    links: links,
-	});
+            console.debug("added new nodes.");
+
+            network.render({
+                nodes: nodes,
+                links: links,
+            });
+        }
 
         network.highlight(this.props.highlight_nodes);
     }
@@ -373,24 +399,39 @@ class SearchBox extends React.Component {
     }
     componentDidUpdate(prevProps, prevState) {
     }
+    handleDeleteIndex(field, e) {
+	e.preventDefault();
+
+	store.dispatch(deleteIndex(field));
+    }
+    handleAddIndex(e) {
+	e.preventDefault();
+
+        let index = this.refs.index.value;
+	store.dispatch(addIndex(index));
+    }
     render() {
 	let indexes = null;
 	if (this.props.indexes) {
 	    let options = _.map(this.props.indexes, (index) => {
                 return <option value={index}>{ index }</option>;
 	    });
-            indexes = <select onChange={this.handleChange.bind(this)} value={this.state.selectValue}>{options}</select>;
+            indexes = <div>
+                <select onChange={this.handleChange.bind(this)} value={this.state.selectValue}>{options}</select>
+                </div>;
 	}
+        
 
         let loader = classNames({ 'sk-search-box__loader': true, 'sk-spinning-loader': true, 'is-hidden': !this.props.isFetching });
-        return <div className="sk-search-box">
+        return <div className="col-md-offset-2 col-sm-offset-2 col-xs-offset-1 col-xs-10 col-sm-8 col-md-8 col-lg-6">
+                 <div className="form-group">
                     <form onSubmit={this.handleSubmit.bind(this)}>
-                         <div className="sk-search-box__icon glyphicon glyphicon-search" ></div>
-                         <input ref="q" className="" placeholder="query" /*onChange={this.onChange.bind(this)}*/ value={ this.state.q }/>
+                         <input ref="q" className="form-control" placeholder="query" /*onChange={this.onChange.bind(this)}*/ value={ this.state.q } />
                         <div data-qa="loader" className={loader}></div>
                         { indexes }
                     </form>
                 </div>
+            </div>
     }
 }
 
@@ -402,12 +443,16 @@ function entries(state = {
     node: [],
     highlight_nodes: [],
     fields: [
+        /*
         "GetaptTelnr", 
         "Gekozennummer"
+        */
     ],
     indexes: [
+        /*
         "http://172.16.84.1:9200/octopus/",
         "http://127.0.0.1:9200/octopus/",
+        */
     ],
     packets: [],
     searches: [],
@@ -416,6 +461,26 @@ function entries(state = {
 	case CLEAR_SELECTION:
 	    return Object.assign({}, state, {
 		node: [],
+	    })
+	case ADD_INDEX:
+	    var indexes = _.concat(state.indexes, action.index);
+	    return Object.assign({}, state, {
+		indexes: indexes,
+	    })
+	case DELETE_INDEX:
+	    var indexes = _.without(state.indexes,  action.index);
+	    return Object.assign({}, state, {
+		indexes: indexes,
+	    })
+	case ADD_FIELD:
+	    var fields = _.concat(state.fields, action.field);
+	    return Object.assign({}, state, {
+		fields: fields,
+	    })
+	case DELETE_FIELD:
+	    var fields = _.without(state.fields,  action.field);
+	    return Object.assign({}, state, {
+		fields: fields,
 	    })
 	case HIGHLIGHT_NODES:
 	    return Object.assign({}, state, {
@@ -492,18 +557,95 @@ function entries(state = {
     }
 }
 
-function configureStore(initialState) {
+
+function persistState(paths, config) {
+    return (next) => (reducer, initialState, enhancer) => {
+        if (typeof initialState === 'function' && typeof enhancer === 'undefined') {
+            enhancer = initialState
+                initialState = {
+                    entries: {
+                        indexes: [
+                            "http://127.0.0.1:9200/",
+                        ],
+                    }
+                }
+        }
+
+        try {
+            initialState.entries.fields = JSON.parse(localStorage.getItem("fields"))
+        } catch (e) {
+            console.warn('Failed to retrieve initialize state from localStorage:', e)
+        }
+
+        try {
+            initialState.entries.indexes = _.concat(initialState.entries.indexes, JSON.parse(localStorage.getItem("indexes")));
+        } catch (e) {
+            console.warn('Failed to retrieve initialize state from localStorage:', e)
+        }
+
+        console.debug("initialState", initialState);
+
+        const store = next(reducer, initialState, enhancer)
+
+        store.subscribe(() => {
+            const state = store.getState();
+
+            try {
+                localStorage.setItem("fields", JSON.stringify(state.entries.fields))
+            } catch (e) {
+                console.warn('Unable to persist state to localStorage:', e)
+            }
+
+            try {
+                localStorage.setItem("indexes", JSON.stringify(state.entries.indexes))
+            } catch (e) {
+                console.warn('Unable to persist state to localStorage:', e)
+            }
+        })
+
+
+            console.debug(store);
+
+
+        return store;
+    }
+}
+
+function configureStore() {
     return createStore(
 	    combineReducers({
 		entries,
 		routing: routerReducer
 	    }),
-	    initialState,
-	    applyMiddleware()
-    )
+            {
+                entries: {
+                    isFetching: false,
+                    noMoreHits: false,
+                    didInvalidate: false,
+                    total: 0,
+                    node: [],
+                    highlight_nodes: [],
+                    fields: [
+                        /*
+                           "GetaptTelnr", 
+                           "Gekozennummer"
+                           */
+                    ],
+                    indexes: [
+                        /*
+                        "http://172.16.84.1:9200/octopus/",
+                        "http://127.0.0.1:9200/octopus/",
+                        */
+                    ],
+                    packets: [],
+                    searches: [],
+                },
+            },
+            compose(persistState(/*paths, config*/))
+                )
 }
 
-const store = configureStore();
+const store = configureStore({});
 
 function authConnected() {
     return {
@@ -581,6 +723,38 @@ function receiveEntries(entries, opts = {
         receivedAt: Date.now()
     }
 }
+
+function addIndex(index) {
+    return {
+        type: ADD_INDEX,
+        receivedAt: Date.now(),
+	index: index,
+    }
+}
+
+function deleteIndex(index) {
+    return {
+        type: DELETE_INDEX,
+        receivedAt: Date.now(),
+	index: index,
+    }
+}
+function addField(field) {
+    return {
+        type: ADD_FIELD,
+        receivedAt: Date.now(),
+	field: field,
+    }
+}
+
+function deleteField(field) {
+    return {
+        type: DELETE_FIELD,
+        receivedAt: Date.now(),
+	field: field,
+    }
+}
+
 
 function clearSelection(opts) {
     return {
@@ -681,6 +855,20 @@ class RootView extends React.Component {
     componentWillReceiveProps(nextProps) {
         console.debug("componentWillReceiveProps", nextProps);
     }
+    handleDeleteField(field, e) {
+	e.preventDefault();
+
+	store.dispatch(deleteField(field));
+    }
+    handleAddField(e) {
+	e.preventDefault();
+
+        let field = this.refs.field.value;
+	store.dispatch(addField(field));
+    }
+    handleChange(e){
+        this.setState({selectValue:e.target.value});
+    }
     handleMouseOver(node) {
         this.setState({currentNode: node});
     }
@@ -690,6 +878,28 @@ class RootView extends React.Component {
     handleMouseOver(nr1, nr2) {
 	console.debug("test", "getapttelnr", nr1, nr2);
 	store.dispatch(highlightNodes({ nodes: [nr1, nr2] }));
+    }
+    handleDeleteIndex(field, e) {
+	e.preventDefault();
+
+	store.dispatch(deleteIndex(field));
+    }
+    handleAddIndex(e) {
+	e.preventDefault();
+
+        let index = this.refs.index.value;
+	store.dispatch(addIndex(index));
+    }
+    handleDeleteField(field, e) {
+	e.preventDefault();
+
+	store.dispatch(deleteField(field));
+    }
+    handleAddField(e) {
+	e.preventDefault();
+
+        let field = this.refs.field.value;
+	store.dispatch(addField(field));
     }
     render() {
         if (this.state.error != null) {
@@ -727,11 +937,26 @@ class RootView extends React.Component {
 	}
 
 	let fields = null;
-	if (this.props.fields) {
-	    let options = _.map(this.props.fields, (field) => {
-                return <option value={ field }>{ field }</option>;
+	if (this.props.fields || []) {
+	    let options = _.map(this.props.fields || [], (field) => {
+                return <li value={ field }>{ field } <button onClick={this.handleDeleteField.bind(this, field) }>x</button></li>;
 	    });
-            fields = <select>{ options }</select>;
+            fields = <div><h2>Fields</h2>
+                <ul>{ options }</ul>
+                    <form onSubmit={this.handleAddField.bind(this)}>
+                <input type="text" ref="field" />
+                </form>
+            </div>;
+	}
+
+	let indexes = null;
+	if (this.props.indexes) {
+	    let options = _.map(this.props.indexes, (index) => {
+                return <li value={index}>{ index }<button onClick={this.handleDeleteIndex.bind(this, index) }>x</button></li>;
+	    });
+            indexes = <div>
+                <ul onChange={this.handleChange.bind(this)} value={this.state.selectValue}>{options}</ul>
+                </div>;
 	}
 
         return <div className="container-fluid">
@@ -762,12 +987,33 @@ class RootView extends React.Component {
 		    <div className="row">
                     </div>
 		    <div className="row">
-                        { fields }
                     </div>
                     <div className="row">
                     </div>
-		    <footer>footer</footer>
-            </div>;
+        <section>
+          <button onClick={() => this.refs.dialogWithCallBacks.show()}>Configure</button>
+        </section>
+        <SkyLight
+            ref="dialogWithCallBacks"
+            title="add Index">
+            <div className="col-md-offset-2 col-sm-offset-2 col-xs-offset-1 col-xs-10 col-sm-8 col-md-8 col-lg-6">
+                <div className="form-group">
+                <h2>Indexes</h2>
+                { indexes }
+                </div>
+                <div className="form-group">
+                    <form onSubmit={this.handleAddIndex.bind(this)}>
+                        <input type="text" ref="index" />
+                    </form>
+                </div>
+                <h2>Fields</h2>
+                <div className="form-group">
+                { fields }
+                </div>
+            </div>
+        </SkyLight>
+        <footer>footer</footer>
+        </div>;
     }
 }
 
