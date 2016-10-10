@@ -60,7 +60,7 @@ var network = {
     lines: {
 	stroke: {
 	    color: "#ccc",
-	    thickness: 2
+	    thickness: 1
 	}
     },
     nodes: {
@@ -92,16 +92,27 @@ var network = {
 
 	var canvas = d3.select(this.canvas);
 
-	canvas.on("mousedown.drag", this.mousedown.bind(this))
-            .on("mousemove.drag", this.mousemove.bind(this))
-            .on("mouseup.drag", this.mouseup.bind(this))
+	canvas.on("mousedown", this.mousedown.bind(this))
+            .on("mousemove", this.mousemove.bind(this))
+            .on("mouseup", this.mouseup.bind(this))
             .call(d3.drag()
+                    .filter(() => {
+                        // console.debug("drag filter", d3.event);
+                        return d3.event.altKey;
+                    })
 		    .subject(this.dragsubject.bind(this))
 		    .on("start", this.dragstarted.bind(this))
 		    .on("drag", this.dragged.bind(this))
 		    .on("end", this.dragended.bind(this))
-		)
-            .call(d3.zoom().scaleExtent([1 / 2, 8]).on("zoom", this.zoomed.bind(this)))
+            )
+            .call(d3.zoom()
+                    .filter(() => {
+                        // console.debug("zoom filter", d3.event);
+                        return d3.event.altKey;
+                    })
+                    .scaleExtent([1 / 2, 8])
+                    .on("zoom", this.zoomed.bind(this))
+            )
             .on("start.render drag.render end.render", this.ticked);
 
 	this.simulation = d3.forceSimulation()
@@ -159,6 +170,7 @@ var network = {
 		return;
 	    }
 
+            node.selected = false;
 	    node.r = radiusScale(node.connections);
             node.color = [node.color];
             node.query = [node.query];
@@ -243,9 +255,11 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
                 this.context.fillStyle = color;
                 this.context.fill();
 
-                //this.context.strokeStyle =color;
-                //this.context.lineWidth = this.nodes.stroke.thickness;
-                //this.context.stroke();
+                if (d.selected) {
+                    this.context.strokeStyle = '#993833';
+                    this.context.lineWidth = this.nodes.stroke.thickness;
+                    this.context.stroke();
+                }
 
             }
             /*
@@ -265,24 +279,36 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
           var x = this.graph.transform.invertX(d3.event.layerX),
               y = this.graph.transform.invertY(d3.event.layerY);
 
+          if (d3.event.altKeys) {
+              return;
+          }
+
 	var subject = this.simulation.find(x, y, 20);
 	if (subject === undefined) {
-            console.debug("mousedown, no sel");
+            console.debug("mousedown, no sel", d3.event);
             this.graph.selection = {x1: x, y1: y, x2: x, y2: y};
             this.ticked();
 	    return;
 	} else {
             console.debug("mousedown Subject", subject);
+
+            subject.selected = !subject.selected;
+
             this.onmouseclick(subject);
         }
     },
     mouseup: function() {
           var x = this.graph.transform.invertX(d3.event.layerX),
               y = this.graph.transform.invertY(d3.event.layerY);
+          
+          // find all nodes within selection and highliht
+
+          console.debug("mouseup");
+
+            this.graph.selection = null;
 
             this.ticked();
 
-            this.graph.selection = null;
     },
     mousemove: function(n) {
           var x = this.graph.transform.invertX(d3.event.layerX),
@@ -290,6 +316,19 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
 
           if (this.graph.selection) {
             this.graph.selection = _.assign(this.graph.selection, {x2:x, y2:y});
+
+          this.graph.nodes.forEach((d)=>{
+              if ((d.x > this.graph.selection.x1 && d.x < this.graph.selection.x2) &&
+                      (d.y > this.graph.selection.y1 && d.y < this.graph.selection.y2)) {
+                  d.selected = true;
+              }
+
+              if ((d.x > this.graph.selection.x2 && d.x < this.graph.selection.x1) &&
+                      (d.y > this.graph.selection.y2 && d.y < this.graph.selection.y1)) {
+                  d.selected = true;
+              }
+          });
+
             this.ticked();
           }
 
