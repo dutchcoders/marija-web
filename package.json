@@ -1,17 +1,13 @@
 {
-  "name": "elasticsearch.info",
+  "name": "marija",
   "version": "1.0.0",
-  "description": "",
+  "description": "Elasticsearch Graphing",
   "main": "default.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
-  "peerDependencies": {
-    "react": ">=0.13.0 <0.15.0 || ^0.14.0-beta3",
-    "react-dom": ">=0.14.0 <0.15.0 || ^0.14.0-beta3"
-  },
   "devDependencies": {
     "autoprefixer": "^5.0.0",
     "babel-core": "^6.5.2",
@@ -52,6 +48,9 @@
     "d3": "^4.2.6",
     "ipaddr.js": "^1.1.0",
     "lodash": "^4.6.1",
+    "react": "^15.3.2",
+    "react-color": "^2.3.3",
+    "react-dom": "^15.3.2",
     "react-infinite": "^0.9.0",
     "react-intl": "^2.0.0-rc-1",
     "react-intl-es6": "^1.0.0",

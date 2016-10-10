@@ -1,6 +1,13 @@
 // http://bl.ocks.org/GerHobbelt/3071239
 // http://bl.ocks.org/norrs/2883411
 //
+//
+//
+// change color, and icon of query
+// change individual node (and name)
+// load and save workspace
+// tooltip
+//
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Table, Column, Cell} from 'fixed-data-table';
@@ -15,7 +22,7 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
 import ReactList from 'react-list';
 
 import SkyLight from 'react-skylight';
-
+import { SketchPicker } from 'react-color';
 
 import ipaddr from "ipaddr.js";
 import Waypoint from 'react-waypoint';
@@ -51,6 +58,7 @@ var network = {
 	"highlight_nodes": [
 	],
         selection: null,
+        tooltip: null,
         transform: d3.zoomIdentity
     },
     simulation: {},
@@ -269,9 +277,15 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
                 this.context.stroke();
                 */
 
-            this.context.fillStyle = '#000'; //d.color[0];
-	    this.context.fillText(d.id,d.x + 5,d.y - 5);
+            //this.context.fillStyle = '#000'; //d.color[0];
+	    //this.context.fillText(d.id,d.x + 5,d.y - 5);
 	});
+
+        if (this.graph.tooltip) {
+            console.debug(this.graph.tooltip);
+            this.context.fillStyle = '#000'; //d.color[0];
+	    this.context.fillText( this.graph.tooltip.node.id, this.graph.tooltip.x + 5, this.graph.tooltip.y - 5);
+        }
 
 	this.context.restore();
     },
@@ -332,14 +346,20 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
             this.ticked();
           }
 
-          console.debug("mousemove", d3.event);
 
 	var subject = this.simulation.find(x, y, 20);
+          console.debug("mousemove", d3.event, subject);
 	if (subject === undefined) {
+            this.graph.tooltip = null;
+            this.ticked();
 	    return;
 	}
 
+
+        this.graph.tooltip = {node: subject, x: x, y: y};
         this.onmousemove(subject);
+
+        this.ticked();
     },
     dragstarted: function() {
           var x = d3.event.x,
@@ -1027,6 +1047,19 @@ class RootView extends React.Component {
 
 	store.dispatch(deleteField(field));
     }
+    handleEditSearch(search, e) {
+	e.preventDefault();
+        this.setState({editSearchValue: search});
+    }
+    handleChangeSearchColorComplete(color) {
+        let search = this.state.editSearchValue;
+        search.color = color.hex;
+        this.setState({editSearchValue: search});
+    }
+    handleCancelEditSearch(search, e) {
+	e.preventDefault();
+        this.setState({editSearchValue: null});
+    }
     handleAddField(e) {
 	e.preventDefault();
 
@@ -1045,7 +1078,11 @@ class RootView extends React.Component {
                 color: search.color,
             };
 
-            return <div style={ divStyle }>{ search.q } ({search.count})</div>
+            if (this.state.editSearchValue === search) {
+                return <div style={ divStyle }><SketchPicker  color={ search.color } onChangeComplete={ this.handleChangeSearchColorComplete.bind(this) }/> { search.q } ({search.count}) <button onClick={this.handleCancelEditSearch.bind(this, search) }>cancel</button> </div>
+            } else {
+                return <div style={ divStyle }>{ search.q } ({search.count}) <button onClick={this.handleEditSearch.bind(this, search) }>edit</button> </div>
+            }
         });
 
 	let nodes = null;
