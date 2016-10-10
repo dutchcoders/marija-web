@@ -42,8 +42,6 @@ const AUTH_CONNECTED = 'AUTH_CONNECTED';
 const RECEIVE_PACKETS = 'RECEIVE_PACKETS';
 
 var network = {
-    onmouseover: function(n) {
-    },
     // Start data
     graph: {
 	"nodes":[
@@ -51,7 +49,8 @@ var network = {
 	"links":[
 	],
 	"highlight_nodes": [
-	]
+	],
+        transform: d3.zoomIdentity
     },
     simulation: {},
     // Graph design
@@ -73,6 +72,11 @@ var network = {
 	},
 	sizeRange: [8,30]
     },
+    zoomed: function() {
+  this.graph.transform = d3.event.transform;
+ // this.render();
+		this.ticked();
+},
     setup: function(el){
 	var i=document.createElement("canvas");
 	i.id = "networkCanvas";
@@ -87,14 +91,16 @@ var network = {
 
 	var canvas = d3.select(this.canvas);
 
-	canvas.on("mousedown", this.mouseclick.bind(this))
-	    .call(d3.drag()
-		    .container(canvas.node())
+	canvas.on("mousedown", this.mousedown.bind(this))
+            .on("mousemove", this.mousemove.bind(this))
+            .call(d3.drag()
 		    .subject(this.dragsubject.bind(this))
 		    .on("start", this.dragstarted.bind(this))
 		    .on("drag", this.dragged.bind(this))
 		    .on("end", this.dragended.bind(this))
-		);
+		)
+            .call(d3.zoom().scaleExtent([1 / 2, 8]).on("zoom", this.zoomed.bind(this)));
+
 
 	this.simulation = d3.forceSimulation()
 	    .stop()
@@ -141,11 +147,20 @@ var network = {
 		n.r = radiusScale(n.connections);
 		//n.force = that.forceScale(n);
 
+                n.query.push(node.query);
+                n.query = _.uniq(n.query);
+
+                n.color.push(node.color);
+                n.color = _.uniq(n.color);
+
 		// todo(nl5887): add to node that result multiple searches, eg create multiple parts
 		return;
 	    }
 
 	    node.r = radiusScale(node.connections);
+            node.color = [node.color];
+            node.query = [node.query];
+
 	    //node.force = that.forceScale(node);
 	    that.graph.nodes.push(node);
 
@@ -170,11 +185,15 @@ var network = {
 	    return false;
 	}
 
-	this.context.clearRect(0,0,this.width,this.height);
 	this.context.save();
+	this.context.clearRect(0,0,this.width,this.height);
 
-	this.context.translate(this.width / 2, this.height / 2);
+  //this.context.translate(this.graph.transform.x, this.graph.transform.y);
 
+this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.y);
+//this.context.translate((this.width / 2) + this.graph.transform.x, (this.height / 2) + this.graph.transform.y);
+
+  this.context.scale(this.graph.transform.k, this.graph.transform.k);
 	this.context.beginPath();
 
 	this.graph.links.forEach((d)=>{
@@ -188,49 +207,81 @@ var network = {
 	this.context.stroke();
 
 	this.graph.nodes.forEach((d)=>{
-	    this.context.beginPath();
 
 	    this.context.moveTo(d.x + d.r, d.y);
 
-	    // for each different query, show a part. This will show that the edge
-	    //  has been found in multiple queries.
-	    this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
+            // for each different query, show a part. This will show that the edge
+            //  has been found in multiple queries.
+            for (var i=0; i<d.color.length; i++) {
+                this.context.beginPath();
+                this.context.arc(d.x, d.y, d.r, 2 * Math.PI * (i / d.color.length), 2 * Math.PI * ( (i + 1) / d.color.length));
 
-	    var color = d.color;
-	    if ( _.findIndex(this.graph.highlight_nodes, function(o) {
-		return o == d.id
-	    })!=-1) {
-		color = "black";
-	    }
+                var color = d.color[i];
+                /*
+                if ( _.findIndex(this.graph.highlight_nodes, function(o) {
+                    return o == d.id
+                })!=-1) {
+                    color = "black";
+                }*/
 
-	    this.context.fillStyle = color;
-	    this.context.strokeStyle =this.nodes.stroke.color;
-	    this.context.lineWidth = this.nodes.stroke.thickness;
-	    this.context.fill();
-	    this.context.stroke();
+                this.context.fillStyle = color;
+                this.context.fill();
 
-	    this.context.fillStyle = color;
+                //this.context.strokeStyle =color;
+                //this.context.lineWidth = this.nodes.stroke.thickness;
+                //this.context.stroke();
+
+            }
+            /*
+
+                this.context.strokeStyle =this.nodes.stroke.color;
+                this.context.lineWidth = this.nodes.stroke.thickness;
+                this.context.stroke();
+                */
+
+            this.context.fillStyle = '#000'; //d.color[0];
 	    this.context.fillText(d.id,d.x + 5,d.y - 5);
 	});
 
 	this.context.restore();
     },
-    mouseclick: function() {
-	var subject = this.simulation.find(d3.event.x - (this.width / 2), d3.event.y - (this.height / 2), 20);
+    mousedown: function() {
+          var x = this.graph.transform.invertX(d3.event.x),
+              y = this.graph.transform.invertY(d3.event.y);
+
+	var subject = this.simulation.find(x, y, 20);
 	if (subject === undefined) {
 	    return;
 	}
 
+        console.debug("Subject", subject);
 	this.onmouseclick(subject);
     },
+    mousemove: function(n) {
+          var x = this.graph.transform.invertX(d3.event.x),
+              y = this.graph.transform.invertY(d3.event.y);
+
+	var subject = this.simulation.find(x, y, 20);
+	if (subject === undefined) {
+	    return;
+	}
+
+        console.debug("mousemove", subject);
+    },
     dragstarted: function() {
+          var x = d3.event.x,
+              y = d3.event.y;
+
 	if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
-	d3.event.subject.fx = d3.event.subject.x;
-	d3.event.subject.fy = d3.event.subject.y;
+	d3.event.subject.fx = x;
+	d3.event.subject.fy = y;
     },
     dragged: function() {
-	d3.event.subject.fx = d3.event.x;
-	d3.event.subject.fy = d3.event.y;
+          var x = d3.event.x,
+              y = d3.event.y;
+
+	d3.event.subject.fx = (x);
+	d3.event.subject.fy = (y);
     },
     dragended: function() {
 	if (!d3.event.active) this.simulation.alphaTarget(0);
@@ -238,8 +289,12 @@ var network = {
 	d3.event.subject.fy = null;
     },
     dragsubject: function() {
+          var x = this.graph.transform.invertX(d3.event.x),
+              y = this.graph.transform.invertY(d3.event.y);
+
+          console.debug(x, y, d3.event.x, d3.event.y, this.simulation.find(x,y,20));
 	// adjust
-	return this.simulation.find(d3.event.x - (this.width / 2), d3.event.y - (this.height / 2), 20);
+	return this.simulation.find(x, y, 20);
     },
     mousemoved: function() {
     },
@@ -941,7 +996,7 @@ class RootView extends React.Component {
 	    let options = _.map(this.props.fields || [], (field) => {
                 return <li value={ field }>{ field } <button onClick={this.handleDeleteField.bind(this, field) }>x</button></li>;
 	    });
-            fields = <div><h2>Fields</h2>
+            fields = <div>
                 <ul>{ options }</ul>
                     <form onSubmit={this.handleAddField.bind(this)}>
                 <input type="text" ref="field" />
