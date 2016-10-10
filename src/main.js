@@ -50,6 +50,7 @@ var network = {
 	],
 	"highlight_nodes": [
 	],
+        selection: null,
         transform: d3.zoomIdentity
     },
     simulation: {},
@@ -91,22 +92,23 @@ var network = {
 
 	var canvas = d3.select(this.canvas);
 
-	canvas.on("mousedown", this.mousedown.bind(this))
-            .on("mousemove", this.mousemove.bind(this))
+	canvas.on("mousedown.drag", this.mousedown.bind(this))
+            .on("mousemove.drag", this.mousemove.bind(this))
+            .on("mouseup.drag", this.mouseup.bind(this))
             .call(d3.drag()
 		    .subject(this.dragsubject.bind(this))
 		    .on("start", this.dragstarted.bind(this))
 		    .on("drag", this.dragged.bind(this))
 		    .on("end", this.dragended.bind(this))
 		)
-            .call(d3.zoom().scaleExtent([1 / 2, 8]).on("zoom", this.zoomed.bind(this)));
-
+            .call(d3.zoom().scaleExtent([1 / 2, 8]).on("zoom", this.zoomed.bind(this)))
+            .on("start.render drag.render end.render", this.ticked);
 
 	this.simulation = d3.forceSimulation()
 	    .stop()
 	    .force("link", d3.forceLink().id(function(d) { return d.id; }))
 	    .force("charge", d3.forceManyBody()) // .strength(-10).distanceMax(300))
-	    .force("center",d3.forceCenter())
+	    .force("center",d3.forceCenter(this.width / 2, this.height / 2))
 	    .force("vertical", d3.forceY().strength(0.018))
 	    .force("horizontal", d3.forceX().strength(0.006))
 	    .on("tick",()=>{
@@ -161,6 +163,11 @@ var network = {
             node.color = [node.color];
             node.query = [node.query];
 
+            //node.x = that.width / 2;
+            //node.y = that.height / 2;
+
+            //node.cx = that.width / 2;
+            //node.cy = that.height / 2;
 	    //node.force = that.forceScale(node);
 	    that.graph.nodes.push(node);
 
@@ -194,6 +201,15 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
 //this.context.translate((this.width / 2) + this.graph.transform.x, (this.height / 2) + this.graph.transform.y);
 
   this.context.scale(this.graph.transform.k, this.graph.transform.k);
+        if (this.graph.selection) {
+            this.context.beginPath();
+            this.context.strokeStyle = '#000000';
+            this.context.lineWidth = 1;
+            this.context.setLineDash([6]);
+            this.context.rect(this.graph.selection.x1, this.graph.selection.y1, this.graph.selection.x2 - this.graph.selection.x1, this.graph.selection.y2 - this.graph.selection.y1);
+            this.context.stroke();
+        }
+
 	this.context.beginPath();
 
 	this.graph.links.forEach((d)=>{
@@ -246,27 +262,45 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
 	this.context.restore();
     },
     mousedown: function() {
-          var x = this.graph.transform.invertX(d3.event.x),
-              y = this.graph.transform.invertY(d3.event.y);
+          var x = this.graph.transform.invertX(d3.event.layerX),
+              y = this.graph.transform.invertY(d3.event.layerY);
 
 	var subject = this.simulation.find(x, y, 20);
 	if (subject === undefined) {
+            console.debug("mousedown, no sel");
+            this.graph.selection = {x1: x, y1: y, x2: x, y2: y};
+            this.ticked();
 	    return;
-	}
+	} else {
+            console.debug("mousedown Subject", subject);
+            this.onmouseclick(subject);
+        }
+    },
+    mouseup: function() {
+          var x = this.graph.transform.invertX(d3.event.layerX),
+              y = this.graph.transform.invertY(d3.event.layerY);
 
-        console.debug("Subject", subject);
-	this.onmouseclick(subject);
+            this.ticked();
+
+            this.graph.selection = null;
     },
     mousemove: function(n) {
-          var x = this.graph.transform.invertX(d3.event.x),
-              y = this.graph.transform.invertY(d3.event.y);
+          var x = this.graph.transform.invertX(d3.event.layerX),
+              y = this.graph.transform.invertY(d3.event.layerY);
+
+          if (this.graph.selection) {
+            this.graph.selection = _.assign(this.graph.selection, {x2:x, y2:y});
+            this.ticked();
+          }
+
+          console.debug("mousemove", d3.event);
 
 	var subject = this.simulation.find(x, y, 20);
 	if (subject === undefined) {
 	    return;
 	}
 
-        console.debug("mousemove", subject);
+        this.onmousemove(subject);
     },
     dragstarted: function() {
           var x = d3.event.x,
@@ -352,6 +386,7 @@ class Graph extends React.Component {
       var $this = this;
 
       network.onmouseclick = this.onMouseClick.bind(this);
+      network.onmousemove = this.onMouseMove.bind(this);
 
       network.setup(this.refs["graph"]);
   }
@@ -362,6 +397,9 @@ class Graph extends React.Component {
     }
     onMouseClick(node) {
 	store.dispatch(selectNode({node:node}));
+    }
+    onMouseMove(node) {
+	// store.dispatch(selectNode({node:node}));
     }
     onMouseOver(node) {
 	// store.dispatch(selectNode({node:node}));
