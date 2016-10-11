@@ -47,6 +47,7 @@ const ADD_INDEX = 'ADD_INDEX';
 const DELETE_INDEX = 'DELETE_INDEX';
 const REQUEST_PACKETS = 'REQUEST_PACKETS';
 const AUTH_CONNECTED = 'AUTH_CONNECTED';
+const ERROR = 'ERROR';
 const RECEIVE_PACKETS = 'RECEIVE_PACKETS';
 
 var network = {
@@ -749,6 +750,9 @@ class Graph extends React.Component {
         }
 
         network.highlight(this.props.highlight_nodes);
+
+
+        network.ticked();
     }
     render() {
         return <div ref="graph"></div>;
@@ -822,6 +826,7 @@ function entries(state = {
     isFetching: false,
     noMoreHits: false,
     didInvalidate: false,
+    connected: false,
     total: 0,
     node: [],
     highlight_nodes: [],
@@ -899,11 +904,15 @@ function entries(state = {
 		isFetching: true,
 		didInvalidate: false
 	    })
+	case ERROR:
+	    return Object.assign({}, state, {
+                ...action
+	    })
 	case AUTH_CONNECTED:
-	    sock.startWS({});
 	    return Object.assign({}, state, {
 		isFetching: true,
-		didInvalidate: false
+		didInvalidate: false,
+                    ...action
 	    })
 	case RECEIVE_PACKETS:
 	    state.searches.push({q: action.packets.query, color: action.packets.color, count: action.packets.results.hits.hits.length});
@@ -1037,10 +1046,19 @@ function configureStore() {
 
 const store = configureStore({});
 
-function authConnected() {
+function error() {
+    return {
+        type: ERROR,
+        receivedAt: Date.now()
+    }
+}
+
+
+function authConnected(p) {
     return {
         type: AUTH_CONNECTED,
-        receivedAt: Date.now()
+        receivedAt: Date.now(),
+        ...p
     }
 }
 
@@ -1050,12 +1068,15 @@ export default class FlowWS {
 
 	this.websocket.onopen = function (event) {
 	    console.debug(event);
+            store.dispatch(authConnected({connected: true}));
 	}
 	this.websocket.onclose = function (event) {
 	    console.debug(event);
+            store.dispatch(authConnected({connected: false}));
 	}
 	this.websocket.onerror = function (event) {
 	    console.debug(event);
+            store.dispatch(error('test'));
 	}
 	this.websocket.onmessage = function (event) {
 	    dispatcher(JSON.parse(event.data));
@@ -1089,12 +1110,16 @@ const sock = {
 	    sock.ws.close();
 	}
 
+        try {
 	sock.ws = new FlowWS(sock.URL, null, sock.wsDispatcher)
+        } catch (e) {
+            store.dispatch(error());
+        }
     }
 };
 
 // connect
-store.dispatch(authConnected());
+	    sock.startWS({});
 
 function requestEntries(entries) {
     return {
@@ -1376,6 +1401,18 @@ class RootView extends React.Component {
                 </div>;
 	}
 
+	let connected = null;
+	if (this.props.connected) {
+            connected = <div>connected </div>;
+	} else {
+            connected = <div>not connected </div>;
+        }
+
+	let errors = null;
+	if (this.props.errors) {
+            errors = <div>{ this.props.errors } </div>;
+	} 
+
         return <div className="container-fluid">
 		    <div className="row">
 			<div className="col-xs-9 col-sm-9">
@@ -1384,6 +1421,8 @@ class RootView extends React.Component {
                                 <section>
                                 <button onClick={() => this.refs.dialogWithCallBacks.show()}>Configure</button>
                                 </section>
+                                { connected }
+                                { errors }
 			    </div>
 			    <div className="row">
 				<Graph width="1600" height="800" queries={this.props.searches} fields={this.props.fields} packets={this.props.packets} highlight_nodes={this.props.highlight_nodes} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
@@ -1442,6 +1481,8 @@ const mapStateToProps = (state, ownProps) => {
           noMoreHits: state.entries.noMoreHits,
           hits: state.entries.hits,
           node: state.entries.node,
+          connected: state.entries.connected,
+          errors: state.entries.errors,
           packets: state.entries.packets,
           indexes: state.entries.indexes,
           fields: state.entries.fields,
