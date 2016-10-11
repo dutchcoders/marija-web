@@ -59,7 +59,8 @@ var network = {
 	],
         selection: null,
         tooltip: null,
-        transform: d3.zoomIdentity
+        transform: d3.zoomIdentity,
+        queries: []
     },
     simulation: {},
     // Graph design
@@ -212,6 +213,8 @@ var network = {
 	    return false;
 	}
 
+        // console.debug(this.graph.queries);
+
 	this.context.save();
 	this.context.clearRect(0,0,this.width,this.height);
 
@@ -248,11 +251,18 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
 
             // for each different query, show a part. This will show that the edge
             //  has been found in multiple queries.
-            for (var i=0; i<d.color.length; i++) {
+            for (var i=0; i<d.query.length; i++) {
+                // find color
+
                 this.context.beginPath();
                 this.context.arc(d.x, d.y, d.r, 2 * Math.PI * (i / d.color.length), 2 * Math.PI * ( (i + 1) / d.color.length));
 
-                var color = d.color[i];
+                var color = '#000'; // d.searches[i];
+
+                for (var j = 0; j < this.graph.queries.length; j++) {
+                    if (this.graph.queries[j].q === d.query[i]) 
+                        color = this.graph.queries[j].color;
+                }
                 /*
                 if ( _.findIndex(this.graph.highlight_nodes, function(o) {
                     return o == d.id
@@ -410,12 +420,220 @@ var getRandomColor = function(q){
     return color;
 }
 
-class Graph extends React.Component {
-
+class Histogram extends React.Component {
   static propTypes = {
     packets: React.PropTypes.array.isRequired
   }
+  constructor(props) {
+    super(props);
 
+    this.state = {
+    };
+
+  }
+  getInitialState() {
+      return {
+	  nodes: [],
+	  links: [],
+	  edges: []
+      };
+  }
+  componentDidMount() {
+          this.canvas =  this.refs["canvas"];
+
+	this.context = this.canvas.getContext('2d');
+
+	var width = 1600, height=800;
+
+	var canvas = d3.select(this.canvas),
+            context = this.context;
+
+        var margin = {top: 20, right: 20, bottom: 30, left: 40},
+            width = canvas.width - margin.left - margin.right,
+            height = canvas.height - margin.top - margin.bottom;
+
+        var x = d3.scaleBand()
+            .rangeRound([0, width])
+            .padding(0.1);
+
+        var y = d3.scaleLinear()
+            .rangeRound([height, 0]);
+
+        context.translate(margin.left, margin.top);
+
+
+        let data = [
+        {
+            letter: 'A', 
+            frequency :0.08167
+        },
+         {
+            letter:    'B', 
+            frequency :0.01492,
+          },
+          {
+            letter:   'C', 
+            frequency :0.02782,
+          },
+           {
+            letter:  'D', 
+            frequency :0.04253,
+          },
+            {
+            letter: 'E', 
+            frequency :0.12702,
+          },
+         {
+            letter:    'F', 
+            frequency :0.02288,
+          },
+         {
+            letter:    'G', 
+            frequency :0.02015,
+          },
+         {
+            letter:    'H', 
+            frequency :0.06094,
+          },
+         {
+            letter:    'I', 
+            frequency :0.06966,
+          },
+         {
+            letter:    'J', 
+            frequency :0.00153,
+          },
+         {
+            letter:    'K', 
+            frequency :0.00772,
+          },
+         {
+            letter:    'L', 
+            frequency :0.04025,
+          },
+         {
+            letter:    'M', 
+            frequency :0.02406,
+          },
+         {
+            letter:    'N', 
+            frequency :0.06749,
+          },
+         {
+            letter:    'O', 
+            frequency :0.07507,
+          },
+         {
+            letter:    'P', 
+            frequency :0.01929,
+          },
+         {
+            letter:    'Q', 
+            frequency :0.00095,
+          },
+         {
+            letter:    'R', 
+            frequency :0.05987,
+          },
+         {
+            letter:    'S', 
+            frequency :0.06327,
+          },
+         {
+            letter:    'T', 
+            frequency :0.09056,
+          },
+         {
+            letter:    'U', 
+            frequency :0.02758,
+          },
+         {
+            letter:    'V', 
+            frequency :0.00978,
+          },
+         {
+            letter:    'W', 
+            frequency :0.02360,
+          },
+         {
+            letter:    'X', 
+            frequency :0.00015,
+          },
+         {
+            letter:    'Y', 
+            frequency :0.01974,
+          },
+         {
+            letter:    'Z', 
+            frequency :0.00074
+          },
+        ]
+
+  x.domain(data.map(function(d) { return d.letter; }));
+  y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+
+  var yTickCount = 10,
+      yTicks = y.ticks(yTickCount),
+      yTickFormat = y.tickFormat(yTickCount, "%");
+
+  context.beginPath();
+  x.domain().forEach(function(d) {
+    context.moveTo(x(d) + x.bandwidth() / 2, height);
+    context.lineTo(x(d) + x.bandwidth() / 2, height + 6);
+  });
+  context.strokeStyle = "black";
+  context.stroke();
+
+  context.textAlign = "center";
+  context.textBaseline = "top";
+  x.domain().forEach(function(d) {
+    context.fillText(d, x(d) + x.bandwidth() / 2, height + 6);
+  });
+
+  context.beginPath();
+  yTicks.forEach(function(d) {
+    context.moveTo(0, y(d) + 0.5);
+    context.lineTo(-6, y(d) + 0.5);
+  });
+  context.strokeStyle = "black";
+  context.stroke();
+
+  context.textAlign = "right";
+  context.textBaseline = "middle";
+  yTicks.forEach(function(d) {
+    context.fillText(yTickFormat(d), -9, y(d));
+  });
+
+  context.beginPath();
+  context.moveTo(-6.5, 0 + 0.5);
+  context.lineTo(0.5, 0 + 0.5);
+  context.lineTo(0.5, height + 0.5);
+  context.lineTo(-6.5, height + 0.5);
+  context.strokeStyle = "black";
+  context.stroke();
+
+  context.save();
+  context.rotate(-Math.PI / 2);
+  context.textAlign = "right";
+  context.textBaseline = "top";
+  context.font = "bold 10px sans-serif";
+  context.fillText("Frequency", -10, 10);
+  context.restore();
+
+  context.fillStyle = "steelblue";
+  data.forEach(function(d) {
+    context.fillRect(x(d.letter), y(d.frequency), x.bandwidth(), height - y(d.frequency));
+  });
+  }
+  render() {
+      return <canvas width='1600' height='1200' ref="canvas">histogram</canvas>;
+  }
+}
+
+class Graph extends React.Component {
+  static propTypes = {
+    packets: React.PropTypes.array.isRequired
+  }
   constructor(props) {
     super(props);
 
@@ -469,6 +687,9 @@ class Graph extends React.Component {
     componentDidUpdate(prevProps, prevState) {
 	console.debug("highlight", this.props.highlight_nodes);
         console.debug("updated", this.props.packets);
+        console.debug("queries", this.props.queries);
+
+        network.graph.queries = this.props.queries;
 
         var {graph} = this.state;
 
@@ -671,6 +892,7 @@ function entries(state = {
 	case RECEIVE_PACKETS:
 	    state.searches.push({q: action.packets.query, color: action.packets.color, count: action.packets.results.hits.hits.length});
 
+            console.debug("results", action.packets.results);
 	    state.packets = _.concat(state.packets, []);
 	    _.forEach(action.packets.results.hits.hits, (d, i) => {
 		state.packets.push({ q: action.packets.query, color: action.packets.color, fields: d._source});
@@ -1133,9 +1355,13 @@ class RootView extends React.Component {
 			<div className="col-xs-9 col-sm-9">
 			    <div className="row">
 				<SearchBox isFetching={this.props.isFetching} total={this.props.total} q= { this.state.q } onSubmit={this.onSearchSubmit.bind(this)} indexes = {this.props.indexes}/>
+                                <section>
+                                <button onClick={() => this.refs.dialogWithCallBacks.show()}>Configure</button>
+                                </section>
 			    </div>
 			    <div className="row">
-				<Graph width="1600" height="800" fields={this.props.fields} packets={this.props.packets} highlight_nodes={this.props.highlight_nodes} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
+				<Graph width="1600" height="800" queries={this.props.searches} fields={this.props.fields} packets={this.props.packets} highlight_nodes={this.props.highlight_nodes} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
+				<Histogram width="1600" height="200" fields={this.props.fields} packets={this.props.packets} highlight_nodes={this.props.highlight_nodes} className="histogram" handleMouseOver={ this.handleMouseOver.bind(this) } />
 			    </div>
 			</div>
 			<div className="col-xs-3 col-sm-3">
@@ -1159,9 +1385,6 @@ class RootView extends React.Component {
                     </div>
                     <div className="row">
                     </div>
-        <section>
-          <button onClick={() => this.refs.dialogWithCallBacks.show()}>Configure</button>
-        </section>
         <SkyLight
             ref="dialogWithCallBacks"
             title="add Index">
