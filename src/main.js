@@ -38,6 +38,7 @@ import * as d3 from "d3";
 const REQUEST_POSTS = 'REQUEST_POSTS';
 const RECEIVE_POSTS = 'RECEIVE_POSTS';
 const SELECT_NODE = 'SELECT_NODE';
+const SELECT_NODES = 'SELECT_NODES';
 const HIGHLIGHT_NODES = 'HIGHLIGHT_NODES';
 const CLEAR_SELECTION = 'CLEAR_SELECTION';
 const ADD_FIELD = 'ADD_FIELD';
@@ -58,6 +59,7 @@ var network = {
 	"highlight_nodes": [
 	],
         selection: null,
+        selectedNodes: [],
         tooltip: null,
         transform: d3.zoomIdentity,
         queries: []
@@ -179,7 +181,6 @@ var network = {
 		return;
 	    }
 
-            node.selected = false;
 	    node.r = radiusScale(node.connections);
             node.color = [node.color];
             node.query = [node.query];
@@ -273,7 +274,7 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
                 this.context.fillStyle = color;
                 this.context.fill();
 
-                if (d.selected) {
+                if (_.includes(this.graph.selectedNodes, d)) {
                     this.context.strokeStyle = '#993833';
                     this.context.lineWidth = this.nodes.stroke.thickness;
                     this.context.stroke();
@@ -316,7 +317,13 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
 	} else {
             console.debug("mousedown Subject", subject);
 
-            subject.selected = !subject.selected;
+            if (!_.includes(this.graph.selectedNodes, subject)) {
+                this.graph.selectedNodes.push(subject);
+            } else {
+                _.remove(this.graph.selectedNodes, subject);
+            }
+
+            store.dispatch(selectNodes({nodes:this.graph.selectedNodes}));
 
             this.onmouseclick(subject);
         }
@@ -344,21 +351,25 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
           this.graph.nodes.forEach((d)=>{
               if ((d.x > this.graph.selection.x1 && d.x < this.graph.selection.x2) &&
                       (d.y > this.graph.selection.y1 && d.y < this.graph.selection.y2)) {
-                  d.selected = true;
+                  if (!_.includes(this.graph.selectedNodes, d)) {
+                      this.graph.selectedNodes.push(d);
+                  } 
               }
 
               if ((d.x > this.graph.selection.x2 && d.x < this.graph.selection.x1) &&
                       (d.y > this.graph.selection.y2 && d.y < this.graph.selection.y1)) {
-                  d.selected = true;
+                  if (!_.includes(this.graph.selectedNodes, d)) {
+                      this.graph.selectedNodes.push(d);
+                  } 
               }
           });
 
+	store.dispatch(selectNodes({nodes:this.graph.selectedNodes}));
             this.ticked();
           }
 
 
 	var subject = this.simulation.find(x, y, 20);
-          console.debug("mousemove", d3.event, subject);
 	if (subject === undefined) {
             this.graph.tooltip = null;
             this.ticked();
@@ -395,7 +406,6 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
           var x = this.graph.transform.invertX(d3.event.x),
               y = this.graph.transform.invertY(d3.event.y);
 
-          console.debug(x, y, d3.event.x, d3.event.y, this.simulation.find(x,y,20));
 	// adjust
 	return this.simulation.find(x, y, 20);
     },
@@ -673,7 +683,7 @@ class Graph extends React.Component {
     onPortMouseOver(link) {
     }
     onMouseClick(node) {
-	store.dispatch(selectNode({node:node}));
+	//store.dispatch(selectNode({node:node}));
     }
     onMouseMove(node) {
 	// store.dispatch(selectNode({node:node}));
@@ -682,7 +692,7 @@ class Graph extends React.Component {
 	// store.dispatch(selectNode({node:node}));
     }
     componentWillReceiveProps(nextProps) {
-        console.debug("will receive props", nextProps);
+        // console.debug("will receive props", nextProps);
     }
     componentDidUpdate(prevProps, prevState) {
 	console.debug("highlight", this.props.highlight_nodes);
@@ -730,7 +740,7 @@ class Graph extends React.Component {
                 });
             });
 
-            console.debug("added new nodes.");
+            // console.debug("added new nodes.");
 
             network.render({
                 nodes: nodes,
@@ -859,6 +869,12 @@ function entries(state = {
 	    return Object.assign({}, state, {
 		highlight_nodes: action.nodes,
 	    })
+	case SELECT_NODES:
+	    var nodes = _.concat(action.nodes);
+	    return Object.assign({}, state, {
+		node: nodes,
+	    })
+
 	case SELECT_NODE:
 /*
 	    _.forEach(state.node, (d, i) => {
@@ -1146,6 +1162,15 @@ function selectNode(opts) {
     }
 }
 
+function selectNodes(opts) {
+    return {
+        type: SELECT_NODES,
+        receivedAt: Date.now(),
+	...opts,
+    }
+}
+
+
 function highlightNodes(opts) {
     return {
         type: HIGHLIGHT_NODES,
@@ -1309,6 +1334,7 @@ class RootView extends React.Component {
 
 	let nodes = null;
 	if (this.props.node) {
+            console.debug("NODES", this.props.node);
 	    nodes = _.map(this.props.node, (node) => {
 		return  _.map(this.props.packets, (packet) => {
 		    if (packet.fields.document.GetaptTelnr!=node.id &&
