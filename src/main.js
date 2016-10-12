@@ -7,6 +7,8 @@
 // change individual node (and name)
 // load and save workspace
 // tooltip
+// aliases
+// meerdere indexen tegelijk zoeken
 //
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -717,7 +719,7 @@ class Graph extends React.Component {
                             return;
 
                     nodes.push({
-                        id: d.fields.document[field],
+                        id: phone(d.fields.document[field]),
                         query: d.q,
                         name: d.fields.document[field],
                         color: d.color,
@@ -734,8 +736,8 @@ class Graph extends React.Component {
                             return;
 
                         links.push({
-                            source: d.fields.document[source],
-                            target: d.fields.document[target],
+                            source: phone(d.fields.document[source]),
+                            target: phone(d.fields.document[target]),
                         });
                     });
                 });
@@ -1254,6 +1256,11 @@ class App extends Intl {
     }
 }
 
+function phone(p) {
+    // p = p.replace(/^06/i, "316");
+    return p;
+}
+
 class RootView extends React.Component {
     constructor(props){
         super(props);
@@ -1360,20 +1367,54 @@ class RootView extends React.Component {
 	let nodes = null;
 	if (this.props.node) {
             console.debug("NODES", this.props.node);
+            var i = 0;
+
 	    nodes = _.map(this.props.node, (node) => {
 		return  _.map(this.props.packets, (packet) => {
-		    if (packet.fields.document.GetaptTelnr!=node.id &&
-			    packet.fields.document.Gekozennummer!=node.id) {
-			return;
-		    }
-		    return <div onMouseOver={ this.handleMouseOver.bind(this, packet.fields.document.GetaptTelnr, packet.fields.document.Gekozennummer  ) }> 
-			    <div>
+                    var divStyle = {
+                        'background-color': (i%2?'#c0c0c0':'#e0e0e0'),
+                    };
+
+		    if (phone(packet.fields.document.GetaptTelnr)==node.id ||
+			    phone(packet.fields.document.Gekozennummer)==node.id) {
+                    i++;
+		    return <div style={divStyle} onMouseOver={ this.handleMouseOver.bind(this, packet.fields.document.GetaptTelnr, packet.fields.document.Gekozennummer  ) }> 
+			    <div><b>{ packet.fields.document.GETAPT_PERSOON }</b></div>
+			    <div>{ node.q }
 				<span>{ packet.fields.document.GetaptTelnr }</span> -&gt; <span>{ packet.fields.document.Gekozennummer }</span>	
 			    </div>
 			    <div>{ packet.fields.document.BEVINDINGEN }</div>
-			    <div><b>{ packet.fields.document.GETAPT_PERSOON }</b></div>
 			    <div>{ packet.fields.document.date }</div>
 			</div>;
+                    }
+		    if (phone(packet.fields.document['A-NR'])==node.id ||
+			    phone(packet.fields.document['B-NR'])==node.id) {
+                    i++;
+		    return <div style={divStyle} onMouseOver={ this.handleMouseOver.bind(this, packet.fields.document['A-NR'], packet.fields.document['B-NR']  ) }> 
+			    <div> { node.q }
+				<span>{ packet.fields.document['A-NR'] }</span> -&gt; <span>{ packet.fields.document['B-NR'] }</span>	
+                                    <div>
+                                { packet.fields.document['SMSDAT'] }
+                                </div>
+                                    <div>
+                                    { JSON.stringify(packet.fields) }
+                                    </div>
+			    </div>
+			</div>;
+                    }
+                    // todo show bron
+		    if (phone(packet.fields.document.nra)==node.id ||
+			    phone(packet.fields.document.nrb)==node.id) {
+                    i++;
+		    return <div style={divStyle} onMouseOver={ this.handleMouseOver.bind(this, packet.fields.document.nra, packet.fields.document.nrb  ) }> 
+			    <div> { node.q }
+				<span>{ packet.fields.document.nra }</span> -&gt; <span>{ packet.fields.document.nrb }</span>	
+                                    <div>
+                                    { JSON.stringify(packet.fields) }
+                                    </div>
+			    </div>
+			</div>;
+                    }
 		});
 	    });
 	}
