@@ -44,6 +44,8 @@ const SELECT_NODES = 'SELECT_NODES';
 const HIGHLIGHT_NODES = 'HIGHLIGHT_NODES';
 const CLEAR_SELECTION = 'CLEAR_SELECTION';
 const ADD_FIELD = 'ADD_FIELD';
+const TABLE_COLUMN_ADD = 'TABLE_COLUMN_ADD';
+const TABLE_COLUMN_REMOVE = 'TABLE_COLUMN_REMOVE';
 const DELETE_FIELD = 'DELETE_FIELD';
 const ADD_INDEX = 'ADD_INDEX';
 const DELETE_INDEX = 'DELETE_INDEX';
@@ -156,8 +158,13 @@ var network = {
 	var scale = d3.scaleLog().domain(this.nodes.sizeRange).range(this.nodes.sizeRange.slice().reverse());
 	return node.r + scale(node.r);
     },
+    select: function(nodes){
+        this.graph.selectedNodes = nodes;
+        this.ticked();
+    },
     highlight: function(nodes){
 	this.graph.highlight_nodes = nodes;
+        this.ticked();
     },
     render: function(graph){
 	var countExtent = d3.extent(graph.nodes,function(d){return d.connections}),
@@ -751,6 +758,8 @@ class Graph extends React.Component {
             });
         }
 
+
+        network.select(this.props.node);
         network.highlight(this.props.highlight_nodes);
 
 
@@ -812,10 +821,24 @@ class SearchBox extends React.Component {
         
 
         let loader = classNames({ 'sk-search-box__loader': true, 'sk-spinning-loader': true, 'is-hidden': !this.props.isFetching });
+        /*
+        return <div className="[ bootsnipp-search animate ]">
+			<div className="[ container ]">
+				<form onSubmit={this.handleSubmit.bind(this)} role="search">
+					<div className="[ input-group ]">
+						<input ref="q" autoComplete="off" type="text" className="[ form-control ]" name="q" placeholder="Search for snippets and hit enter" value={this.state.q} />
+					</div>
+                                        <div data-qa="loader" className={loader}></div>
+                                        { indexes }
+				</form>
+			</div>
+		</div>
+                */
+
         return <div className="col-md-offset-2 col-sm-offset-2 col-xs-offset-1 col-xs-10 col-sm-8 col-md-8 col-lg-6">
                  <div className="form-group">
                     <form onSubmit={this.handleSubmit.bind(this)}>
-                         <input ref="q" className="form-control" placeholder="query" /*onChange={this.onChange.bind(this)}*/ value={ this.state.q } />
+                         <input ref="q" className="form-control" placeholder="query" value={ this.state.q } />
                         <div data-qa="loader" className={loader}></div>
                         { indexes }
                     </form>
@@ -832,6 +855,7 @@ function entries(state = {
     total: 0,
     node: [],
     highlight_nodes: [],
+    columns: [],
     fields: [
         /*
         "GetaptTelnr", 
@@ -861,6 +885,16 @@ function entries(state = {
 	    var indexes = _.without(state.indexes,  action.index);
 	    return Object.assign({}, state, {
 		indexes: indexes,
+	    })
+	case TABLE_COLUMN_ADD:
+	    var columns = _.concat(state.columns, action.field);
+	    return Object.assign({}, state, {
+		columns: columns,
+	    })
+	case TABLE_COLUMN_REMOVE:
+	    var columns = _.without(state.columns,  action.field);
+	    return Object.assign({}, state, {
+		columns: columns,
 	    })
 	case ADD_FIELD:
 	    var fields = _.concat(state.fields, action.field);
@@ -965,6 +999,8 @@ function persistState(paths, config) {
             enhancer = initialState
                 initialState = {
                     entries: {
+                        fields: [],
+                        colums: [],
                         indexes: [
                             "http://127.0.0.1:9200/",
                         ],
@@ -975,7 +1011,13 @@ function persistState(paths, config) {
         try {
             initialState.entries.fields = JSON.parse(localStorage.getItem("fields"))
         } catch (e) {
-            console.warn('Failed to retrieve initialize state from localStorage:', e)
+            console.warn('failed to retrieve initialize state from localstorage:', e)
+        }
+
+        try {
+            initialState.entries.columns = JSON.parse(localStorage.getItem("columns"))
+        } catch (e) {
+            console.warn('failed to retrieve initialize state from localstorage:', e)
         }
 
         try {
@@ -990,6 +1032,12 @@ function persistState(paths, config) {
 
         store.subscribe(() => {
             const state = store.getState();
+
+            try {
+                localStorage.setItem("columns", JSON.stringify(state.entries.columns))
+            } catch (e) {
+                console.warn('Unable to persist state to localStorage:', e)
+            }
 
             try {
                 localStorage.setItem("fields", JSON.stringify(state.entries.fields))
@@ -1156,6 +1204,23 @@ function deleteIndex(index) {
 	index: index,
     }
 }
+
+function tableColumnRemove(field) {
+    return {
+        type: TABLE_COLUMN_REMOVE,
+        receivedAt: Date.now(),
+	field: field,
+    }
+}
+
+function tableColumnAdd(field) {
+    return {
+        type: TABLE_COLUMN_ADD,
+        receivedAt: Date.now(),
+	field: field,
+    }
+}
+
 function addField(field) {
     return {
         type: ADD_FIELD,
@@ -1339,6 +1404,14 @@ class RootView extends React.Component {
 	e.preventDefault();
         this.setState({editSearchValue: null});
     }
+    handleTableAddColumn(field) {
+	//store.dispatch(addField(field));
+	store.dispatch(tableColumnAdd(field));
+    }
+    handleTableRemoveColumn(field) {
+	//store.dispatch(addField(field));
+	store.dispatch(tableColumnRemove(field));
+    }
     handleAddField(e) {
 	e.preventDefault();
 
@@ -1366,55 +1439,31 @@ class RootView extends React.Component {
 
 	let nodes = null;
 	if (this.props.node) {
-            console.debug("NODES", this.props.node);
-            var i = 0;
-
 	    nodes = _.map(this.props.node, (node) => {
 		return  _.map(this.props.packets, (packet) => {
-                    var divStyle = {
-                        'background-color': (i%2?'#c0c0c0':'#e0e0e0'),
-                    };
+                    return _.map(this.props.fields || [], (value) => {
+                        if (phone(packet.fields.document[value])!==node.id) 
+                            return null;
 
-		    if (phone(packet.fields.document.GetaptTelnr)==node.id ||
-			    phone(packet.fields.document.Gekozennummer)==node.id) {
-                    i++;
-		    return <div style={divStyle} onMouseOver={ this.handleMouseOver.bind(this, packet.fields.document.GetaptTelnr, packet.fields.document.Gekozennummer  ) }> 
-			    <div><b>{ packet.fields.document.GETAPT_PERSOON }</b></div>
-			    <div>{ node.q }
-				<span>{ packet.fields.document.GetaptTelnr }</span> -&gt; <span>{ packet.fields.document.Gekozennummer }</span>	
-			    </div>
-			    <div>{ packet.fields.document.BEVINDINGEN }</div>
-			    <div>{ packet.fields.document.date }</div>
-			</div>;
-                    }
-		    if (phone(packet.fields.document['A-NR'])==node.id ||
-			    phone(packet.fields.document['B-NR'])==node.id) {
-                    i++;
-		    return <div style={divStyle} onMouseOver={ this.handleMouseOver.bind(this, packet.fields.document['A-NR'], packet.fields.document['B-NR']  ) }> 
-			    <div> { node.q }
-				<span>{ packet.fields.document['A-NR'] }</span> -&gt; <span>{ packet.fields.document['B-NR'] }</span>	
-                                    <div>
-                                { packet.fields.document['SMSDAT'] }
-                                </div>
-                                    <div>
-                                    { JSON.stringify(packet.fields) }
-                                    </div>
-			    </div>
-			</div>;
-                    }
-                    // todo show bron
-		    if (phone(packet.fields.document.nra)==node.id ||
-			    phone(packet.fields.document.nrb)==node.id) {
-                    i++;
-		    return <div style={divStyle} onMouseOver={ this.handleMouseOver.bind(this, packet.fields.document.nra, packet.fields.document.nrb  ) }> 
-			    <div> { node.q }
-				<span>{ packet.fields.document.nra }</span> -&gt; <span>{ packet.fields.document.nrb }</span>	
-                                    <div>
-                                    { JSON.stringify(packet.fields) }
-                                    </div>
-			    </div>
-			</div>;
-                    }
+                        let fields = _.map(packet.fields.document, function(value, key) {
+                            return <tr>
+                                <th>{ key} <button onClick={that.handleTableAddColumn.bind(that, key)}>add</button></th>
+                                <td colSpan="3">{ value}</td>
+                            </tr>;
+                        });
+
+                        let columns = _.map(this.props.columns, function(value) {
+                            return <td>{ packet.fields.document[value] }<button onClick={that.handleTableRemoveColumn.bind(that, value)}>remove</button></td>;
+                        });
+
+		    return [<tr onMouseOver={ this.handleMouseOver.bind(this, packet.fields.document.GetaptTelnr, packet.fields.document.Gekozennummer  ) }> 
+                            {columns}
+                            </tr>,
+                            <tr>
+                            { fields }
+                            </tr>
+                            ];
+                    });
 		});
 	    });
 	}
@@ -1455,10 +1504,14 @@ class RootView extends React.Component {
 	} 
 
         return <div className="container-fluid">
+                    <div className="row">
+                        <nav className="[ navbar ][ navbar-bootsnipp animate ]" role="navigation">
+                            <SearchBox isFetching={this.props.isFetching} total={this.props.total} q= { this.state.q } onSubmit={this.onSearchSubmit.bind(this)} indexes = {this.props.indexes}/>
+                        </nav>
+                    </div>
 		    <div className="row">
 			<div className="col-xs-9 col-sm-9">
 			    <div className="row">
-				<SearchBox isFetching={this.props.isFetching} total={this.props.total} q= { this.state.q } onSubmit={this.onSearchSubmit.bind(this)} indexes = {this.props.indexes}/>
                                 <section>
                                 <button onClick={() => this.refs.dialogWithCallBacks.show()}>Configure</button>
                                 </section>
@@ -1466,7 +1519,7 @@ class RootView extends React.Component {
                                 { errors }
 			    </div>
 			    <div className="row">
-				<Graph width="1600" height="800" queries={this.props.searches} fields={this.props.fields} packets={this.props.packets} highlight_nodes={this.props.highlight_nodes} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
+				<Graph width="1600" height="800" node={this.props.node} queries={this.props.searches} fields={this.props.fields} packets={this.props.packets} highlight_nodes={this.props.highlight_nodes} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
 				<Histogram width="1600" height="200" fields={this.props.fields} packets={this.props.packets} highlight_nodes={this.props.highlight_nodes} className="histogram" handleMouseOver={ this.handleMouseOver.bind(this) } />
 			    </div>
 			</div>
@@ -1481,7 +1534,9 @@ class RootView extends React.Component {
 			    </div>
 			    <div className="row">
 			    <button onClick={this.handleClearSelection.bind(this)}>Clear</button>
+                            <table className='table table-condensed table-striped col-md-4 col-lg-4'>
 			    {nodes}
+                            </table>
 			    </div>
 			</div>
 		    </div>
@@ -1527,6 +1582,7 @@ const mapStateToProps = (state, ownProps) => {
           packets: state.entries.packets,
           indexes: state.entries.indexes,
           fields: state.entries.fields,
+          columns: state.entries.columns,
 	  searches: state.entries.searches,
 	  highlight_nodes: state.entries.highlight_nodes,
           aggs: state.entries.aggs,
