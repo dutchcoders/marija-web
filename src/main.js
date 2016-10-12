@@ -856,6 +856,7 @@ function entries(state = {
     node: [],
     highlight_nodes: [],
     columns: [],
+    errors: null, 
     fields: [
         /*
         "GetaptTelnr", 
@@ -951,6 +952,14 @@ function entries(state = {
                     ...action
 	    })
 	case RECEIVE_PACKETS:
+            if (action.packets.error !== undefined) {
+                return Object.assign({}, state, {
+                    isFetching: false,
+                    didInvalidate: false,
+                    errors: action.packets.error
+                })
+            }
+
 	    state.searches.push({q: action.packets.query, color: action.packets.color, count: action.packets.results.hits.hits.length});
 
             console.debug("results", action.packets.results);
@@ -960,6 +969,7 @@ function entries(state = {
 	    });
 
 	    return Object.assign({}, state, {
+                errors: null,
 		packets: state.packets,
 		searches: state.searches,
 		isFetching: false,
@@ -1096,10 +1106,11 @@ function configureStore() {
 
 const store = configureStore({});
 
-function error() {
+function error(msg) {
     return {
         type: ERROR,
-        receivedAt: Date.now()
+        receivedAt: Date.now(),
+        msg: msg
     }
 }
 
@@ -1500,7 +1511,7 @@ class RootView extends React.Component {
 
 	let errors = null;
 	if (this.props.errors) {
-            errors = <div>{ this.props.errors } </div>;
+            errors = <div className="alert alert-danger">{ this.props.errors } </div>;
 	} 
 
         return <div className="container-fluid">
