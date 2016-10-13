@@ -113,7 +113,6 @@ var network = {
             .on("mouseup", this.mouseup.bind(this))
             .call(d3.drag()
                     .filter(() => {
-                        // console.debug("drag filter", d3.event);
                         return d3.event.altKey;
                     })
 		    .subject(this.dragsubject.bind(this))
@@ -123,7 +122,6 @@ var network = {
             )
             .call(d3.zoom()
                     .filter(() => {
-                        // console.debug("zoom filter", d3.event);
                         return d3.event.altKey;
                     })
                     .scaleExtent([1 / 2, 8])
@@ -220,21 +218,19 @@ var network = {
 	this.simulation.alpha(0.3).restart();
     },
     ticked: function(){
-	if(!this.graph) {
-	    return false;
-	}
+        if(!this.graph) {
+            return false;
+        }
 
-        // console.debug(this.graph.queries);
+        this.context.save();
+        this.context.clearRect(0,0,this.width,this.height);
 
-	this.context.save();
-	this.context.clearRect(0,0,this.width,this.height);
+        //this.context.translate(this.graph.transform.x, this.graph.transform.y);
 
-  //this.context.translate(this.graph.transform.x, this.graph.transform.y);
+        this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.y);
+        //this.context.translate((this.width / 2) + this.graph.transform.x, (this.height / 2) + this.graph.transform.y);
 
-this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.y);
-//this.context.translate((this.width / 2) + this.graph.transform.x, (this.height / 2) + this.graph.transform.y);
-
-  this.context.scale(this.graph.transform.k, this.graph.transform.k);
+        this.context.scale(this.graph.transform.k, this.graph.transform.k);
         if (this.graph.selection) {
             this.context.beginPath();
             this.context.strokeStyle = '#000000';
@@ -244,21 +240,21 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
             this.context.stroke();
         }
 
-	this.context.beginPath();
+        this.context.beginPath();
 
-	this.graph.links.forEach((d)=>{
-	    this.context.moveTo(d.source.x, d.source.y);
-	    this.context.lineTo(d.target.x, d.target.y);
-	});
+        this.graph.links.forEach((d)=>{
+            this.context.moveTo(d.source.x, d.source.y);
+            this.context.lineTo(d.target.x, d.target.y);
+        });
 
-	this.context.strokeStyle = this.lines.stroke.color;
-	this.context.lineWidth = this.lines.stroke.thickness;
+        this.context.strokeStyle = this.lines.stroke.color;
+        this.context.lineWidth = this.lines.stroke.thickness;
 
-	this.context.stroke();
+        this.context.stroke();
 
-	this.graph.nodes.forEach((d)=>{
+        this.graph.nodes.forEach((d)=>{
 
-	    this.context.moveTo(d.x + d.r, d.y);
+            this.context.moveTo(d.x + d.r, d.y);
 
             // for each different query, show a part. This will show that the edge
             //  has been found in multiple queries.
@@ -275,11 +271,11 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
                         color = this.graph.queries[j].color;
                 }
                 /*
-                if ( _.findIndex(this.graph.highlight_nodes, function(o) {
-                    return o == d.id
-                })!=-1) {
-                    color = "black";
-                }*/
+                   if ( _.findIndex(this.graph.highlight_nodes, function(o) {
+                   return o == d.id
+                   })!=-1) {
+                   color = "black";
+                   }*/
 
                 this.context.fillStyle = color;
                 this.context.fill();
@@ -293,22 +289,21 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
             }
             /*
 
-                this.context.strokeStyle =this.nodes.stroke.color;
-                this.context.lineWidth = this.nodes.stroke.thickness;
-                this.context.stroke();
-                */
+               this.context.strokeStyle =this.nodes.stroke.color;
+               this.context.lineWidth = this.nodes.stroke.thickness;
+               this.context.stroke();
+               */
 
             //this.context.fillStyle = '#000'; //d.color[0];
-	    //this.context.fillText(d.id,d.x + 5,d.y - 5);
-	});
+            //this.context.fillText(d.id,d.x + 5,d.y - 5);
+        });
 
         if (this.graph.tooltip) {
-            console.debug(this.graph.tooltip);
             this.context.fillStyle = '#000'; //d.color[0];
-	    this.context.fillText( this.graph.tooltip.node.id, this.graph.tooltip.x + 5, this.graph.tooltip.y - 5);
+            this.context.fillText( this.graph.tooltip.node.id, this.graph.tooltip.x + 5, this.graph.tooltip.y - 5);
         }
 
-	this.context.restore();
+        this.context.restore();
     },
     mousedown: function() {
           var x = this.graph.transform.invertX(d3.event.layerX),
@@ -320,13 +315,10 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
 
 	var subject = this.simulation.find(x, y, 20);
 	if (subject === undefined) {
-            console.debug("mousedown, no sel", d3.event);
             this.graph.selection = {x1: x, y1: y, x2: x, y2: y};
             this.ticked();
 	    return;
 	} else {
-            console.debug("mousedown Subject", subject);
-
             if (!_.includes(this.graph.selectedNodes, subject)) {
                 this.graph.selectedNodes.push(subject);
             } else {
@@ -343,13 +335,9 @@ this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.
               y = this.graph.transform.invertY(d3.event.layerY);
           
           // find all nodes within selection and highliht
-
-          console.debug("mouseup");
-
             this.graph.selection = null;
 
             this.ticked();
-
     },
     mousemove: function(n) {
           var x = this.graph.transform.invertX(d3.event.layerX),
@@ -705,10 +693,6 @@ class Graph extends React.Component {
         // console.debug("will receive props", nextProps);
     }
     componentDidUpdate(prevProps, prevState) {
-	console.debug("highlight", this.props.highlight_nodes);
-        console.debug("updated", this.props.packets);
-        console.debug("queries", this.props.queries);
-
         network.graph.queries = this.props.queries;
 
         var {graph} = this.state;
@@ -749,8 +733,6 @@ class Graph extends React.Component {
                     });
                 });
             });
-
-            // console.debug("added new nodes.");
 
             network.render({
                 nodes: nodes,
@@ -797,17 +779,6 @@ class SearchBox extends React.Component {
     }
     componentDidUpdate(prevProps, prevState) {
     }
-    handleDeleteIndex(field, e) {
-	e.preventDefault();
-
-	store.dispatch(deleteIndex(field));
-    }
-    handleAddIndex(e) {
-	e.preventDefault();
-
-        let index = this.refs.index.value;
-	store.dispatch(addIndex(index));
-    }
     render() {
 	let indexes = null;
 	if (this.props.indexes) {
@@ -819,30 +790,19 @@ class SearchBox extends React.Component {
                 </div>;
 	}
         
-
         let loader = classNames({ 'sk-search-box__loader': true, 'sk-spinning-loader': true, 'is-hidden': !this.props.isFetching });
-        /*
-        return <div className="[ bootsnipp-search animate ]">
-			<div className="[ container ]">
-				<form onSubmit={this.handleSubmit.bind(this)} role="search">
-					<div className="[ input-group ]">
-						<input ref="q" autoComplete="off" type="text" className="[ form-control ]" name="q" placeholder="Search for snippets and hit enter" value={this.state.q} />
-					</div>
-                                        <div data-qa="loader" className={loader}></div>
-                                        { indexes }
-				</form>
-			</div>
-		</div>
-                */
-
-        return <div className="col-md-offset-2 col-sm-offset-2 col-xs-offset-1 col-xs-10 col-sm-8 col-md-8 col-lg-6">
-                 <div className="form-group">
-                    <form onSubmit={this.handleSubmit.bind(this)}>
-                         <input ref="q" className="form-control" placeholder="query" value={ this.state.q } />
-                        <div data-qa="loader" className={loader}></div>
-                        { indexes }
-                    </form>
-                </div>
+        return <div className="row">
+                <nav className="[ navbar ][ navbar-bootsnipp animate ]" role="navigation">
+                    <div className="col-md-offset-2 col-sm-offset-2 col-xs-offset-1 col-xs-10 col-sm-8 col-md-8 col-lg-6">
+                        <div className="form-group">
+                            <form onSubmit={this.handleSubmit.bind(this)}>
+                                <input ref="q" className="form-control" placeholder="query" value={ this.state.q } />
+                                <div data-qa="loader" className={loader}></div>
+                                { indexes }
+                            </form>
+                        </div>
+                    </div>
+                </nav>
             </div>
     }
 }
@@ -960,7 +920,6 @@ function entries(state = {
 
 	    state.searches.push({q: action.packets.query, color: action.packets.color, count: action.packets.results.hits.hits.length});
 
-            console.debug("results", action.packets.results);
 	    state.packets = _.concat(state.packets, []);
 	    _.forEach(action.packets.results.hits.hits, (d, i) => {
 		state.packets.push({ q: action.packets.query, color: action.packets.color, fields: d._source});
@@ -1034,8 +993,6 @@ function persistState(paths, config) {
             console.warn('Failed to retrieve initialize state from localStorage:', e)
         }
 
-        console.debug("initialState", initialState);
-
         const store = next(reducer, initialState, enhancer)
 
         store.subscribe(() => {
@@ -1059,10 +1016,6 @@ function persistState(paths, config) {
                 console.warn('Unable to persist state to localStorage:', e)
             }
         })
-
-
-            console.debug(store);
-
 
         return store;
     }
@@ -1158,25 +1111,24 @@ const sock = {
     // URL: 'ws://' + location.host + '/ws',
     wsDispatcher: (msg) => {
 	const { session } = store.getState();
-	console.debug("wsDispatcher", store.getState());
+        // check msg type, use correct dispacther
 	return store.dispatch(receivePackets(msg));
     },
     startWS: (session) => {
 	if(!!sock.ws){
 	    return;
-	    sock.ws.close();
 	}
 
         try {
-	sock.ws = new FlowWS(sock.URL, null, sock.wsDispatcher)
+            sock.ws = new FlowWS(sock.URL, null, sock.wsDispatcher)
         } catch (e) {
             store.dispatch(error());
         }
     }
 };
 
-// connect
-	    sock.startWS({});
+// timeout?
+sock.startWS({});
 
 function requestEntries(entries) {
     return {
@@ -1329,39 +1281,15 @@ class App extends Intl {
 }
 
 function phone(p) {
-    // p = p.replace(/^06/i, "316");
+    p = p.replace(/^0/i, "31");
     return p;
 }
 
-class RootView extends React.Component {
+class ConfigurationView extends React.Component {
     constructor(props){
         super(props);
 
-        this.state = { 
-            docs:[], 
-            error: null, 
-	    searches: [],
-            currentNode: null,
-        }
-    }
-    componentDidMount() {
-    }
-    loadMoreItems() {
-    }
-    onSearchSubmit(q, index) {
-        fetchPackets({ query: q, index: index, color: getRandomColor() });
-    }
-    shouldComponentUpdate(nextProps, nextState) {
-        console.debug("shouldComponentUpdate", nextProps);
-      return true; // this.props.packets.length + 500 < nextProps.packets.length;
-    }
-    componentWillReceiveProps(nextProps) {
-        console.debug("componentWillReceiveProps", nextProps);
-    }
-    handleDeleteField(field, e) {
-	e.preventDefault();
-
-	store.dispatch(deleteField(field));
+        this.show = this.show.bind(this);
     }
     handleAddField(e) {
 	e.preventDefault();
@@ -1369,23 +1297,10 @@ class RootView extends React.Component {
         let field = this.refs.field.value;
 	store.dispatch(addField(field));
     }
-    handleChange(e){
-        this.setState({selectValue:e.target.value});
-    }
-    handleMouseOver(node) {
-        this.setState({currentNode: node});
-    }
-    handleClearSelection() {
-	store.dispatch(clearSelection());
-    }
-    handleMouseOver(nr1, nr2) {
-	console.debug("test", "getapttelnr", nr1, nr2);
-	store.dispatch(highlightNodes({ nodes: [nr1, nr2] }));
-    }
-    handleDeleteIndex(field, e) {
+    handleDeleteField(field, e) {
 	e.preventDefault();
 
-	store.dispatch(deleteIndex(field));
+	store.dispatch(deleteField(field));
     }
     handleAddIndex(e) {
 	e.preventDefault();
@@ -1393,56 +1308,78 @@ class RootView extends React.Component {
         let index = this.refs.index.value;
 	store.dispatch(addIndex(index));
     }
-    handleDeleteField(field, e) {
+    handleDeleteIndex(field, e) {
 	e.preventDefault();
 
-	store.dispatch(deleteField(field));
+	store.dispatch(deleteIndex(field));
     }
-    handleEditSearch(search, e) {
-	e.preventDefault();
-        this.setState({editSearchValue: search});
+    show() {
+        this.refs.dialogWithCallBacks.show();
     }
-    handleChangeSearchColorComplete(color) {
-        let search = this.state.editSearchValue;
-        search.color = color.hex;
-        this.setState({editSearchValue: search});
+    render() {
+	let fields = null;
+	if (this.props.fields || []) {
+	    let options = _.map(this.props.fields || [], (field) => {
+                return <li value={ field }>{ field } <button onClick={this.handleDeleteField.bind(this, field) }>x</button></li>;
+	    });
+            fields = <div>
+                <ul>{ options }</ul>
+                    <form onSubmit={this.handleAddField.bind(this)}>
+                <input type="text" ref="field" />
+                </form>
+            </div>;
+	}
+
+	let indexes = null;
+	if (this.props.indexes) {
+	    let options = _.map(this.props.indexes, (index) => {
+                return <li value={index}>{ index }<button onClick={this.handleDeleteIndex.bind(this, index) }>x</button></li>;
+	    });
+            indexes = <div>
+                <ul>{options}</ul>
+                </div>;
+	}
+
+        return <SkyLight
+            ref="dialogWithCallBacks"
+            title="add Index">
+            <div className="col-md-offset-2 col-sm-offset-2 col-xs-offset-1 col-xs-10 col-sm-8 col-md-8 col-lg-6">
+                <div className="form-group">
+                <h2>Indexes</h2>
+                { indexes }
+                </div>
+                <div className="form-group">
+                    <form onSubmit={this.handleAddIndex.bind(this)}>
+                        <input type="text" ref="index" />
+                    </form>
+                </div>
+                <h2>Fields</h2>
+                <div className="form-group">
+                { fields }
+                </div>
+            </div>
+        </SkyLight>;
     }
-    handleCancelEditSearch(search, e) {
-	e.preventDefault();
-        this.setState({editSearchValue: null});
+}
+
+class TableView extends React.Component {
+    constructor(props){
+        super(props);
+    }
+    handleClearSelection() {
+	store.dispatch(clearSelection());
     }
     handleTableAddColumn(field) {
-	//store.dispatch(addField(field));
 	store.dispatch(tableColumnAdd(field));
     }
     handleTableRemoveColumn(field) {
-	//store.dispatch(addField(field));
 	store.dispatch(tableColumnRemove(field));
     }
-    handleAddField(e) {
-	e.preventDefault();
-
-        let field = this.refs.field.value;
-	store.dispatch(addField(field));
+    handleMouseOver(id) {
+	store.dispatch(highlightNodes({ nodes: [id] }));
     }
     render() {
-        if (this.state.error != null) {
-            return <div>{this.state.error.code}</div>
-        }
-
         var that =this;
-
-        let searches = _.map(this.props.searches, (search) => {
-            var divStyle = {
-                color: search.color,
-            };
-
-            if (this.state.editSearchValue === search) {
-                return <div style={ divStyle }><SketchPicker  color={ search.color } onChangeComplete={ this.handleChangeSearchColorComplete.bind(this) }/> { search.q } ({search.count}) <button onClick={this.handleCancelEditSearch.bind(this, search) }>cancel</button> </div>
-            } else {
-                return <div style={ divStyle }>{ search.q } ({search.count}) <button onClick={this.handleEditSearch.bind(this, search) }>edit</button> </div>
-            }
-        });
 
 	let nodes = null;
 	if (this.props.node) {
@@ -1463,11 +1400,14 @@ class RootView extends React.Component {
                             return <td>{ packet.fields.document[value] }<button onClick={that.handleTableRemoveColumn.bind(that, value)}>remove</button></td>;
                         });
 
-		    return [<tr onMouseOver={ this.handleMouseOver.bind(this, node.id) }> 
+		    return [<tr onMouseOver={ that.handleMouseOver.bind(that, node.id) } className="columns">  
                             {columns}
                             </tr>,
-                            <tr>
+                            <tr className="fields">
                             { fields }
+                            </tr>,
+                            <tr className="json">
+                            { JSON.stringify(packet.fields.document) }
                             </tr>
                             ];
                     });
@@ -1475,105 +1415,137 @@ class RootView extends React.Component {
 	    });
 	}
 
-	let fields = null;
-	if (this.props.fields || []) {
-	    let options = _.map(this.props.fields || [], (field) => {
-                return <li value={ field }>{ field } <button onClick={this.handleDeleteField.bind(this, field) }>x</button></li>;
-	    });
-            fields = <div>
-                <ul>{ options }</ul>
-                    <form onSubmit={this.handleAddField.bind(this)}>
-                <input type="text" ref="field" />
-                </form>
-            </div>;
-	}
-
-	let indexes = null;
-	if (this.props.indexes) {
-	    let options = _.map(this.props.indexes, (index) => {
-                return <li value={index}>{ index }<button onClick={this.handleDeleteIndex.bind(this, index) }>x</button></li>;
-	    });
-            indexes = <div>
-                <ul onChange={this.handleChange.bind(this)} value={this.state.selectValue}>{options}</ul>
+        return <div>
+                    <button onClick={this.handleClearSelection.bind(this)}>Clear</button>
+                    <table className='table table-condensed table-striped col-md-4 col-lg-4'>
+                        {nodes}
+                    </table>
                 </div>;
-	}
+    }
+}
 
-	let connected = null;
+class ErrorStatus extends React.Component {
+    constructor(props){
+        super(props);
+    }
+    render() {
+	if (!this.props.errors) 
+            return null;
+
+        return <div className="alert alert-danger">{ this.props.errors } </div>;
+    }
+}
+
+class ConnectionStatus extends React.Component {
+    constructor(props){
+        super(props);
+    }
+    render() {
 	if (this.props.connected) {
-            connected = <div>connected </div>;
+            return <div>connected </div>;
 	} else {
-            connected = <div>not connected </div>;
+            return <div>not connected </div>;
+        }
+    }
+}
+
+class RootView extends React.Component {
+    constructor(props){
+        super(props);
+
+        this.state = { 
+            docs:[], 
+            error: null, 
+	    searches: [],
+            currentNode: null,
+        }
+    }
+    componentDidMount() {
+    }
+    onSearchSubmit(q, index) {
+        fetchPackets({ query: q, index: index, color: getRandomColor() });
+    }
+    componentWillReceiveProps(nextProps) {
+    }
+    handleChange(e){
+        this.setState({selectValue:e.target.value});
+    }
+    handleMouseOver(node) {
+        this.setState({currentNode: node});
+    }
+    handleEditSearch(search, e) {
+	e.preventDefault();
+        this.setState({editSearchValue: search});
+    }
+    handleCancelEditSearch(search, e) {
+	e.preventDefault();
+        this.setState({editSearchValue: null});
+    }
+    handleDeleteSearch(search, e) {
+	e.preventDefault();
+        // this.setState({editSearchValue: search});
+    }
+    handleChangeSearchColorComplete(color) {
+        let search = this.state.editSearchValue;
+        search.color = color.hex;
+        this.setState({editSearchValue: search});
+    }
+    render() {
+        if (this.state.error != null) {
+            return <div>{this.state.error.code}</div>
         }
 
-	let errors = null;
-	if (this.props.errors) {
-            errors = <div className="alert alert-danger">{ this.props.errors } </div>;
-	} 
+        var that =this;
+
+        let searches = _.map(this.props.searches, (search) => {
+            var divStyle = {
+                color: search.color,
+            };
+
+            if (this.state.editSearchValue === search) {
+                return <div style={ divStyle }><SketchPicker  color={ search.color } onChangeComplete={ this.handleChangeSearchColorComplete.bind(this) }/> { search.q } ({search.count}) <button onClick={this.handleCancelEditSearch.bind(this, search) }>cancel</button> </div>
+            } else {
+                return <div style={ divStyle }>{ search.q } ({search.count}) <button onClick={this.handleEditSearch.bind(this, search) }>edit</button> <button onClick={this.handleDeleteSearch.bind(this, search) }>delete</button> </div>
+            }
+        });
 
         return <div className="container-fluid">
-                    <div className="row">
-                        <nav className="[ navbar ][ navbar-bootsnipp animate ]" role="navigation">
-                            <SearchBox isFetching={this.props.isFetching} total={this.props.total} q= { this.state.q } onSubmit={this.onSearchSubmit.bind(this)} indexes = {this.props.indexes}/>
-                        </nav>
-                    </div>
+                    <SearchBox isFetching={this.props.isFetching} total={this.props.total} q= { this.state.q } onSubmit={this.onSearchSubmit.bind(this)} indexes = {this.props.indexes}/>
 		    <div className="row">
 			<div className="col-xs-9 col-sm-9">
 			    <div className="row">
                                 <section>
-                                <button onClick={() => this.refs.dialogWithCallBacks.show()}>Configure</button>
+                                    <button onClick={() => this.refs.configurationView.show()}>Configure</button>
                                 </section>
-                                { connected }
-                                { errors }
+                                <section>
+                                    <ConnectionStatus connected={this.props.connected} />
+                                </section>
+                                <section>
+                                    <ErrorStatus error={this.props.errors} />
+                                </section>
 			    </div>
 			    <div className="row">
 				<Graph width="1600" height="800" node={this.props.node} queries={this.props.searches} fields={this.props.fields} packets={this.props.packets} highlight_nodes={this.props.highlight_nodes} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
+                            </div>
+                            <div>
 				<Histogram width="1600" height="200" fields={this.props.fields} packets={this.props.packets} highlight_nodes={this.props.highlight_nodes} className="histogram" handleMouseOver={ this.handleMouseOver.bind(this) } />
 			    </div>
 			</div>
 			<div className="col-xs-3 col-sm-3">
 			    <div className="row">
-			    <b>Records:</b> { this.props.packets.length }
+                                <b>Records:</b> { this.props.packets.length }
 			    </div>
 			    <div className="row">
-			    { searches }
+                                { searches }
 			    </div>
 			    <div className="row">
-			    </div>
-			    <div className="row">
-			    <button onClick={this.handleClearSelection.bind(this)}>Clear</button>
-                            <table className='table table-condensed table-striped col-md-4 col-lg-4'>
-			    {nodes}
-                            </table>
+                                <TableView nodes={this.props.nodes} packets={this.props.packets} fields={this.props.fields} columns={this.props.columns} node={this.props.node}/>
 			    </div>
 			</div>
 		    </div>
-		    <div className="row">
-                    </div>
-		    <div className="row">
-                    </div>
-                    <div className="row">
-                    </div>
-        <SkyLight
-            ref="dialogWithCallBacks"
-            title="add Index">
-            <div className="col-md-offset-2 col-sm-offset-2 col-xs-offset-1 col-xs-10 col-sm-8 col-md-8 col-lg-6">
-                <div className="form-group">
-                <h2>Indexes</h2>
-                { indexes }
-                </div>
-                <div className="form-group">
-                    <form onSubmit={this.handleAddIndex.bind(this)}>
-                        <input type="text" ref="index" />
-                    </form>
-                </div>
-                <h2>Fields</h2>
-                <div className="form-group">
-                { fields }
-                </div>
-            </div>
-        </SkyLight>
-        <footer>footer</footer>
-        </div>;
+                    <ConfigurationView ref="configurationView" fields={this.props.fields} indexes={this.props.indexes} />
+                    <footer></footer>
+                </div>;
     }
 }
 
