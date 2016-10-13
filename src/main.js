@@ -58,12 +58,12 @@ const RECEIVE_PACKETS = 'RECEIVE_PACKETS';
 var network = {
     // Start data
     graph: {
-	"nodes":[
-	],
-	"links":[
-	],
-	"highlight_nodes": [
-	],
+        "nodes":[
+        ],
+        "links":[
+        ],
+        "highlight_nodes": [
+        ],
         selection: null,
         selectedNodes: [],
         tooltip: null,
@@ -75,110 +75,102 @@ var network = {
     width: 1600,
     height: 800,
     lines: {
-	stroke: {
-	    color: "#ccc",
-	    thickness: 1
-	}
+        stroke: {
+            color: "#ccc",
+            thickness: 1
+        }
     },
     nodes: {
-	fill: {
-	    color: "#333"
-	},
-	stroke: {
-	    color: "#fff",
-	    thickness: 3
-	},
-	sizeRange: [8,30]
+        fill: {
+            color: "#333"
+        },
+        stroke: {
+            color: "#fff",
+            thickness: 3
+        },
+        sizeRange: [8,30]
     },
     zoomed: function() {
-  this.graph.transform = d3.event.transform;
- // this.render();
-		this.ticked();
-},
+        this.graph.transform = d3.event.transform;
+        // this.render();
+        this.ticked();
+    },
     setup: function(el){
-	var i=document.createElement("canvas");
-	i.id = "networkCanvas";
-	i.width = "1600";
-	i.height = "800";
-	el.appendChild(i);
+        this.canvas = el;
+        this.context = this.canvas.getContext('2d');
 
-	this.canvas = document.getElementById('networkCanvas');
-	this.context = this.canvas.getContext('2d');
+        var canvas = d3.select(this.canvas);
 
-	var width = 1600, height=800;
-
-	var canvas = d3.select(this.canvas);
-
-	canvas.on("mousedown", this.mousedown.bind(this))
+        canvas.on("mousedown", this.mousedown.bind(this))
             .on("mousemove", this.mousemove.bind(this))
             .on("mouseup", this.mouseup.bind(this))
             .call(d3.drag()
                     .filter(() => {
                         return d3.event.altKey;
                     })
-		    .subject(this.dragsubject.bind(this))
-		    .on("start", this.dragstarted.bind(this))
-		    .on("drag", this.dragged.bind(this))
-		    .on("end", this.dragended.bind(this))
-            )
+                    .subject(this.dragsubject.bind(this))
+                    .on("start", this.dragstarted.bind(this))
+                    .on("drag", this.dragged.bind(this))
+                    .on("end", this.dragended.bind(this))
+                 )
             .call(d3.zoom()
                     .filter(() => {
                         return d3.event.altKey;
                     })
                     .scaleExtent([1 / 2, 8])
                     .on("zoom", this.zoomed.bind(this))
-            )
+                 )
             .on("start.render drag.render end.render", this.ticked);
 
-	this.simulation = d3.forceSimulation()
-	    .stop()
-	    .force("link", d3.forceLink().id(function(d) { return d.id; }))
-	    .force("charge", d3.forceManyBody()) // .strength(-10).distanceMax(300))
-	    .force("center",d3.forceCenter(this.width / 2, this.height / 2))
-	    .force("vertical", d3.forceY().strength(0.018))
-	    .force("horizontal", d3.forceX().strength(0.006))
-	    .on("tick",()=>{
-		this.ticked();
-	    });
+        this.simulation = d3.forceSimulation()
+            .stop()
+            .force("link", d3.forceLink().id(function(d) { return d.id; }))
+            .force("charge", d3.forceManyBody()) // .strength(-10).distanceMax(300))
+            .force("center",d3.forceCenter(this.width / 2, this.height / 2))
+            .force("vertical", d3.forceY().strength(0.018))
+            .force("horizontal", d3.forceX().strength(0.006))
+            .on("tick",()=>{
+                this.ticked();
+            });
 
-	    // have a mouse move as well
+        // have a mouse move as well
 
-/*
-	    var zoom = d3.behavior.zoom()
-		.translate([0, 0])
-		.scale(1)
-		.scaleExtent([1, 8])
-		.on("zoom", zoomed);<Paste>
+        /*
+           var zoom = d3.behavior.zoom()
+           .translate([0, 0])
+           .scale(1)
+           .scaleExtent([1, 8])
+           .on("zoom", zoomed);<Paste>
 
-	    */
-	    this.render(this.graph);
-	},
+*/
+        this.render(this.graph);
+    },
     forceScale: function(node){
-	var scale = d3.scaleLog().domain(this.nodes.sizeRange).range(this.nodes.sizeRange.slice().reverse());
-	return node.r + scale(node.r);
+        var scale = d3.scaleLog().domain(this.nodes.sizeRange).range(this.nodes.sizeRange.slice().reverse());
+        return node.r + scale(node.r);
     },
     select: function(nodes){
         this.graph.selectedNodes = nodes;
         this.ticked();
     },
     highlight: function(nodes){
-	this.graph.highlight_nodes = nodes;
+        this.graph.highlight_nodes = nodes;
         this.ticked();
     },
     render: function(graph){
-	var countExtent = d3.extent(graph.nodes,function(d){return d.connections;}),
-            radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(this.nodes.sizeRange);
+        var countExtent = d3.extent(graph.nodes,function(d){return d.connections;}),
+        radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(this.nodes.sizeRange);
 
         var newNodes = false;
 
-	var that = this;
-	_.each(graph.nodes, function(node){
-	    var n = _.find(that.graph.nodes, {id: node.id});
-	    if (n ) {
-		n.connections++;
+        var that = this;
+        _.each(graph.nodes, function(node){
+            var n = _.find(that.graph.nodes, {id: node.id});
+            if (n ) {
+                n.connections++;
 
-		n.r = radiusScale(n.connections);
-		//n.force = that.forceScale(n);
+                n.r = radiusScale(n.connections);
+                n.force = that.forceScale(n);
 
                 n.query.push(node.query);
                 n.query = _.uniq(n.query);
@@ -186,11 +178,11 @@ var network = {
                 n.color.push(node.color);
                 n.color = _.uniq(n.color);
 
-		// todo(nl5887): add to node that result multiple searches, eg create multiple parts
-		return;
-	    }
+                // todo(nl5887): add to node that result multiple searches, eg create multiple parts
+                return;
+            }
 
-	    node.r = radiusScale(node.connections);
+            node.r = radiusScale(node.connections);
             node.color = [node.color];
             node.query = [node.query];
 
@@ -199,24 +191,24 @@ var network = {
 
             //node.cx = that.width / 2;
             //node.cy = that.height / 2;
-	    //node.force = that.forceScale(node);
-	    that.graph.nodes.push(node);
+            node.force = that.forceScale(node);
+            that.graph.nodes.push(node);
 
             newNodes = true;
-	});
+        });
 
-	this.graph.links = this.graph.links.concat(graph.links);
+        this.graph.links = this.graph.links.concat(graph.links);
 
         if (!newNodes) 
             return;
 
-	this.simulation
-	    .nodes(this.graph.nodes);
+        this.simulation
+            .nodes(this.graph.nodes);
 
-	this.simulation.force("link")
-	    .links(this.graph.links);
+        this.simulation.force("link")
+            .links(this.graph.links);
 
-	this.simulation.alpha(0.3).restart();
+        this.simulation.alpha(0.3).restart();
     },
     ticked: function(){
         if(!this.graph) {
@@ -307,19 +299,19 @@ var network = {
         this.context.restore();
     },
     mousedown: function() {
-          var x = this.graph.transform.invertX(d3.event.layerX),
-              y = this.graph.transform.invertY(d3.event.layerY);
+        var x = this.graph.transform.invertX(d3.event.layerX),
+        y = this.graph.transform.invertY(d3.event.layerY);
 
-          if (d3.event.altKeys) {
-              return;
-          }
+        if (d3.event.altKeys) {
+            return;
+        }
 
-	var subject = this.simulation.find(x, y, 20);
-	if (subject === undefined) {
+        var subject = this.simulation.find(x, y, 20);
+        if (subject === undefined) {
             this.graph.selection = {x1: x, y1: y, x2: x, y2: y};
             this.ticked();
-	    return;
-	} else {
+            return;
+        } else {
             if (!_.includes(this.graph.selectedNodes, subject)) {
                 this.graph.selectedNodes.push(subject);
             } else {
@@ -332,48 +324,48 @@ var network = {
         }
     },
     mouseup: function() {
-          var x = this.graph.transform.invertX(d3.event.layerX),
-              y = this.graph.transform.invertY(d3.event.layerY);
-          
-          // find all nodes within selection and highliht
-            this.graph.selection = null;
+        var x = this.graph.transform.invertX(d3.event.layerX),
+        y = this.graph.transform.invertY(d3.event.layerY);
 
-            this.ticked();
+        // find all nodes within selection and highliht
+        this.graph.selection = null;
+
+        this.ticked();
     },
     mousemove: function(n) {
-          var x = this.graph.transform.invertX(d3.event.layerX),
-              y = this.graph.transform.invertY(d3.event.layerY);
+        var x = this.graph.transform.invertX(d3.event.layerX),
+        y = this.graph.transform.invertY(d3.event.layerY);
 
-          if (this.graph.selection) {
+        if (this.graph.selection) {
             this.graph.selection = _.assign(this.graph.selection, {x2:x, y2:y});
 
-          this.graph.nodes.forEach((d)=>{
-              if ((d.x > this.graph.selection.x1 && d.x < this.graph.selection.x2) &&
-                      (d.y > this.graph.selection.y1 && d.y < this.graph.selection.y2)) {
-                  if (!_.includes(this.graph.selectedNodes, d)) {
-                      this.graph.selectedNodes.push(d);
-                  } 
-              }
+            this.graph.nodes.forEach((d)=>{
+                if ((d.x > this.graph.selection.x1 && d.x < this.graph.selection.x2) &&
+                        (d.y > this.graph.selection.y1 && d.y < this.graph.selection.y2)) {
+                    if (!_.includes(this.graph.selectedNodes, d)) {
+                        this.graph.selectedNodes.push(d);
+                    } 
+                }
 
-              if ((d.x > this.graph.selection.x2 && d.x < this.graph.selection.x1) &&
-                      (d.y > this.graph.selection.y2 && d.y < this.graph.selection.y1)) {
-                  if (!_.includes(this.graph.selectedNodes, d)) {
-                      this.graph.selectedNodes.push(d);
-                  } 
-              }
-          });
+                if ((d.x > this.graph.selection.x2 && d.x < this.graph.selection.x1) &&
+                        (d.y > this.graph.selection.y2 && d.y < this.graph.selection.y1)) {
+                    if (!_.includes(this.graph.selectedNodes, d)) {
+                        this.graph.selectedNodes.push(d);
+                    } 
+                }
+            });
 
-	store.dispatch(selectNodes({nodes:this.graph.selectedNodes}));
+            store.dispatch(selectNodes({nodes:this.graph.selectedNodes}));
             this.ticked();
-          }
+        }
 
 
-	var subject = this.simulation.find(x, y, 20);
-	if (subject === undefined) {
+        var subject = this.simulation.find(x, y, 20);
+        if (subject === undefined) {
             this.graph.tooltip = null;
             this.ticked();
-	    return;
-	}
+            return;
+        }
 
 
         this.graph.tooltip = {node: subject, x: x, y: y};
@@ -382,41 +374,41 @@ var network = {
         this.ticked();
     },
     dragstarted: function() {
-          var x = d3.event.x,
-              y = d3.event.y;
+        var x = d3.event.x,
+        y = d3.event.y;
 
-	if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
-	d3.event.subject.fx = x;
-	d3.event.subject.fy = y;
+        if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
+        d3.event.subject.fx = x;
+        d3.event.subject.fy = y;
     },
     dragged: function() {
-          var x = d3.event.x,
-              y = d3.event.y;
+        var x = d3.event.x,
+        y = d3.event.y;
 
-	d3.event.subject.fx = (x);
-	d3.event.subject.fy = (y);
+        d3.event.subject.fx = (x);
+        d3.event.subject.fy = (y);
     },
     dragended: function() {
-	if (!d3.event.active) this.simulation.alphaTarget(0);
-	d3.event.subject.fx = null;
-	d3.event.subject.fy = null;
+        if (!d3.event.active) this.simulation.alphaTarget(0);
+        d3.event.subject.fx = null;
+        d3.event.subject.fy = null;
     },
     dragsubject: function() {
-          var x = this.graph.transform.invertX(d3.event.x),
-              y = this.graph.transform.invertY(d3.event.y);
+        var x = this.graph.transform.invertX(d3.event.x),
+        y = this.graph.transform.invertY(d3.event.y);
 
-	// adjust
-	return this.simulation.find(x, y, 20);
+        // adjust
+        return this.simulation.find(x, y, 20);
     },
     mousemoved: function() {
     },
     drawLink: function(d) {
-	context.moveTo(d.source.x, d.source.y);
-	context.lineTo(d.target.x, d.target.y);
+        context.moveTo(d.source.x, d.source.y);
+        context.lineTo(d.target.x, d.target.y);
     },
     drawNode: function(d) {
-	context.moveTo(d.x + 3, d.y);
-	context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
+        context.moveTo(d.x + 3, d.y);
+        context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
     }
 };
 
@@ -430,199 +422,199 @@ var getRandomColor = function(q){
 };
 
 class Histogram extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-  componentDidMount() {
-      this.canvas =  this.refs["canvas"];
+    constructor(props) {
+        super(props);
+    }
+    componentDidMount() {
+        this.canvas =  this.refs["canvas"];
 
-      this.context = this.canvas.getContext('2d');
+        this.context = this.canvas.getContext('2d');
 
-      var width = 1600, height=800;
+        var width = 1600, height=800;
 
-      var canvas = d3.select(this.canvas),
-      context = this.context;
+        var canvas = d3.select(this.canvas),
+        context = this.context;
 
-      var margin = {top: 20, right: 20, bottom: 30, left: 40},
-      width = canvas.width - margin.left - margin.right,
-      height = canvas.height - margin.top - margin.bottom;
+        var margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width = canvas.width - margin.left - margin.right,
+        height = canvas.height - margin.top - margin.bottom;
 
-      var x = d3.scaleBand()
-          .rangeRound([0, width])
-          .padding(0.1);
+        var x = d3.scaleBand()
+            .rangeRound([0, width])
+            .padding(0.1);
 
-      var y = d3.scaleLinear()
-          .rangeRound([height, 0]);
+        var y = d3.scaleLinear()
+            .rangeRound([height, 0]);
 
-      context.translate(margin.left, margin.top);
+        context.translate(margin.left, margin.top);
 
 
-      let data = [
-      {
-          letter: 'A', 
-          frequency :0.08167
-      },
-      {
-          letter:    'B', 
-          frequency :0.01492,
-      },
-      {
-          letter:   'C', 
-          frequency :0.02782,
-      },
-      {
-          letter:  'D', 
-          frequency :0.04253,
-      },
-      {
-          letter: 'E', 
-          frequency :0.12702,
-      },
-      {
-          letter:    'F', 
-          frequency :0.02288,
-      },
-      {
-          letter:    'G', 
-          frequency :0.02015,
-      },
-      {
-          letter:    'H', 
-          frequency :0.06094,
-      },
-      {
-          letter:    'I', 
-          frequency :0.06966,
-      },
-      {
-          letter:    'J', 
-          frequency :0.00153,
-      },
-      {
-          letter:    'K', 
-          frequency :0.00772,
-      },
-      {
-          letter:    'L', 
-          frequency :0.04025,
-      },
-      {
-          letter:    'M', 
-          frequency :0.02406,
-      },
-      {
-          letter:    'N', 
-          frequency :0.06749,
-      },
-      {
-          letter:    'O', 
-          frequency :0.07507,
-      },
-      {
-          letter:    'P', 
-          frequency :0.01929,
-      },
-      {
-          letter:    'Q', 
-          frequency :0.00095,
-      },
-      {
-          letter:    'R', 
-          frequency :0.05987,
-      },
-      {
-          letter:    'S', 
-          frequency :0.06327,
-      },
-      {
-          letter:    'T', 
-          frequency :0.09056,
-      },
-      {
-          letter:    'U', 
-          frequency :0.02758,
-      },
-      {
-          letter:    'V', 
-          frequency :0.00978,
-      },
-      {
-          letter:    'W', 
-          frequency :0.02360,
-      },
-      {
-          letter:    'X', 
-          frequency :0.00015,
-      },
-      {
-          letter:    'Y', 
-          frequency :0.01974,
-      },
-      {
-          letter:    'Z', 
-          frequency :0.00074
-      },
-      ];
+        let data = [
+        {
+            letter: 'A', 
+            frequency :0.08167
+        },
+        {
+            letter:    'B', 
+            frequency :0.01492,
+        },
+        {
+            letter:   'C', 
+            frequency :0.02782,
+        },
+        {
+            letter:  'D', 
+            frequency :0.04253,
+        },
+        {
+            letter: 'E', 
+            frequency :0.12702,
+        },
+        {
+            letter:    'F', 
+            frequency :0.02288,
+        },
+        {
+            letter:    'G', 
+            frequency :0.02015,
+        },
+        {
+            letter:    'H', 
+            frequency :0.06094,
+        },
+        {
+            letter:    'I', 
+            frequency :0.06966,
+        },
+        {
+            letter:    'J', 
+            frequency :0.00153,
+        },
+        {
+            letter:    'K', 
+            frequency :0.00772,
+        },
+        {
+            letter:    'L', 
+            frequency :0.04025,
+        },
+        {
+            letter:    'M', 
+            frequency :0.02406,
+        },
+        {
+            letter:    'N', 
+            frequency :0.06749,
+        },
+        {
+            letter:    'O', 
+            frequency :0.07507,
+        },
+        {
+            letter:    'P', 
+            frequency :0.01929,
+        },
+        {
+            letter:    'Q', 
+            frequency :0.00095,
+        },
+        {
+            letter:    'R', 
+            frequency :0.05987,
+        },
+        {
+            letter:    'S', 
+            frequency :0.06327,
+        },
+        {
+            letter:    'T', 
+            frequency :0.09056,
+        },
+        {
+            letter:    'U', 
+            frequency :0.02758,
+        },
+        {
+            letter:    'V', 
+            frequency :0.00978,
+        },
+        {
+            letter:    'W', 
+            frequency :0.02360,
+        },
+        {
+            letter:    'X', 
+            frequency :0.00015,
+        },
+        {
+            letter:    'Y', 
+            frequency :0.01974,
+        },
+        {
+            letter:    'Z', 
+            frequency :0.00074
+        },
+        ];
 
-      x.domain(data.map(function(d) { return d.letter; }));
-      y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+        x.domain(data.map(function(d) { return d.letter; }));
+        y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
 
-      var yTickCount = 10,
-      yTicks = y.ticks(yTickCount),
-      yTickFormat = y.tickFormat(yTickCount, "%");
+        var yTickCount = 10,
+        yTicks = y.ticks(yTickCount),
+        yTickFormat = y.tickFormat(yTickCount, "%");
 
-      context.beginPath();
-      x.domain().forEach(function(d) {
-          context.moveTo(x(d) + x.bandwidth() / 2, height);
-          context.lineTo(x(d) + x.bandwidth() / 2, height + 6);
-      });
-      context.strokeStyle = "black";
-      context.stroke();
+        context.beginPath();
+        x.domain().forEach(function(d) {
+            context.moveTo(x(d) + x.bandwidth() / 2, height);
+            context.lineTo(x(d) + x.bandwidth() / 2, height + 6);
+        });
+        context.strokeStyle = "black";
+        context.stroke();
 
-      context.textAlign = "center";
-      context.textBaseline = "top";
-      x.domain().forEach(function(d) {
-          context.fillText(d, x(d) + x.bandwidth() / 2, height + 6);
-      });
+        context.textAlign = "center";
+        context.textBaseline = "top";
+        x.domain().forEach(function(d) {
+            context.fillText(d, x(d) + x.bandwidth() / 2, height + 6);
+        });
 
-      context.beginPath();
-      yTicks.forEach(function(d) {
-          context.moveTo(0, y(d) + 0.5);
-          context.lineTo(-6, y(d) + 0.5);
-      });
-      context.strokeStyle = "black";
-      context.stroke();
+        context.beginPath();
+        yTicks.forEach(function(d) {
+            context.moveTo(0, y(d) + 0.5);
+            context.lineTo(-6, y(d) + 0.5);
+        });
+        context.strokeStyle = "black";
+        context.stroke();
 
-      context.textAlign = "right";
-      context.textBaseline = "middle";
-      yTicks.forEach(function(d) {
-          context.fillText(yTickFormat(d), -9, y(d));
-      });
+        context.textAlign = "right";
+        context.textBaseline = "middle";
+        yTicks.forEach(function(d) {
+            context.fillText(yTickFormat(d), -9, y(d));
+        });
 
-      context.beginPath();
-      context.moveTo(-6.5, 0 + 0.5);
-      context.lineTo(0.5, 0 + 0.5);
-      context.lineTo(0.5, height + 0.5);
-      context.lineTo(-6.5, height + 0.5);
-      context.strokeStyle = "black";
-      context.stroke();
+        context.beginPath();
+        context.moveTo(-6.5, 0 + 0.5);
+        context.lineTo(0.5, 0 + 0.5);
+        context.lineTo(0.5, height + 0.5);
+        context.lineTo(-6.5, height + 0.5);
+        context.strokeStyle = "black";
+        context.stroke();
 
-      context.save();
-      context.rotate(-Math.PI / 2);
-      context.textAlign = "right";
-      context.textBaseline = "top";
-      context.font = "bold 10px sans-serif";
-      context.fillText("Frequency", -10, 10);
-      context.restore();
+        context.save();
+        context.rotate(-Math.PI / 2);
+        context.textAlign = "right";
+        context.textBaseline = "top";
+        context.font = "bold 10px sans-serif";
+        context.fillText("Frequency", -10, 10);
+        context.restore();
 
-      context.fillStyle = "steelblue";
-      data.forEach(function(d) {
-          context.fillRect(x(d.letter), y(d.frequency), x.bandwidth(), height - y(d.frequency));
-      });
-  }
-  render() {
-      return <canvas width='1600' height='1200' ref="canvas">histogram</canvas>;
-  }
+        context.fillStyle = "steelblue";
+        data.forEach(function(d) {
+            context.fillRect(x(d.letter), y(d.frequency), x.bandwidth(), height - y(d.frequency));
+        });
+    }
+    render() {
+        return <canvas width={ this.props.width } height={ this.props.height } ref="canvas">histogram</canvas>;
+    }
 }
 
 class Graph extends React.Component {
@@ -650,7 +642,7 @@ class Graph extends React.Component {
       network.onmouseclick = this.onMouseClick.bind(this);
       network.onmousemove = this.onMouseMove.bind(this);
 
-      network.setup(this.refs["graph"]);
+      network.setup(this.refs["canvas"]);
   }
   shouldComponentUpdate(nextProps, nextState) {
       return true; 
@@ -725,7 +717,7 @@ class Graph extends React.Component {
         network.ticked();
     }
     render() {
-        return <div ref="graph"></div>;
+        return <canvas ref='canvas' width={ this.props.width } height={ this.props.height } ref="canvas">histogram</canvas>;
     }
 }
 
@@ -794,16 +786,8 @@ function entries(state = {
     highlight_nodes: [],
     columns: [],
     errors: null, 
-    fields: [
-        /*
-        */
-    ],
-    indexes: [
-        /*
-        "http://172.16.84.1:9200/octopus/",
-        "http://127.0.0.1:9200/octopus/",
-        */
-    ],
+    fields: [],
+    indexes: [],
     packets: [],
     searches: [],
 }, action) {
@@ -1031,7 +1015,6 @@ function error(msg) {
         msg: msg
     }
 }
-
 
 function authConnected(p) {
     return {
