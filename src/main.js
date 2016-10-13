@@ -1,4 +1,8 @@
+/*jshint esversion: 6 */
+
+//
 // http://bl.ocks.org/GerHobbelt/3071239
+// esversion: 6;
 // http://bl.ocks.org/norrs/2883411
 //
 //
@@ -10,17 +14,19 @@
 // aliases
 // meerdere indexen tegelijk zoeken
 //
+//
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Table, Column, Cell} from 'fixed-data-table';
 import _ from 'lodash';
-import { browserHistory, Router, Route, Link } from 'react-router'
-import { Provider } from 'react-redux'
-import { dispatch, compose, createStore, combineReducers, applyMiddleware } from 'redux'
-import { connect } from 'react-redux'
-import * as redux from 'redux'
-import {Intl,FormattedDate, FormattedNumber}  from 'react-intl-es6'
-import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
+import { browserHistory, Router, Route, Link } from 'react-router';
+import { Provider } from 'react-redux';
+import { dispatch, compose, createStore, combineReducers, applyMiddleware } from 'redux';
+import { connect } from 'react-redux';
+import * as redux from 'redux';
+import {Intl,FormattedDate, FormattedNumber}  from 'react-intl-es6';
+import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import ReactList from 'react-list';
 
 import SkyLight from 'react-skylight';
@@ -30,12 +36,7 @@ import ipaddr from "ipaddr.js";
 import Waypoint from 'react-waypoint';
 import classNames from 'classnames/bind';
 
-// import thunk from 'redux-thunk'
-//import api from '../middleware/api'
-//import rootReducer from '../reducers'
-
 import * as d3 from "d3";
-// import { brush } from 'd3'
 
 const REQUEST_POSTS = 'REQUEST_POSTS';
 const RECEIVE_POSTS = 'RECEIVE_POSTS';
@@ -165,8 +166,8 @@ var network = {
         this.ticked();
     },
     render: function(graph){
-	var countExtent = d3.extent(graph.nodes,function(d){return d.connections}),
-	radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(this.nodes.sizeRange);
+	var countExtent = d3.extent(graph.nodes,function(d){return d.connections;}),
+            radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(this.nodes.sizeRange);
 
         var newNodes = false;
 
@@ -426,212 +427,198 @@ var getRandomColor = function(q){
         color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
-}
+};
 
 class Histogram extends React.Component {
-  static propTypes = {
-    packets: React.PropTypes.array.isRequired
-  }
   constructor(props) {
     super(props);
-
-    this.state = {
-    };
-
-  }
-  getInitialState() {
-      return {
-	  nodes: [],
-	  links: [],
-	  edges: []
-      };
   }
   componentDidMount() {
-          this.canvas =  this.refs["canvas"];
+      this.canvas =  this.refs["canvas"];
 
-	this.context = this.canvas.getContext('2d');
+      this.context = this.canvas.getContext('2d');
 
-	var width = 1600, height=800;
+      var width = 1600, height=800;
 
-	var canvas = d3.select(this.canvas),
-            context = this.context;
+      var canvas = d3.select(this.canvas),
+      context = this.context;
 
-        var margin = {top: 20, right: 20, bottom: 30, left: 40},
-            width = canvas.width - margin.left - margin.right,
-            height = canvas.height - margin.top - margin.bottom;
+      var margin = {top: 20, right: 20, bottom: 30, left: 40},
+      width = canvas.width - margin.left - margin.right,
+      height = canvas.height - margin.top - margin.bottom;
 
-        var x = d3.scaleBand()
-            .rangeRound([0, width])
-            .padding(0.1);
+      var x = d3.scaleBand()
+          .rangeRound([0, width])
+          .padding(0.1);
 
-        var y = d3.scaleLinear()
-            .rangeRound([height, 0]);
+      var y = d3.scaleLinear()
+          .rangeRound([height, 0]);
 
-        context.translate(margin.left, margin.top);
+      context.translate(margin.left, margin.top);
 
 
-        let data = [
-        {
-            letter: 'A', 
-            frequency :0.08167
-        },
-         {
-            letter:    'B', 
-            frequency :0.01492,
-          },
-          {
-            letter:   'C', 
-            frequency :0.02782,
-          },
-           {
-            letter:  'D', 
-            frequency :0.04253,
-          },
-            {
-            letter: 'E', 
-            frequency :0.12702,
-          },
-         {
-            letter:    'F', 
-            frequency :0.02288,
-          },
-         {
-            letter:    'G', 
-            frequency :0.02015,
-          },
-         {
-            letter:    'H', 
-            frequency :0.06094,
-          },
-         {
-            letter:    'I', 
-            frequency :0.06966,
-          },
-         {
-            letter:    'J', 
-            frequency :0.00153,
-          },
-         {
-            letter:    'K', 
-            frequency :0.00772,
-          },
-         {
-            letter:    'L', 
-            frequency :0.04025,
-          },
-         {
-            letter:    'M', 
-            frequency :0.02406,
-          },
-         {
-            letter:    'N', 
-            frequency :0.06749,
-          },
-         {
-            letter:    'O', 
-            frequency :0.07507,
-          },
-         {
-            letter:    'P', 
-            frequency :0.01929,
-          },
-         {
-            letter:    'Q', 
-            frequency :0.00095,
-          },
-         {
-            letter:    'R', 
-            frequency :0.05987,
-          },
-         {
-            letter:    'S', 
-            frequency :0.06327,
-          },
-         {
-            letter:    'T', 
-            frequency :0.09056,
-          },
-         {
-            letter:    'U', 
-            frequency :0.02758,
-          },
-         {
-            letter:    'V', 
-            frequency :0.00978,
-          },
-         {
-            letter:    'W', 
-            frequency :0.02360,
-          },
-         {
-            letter:    'X', 
-            frequency :0.00015,
-          },
-         {
-            letter:    'Y', 
-            frequency :0.01974,
-          },
-         {
-            letter:    'Z', 
-            frequency :0.00074
-          },
-        ]
+      let data = [
+      {
+          letter: 'A', 
+          frequency :0.08167
+      },
+      {
+          letter:    'B', 
+          frequency :0.01492,
+      },
+      {
+          letter:   'C', 
+          frequency :0.02782,
+      },
+      {
+          letter:  'D', 
+          frequency :0.04253,
+      },
+      {
+          letter: 'E', 
+          frequency :0.12702,
+      },
+      {
+          letter:    'F', 
+          frequency :0.02288,
+      },
+      {
+          letter:    'G', 
+          frequency :0.02015,
+      },
+      {
+          letter:    'H', 
+          frequency :0.06094,
+      },
+      {
+          letter:    'I', 
+          frequency :0.06966,
+      },
+      {
+          letter:    'J', 
+          frequency :0.00153,
+      },
+      {
+          letter:    'K', 
+          frequency :0.00772,
+      },
+      {
+          letter:    'L', 
+          frequency :0.04025,
+      },
+      {
+          letter:    'M', 
+          frequency :0.02406,
+      },
+      {
+          letter:    'N', 
+          frequency :0.06749,
+      },
+      {
+          letter:    'O', 
+          frequency :0.07507,
+      },
+      {
+          letter:    'P', 
+          frequency :0.01929,
+      },
+      {
+          letter:    'Q', 
+          frequency :0.00095,
+      },
+      {
+          letter:    'R', 
+          frequency :0.05987,
+      },
+      {
+          letter:    'S', 
+          frequency :0.06327,
+      },
+      {
+          letter:    'T', 
+          frequency :0.09056,
+      },
+      {
+          letter:    'U', 
+          frequency :0.02758,
+      },
+      {
+          letter:    'V', 
+          frequency :0.00978,
+      },
+      {
+          letter:    'W', 
+          frequency :0.02360,
+      },
+      {
+          letter:    'X', 
+          frequency :0.00015,
+      },
+      {
+          letter:    'Y', 
+          frequency :0.01974,
+      },
+      {
+          letter:    'Z', 
+          frequency :0.00074
+      },
+      ];
 
-  x.domain(data.map(function(d) { return d.letter; }));
-  y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+      x.domain(data.map(function(d) { return d.letter; }));
+      y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
 
-  var yTickCount = 10,
+      var yTickCount = 10,
       yTicks = y.ticks(yTickCount),
       yTickFormat = y.tickFormat(yTickCount, "%");
 
-  context.beginPath();
-  x.domain().forEach(function(d) {
-    context.moveTo(x(d) + x.bandwidth() / 2, height);
-    context.lineTo(x(d) + x.bandwidth() / 2, height + 6);
-  });
-  context.strokeStyle = "black";
-  context.stroke();
+      context.beginPath();
+      x.domain().forEach(function(d) {
+          context.moveTo(x(d) + x.bandwidth() / 2, height);
+          context.lineTo(x(d) + x.bandwidth() / 2, height + 6);
+      });
+      context.strokeStyle = "black";
+      context.stroke();
 
-  context.textAlign = "center";
-  context.textBaseline = "top";
-  x.domain().forEach(function(d) {
-    context.fillText(d, x(d) + x.bandwidth() / 2, height + 6);
-  });
+      context.textAlign = "center";
+      context.textBaseline = "top";
+      x.domain().forEach(function(d) {
+          context.fillText(d, x(d) + x.bandwidth() / 2, height + 6);
+      });
 
-  context.beginPath();
-  yTicks.forEach(function(d) {
-    context.moveTo(0, y(d) + 0.5);
-    context.lineTo(-6, y(d) + 0.5);
-  });
-  context.strokeStyle = "black";
-  context.stroke();
+      context.beginPath();
+      yTicks.forEach(function(d) {
+          context.moveTo(0, y(d) + 0.5);
+          context.lineTo(-6, y(d) + 0.5);
+      });
+      context.strokeStyle = "black";
+      context.stroke();
 
-  context.textAlign = "right";
-  context.textBaseline = "middle";
-  yTicks.forEach(function(d) {
-    context.fillText(yTickFormat(d), -9, y(d));
-  });
+      context.textAlign = "right";
+      context.textBaseline = "middle";
+      yTicks.forEach(function(d) {
+          context.fillText(yTickFormat(d), -9, y(d));
+      });
 
-  context.beginPath();
-  context.moveTo(-6.5, 0 + 0.5);
-  context.lineTo(0.5, 0 + 0.5);
-  context.lineTo(0.5, height + 0.5);
-  context.lineTo(-6.5, height + 0.5);
-  context.strokeStyle = "black";
-  context.stroke();
+      context.beginPath();
+      context.moveTo(-6.5, 0 + 0.5);
+      context.lineTo(0.5, 0 + 0.5);
+      context.lineTo(0.5, height + 0.5);
+      context.lineTo(-6.5, height + 0.5);
+      context.strokeStyle = "black";
+      context.stroke();
 
-  context.save();
-  context.rotate(-Math.PI / 2);
-  context.textAlign = "right";
-  context.textBaseline = "top";
-  context.font = "bold 10px sans-serif";
-  context.fillText("Frequency", -10, 10);
-  context.restore();
+      context.save();
+      context.rotate(-Math.PI / 2);
+      context.textAlign = "right";
+      context.textBaseline = "top";
+      context.font = "bold 10px sans-serif";
+      context.fillText("Frequency", -10, 10);
+      context.restore();
 
-  context.fillStyle = "steelblue";
-  data.forEach(function(d) {
-    context.fillRect(x(d.letter), y(d.frequency), x.bandwidth(), height - y(d.frequency));
-  });
+      context.fillStyle = "steelblue";
+      data.forEach(function(d) {
+          context.fillRect(x(d.letter), y(d.frequency), x.bandwidth(), height - y(d.frequency));
+      });
   }
   render() {
       return <canvas width='1600' height='1200' ref="canvas">histogram</canvas>;
@@ -639,9 +626,6 @@ class Histogram extends React.Component {
 }
 
 class Graph extends React.Component {
-  static propTypes = {
-    packets: React.PropTypes.array.isRequired
-  }
   constructor(props) {
     super(props);
 
@@ -659,13 +643,6 @@ class Graph extends React.Component {
 	ticks: 0
     };
 
-  }
-  getInitialState() {
-      return {
-	  nodes: [],
-	  links: [],
-	  edges: []
-      };
   }
   componentDidMount() {
       var $this = this;
@@ -1035,16 +1012,8 @@ function configureStore() {
                     total: 0,
                     node: [],
                     highlight_nodes: [],
-                    fields: [
-                        /*
-                           */
-                    ],
-                    indexes: [
-                        /*
-                        "http://172.16.84.1:9200/octopus/",
-                        "http://127.0.0.1:9200/octopus/",
-                        */
-                    ],
+                    fields: [],
+                    indexes: [],
                     packets: [],
                     searches: [],
                 },
@@ -1261,14 +1230,7 @@ function receivePackets(packets, opts = {
 class App extends Intl {
     constructor() {
         super( i18n.locales, i18n.messages );
-
-
-        this.state = {
-            nodes: [],
-            protocols: [],
-        }
     }
-
     render() {
         return (
               <Provider store={store}>
@@ -1381,9 +1343,9 @@ class TableView extends React.Component {
     render() {
         var that =this;
 
-	let nodes = null;
+	let body = null;
 	if (this.props.node) {
-	    nodes = _.map(this.props.node, (node) => {
+	    body = _.map(this.props.node, (node) => {
 		return  _.map(this.props.packets, (packet) => {
                     return _.map(this.props.fields || [], (value) => {
                         if (phone(packet.fields.document[value])!==node.id) 
@@ -1400,16 +1362,15 @@ class TableView extends React.Component {
                             return <td>{ packet.fields.document[value] }<button onClick={that.handleTableRemoveColumn.bind(that, value)}>remove</button></td>;
                         });
 
-		    return [<tr onMouseOver={ that.handleMouseOver.bind(that, node.id) } className="columns">  
-                            {columns}
-                            </tr>,
-                            <tr className="fields">
-                            { fields }
-                            </tr>,
-                            <tr className="json">
-                            { JSON.stringify(packet.fields.document) }
+		    return <tbody>
+                            <tr onMouseOver={ that.handleMouseOver.bind(that, node.id) } className="columns">  
+                                {columns}
                             </tr>
-                            ];
+                            { fields }
+                            <tr className="json">
+                                { JSON.stringify(packet.fields.document) }
+                            </tr>
+                        </tbody>;
                     });
 		});
 	    });
@@ -1418,7 +1379,7 @@ class TableView extends React.Component {
         return <div>
                     <button onClick={this.handleClearSelection.bind(this)}>Clear</button>
                     <table className='table table-condensed table-striped col-md-4 col-lg-4'>
-                        {nodes}
+                        {body}
                     </table>
                 </div>;
     }
@@ -1571,9 +1532,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const history = syncHistoryWithStore(browserHistory, store);
 
-// history.listen(location => fetchEntries({...location.query, from: 0, size: 50}));
-
 ReactDOM.render((
-  <App/>
+            <App/>
 ), document.getElementById('root'))
 
