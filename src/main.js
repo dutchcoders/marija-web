@@ -859,8 +859,6 @@ function entries(state = {
     errors: null, 
     fields: [
         /*
-        "GetaptTelnr", 
-        "Gekozennummer"
         */
     ],
     indexes: [
@@ -1086,8 +1084,6 @@ function configureStore() {
                     highlight_nodes: [],
                     fields: [
                         /*
-                           "GetaptTelnr", 
-                           "Gekozennummer"
                            */
                     ],
                     indexes: [
@@ -1467,7 +1463,7 @@ class RootView extends React.Component {
                             return <td>{ packet.fields.document[value] }<button onClick={that.handleTableRemoveColumn.bind(that, value)}>remove</button></td>;
                         });
 
-		    return [<tr onMouseOver={ this.handleMouseOver.bind(this, packet.fields.document.GetaptTelnr, packet.fields.document.Gekozennummer  ) }> 
+		    return [<tr onMouseOver={ this.handleMouseOver.bind(this, node.id) }> 
                             {columns}
                             </tr>,
                             <tr>
