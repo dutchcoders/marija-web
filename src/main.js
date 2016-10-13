@@ -1,20 +1,14 @@
 /*jshint esversion: 6 */
 
-//
 // http://bl.ocks.org/GerHobbelt/3071239
-// esversion: 6;
 // http://bl.ocks.org/norrs/2883411
-//
-//
-//
+
 // change color, and icon of query
+// change facet?
 // change individual node (and name)
 // load and save workspace
-// tooltip
-// aliases
+// create aliases
 // meerdere indexen tegelijk zoeken
-//
-//
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -124,7 +118,7 @@ var network = {
         this.simulation = d3.forceSimulation()
             .stop()
             .force("link", d3.forceLink().id(function(d) { return d.id; }))
-            .force("charge", d3.forceManyBody()) // .strength(-10).distanceMax(300))
+            .force("charge", d3.forceManyBody().strength(-10).distanceMax(300))
             .force("center",d3.forceCenter(this.width / 2, this.height / 2))
             .force("vertical", d3.forceY().strength(0.018))
             .force("horizontal", d3.forceX().strength(0.006))
@@ -132,16 +126,6 @@ var network = {
                 this.ticked();
             });
 
-        // have a mouse move as well
-
-        /*
-           var zoom = d3.behavior.zoom()
-           .translate([0, 0])
-           .scale(1)
-           .scaleExtent([1, 8])
-           .on("zoom", zoomed);<Paste>
-
-*/
         this.render(this.graph);
     },
     forceScale: function(node){
@@ -177,20 +161,14 @@ var network = {
                 n.color.push(node.color);
                 n.color = _.uniq(n.color);
 
-                // todo(nl5887): add to node that result multiple searches, eg create multiple parts
                 return;
             }
 
-            node.r = radiusScale(node.connections);
             node.color = [node.color];
             node.query = [node.query];
-
-            //node.x = that.width / 2;
-            //node.y = that.height / 2;
-
-            //node.cx = that.width / 2;
-            //node.cy = that.height / 2;
             node.force = that.forceScale(node);
+            node.r = radiusScale(node.connections);
+
             that.graph.nodes.push(node);
 
             newNodes = true;
@@ -217,20 +195,9 @@ var network = {
         this.context.save();
         this.context.clearRect(0,0,this.width,this.height);
 
-        //this.context.translate(this.graph.transform.x, this.graph.transform.y);
-
         this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.y);
-        //this.context.translate((this.width / 2) + this.graph.transform.x, (this.height / 2) + this.graph.transform.y);
 
         this.context.scale(this.graph.transform.k, this.graph.transform.k);
-        if (this.graph.selection) {
-            this.context.beginPath();
-            this.context.strokeStyle = '#000000';
-            this.context.lineWidth = 1;
-            this.context.setLineDash([6]);
-            this.context.rect(this.graph.selection.x1, this.graph.selection.y1, this.graph.selection.x2 - this.graph.selection.x1, this.graph.selection.y2 - this.graph.selection.y1);
-            this.context.stroke();
-        }
 
         this.context.beginPath();
 
@@ -279,16 +246,17 @@ var network = {
                 }
 
             }
-            /*
-
-               this.context.strokeStyle =this.nodes.stroke.color;
-               this.context.lineWidth = this.nodes.stroke.thickness;
-               this.context.stroke();
-               */
-
-            //this.context.fillStyle = '#000'; //d.color[0];
-            //this.context.fillText(d.id,d.x + 5,d.y - 5);
         });
+
+        if (this.graph.selection) {
+            this.context.beginPath();
+            this.context.strokeStyle = '#000000';
+            this.context.lineWidth = 1;
+            this.context.setLineDash([6]);
+            this.context.rect(this.graph.selection.x1, this.graph.selection.y1, this.graph.selection.x2 - this.graph.selection.x1, this.graph.selection.y2 - this.graph.selection.y1);
+            this.context.stroke();
+        }
+
 
         if (this.graph.tooltip) {
             this.context.fillStyle = '#000'; //d.color[0];
@@ -1011,7 +979,7 @@ function error(msg) {
     return {
         type: ERROR,
         receivedAt: Date.now(),
-        msg: msg
+        errors: msg
     }
 }
 
@@ -1063,7 +1031,13 @@ const sock = {
     wsDispatcher: (msg) => {
 	const { session } = store.getState();
         // check msg type, use correct dispacther
-	return store.dispatch(receivePackets(msg));
+        if (msg.hits) {
+            return store.dispatch(receivePackets(msg.hits));
+        } else if (msg.error) {
+            return store.dispatch(error(msg.error.message));
+        } else {
+            console.debug("unknown message type", msg);
+        }
     },
     startWS: (session) => {
 	if(!!sock.ws){
@@ -1350,7 +1324,9 @@ class TableView extends React.Component {
                             </tr>
                             { fields }
                             <tr className="json">
+                                <td colSpan="3">
                                 { JSON.stringify(packet.fields.document) }
+                                </td>
                             </tr>
                         </tbody>;
                     });
@@ -1372,10 +1348,10 @@ class ErrorStatus extends React.Component {
         super(props);
     }
     render() {
-	if (!this.props.errors) 
+	if (!this.props.error) 
             return null;
 
-        return <div className="alert alert-danger">{ this.props.errors } </div>;
+        return <div className="alert alert-danger">{ this.props.error } </div>;
     }
 }
 
@@ -1389,6 +1365,49 @@ class ConnectionStatus extends React.Component {
 	} else {
             return <div>not connected </div>;
         }
+    }
+}
+
+class Searches extends React.Component {
+    constructor(props){
+        super(props);
+        this.state = { 
+            editSearchValue: null,
+        }
+    }
+    handleEditSearch(search, e) {
+	e.preventDefault();
+        this.setState({editSearchValue: search});
+    }
+    handleCancelEditSearch(search, e) {
+	e.preventDefault();
+        this.setState({editSearchValue: null});
+    }
+    handleDeleteSearch(search, e) {
+	e.preventDefault();
+        // this.setState({editSearchValue: search});
+    }
+    handleChangeSearchColorComplete(color) {
+        let search = this.state.editSearchValue;
+        search.color = color.hex;
+        this.setState({editSearchValue: search});
+    }
+    render() {
+        var that =this;
+
+        let searches = _.map(this.props.searches, (search) => {
+            var divStyle = {
+                color: search.color,
+            };
+
+            if (that.state.editSearchValue === search) {
+                return <div style={ divStyle }><SketchPicker  color={ search.color } onChangeComplete={ that.handleChangeSearchColorComplete.bind(that) }/> { search.q } ({search.count}) <button onClick={that.handleCancelEditSearch.bind(that, search) }>cancel</button> </div>
+            } else {
+                return <div style={ divStyle }>{ search.q } ({search.count}) <button onClick={that.handleEditSearch.bind(that, search) }>edit</button> <button onClick={that.handleDeleteSearch.bind(that, search) }>delete</button> </div>
+            }
+        });
+
+        return <div>{searches}</div>;
     }
 }
 
@@ -1416,41 +1435,12 @@ class RootView extends React.Component {
     handleMouseOver(node) {
         this.setState({currentNode: node});
     }
-    handleEditSearch(search, e) {
-	e.preventDefault();
-        this.setState({editSearchValue: search});
-    }
-    handleCancelEditSearch(search, e) {
-	e.preventDefault();
-        this.setState({editSearchValue: null});
-    }
-    handleDeleteSearch(search, e) {
-	e.preventDefault();
-        // this.setState({editSearchValue: search});
-    }
-    handleChangeSearchColorComplete(color) {
-        let search = this.state.editSearchValue;
-        search.color = color.hex;
-        this.setState({editSearchValue: search});
-    }
     render() {
         if (this.state.error != null) {
             return <div>{this.state.error.code}</div>
         }
 
         var that =this;
-
-        let searches = _.map(this.props.searches, (search) => {
-            var divStyle = {
-                color: search.color,
-            };
-
-            if (this.state.editSearchValue === search) {
-                return <div style={ divStyle }><SketchPicker  color={ search.color } onChangeComplete={ this.handleChangeSearchColorComplete.bind(this) }/> { search.q } ({search.count}) <button onClick={this.handleCancelEditSearch.bind(this, search) }>cancel</button> </div>
-            } else {
-                return <div style={ divStyle }>{ search.q } ({search.count}) <button onClick={this.handleEditSearch.bind(this, search) }>edit</button> <button onClick={this.handleDeleteSearch.bind(this, search) }>delete</button> </div>
-            }
-        });
 
         return <div className="container-fluid">
                     <SearchBox isFetching={this.props.isFetching} total={this.props.total} q= { this.state.q } onSubmit={this.onSearchSubmit.bind(this)} indexes = {this.props.indexes}/>
@@ -1479,7 +1469,7 @@ class RootView extends React.Component {
                                 <b>Records:</b> { this.props.packets.length }
 			    </div>
 			    <div className="row">
-                                { searches }
+                                <Searches searches={this.props.searches} />
 			    </div>
 			    <div className="row">
                                 <TableView nodes={this.props.nodes} packets={this.props.packets} fields={this.props.fields} columns={this.props.columns} node={this.props.node}/>
