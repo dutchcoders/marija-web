@@ -904,25 +904,22 @@ function entries(state = {
                     ...action
 	    })
 	case RECEIVE_PACKETS:
-            if (action.packets.error !== undefined) {
-                return Object.assign({}, state, {
-                    isFetching: false,
-                    didInvalidate: false,
-                    errors: action.packets.error
-                })
-            }
+	    var searches = _.concat(state.searches, {q: action.packets.query, color: action.packets.color, count: action.packets.results.hits.hits.length});
 
-	    state.searches = _.concat(state.searches, {q: action.packets.query, color: action.packets.color, count: action.packets.results.hits.hits.length});
-
-	    state.packets = _.concat(state.packets, []);
+	    var packets = _.concat(state.packets, []);
 	    _.forEach(action.packets.results.hits.hits, (d, i) => {
-		state.packets.push({ q: action.packets.query, color: action.packets.color, fields: d._source});
+		packets.push({ q: action.packets.query, color: action.packets.color, fields: d._source});
 	    });
+            
+            var nodes = state.nodes;
+            
+            // node -> heeft ook een package
 
 	    return Object.assign({}, state, {
                 errors: null,
-		packets: state.packets,
-		searches: state.searches,
+                nodes: nodes, 
+		packets: packets,
+		searches: searches,
 		isFetching: false,
 		didInvalidate: false
 	    })
@@ -1365,6 +1362,10 @@ class ConfigurationView extends React.Component {
 class TableView extends React.Component {
     constructor(props){
         super(props);
+
+        this.state = {
+            editNode: null,
+        }
     }
     handleClearSelection() {
 	store.dispatch(clearSelection());
@@ -1378,8 +1379,11 @@ class TableView extends React.Component {
     handleMouseOver(id) {
 	store.dispatch(highlightNodes({ nodes: [id] }));
     }
+    handleCancelEditNode(node) {
+        this.setState({editNode: null});
+    }
     handleEditNode(node) {
-	// store.dispatch(deleteNodes([node.id]));
+        this.setState({editNode: node});
     }
     handleDeleteNode(node) {
 	store.dispatch(deleteNodes([node.id]));
@@ -1425,7 +1429,11 @@ class TableView extends React.Component {
 	let selected = null;
 	if (this.props.node) {
 	    selected = _.map(this.props.node, (node) => {
-                return <li>{node.id} <button onClick={that.handleEditNode.bind(that, node) }>edit</button> <button onClick={that.handleDeleteNode.bind(that, node)}>delete</button></li>;
+                if (this.state.editNode == node) {
+                    return <li>{node.id} <button onClick={that.handleCancelEditNode.bind(that, node) }>cancel</button> </li>;
+                } else {
+                    return <li>{node.id} <button onClick={that.handleEditNode.bind(that, node) }>edit</button> <button onClick={that.handleDeleteNode.bind(that, node)}>delete</button></li>;
+                }
             });
         }
 
