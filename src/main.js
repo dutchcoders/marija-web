@@ -9,6 +9,7 @@
 // load and save workspace
 // create aliases
 // meerdere indexen tegelijk zoeken
+// notities kunnen toevoegen
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -32,6 +33,8 @@ import * as d3 from "d3";
 import * as redux from 'redux';
 
 const REQUEST_POSTS = 'REQUEST_POSTS';
+const DELETE_SEARCH = 'DELETE_SEARCH';
+const DELETE_NODES = 'DELETE_NODES';
 const RECEIVE_POSTS = 'RECEIVE_POSTS';
 const SELECT_NODE = 'SELECT_NODE';
 const SELECT_NODES = 'SELECT_NODES';
@@ -118,13 +121,14 @@ var network = {
         this.simulation = d3.forceSimulation()
             .stop()
             .force("link", d3.forceLink().id(function(d) { return d.id; }))
-            .force("charge", d3.forceManyBody().strength(-10).distanceMax(300))
+            .force("charge", d3.forceManyBody()) // .strength(-10).distanceMax(300))
             .force("center",d3.forceCenter(this.width / 2, this.height / 2))
             .force("vertical", d3.forceY().strength(0.018))
             .force("horizontal", d3.forceX().strength(0.006))
             .on("tick",()=>{
                 this.ticked();
             });
+
 
         this.render(this.graph);
     },
@@ -139,6 +143,17 @@ var network = {
     highlight: function(nodes){
         this.graph.highlight_nodes = nodes;
         this.ticked();
+    },
+    removeNodes: function(removed) {
+        // remove nodes
+        this.graph.nodes = _.remove(this.graph.nodes, (n) => {
+            return _.find(removed, {id: n});
+        });
+
+        // find links
+        this.graph.links = _.remove(this.graph.links, (n) => {
+            return _.find(removed, {id: n.source.id}) || _.find(removed, {id: n.target.id}) ;
+        });
     },
     render: function(graph){
         var countExtent = d3.extent(graph.nodes,function(d){return d.connections;}),
@@ -323,20 +338,19 @@ var network = {
             });
 
             store.dispatch(selectNodes({nodes:this.graph.selectedNodes}));
+
             this.ticked();
+            return;
         }
 
 
         var subject = this.simulation.find(x, y, 20);
         if (subject === undefined) {
             this.graph.tooltip = null;
-            this.ticked();
-            return;
+        } else {
+            this.graph.tooltip = {node: subject, x: x, y: y};
+            this.onmousemove(subject);
         }
-
-
-        this.graph.tooltip = {node: subject, x: x, y: y};
-        this.onmousemove(subject);
 
         this.ticked();
     },
@@ -632,12 +646,31 @@ class Graph extends React.Component {
         network.graph.queries = this.props.queries;
 
         var {graph} = this.state;
+        var {fields} = this.props;
 
 	var nodes = [];
 	var links = [];
 
+        var removed = _.difference(prevProps.packets, this.props.packets);
+        if (removed.length > 0) {
+            var removed2=[];
+            _.forEach(removed, (d, i) => {
+                _.forEach(fields, (field) => {
+                    if (d.fields.document[field] === undefined)
+                            return;
+
+                    removed2.push(d.fields.document[field]);
+                });
+            });
+
+            // this should be node id not packet
+            network.removeNodes({
+                nodes: removed2,
+            });
+        }
+
+
         if (this.props.packets.length > 0) {
-            var fields = this.props.fields;
             // only new packets!
             _.forEach(this.props.packets, (d, i) => {
                 // should we hash the id?
@@ -680,7 +713,7 @@ class Graph extends React.Component {
         network.select(this.props.node);
         network.highlight(this.props.highlight_nodes);
 
-
+        // only if different
         network.ticked();
     }
     render() {
@@ -773,6 +806,39 @@ function entries(state = {
 	    return Object.assign({}, state, {
 		indexes: indexes,
 	    })
+	case DELETE_NODES:
+            // we want to remove nodes, not packets. So packet to node conversion should happen here, not in render / addnode
+            var packets = _.concat(state.packets);
+            _.remove(packets, (p) => {
+                return ( _.reduce(state.fields, (found, field) => {
+                    found = found || _.find(action.nodes, (o) => {
+                        return phone(p.fields.document[field]) == o;
+                    });
+
+                    return found;
+                }, false));
+            });
+
+            // todo remove highlighted node
+
+	    return Object.assign({}, state, {
+                packets: packets
+	    })
+	case DELETE_SEARCH:
+	    var searches = _.without(state.searches,  action.search);
+
+            // remove associated packets from packet list
+            var packets = _.concat(state.packets);
+            _.remove(packets, (p) => {
+                return (p.q === action.search.q)
+            });
+
+            console.debug("DELETE_SEARCH", packets);
+
+	    return Object.assign({}, state, {
+		searches: searches,
+                packets: packets
+	    })
 	case TABLE_COLUMN_ADD:
 	    var columns = _.concat(state.columns, action.field);
 	    return Object.assign({}, state, {
@@ -846,7 +912,7 @@ function entries(state = {
                 })
             }
 
-	    state.searches.push({q: action.packets.query, color: action.packets.color, count: action.packets.results.hits.hits.length});
+	    state.searches = _.concat(state.searches, {q: action.packets.query, color: action.packets.color, count: action.packets.results.hits.hits.length});
 
 	    state.packets = _.concat(state.packets, []);
 	    _.forEach(action.packets.results.hits.hits, (d, i) => {
@@ -1146,6 +1212,22 @@ function selectNodes(opts) {
     }
 }
 
+function deleteSearch(opts) {
+    return {
+        type: DELETE_SEARCH,
+        receivedAt: Date.now(),
+	...opts,
+    }
+}
+
+function deleteNodes(opts) {
+    return {
+        type: DELETE_NODES,
+        receivedAt: Date.now(),
+	nodes: opts,
+    }
+}
+
 
 function highlightNodes(opts) {
     return {
@@ -1296,6 +1378,12 @@ class TableView extends React.Component {
     handleMouseOver(id) {
 	store.dispatch(highlightNodes({ nodes: [id] }));
     }
+    handleEditNode(node) {
+	// store.dispatch(deleteNodes([node.id]));
+    }
+    handleDeleteNode(node) {
+	store.dispatch(deleteNodes([node.id]));
+    }
     render() {
         var that =this;
 
@@ -1334,7 +1422,17 @@ class TableView extends React.Component {
 	    });
 	}
 
+	let selected = null;
+	if (this.props.node) {
+	    selected = _.map(this.props.node, (node) => {
+                return <li>{node.id} <button onClick={that.handleEditNode.bind(that, node) }>edit</button> <button onClick={that.handleDeleteNode.bind(that, node)}>delete</button></li>;
+            });
+        }
+
         return <div>
+                    <ul>
+                        {selected}
+                    </ul>
                     <button onClick={this.handleClearSelection.bind(this)}>Clear</button>
                     <table className='table table-condensed table-striped col-md-4 col-lg-4'>
                         {body}
@@ -1385,7 +1483,8 @@ class Searches extends React.Component {
     }
     handleDeleteSearch(search, e) {
 	e.preventDefault();
-        // this.setState({editSearchValue: search});
+
+        store.dispatch(deleteSearch({search: search}));
     }
     handleChangeSearchColorComplete(color) {
         let search = this.state.editSearchValue;
