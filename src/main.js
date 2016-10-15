@@ -7,9 +7,10 @@
 // change facet?
 // change individual node (and name)
 // load and save workspace
-// create aliases
+// create aliases / multiple. So node will have an id, and a mapping table with id, alias -> id
 // meerdere indexen tegelijk zoeken
 // notities kunnen toevoegen
+// mini map
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -84,17 +85,18 @@ var network = {
             color: "#fff",
             thickness: 3
         },
-        sizeRange: [8,30]
+        sizeRange: [12,30]
     },
     zoomed: function() {
         this.graph.transform = d3.event.transform;
-        // this.render();
-        this.ticked();
     },
     setup: function(el){
+        this.render2 = this.render2.bind(this);
+        this.drawNode = this.drawNode.bind(this);
+        this.drawLink = this.drawLink.bind(this);
+
         this.canvas = el;
         this.context = this.canvas.getContext('2d');
-
         var canvas = d3.select(this.canvas);
 
         canvas.on("mousedown", this.mousedown.bind(this))
@@ -115,22 +117,20 @@ var network = {
                     })
                     .scaleExtent([1 / 2, 8])
                     .on("zoom", this.zoomed.bind(this))
-                 )
-            .on("start.render drag.render end.render", this.ticked);
+                 );
 
         this.simulation = d3.forceSimulation()
             .stop()
             .force("link", d3.forceLink().id(function(d) { return d.id; }))
-            .force("charge", d3.forceManyBody()) // .strength(-10).distanceMax(300))
+            .force("charge", d3.forceManyBody().strength(-100).distanceMax(300))
             .force("center",d3.forceCenter(this.width / 2, this.height / 2))
             .force("vertical", d3.forceY().strength(0.018))
-            .force("horizontal", d3.forceX().strength(0.006))
-            .on("tick",()=>{
-                this.ticked();
-            });
+            .force("horizontal", d3.forceX().strength(0.006));
 
 
-        this.render(this.graph);
+        this.addNodes(this.graph);
+
+        this.render2();
     },
     forceScale: function(node){
         var scale = d3.scaleLog().domain(this.nodes.sizeRange).range(this.nodes.sizeRange.slice().reverse());
@@ -138,11 +138,9 @@ var network = {
     },
     select: function(nodes){
         this.graph.selectedNodes = nodes;
-        this.ticked();
     },
     highlight: function(nodes){
         this.graph.highlight_nodes = nodes;
-        this.ticked();
     },
     removeNodes: function(removed) {
         // remove nodes
@@ -155,7 +153,7 @@ var network = {
             return _.find(removed, {id: n.source.id}) || _.find(removed, {id: n.target.id}) ;
         });
     },
-    render: function(graph){
+    addNodes: function(graph){
         var countExtent = d3.extent(graph.nodes,function(d){return d.connections;}),
         radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(this.nodes.sizeRange);
 
@@ -183,6 +181,7 @@ var network = {
             node.query = [node.query];
             node.force = that.forceScale(node);
             node.r = radiusScale(node.connections);
+            node.icon = "\uF047";
 
             that.graph.nodes.push(node);
 
@@ -202,7 +201,7 @@ var network = {
 
         this.simulation.alpha(0.3).restart();
     },
-    ticked: function(){
+    render2: function() {
         if(!this.graph) {
             return false;
         }
@@ -217,81 +216,91 @@ var network = {
         this.context.beginPath();
 
         this.graph.links.forEach((d)=>{
-            this.context.moveTo(d.source.x, d.source.y);
-            this.context.lineTo(d.target.x, d.target.y);
+            this.drawLink(d);
         });
 
         this.context.strokeStyle = this.lines.stroke.color;
         this.context.lineWidth = this.lines.stroke.thickness;
-
         this.context.stroke();
 
         this.graph.nodes.forEach((d)=>{
-
-            this.context.moveTo(d.x + d.r, d.y);
-
-            // for each different query, show a part. This will show that the edge
-            //  has been found in multiple queries.
-            for (var i=0; i<d.query.length; i++) {
-                // find color
-
-                this.context.beginPath();
-                this.context.arc(d.x, d.y, d.r, 2 * Math.PI * (i / d.color.length), 2 * Math.PI * ( (i + 1) / d.color.length));
-
-                var color = '#000'; // d.searches[i];
-
-                for (var j = 0; j < this.graph.queries.length; j++) {
-                    if (this.graph.queries[j].q === d.query[i]) 
-                        color = this.graph.queries[j].color;
-                }
-                /*
-                   if ( _.findIndex(this.graph.highlight_nodes, function(o) {
-                   return o == d.id
-                   })!=-1) {
-                   color = "black";
-                   }*/
-
-                this.context.fillStyle = color;
-                this.context.fill();
-
-                if (_.includes(this.graph.selectedNodes, d)) {
-                    this.context.strokeStyle = '#993833';
-                    this.context.lineWidth = this.nodes.stroke.thickness;
-                    this.context.stroke();
-                }
-
-            }
+            this.drawNode(d);
         });
 
         if (this.graph.selection) {
             this.context.beginPath();
-            this.context.strokeStyle = '#000000';
+            this.context.strokeStyle = '#c0c0c0';
+            this.context.fillStyle = "rgba(224, 224, 224, 0.6)";
+            //this.context.fillStyle = '#eee';
             this.context.lineWidth = 1;
-            this.context.setLineDash([6]);
+            // this.context.setLineDash([6]);
+
             this.context.rect(this.graph.selection.x1, this.graph.selection.y1, this.graph.selection.x2 - this.graph.selection.x1, this.graph.selection.y2 - this.graph.selection.y1);
+            this.context.fill();
             this.context.stroke();
         }
 
 
         if (this.graph.tooltip) {
             this.context.fillStyle = '#000'; //d.color[0];
+            this.context.font="14px Arial";
             this.context.fillText( this.graph.tooltip.node.id, this.graph.tooltip.x + 5, this.graph.tooltip.y - 5);
         }
 
         this.context.restore();
+
+        requestAnimationFrame(this.render2);
+    },
+    drawNode: function(d) {
+        // this.context.moveTo(d.x + d.r, d.y);
+
+        // for each different query, show a part. This will show that the edge
+        //  has been found in multiple queries.
+        for (var i=0; i<d.query.length; i++) {
+            // find color
+
+            this.context.beginPath();
+            this.context.arc(d.x, d.y, d.r, 2 * Math.PI * (i / d.color.length), 2 * Math.PI * ( (i + 1) / d.color.length));
+
+            var color = '#000'; // d.searches[i];
+
+            for (var j = 0; j < this.graph.queries.length; j++) {
+                if (this.graph.queries[j].q === d.query[i]) 
+                    color = this.graph.queries[j].color;
+            }
+            /*
+               if ( _.findIndex(this.graph.highlight_nodes, function(o) {
+               return o == d.id
+               })!=-1) {
+               color = "black";
+               }*/
+
+            this.context.fillStyle = color;
+            this.context.fill();
+
+            if (_.includes(this.graph.selectedNodes, d)) {
+                this.context.strokeStyle = '#993833';
+                this.context.lineWidth = this.nodes.stroke.thickness;
+                this.context.stroke();
+            }
+        }
+
+        // this.context.font="14px FontAwesome";
+        // this.context.fillStyle = '#fff';
+        // this.context.fillText(d.icon, d.x - ( d.r) + 1, d.y + 5);
     },
     mousedown: function() {
-        var x = this.graph.transform.invertX(d3.event.layerX),
-        y = this.graph.transform.invertY(d3.event.layerY);
-
         if (d3.event.altKeys) {
             return;
         }
 
+        var x = this.graph.transform.invertX(d3.event.layerX),
+        y = this.graph.transform.invertY(d3.event.layerY);
+
         var subject = this.simulation.find(x, y, 20);
         if (subject === undefined) {
             this.graph.selection = {x1: x, y1: y, x2: x, y2: y};
-            this.ticked();
+            store.dispatch(selectNodes({nodes:[]}));
             return;
         } else {
             if (!_.includes(this.graph.selectedNodes, subject)) {
@@ -306,15 +315,21 @@ var network = {
         }
     },
     mouseup: function() {
+        if (d3.event.altKeys) {
+            return;
+        }
+
         var x = this.graph.transform.invertX(d3.event.layerX),
         y = this.graph.transform.invertY(d3.event.layerY);
 
         // find all nodes within selection and highliht
         this.graph.selection = null;
-
-        this.ticked();
     },
     mousemove: function(n) {
+        if (d3.event.altKeys) {
+            return;
+        }
+
         var x = this.graph.transform.invertX(d3.event.layerX),
         y = this.graph.transform.invertY(d3.event.layerY);
 
@@ -338,8 +353,6 @@ var network = {
             });
 
             store.dispatch(selectNodes({nodes:this.graph.selectedNodes}));
-
-            this.ticked();
             return;
         }
 
@@ -351,8 +364,6 @@ var network = {
             this.graph.tooltip = {node: subject, x: x, y: y};
             this.onmousemove(subject);
         }
-
-        this.ticked();
     },
     dragstarted: function() {
         var x = d3.event.x,
@@ -384,13 +395,15 @@ var network = {
     mousemoved: function() {
     },
     drawLink: function(d) {
-        context.moveTo(d.source.x, d.source.y);
-        context.lineTo(d.target.x, d.target.y);
+        this.context.moveTo(d.source.x, d.source.y);
+        this.context.lineTo(d.target.x, d.target.y);
     },
+    /*
     drawNode: function(d) {
         context.moveTo(d.x + 3, d.y);
         context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
     }
+    */
 };
 
 var getRandomColor = function(q){
@@ -703,7 +716,7 @@ class Graph extends React.Component {
                 });
             });
 
-            network.render({
+            network.addNodes({
                 nodes: nodes,
                 links: links,
             });
@@ -712,12 +725,10 @@ class Graph extends React.Component {
 
         network.select(this.props.node);
         network.highlight(this.props.highlight_nodes);
-
-        // only if different
-        network.ticked();
     }
     render() {
-        return <canvas ref='canvas' width={ this.props.width } height={ this.props.height } ref="canvas">histogram</canvas>;
+        var style={ fontFamily: 'fontAwesome' };
+        return <canvas style={style} ref='canvas' width={ this.props.width } height={ this.props.height } ref="canvas">histogram</canvas>;
     }
 }
 
@@ -752,7 +763,7 @@ class SearchBox extends React.Component {
 	let indexes = null;
 	if (this.props.indexes) {
 	    let options = _.map(this.props.indexes, (index) => {
-                return <option value={index}>{ index }</option>;
+                return <option key={index} value={index}>{ index }</option>;
 	    });
             indexes = <div>
                 <select onChange={this.handleChange.bind(this)} value={this.state.selectValue}>{options}</select>
@@ -906,15 +917,15 @@ function entries(state = {
 	case RECEIVE_PACKETS:
 	    var searches = _.concat(state.searches, {q: action.packets.query, color: action.packets.color, count: action.packets.results.hits.hits.length});
 
+	    var nodes = _.concat(state.nodes, []);
+
 	    var packets = _.concat(state.packets, []);
 	    _.forEach(action.packets.results.hits.hits, (d, i) => {
-		packets.push({ q: action.packets.query, color: action.packets.color, fields: d._source});
+		packets.push({ id: d._id, q: action.packets.query, color: action.packets.color, fields: d._source});
+                nodes.push({ id: d._id, q: action.packets.query, color: action.packets.color, fields: d._source, record: d });
 	    });
             
-            var nodes = state.nodes;
-            
             // node -> heeft ook een package
-
 	    return Object.assign({}, state, {
                 errors: null,
                 nodes: nodes, 
@@ -1317,7 +1328,7 @@ class ConfigurationView extends React.Component {
 	let fields = null;
 	if (this.props.fields || []) {
 	    let options = _.map(this.props.fields || [], (field) => {
-                return <li value={ field }>{ field } <button onClick={this.handleDeleteField.bind(this, field) }>x</button></li>;
+                return <li key={field} value={ field }>{ field } <button onClick={this.handleDeleteField.bind(this, field) }>x</button></li>;
 	    });
             fields = <div>
                 <ul>{ options }</ul>
@@ -1330,7 +1341,7 @@ class ConfigurationView extends React.Component {
 	let indexes = null;
 	if (this.props.indexes) {
 	    let options = _.map(this.props.indexes, (index) => {
-                return <li value={index}>{ index }<button onClick={this.handleDeleteIndex.bind(this, index) }>x</button></li>;
+                return <li key={index} value={index}>{ index }<button onClick={this.handleDeleteIndex.bind(this, index) }>x</button></li>;
 	    });
             indexes = <div>
                 <ul>{options}</ul>
@@ -1359,6 +1370,76 @@ class ConfigurationView extends React.Component {
     }
 }
 
+class Record extends React.Component {
+    constructor(props){
+        super(props);
+
+        this.state = {
+            editNode: null,
+            expanded: false,
+        }
+    }
+    handleTableAddColumn(field) {
+	this.props.onTableAddColumn(field);
+    }
+    handleTableRemoveColumn(field) {
+	this.props.onTableRemoveColumn(field);
+    }
+    handleMouseOver(id) {
+	store.dispatch(highlightNodes({ nodes: [id] }));
+    }
+    toggleExpand(id) {
+        this.setState({expanded: !this.state.expanded});
+    }
+    render() {
+        var that =this;
+
+        let fields = _.map(this.props.packet.fields.document, function(value, key) {
+            return <tr key={ 'field_' + key }>
+                <th>{ key} <button onClick={that.handleTableAddColumn.bind(that, key)}>add</button></th>
+                <td colSpan="3">{ value}</td>
+            </tr>;
+        });
+
+        let columns = _.map(this.props.columns, function(value) {
+            return <td key={ 'column_' + that.props.packet.id + value }>{ that.props.packet.fields.document[value] }</td>;
+        });
+
+        let body = null;
+        if (this.state.expanded) { 
+            body = [<tr>
+                <td colSpan="3">
+                <table>
+                <tbody>{ fields }</tbody>
+                </table>
+                </td>
+                </tr>,
+                <tr className="json">
+                <td colSpan="3">
+                { JSON.stringify(this.props.packet.fields.document) }
+            </td>
+                </tr>];
+           }
+        
+
+        return <tr> 
+                <td>
+                <table>
+                <tbody>
+                    <tr onMouseOver={ that.handleMouseOver.bind(that, this.props.node.id) } className="columns">  
+                        <td>
+                        <button onClick={that.toggleExpand.bind(that, this.props.node.id) }>expand</button>
+                        </td>
+                        {columns}
+                    </tr>
+                    { body }
+                </tbody>
+                </table>
+                </td>
+            </tr>
+    }
+}
+
 class TableView extends React.Component {
     constructor(props){
         super(props);
@@ -1375,9 +1456,6 @@ class TableView extends React.Component {
     }
     handleTableRemoveColumn(field) {
 	store.dispatch(tableColumnRemove(field));
-    }
-    handleMouseOver(id) {
-	store.dispatch(highlightNodes({ nodes: [id] }));
     }
     handleCancelEditNode(node) {
         this.setState({editNode: null});
@@ -1399,40 +1477,23 @@ class TableView extends React.Component {
                         if (phone(packet.fields.document[value])!==node.id) 
                             return null;
 
-                        let fields = _.map(packet.fields.document, function(value, key) {
-                            return <tr>
-                                <th>{ key} <button onClick={that.handleTableAddColumn.bind(that, key)}>add</button></th>
-                                <td colSpan="3">{ value}</td>
-                            </tr>;
-                        });
-
-                        let columns = _.map(this.props.columns, function(value) {
-                            return <td>{ packet.fields.document[value] }<button onClick={that.handleTableRemoveColumn.bind(that, value)}>remove</button></td>;
-                        });
-
-		    return <tbody>
-                            <tr onMouseOver={ that.handleMouseOver.bind(that, node.id) } className="columns">  
-                                {columns}
-                            </tr>
-                            { fields }
-                            <tr className="json">
-                                <td colSpan="3">
-                                { JSON.stringify(packet.fields.document) }
-                                </td>
-                            </tr>
-                        </tbody>;
+		    return <Record columns={ this.props.columns } node={ node } packet={packet} onTableAddColumn={that.handleTableAddColumn.bind(that) } onTableRemoveColumn={that.handleTableRemoveColumn.bind(that) }/>;
                     });
 		});
 	    });
 	}
 
+        let headers = _.map(this.props.columns, function(value) {
+            return <th key={ 'header_' + value }>{ value }<button onClick={that.handleTableRemoveColumn.bind(that, value)}>remove</button></th>;
+        });
+
 	let selected = null;
 	if (this.props.node) {
 	    selected = _.map(this.props.node, (node) => {
                 if (this.state.editNode == node) {
-                    return <li>{node.id} <button onClick={that.handleCancelEditNode.bind(that, node) }>cancel</button> </li>;
+                    return <li key={node.id}><input type="text" value={node.id} /> <button onClick={that.handleCancelEditNode.bind(that, node) }>cancel</button> </li>;
                 } else {
-                    return <li>{node.id} <button onClick={that.handleEditNode.bind(that, node) }>edit</button> <button onClick={that.handleDeleteNode.bind(that, node)}>delete</button></li>;
+                    return <li key={node.id}>{node.id} <button onClick={that.handleEditNode.bind(that, node) }>edit</button> <button onClick={that.handleDeleteNode.bind(that, node)}>delete</button></li>;
                 }
             });
         }
@@ -1443,7 +1504,12 @@ class TableView extends React.Component {
                     </ul>
                     <button onClick={this.handleClearSelection.bind(this)}>Clear</button>
                     <table className='table table-condensed table-striped col-md-4 col-lg-4'>
+                        <tbody>
+                        <tr>
+                            { headers }
+                        </tr>
                         {body}
+                        </tbody>
                     </table>
                 </div>;
     }
@@ -1508,9 +1574,9 @@ class Searches extends React.Component {
             };
 
             if (that.state.editSearchValue === search) {
-                return <div style={ divStyle }><SketchPicker  color={ search.color } onChangeComplete={ that.handleChangeSearchColorComplete.bind(that) }/> { search.q } ({search.count}) <button onClick={that.handleCancelEditSearch.bind(that, search) }>cancel</button> </div>
+                return <div key={search.q} style={ divStyle }><SketchPicker  color={ search.color } onChangeComplete={ that.handleChangeSearchColorComplete.bind(that) }/> { search.q } ({search.count}) <button onClick={that.handleCancelEditSearch.bind(that, search) }>cancel</button> </div>
             } else {
-                return <div style={ divStyle }>{ search.q } ({search.count}) <button onClick={that.handleEditSearch.bind(that, search) }>edit</button> <button onClick={that.handleDeleteSearch.bind(that, search) }>delete</button> </div>
+                return <div key={search.q} style={ divStyle }>{ search.q } ({search.count}) <button onClick={that.handleEditSearch.bind(that, search) }>edit</button> <button onClick={that.handleDeleteSearch.bind(that, search) }>delete</button> </div>
             }
         });
 
