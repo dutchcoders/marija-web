@@ -33,24 +33,29 @@ import _ from 'lodash';
 import * as d3 from "d3";
 import * as redux from 'redux';
 
-const REQUEST_POSTS = 'REQUEST_POSTS';
+import moment from 'moment';
+
+const CLEAR_SELECTION = 'CLEAR_SELECTION';
 const DELETE_SEARCH = 'DELETE_SEARCH';
-const DELETE_NODES = 'DELETE_NODES';
-const RECEIVE_POSTS = 'RECEIVE_POSTS';
 const SELECT_NODE = 'SELECT_NODE';
 const SELECT_NODES = 'SELECT_NODES';
 const HIGHLIGHT_NODES = 'HIGHLIGHT_NODES';
-const CLEAR_SELECTION = 'CLEAR_SELECTION';
-const ADD_FIELD = 'ADD_FIELD';
+const DELETE_NODES = 'DELETE_NODES';
+
 const TABLE_COLUMN_ADD = 'TABLE_COLUMN_ADD';
 const TABLE_COLUMN_REMOVE = 'TABLE_COLUMN_REMOVE';
+
+const ADD_FIELD = 'ADD_FIELD';
 const DELETE_FIELD = 'DELETE_FIELD';
+
 const ADD_INDEX = 'ADD_INDEX';
 const DELETE_INDEX = 'DELETE_INDEX';
-const REQUEST_PACKETS = 'REQUEST_PACKETS';
+
 const AUTH_CONNECTED = 'AUTH_CONNECTED';
 const ERROR = 'ERROR';
-const RECEIVE_PACKETS = 'RECEIVE_PACKETS';
+
+const REQUEST_ITEMS = 'REQUEST_ITEMS';
+const RECEIVE_ITEMS = 'RECEIVE_ITEMS';
 
 var network = {
     // Start data
@@ -91,7 +96,7 @@ var network = {
         this.graph.transform = d3.event.transform;
     },
     setup: function(el){
-        this.render2 = this.render2.bind(this);
+        this.render = this.render.bind(this);
         this.drawNode = this.drawNode.bind(this);
         this.drawLink = this.drawLink.bind(this);
 
@@ -127,10 +132,7 @@ var network = {
             .force("vertical", d3.forceY().strength(0.018))
             .force("horizontal", d3.forceX().strength(0.006));
 
-
-        this.addNodes(this.graph);
-
-        this.render2();
+        this.render();
     },
     forceScale: function(node){
         var scale = d3.scaleLog().domain(this.nodes.sizeRange).range(this.nodes.sizeRange.slice().reverse());
@@ -141,17 +143,6 @@ var network = {
     },
     highlight: function(nodes){
         this.graph.highlight_nodes = nodes;
-    },
-    removeNodes: function(removed) {
-        // remove nodes
-        this.graph.nodes = _.remove(this.graph.nodes, (n) => {
-            return _.find(removed, {id: n});
-        });
-
-        // find links
-        this.graph.links = _.remove(this.graph.links, (n) => {
-            return _.find(removed, {id: n.source.id}) || _.find(removed, {id: n.target.id}) ;
-        });
     },
     addNodes: function(graph){
         var countExtent = d3.extent(graph.nodes,function(d){return d.connections;}),
@@ -201,7 +192,18 @@ var network = {
 
         this.simulation.alpha(0.3).restart();
     },
-    render2: function() {
+    removeNodes: function(removed) {
+        // remove nodes
+        this.graph.nodes = _.remove(this.graph.nodes, (n) => {
+            return _.find(removed, {id: n});
+        });
+
+        // find links
+        this.graph.links = _.remove(this.graph.links, (n) => {
+            return _.find(removed, {id: n.source.id}) || _.find(removed, {id: n.target.id}) ;
+        });
+    },
+    render: function() {
         if(!this.graph) {
             return false;
         }
@@ -240,7 +242,6 @@ var network = {
             this.context.stroke();
         }
 
-
         if (this.graph.tooltip) {
             this.context.fillStyle = '#000'; //d.color[0];
             this.context.font="14px Arial";
@@ -249,7 +250,11 @@ var network = {
 
         this.context.restore();
 
-        requestAnimationFrame(this.render2);
+        requestAnimationFrame(this.render);
+    },
+    drawLink: function(d) {
+        this.context.moveTo(d.source.x, d.source.y);
+        this.context.lineTo(d.target.x, d.target.y);
     },
     drawNode: function(d) {
         // this.context.moveTo(d.x + d.r, d.y);
@@ -356,7 +361,6 @@ var network = {
             return;
         }
 
-
         var subject = this.simulation.find(x, y, 20);
         if (subject === undefined) {
             this.graph.tooltip = null;
@@ -366,6 +370,9 @@ var network = {
         }
     },
     dragstarted: function() {
+        this.graph.selection = null;
+        this.graph.tooltip = null;
+
         var x = d3.event.x,
         y = d3.event.y;
 
@@ -394,10 +401,6 @@ var network = {
     },
     mousemoved: function() {
     },
-    drawLink: function(d) {
-        this.context.moveTo(d.source.x, d.source.y);
-        this.context.lineTo(d.target.x, d.target.y);
-    },
     /*
     drawNode: function(d) {
         context.moveTo(d.x + 3, d.y);
@@ -406,32 +409,152 @@ var network = {
     */
 };
 
-var getRandomColor = function(q){
-    var letters = '0123456789ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++ ) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-};
-
 class Histogram extends React.Component {
     constructor(props) {
         super(props);
+
+        this.draw = this.draw.bind(this);
+
+        this.state = {
+            data: [
+                {
+                    letter: 'A', 
+                    frequency :0.08167
+                },
+                {
+                    letter:    'B', 
+                    frequency :0.01492,
+                },
+                {
+                    letter:   'C', 
+                    frequency :0.02782,
+                },
+                {
+                    letter:  'D', 
+                    frequency :0.04253,
+                },
+                {
+                    letter: 'E', 
+                    frequency :0.12702,
+                },
+                {
+                    letter:    'F', 
+                    frequency :0.02288,
+                },
+                {
+                    letter:    'G', 
+                    frequency :0.02015,
+                },
+                {
+                    letter:    'H', 
+                    frequency :0.06094,
+                },
+                {
+                    letter:    'I', 
+                    frequency :0.06966,
+                },
+                {
+                    letter:    'J', 
+                    frequency :0.00153,
+                },
+                {
+                    letter:    'K', 
+                    frequency :0.00772,
+                },
+                {
+                    letter:    'L', 
+                    frequency :0.04025,
+                },
+                {
+                    letter:    'M', 
+                    frequency :0.02406,
+                },
+                {
+                    letter:    'N', 
+                    frequency :0.06749,
+                },
+                {
+                    letter:    'O', 
+                    frequency :0.07507,
+                },
+                {
+                    letter:    'P', 
+                    frequency :0.01929,
+                },
+                {
+                    letter:    'Q', 
+                    frequency :0.00095,
+                },
+                {
+                    letter:    'R', 
+                    frequency :0.05987,
+                },
+                {
+                    letter:    'S', 
+                    frequency :0.06327,
+                },
+                {
+                    letter:    'T', 
+                    frequency :0.09056,
+                },
+                {
+                    letter:    'U', 
+                    frequency :0.02758,
+                },
+                {
+                    letter:    'V', 
+                    frequency :0.00978,
+                },
+                {
+                    letter:    'W', 
+                    frequency :0.02360,
+                },
+                {
+                    letter:    'X', 
+                    frequency :0.00015,
+                },
+                {
+                    letter:    'Y', 
+                    frequency :0.01974,
+                },
+                {
+                    letter:    'Z', 
+                    frequency :0.00074
+                },
+            ]
+        }
     }
     componentDidMount() {
         this.canvas =  this.refs["canvas"];
-
         this.context = this.canvas.getContext('2d');
 
-        var width = 1600, height=800;
+        this.draw();
+    }
+    componentDidUpdate(prevProps, prevState) {
+        console.debug("componentDidUpdate (histogram");
+        // group items to periods using lodash? complete set
+        // have selection filter and drag timeline to select nodes
+        //
+        let groupedResults = _.groupBy(this.props.items, (result) => {
+                moment(result.fields.document.date).startOf('isoWeek')
+        });
 
-        var canvas = d3.select(this.canvas),
-        context = this.context;
+        console.debug("groupedResults", groupedResults);
+        this.draw();
+    }
+    draw() {
+        let canvas = d3.select(this.canvas);
+        let context = this.context;
+
+        context.save();
 
         var margin = {top: 20, right: 20, bottom: 30, left: 40},
-        width = canvas.width - margin.left - margin.right,
-        height = canvas.height - margin.top - margin.bottom;
+            width = this.canvas.width - margin.left - margin.right,
+            height = this.canvas.height - margin.top - margin.bottom;
+
+        this.context.clearRect(margin.left, margin.top, width, height);
+
+        let data = this.state.data;
 
         var x = d3.scaleBand()
             .rangeRound([0, width])
@@ -441,114 +564,6 @@ class Histogram extends React.Component {
             .rangeRound([height, 0]);
 
         context.translate(margin.left, margin.top);
-
-
-        let data = [
-        {
-            letter: 'A', 
-            frequency :0.08167
-        },
-        {
-            letter:    'B', 
-            frequency :0.01492,
-        },
-        {
-            letter:   'C', 
-            frequency :0.02782,
-        },
-        {
-            letter:  'D', 
-            frequency :0.04253,
-        },
-        {
-            letter: 'E', 
-            frequency :0.12702,
-        },
-        {
-            letter:    'F', 
-            frequency :0.02288,
-        },
-        {
-            letter:    'G', 
-            frequency :0.02015,
-        },
-        {
-            letter:    'H', 
-            frequency :0.06094,
-        },
-        {
-            letter:    'I', 
-            frequency :0.06966,
-        },
-        {
-            letter:    'J', 
-            frequency :0.00153,
-        },
-        {
-            letter:    'K', 
-            frequency :0.00772,
-        },
-        {
-            letter:    'L', 
-            frequency :0.04025,
-        },
-        {
-            letter:    'M', 
-            frequency :0.02406,
-        },
-        {
-            letter:    'N', 
-            frequency :0.06749,
-        },
-        {
-            letter:    'O', 
-            frequency :0.07507,
-        },
-        {
-            letter:    'P', 
-            frequency :0.01929,
-        },
-        {
-            letter:    'Q', 
-            frequency :0.00095,
-        },
-        {
-            letter:    'R', 
-            frequency :0.05987,
-        },
-        {
-            letter:    'S', 
-            frequency :0.06327,
-        },
-        {
-            letter:    'T', 
-            frequency :0.09056,
-        },
-        {
-            letter:    'U', 
-            frequency :0.02758,
-        },
-        {
-            letter:    'V', 
-            frequency :0.00978,
-        },
-        {
-            letter:    'W', 
-            frequency :0.02360,
-        },
-        {
-            letter:    'X', 
-            frequency :0.00015,
-        },
-        {
-            letter:    'Y', 
-            frequency :0.01974,
-        },
-        {
-            letter:    'Z', 
-            frequency :0.00074
-        },
-        ];
 
         x.domain(data.map(function(d) { return d.letter; }));
         y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
@@ -593,18 +608,14 @@ class Histogram extends React.Component {
         context.strokeStyle = "black";
         context.stroke();
 
-        context.save();
-        context.rotate(-Math.PI / 2);
-        context.textAlign = "right";
-        context.textBaseline = "top";
-        context.font = "bold 10px sans-serif";
-        context.fillText("Frequency", -10, 10);
-        context.restore();
-
         context.fillStyle = "steelblue";
         data.forEach(function(d) {
             context.fillRect(x(d.letter), y(d.frequency), x.bandwidth(), height - y(d.frequency));
         });
+
+        context.restore();
+
+        // requestAnimationFrame(this.draw);
     }
     render() {
         return <canvas width={ this.props.width } height={ this.props.height } ref="canvas">histogram</canvas>;
@@ -664,7 +675,7 @@ class Graph extends React.Component {
 	var nodes = [];
 	var links = [];
 
-        var removed = _.difference(prevProps.packets, this.props.packets);
+        var removed = _.difference(prevProps.items, this.props.items);
         if (removed.length > 0) {
             var removed2=[];
             _.forEach(removed, (d, i) => {
@@ -683,9 +694,9 @@ class Graph extends React.Component {
         }
 
 
-        if (this.props.packets.length > 0) {
-            // only new packets!
-            _.forEach(this.props.packets, (d, i) => {
+        if (this.props.items.length > 0) {
+            // only new items!
+            _.forEach(this.props.items, (d, i) => {
                 // should we hash the id?
                 _.forEach(fields, (field) => {
                     if (d.fields.document[field] === undefined)
@@ -799,7 +810,7 @@ function entries(state = {
     errors: null, 
     fields: [],
     indexes: [],
-    packets: [],
+    items: [],
     searches: [],
 }, action) {
     switch (action.type) {
@@ -818,9 +829,9 @@ function entries(state = {
 		indexes: indexes,
 	    })
 	case DELETE_NODES:
-            // we want to remove nodes, not packets. So packet to node conversion should happen here, not in render / addnode
-            var packets = _.concat(state.packets);
-            _.remove(packets, (p) => {
+            // we want to remove nodes, not items. So packet to node conversion should happen here, not in render / addnode
+            var items = _.concat(state.items);
+            _.remove(items, (p) => {
                 return ( _.reduce(state.fields, (found, field) => {
                     found = found || _.find(action.nodes, (o) => {
                         return phone(p.fields.document[field]) == o;
@@ -833,22 +844,22 @@ function entries(state = {
             // todo remove highlighted node
 
 	    return Object.assign({}, state, {
-                packets: packets
+                items: items
 	    })
 	case DELETE_SEARCH:
 	    var searches = _.without(state.searches,  action.search);
 
-            // remove associated packets from packet list
-            var packets = _.concat(state.packets);
-            _.remove(packets, (p) => {
+            // remove associated items from packet list
+            var items = _.concat(state.items);
+            _.remove(items, (p) => {
                 return (p.q === action.search.q)
             });
 
-            console.debug("DELETE_SEARCH", packets);
+            console.debug("DELETE_SEARCH", items);
 
 	    return Object.assign({}, state, {
 		searches: searches,
-                packets: packets
+                items: items
 	    })
 	case TABLE_COLUMN_ADD:
 	    var columns = _.concat(state.columns, action.field);
@@ -897,13 +908,6 @@ function entries(state = {
 	    return Object.assign({}, state, {
 		node: nodes,
 	    })
-	case REQUEST_PACKETS:
-	    sock.ws.postMessage({query: action.query, index: action.index, color: action.color});
-
-	    return Object.assign({}, state, {
-		isFetching: true,
-		didInvalidate: false
-	    })
 	case ERROR:
 	    return Object.assign({}, state, {
                 ...action
@@ -914,47 +918,35 @@ function entries(state = {
 		didInvalidate: false,
                     ...action
 	    })
-	case RECEIVE_PACKETS:
-	    var searches = _.concat(state.searches, {q: action.packets.query, color: action.packets.color, count: action.packets.results.hits.hits.length});
+	case REQUEST_ITEMS:
+	    sock.ws.postMessage({query: action.query, index: action.index, color: action.color});
 
+	    return Object.assign({}, state, {
+		isFetching: true,
+		didInvalidate: false
+	    })
+	case RECEIVE_ITEMS:
+	    var searches = _.concat(state.searches, {q: action.items.query, color: action.items.color, count: action.items.results.hits.hits.length});
+
+            // so we want nodes instead of items. we want to update the links and nodes here, not
+            // in the graph code itself
 	    var nodes = _.concat(state.nodes, []);
+            var links = [];
 
-	    var packets = _.concat(state.packets, []);
-	    _.forEach(action.packets.results.hits.hits, (d, i) => {
-		packets.push({ id: d._id, q: action.packets.query, color: action.packets.color, fields: d._source});
-                nodes.push({ id: d._id, q: action.packets.query, color: action.packets.color, fields: d._source, record: d });
+	    var items = _.concat(state.items, []);
+	    _.forEach(action.items.results.hits.hits, (d, i) => {
+		items.push({ id: d._id, q: action.items.query, color: action.items.color, fields: d._source});
+                nodes.push({ id: d._id, q: action.items.query, color: action.items.color, fields: d._source, record: d });
 	    });
             
             // node -> heeft ook een package
 	    return Object.assign({}, state, {
                 errors: null,
                 nodes: nodes, 
-		packets: packets,
+		items: items,
 		searches: searches,
 		isFetching: false,
 		didInvalidate: false
-	    })
-	case REQUEST_POSTS:
-	    return Object.assign({}, state, {
-		isFetching: true,
-		didInvalidate: false
-	    })
-	case RECEIVE_POSTS:
-	    if (action.from == 0) {
-		state.hits = [];
-	    } 
-
-	    let hits = action.entries.hits.hits;
-	    state.hits = _.concat(state.hits, hits);
-
-	    return Object.assign({}, state, {
-		isFetching: false,
-		didInvalidate: false,
-		noMoreHits: (hits.length == 0),
-		hits: state.hits,
-		aggs: action.entries.aggregations,
-		total: action.entries.hits.total,
-		lastUpdated: action.receivedAt
 	    })
 	default:
 	    return state
@@ -1039,7 +1031,7 @@ function configureStore() {
                     highlight_nodes: [],
                     fields: [],
                     indexes: [],
-                    packets: [],
+                    items: [],
                     searches: [],
                 },
             },
@@ -1106,7 +1098,7 @@ const sock = {
 	const { session } = store.getState();
         // check msg type, use correct dispacther
         if (msg.hits) {
-            return store.dispatch(receivePackets(msg.hits));
+            return store.dispatch(receiveitems(msg.hits));
         } else if (msg.error) {
             return store.dispatch(error(msg.error.message));
         } else {
@@ -1245,30 +1237,30 @@ function highlightNodes(opts) {
     }
 }
 
-function fetchPackets(opts={
+function fetchitems(opts={
     from: 0,
     size: 50,
     index: "",
     query: "",
     color: "", 
 }) {
-    store.dispatch(requestPackets(opts));
+    store.dispatch(requestitems(opts));
 };
 
-function requestPackets(opts) {
+function requestitems(opts) {
     return {
-        type: REQUEST_PACKETS,
+        type: REQUEST_ITEMS,
         receivedAt: Date.now(),
 	...opts,
     }
 }
 
-function receivePackets(packets, opts = {
+function receiveitems(items, opts = {
     from: 0
 }) {
     return {
-        type: RECEIVE_PACKETS,
-        packets: packets, // json.data.children.map(child => child.data),
+        type: RECEIVE_ITEMS,
+        items: items, // json.data.children.map(child => child.data),
         receivedAt: Date.now()
     }
 }
@@ -1472,7 +1464,7 @@ class TableView extends React.Component {
 	let body = null;
 	if (this.props.node) {
 	    body = _.map(this.props.node, (node) => {
-		return  _.map(this.props.packets, (packet) => {
+		return  _.map(this.props.items, (packet) => {
                     return _.map(this.props.fields || [], (value) => {
                         if (phone(packet.fields.document[value])!==node.id) 
                             return null;
@@ -1593,12 +1585,23 @@ class RootView extends React.Component {
             error: null, 
 	    searches: [],
             currentNode: null,
+            colorIndex: 0, 
+            colors: [
+                'red',
+                'blue',
+                'yellow',
+                'orange',
+                'purple',
+                'gray',
+            ],
         }
     }
     componentDidMount() {
     }
     onSearchSubmit(q, index) {
-        fetchPackets({ query: q, index: index, color: getRandomColor() });
+        fetchitems({ query: q, index: index, color: this.state.colors[this.state.colorIndex % (this.state.colors.length - 1)]});
+
+        this.setState({colorIndex: this.state.colorIndex + 1});
     }
     componentWillReceiveProps(nextProps) {
     }
@@ -1631,21 +1634,21 @@ class RootView extends React.Component {
                                 </section>
 			    </div>
 			    <div className="row">
-				<Graph width="1600" height="800" node={this.props.node} queries={this.props.searches} fields={this.props.fields} packets={this.props.packets} highlight_nodes={this.props.highlight_nodes} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
+				<Graph width="1600" height="800" node={this.props.node} queries={this.props.searches} fields={this.props.fields} items={this.props.items} highlight_nodes={this.props.highlight_nodes} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
                             </div>
                             <div>
-				<Histogram width="1600" height="200" fields={this.props.fields} packets={this.props.packets} highlight_nodes={this.props.highlight_nodes} className="histogram" handleMouseOver={ this.handleMouseOver.bind(this) } />
+				<Histogram width="1600" height="800" node={this.props.node} queries={this.props.searches} fields={this.props.fields} items={this.props.items} highlight_nodes={this.props.highlight_nodes} className="histogram" />
 			    </div>
 			</div>
 			<div className="col-xs-3 col-sm-3">
 			    <div className="row">
-                                <b>Records:</b> { this.props.packets.length }
+                                <b>Records:</b> { this.props.items.length }
 			    </div>
 			    <div className="row">
                                 <Searches searches={this.props.searches} />
 			    </div>
 			    <div className="row">
-                                <TableView nodes={this.props.nodes} packets={this.props.packets} fields={this.props.fields} columns={this.props.columns} node={this.props.node}/>
+                                <TableView nodes={this.props.nodes} items={this.props.items} fields={this.props.fields} columns={this.props.columns} node={this.props.node}/>
 			    </div>
 			</div>
 		    </div>
@@ -1664,7 +1667,7 @@ const mapStateToProps = (state, ownProps) => {
           node: state.entries.node,
           connected: state.entries.connected,
           errors: state.entries.errors,
-          packets: state.entries.packets,
+          items: state.entries.items,
           indexes: state.entries.indexes,
           fields: state.entries.fields,
           columns: state.entries.columns,
