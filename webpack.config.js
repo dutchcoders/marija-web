@@ -1,40 +1,39 @@
 var path = require('path');
 var webpack = require('webpack');
- 
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+
 module.exports = {
-  entry: './src/main.js',
-/*
-  output: { path: __dirname, filename: 'bundle.js' },
-*/
-  output: {  filename: 'bundle.js' },
-  target: 'web',
-  /*
-  externals: {
-    react: {
-      root: 'React',
-      commonjs: 'react',
-      commonjs2: 'react',
-      amd: 'react',
+    entry: './src/app/main.js',
+    target: 'web',
+    plugins: [
+        new ExtractTextPlugin('../dist/app.css'),
+    ],
+    resolve: {
+        modulesDirectories: ['node_modules']
     },
-    'react-dom': {
-      root: 'ReactDOM',
-      commonjs: 'react-dom',
-      commonjs2: 'react-dom',
-      amd: 'react-dom',
+    output: {
+        path: [__dirname, 'dist'].join(path.sep),
+        filename: 'bundle.js'
     },
-  },
-  */
-  module: {
-    loaders: [
-      {
-        test: /.js?$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/,
-        query: {
-          presets: [ 'es2015', 'stage-1', 'react'],
-        }
-      }
-    ]
-  },
+    module: {
+        loaders: [
+            {
+                test: /.js?$/,
+                loader: 'babel-loader',
+                exclude: /node_modules/,
+                query: {
+                    presets: ['es2015', 'stage-1', 'react'],
+                }
+            },
+            {
+                test: /\.scss$/,
+                loader: ExtractTextPlugin.extract('style-loader', 'css-loader?sourceMap!sass-loader?outputStyle=expanded&sourceMap=true&sourceMapContents=true')
+            },
+            {
+                test: /\.(html)$/i,
+                loader: "file-loader?name=/[name].[ext]"
+            }
+        ]
+    }
 };
 

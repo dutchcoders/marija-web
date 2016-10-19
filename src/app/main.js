@@ -16,6 +16,9 @@
 // combine highlight and results on same node, in correct color
 // arc should show percentage, not equally
 
+require('../index.html');
+require('../scss/app.scss');
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { dispatch, compose, createStore, combineReducers, applyMiddleware } from 'redux';
@@ -24,6 +27,12 @@ import { connect } from 'react-redux';
 import { browserHistory, Router, Route, Link } from 'react-router';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import { Intl, FormattedDate, FormattedNumber }  from 'react-intl-es6';
+
+import { ErrorStatus } from './modules/status/index'
+import { RECEIVE_ITEMS, REQUEST_ITEMS, receiveItems } from './modules/search/index'
+import { Header } from './components/index';
+
+import { fieldLocator } from './helpers/index'
 
 import ReactList from 'react-list';
 import SkyLight from 'react-skylight';
@@ -58,18 +67,12 @@ const DELETE_INDEX = 'DELETE_INDEX';
 const AUTH_CONNECTED = 'AUTH_CONNECTED';
 const ERROR = 'ERROR';
 
-const REQUEST_ITEMS = 'REQUEST_ITEMS';
-const RECEIVE_ITEMS = 'RECEIVE_ITEMS';
-
 var network = {
     // Start data
     graph: {
-        "nodes":[
-        ],
-        "links":[
-        ],
-        "highlight_nodes": [
-        ],
+        "nodes": [],
+        "links": [],
+        "highlight_nodes": [],
         selection: null,
         selectedNodes: [],
         tooltip: null,
@@ -94,12 +97,12 @@ var network = {
             color: "#fff",
             thickness: 3
         },
-        sizeRange: [12,30]
+        sizeRange: [12, 30]
     },
-    zoomed: function() {
+    zoomed: function () {
         this.graph.transform = d3.event.transform;
     },
-    setup: function(el){
+    setup: function (el) {
         this.render = this.render.bind(this);
         this.drawNode = this.drawNode.bind(this);
         this.drawLink = this.drawLink.bind(this);
@@ -112,52 +115,56 @@ var network = {
             .on("mousemove", this.mousemove.bind(this))
             .on("mouseup", this.mouseup.bind(this))
             .call(d3.drag()
-                    .filter(() => {
-                        return d3.event.altKey;
-                    })
-                    .subject(this.dragsubject.bind(this))
-                    .on("start", this.dragstarted.bind(this))
-                    .on("drag", this.dragged.bind(this))
-                    .on("end", this.dragended.bind(this))
-                 )
+                .filter(() => {
+                    return d3.event.altKey;
+                })
+                .subject(this.dragsubject.bind(this))
+                .on("start", this.dragstarted.bind(this))
+                .on("drag", this.dragged.bind(this))
+                .on("end", this.dragended.bind(this))
+            )
             .call(d3.zoom()
-                    .filter(() => {
-                        return d3.event.altKey;
-                    })
-                    .scaleExtent([1 / 2, 8])
-                    .on("zoom", this.zoomed.bind(this))
-                 );
+                .filter(() => {
+                    return d3.event.altKey;
+                })
+                .scaleExtent([1 / 2, 8])
+                .on("zoom", this.zoomed.bind(this))
+            );
 
         this.simulation = d3.forceSimulation()
             .stop()
-            .force("link", d3.forceLink().id(function(d) { return d.id; }))
+            .force("link", d3.forceLink().id(function (d) {
+                return d.id;
+            }))
             .force("charge", d3.forceManyBody().strength(-100).distanceMax(300))
-            .force("center",d3.forceCenter(this.width / 2, this.height / 2))
+            .force("center", d3.forceCenter(this.width / 2, this.height / 2))
             .force("vertical", d3.forceY().strength(0.018))
             .force("horizontal", d3.forceX().strength(0.006));
 
         this.render();
     },
-    forceScale: function(node){
+    forceScale: function (node) {
         var scale = d3.scaleLog().domain(this.nodes.sizeRange).range(this.nodes.sizeRange.slice().reverse());
         return node.r + scale(node.r);
     },
-    select: function(nodes){
+    select: function (nodes) {
         this.graph.selectedNodes = nodes;
     },
-    highlight: function(nodes){
+    highlight: function (nodes) {
         this.graph.highlight_nodes = nodes;
     },
-    addNodes: function(graph){
-        var countExtent = d3.extent(graph.nodes,function(d){return d.connections;}),
-        radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(this.nodes.sizeRange);
+    addNodes: function (graph) {
+        var countExtent = d3.extent(graph.nodes, function (d) {
+                return d.connections;
+            }),
+            radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(this.nodes.sizeRange);
 
         var newNodes = false;
 
         var that = this;
-        _.each(graph.nodes, function(node){
+        _.each(graph.nodes, function (node) {
             var n = _.find(that.graph.nodes, {id: node.id});
-            if (n ) {
+            if (n) {
                 n.connections++;
 
                 n.r = radiusScale(n.connections);
@@ -185,7 +192,7 @@ var network = {
 
         this.graph.links = this.graph.links.concat(graph.links);
 
-        if (!newNodes) 
+        if (!newNodes)
             return;
 
         this.simulation
@@ -196,7 +203,7 @@ var network = {
 
         this.simulation.alpha(0.3).restart();
     },
-    removeNodes: function(removed) {
+    removeNodes: function (removed) {
         // remove nodes
         this.graph.nodes = _.remove(this.graph.nodes, (n) => {
             return _.find(removed, {id: n});
@@ -204,16 +211,16 @@ var network = {
 
         // find links
         this.graph.links = _.remove(this.graph.links, (n) => {
-            return _.find(removed, {id: n.source.id}) || _.find(removed, {id: n.target.id}) ;
+            return _.find(removed, {id: n.source.id}) || _.find(removed, {id: n.target.id});
         });
     },
-    render: function() {
-        if(!this.graph) {
+    render: function () {
+        if (!this.graph) {
             return false;
         }
 
         this.context.save();
-        this.context.clearRect(0,0,this.width,this.height);
+        this.context.clearRect(0, 0, this.width, this.height);
 
         this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.y);
 
@@ -221,7 +228,7 @@ var network = {
 
         this.context.beginPath();
 
-        this.graph.links.forEach((d)=>{
+        this.graph.links.forEach((d)=> {
             this.drawLink(d);
         });
 
@@ -229,7 +236,7 @@ var network = {
         this.context.lineWidth = this.lines.stroke.thickness;
         this.context.stroke();
 
-        this.graph.nodes.forEach((d)=>{
+        this.graph.nodes.forEach((d)=> {
             this.drawNode(d);
         });
 
@@ -248,24 +255,24 @@ var network = {
 
         if (this.graph.tooltip) {
             this.context.fillStyle = '#000'; //d.color[0];
-            this.context.font="14px Arial";
-            this.context.fillText( this.graph.tooltip.node.id, this.graph.tooltip.x + 5, this.graph.tooltip.y - 5);
+            this.context.font = "14px Arial";
+            this.context.fillText(this.graph.tooltip.node.id, this.graph.tooltip.x + 5, this.graph.tooltip.y - 5);
         }
 
         this.context.restore();
 
         requestAnimationFrame(this.render);
     },
-    drawLink: function(d) {
+    drawLink: function (d) {
         this.context.moveTo(d.source.x, d.source.y);
         this.context.lineTo(d.target.x, d.target.y);
     },
-    drawNode: function(d) {
+    drawNode: function (d) {
         // this.context.moveTo(d.x + d.r, d.y);
 
         // for each different query, show a part. This will show that the edge
         //  has been found in multiple queries.
-        for (var i=0; i<d.query.length; i++) {
+        for (var i = 0; i < d.query.length; i++) {
             // find color
 
             this.context.beginPath();
@@ -274,15 +281,15 @@ var network = {
             var color = '#000'; // d.searches[i];
 
             for (var j = 0; j < this.graph.queries.length; j++) {
-                if (this.graph.queries[j].q === d.query[i]) 
+                if (this.graph.queries[j].q === d.query[i])
                     color = this.graph.queries[j].color;
             }
             /*
-               if ( _.findIndex(this.graph.highlight_nodes, function(o) {
-               return o == d.id
-               })!=-1) {
-               color = "black";
-               }*/
+             if ( _.findIndex(this.graph.highlight_nodes, function(o) {
+             return o == d.id
+             })!=-1) {
+             color = "black";
+             }*/
 
             this.context.fillStyle = color;
             this.context.fill();
@@ -298,18 +305,18 @@ var network = {
         // this.context.fillStyle = '#fff';
         // this.context.fillText(d.icon, d.x - ( d.r) + 1, d.y + 5);
     },
-    mousedown: function() {
+    mousedown: function () {
         if (d3.event.altKeys) {
             return;
         }
 
         var x = this.graph.transform.invertX(d3.event.layerX),
-        y = this.graph.transform.invertY(d3.event.layerY);
+            y = this.graph.transform.invertY(d3.event.layerY);
 
         var subject = this.simulation.find(x, y, 20);
         if (subject === undefined) {
             this.graph.selection = {x1: x, y1: y, x2: x, y2: y};
-            store.dispatch(selectNodes({nodes:[]}));
+            store.dispatch(selectNodes({nodes: []}));
             return;
         } else {
             if (!_.includes(this.graph.selectedNodes, subject)) {
@@ -318,50 +325,50 @@ var network = {
                 _.remove(this.graph.selectedNodes, subject);
             }
 
-            store.dispatch(selectNodes({nodes:this.graph.selectedNodes}));
+            store.dispatch(selectNodes({nodes: this.graph.selectedNodes}));
 
             this.onmouseclick(subject);
         }
     },
-    mouseup: function() {
+    mouseup: function () {
         if (d3.event.altKeys) {
             return;
         }
 
         var x = this.graph.transform.invertX(d3.event.layerX),
-        y = this.graph.transform.invertY(d3.event.layerY);
+            y = this.graph.transform.invertY(d3.event.layerY);
 
         // find all nodes within selection and highliht
         this.graph.selection = null;
     },
-    mousemove: function(n) {
+    mousemove: function (n) {
         if (d3.event.altKeys) {
             return;
         }
 
         var x = this.graph.transform.invertX(d3.event.layerX),
-        y = this.graph.transform.invertY(d3.event.layerY);
+            y = this.graph.transform.invertY(d3.event.layerY);
 
         if (this.graph.selection) {
-            this.graph.selection = _.assign(this.graph.selection, {x2:x, y2:y});
+            this.graph.selection = _.assign(this.graph.selection, {x2: x, y2: y});
 
-            this.graph.nodes.forEach((d)=>{
+            this.graph.nodes.forEach((d)=> {
                 if ((d.x > this.graph.selection.x1 && d.x < this.graph.selection.x2) &&
-                        (d.y > this.graph.selection.y1 && d.y < this.graph.selection.y2)) {
+                    (d.y > this.graph.selection.y1 && d.y < this.graph.selection.y2)) {
                     if (!_.includes(this.graph.selectedNodes, d)) {
                         this.graph.selectedNodes.push(d);
-                    } 
+                    }
                 }
 
                 if ((d.x > this.graph.selection.x2 && d.x < this.graph.selection.x1) &&
-                        (d.y > this.graph.selection.y2 && d.y < this.graph.selection.y1)) {
+                    (d.y > this.graph.selection.y2 && d.y < this.graph.selection.y1)) {
                     if (!_.includes(this.graph.selectedNodes, d)) {
                         this.graph.selectedNodes.push(d);
-                    } 
+                    }
                 }
             });
 
-            store.dispatch(selectNodes({nodes:this.graph.selectedNodes}));
+            store.dispatch(selectNodes({nodes: this.graph.selectedNodes}));
             return;
         }
 
@@ -373,44 +380,37 @@ var network = {
             this.onmousemove(subject);
         }
     },
-    dragstarted: function() {
+    dragstarted: function () {
         this.graph.selection = null;
         this.graph.tooltip = null;
 
         var x = d3.event.x,
-        y = d3.event.y;
+            y = d3.event.y;
 
         if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
         d3.event.subject.fx = x;
         d3.event.subject.fy = y;
     },
-    dragged: function() {
+    dragged: function () {
         var x = d3.event.x,
-        y = d3.event.y;
+            y = d3.event.y;
 
         d3.event.subject.fx = (x);
         d3.event.subject.fy = (y);
     },
-    dragended: function() {
+    dragended: function () {
         if (!d3.event.active) this.simulation.alphaTarget(0);
         d3.event.subject.fx = null;
         d3.event.subject.fy = null;
     },
-    dragsubject: function() {
-        var x = this.graph.transform.invertX(d3.event.x),
-        y = this.graph.transform.invertY(d3.event.y);
+    dragsubject: function () {
+        const x = this.graph.transform.invertX(d3.event.x),
+            y = this.graph.transform.invertY(d3.event.y);
 
-        // adjust
         return this.simulation.find(x, y, 20);
     },
-    mousemoved: function() {
-    },
-    /*
-    drawNode: function(d) {
-        context.moveTo(d.x + 3, d.y);
-        context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
+    mousemoved: function () {
     }
-    */
 };
 
 class Histogram extends React.Component {
@@ -419,22 +419,25 @@ class Histogram extends React.Component {
 
         this.draw = this.draw.bind(this);
 
-        this.state = {
-        };
+        this.state = {};
     }
+
     componentDidMount() {
-        this.canvas =  this.refs.canvas;
+        this.canvas = this.refs.canvas;
         this.context = this.canvas.getContext('2d');
 
         this.draw();
     }
+
     componentDidUpdate(prevProps, prevState) {
         console.debug("componentDidUpdate (histogram");
         // group items to periods using lodash? complete set
         // have selection filter and drag timeline to select nodes
         //
+
         this.draw();
     }
+
     draw() {
         if (this.props.items.length === 0) {
             return;
@@ -461,32 +464,32 @@ class Histogram extends React.Component {
         context.translate(margin.left, margin.top);
 
         let groupedResultsWeek = _.groupBy(this.props.items, (result) => {
-                return moment(result.fields.document.date).startOf('isoWeek').week();
+            return moment(fieldLocator(result.fields, 'date')).startOf('isoWeek').week();
         });
 
         let groupedResults = _.groupBy(this.props.items, (result) => {
-                return moment(result.fields.document.date).year() + '-' + moment(result.fields.document.date).month();
+            return moment(fieldLocator(result.fields, 'date')).year() + '-' + moment(fieldLocator(result.fields, 'date')).month();
         });
-        
+
         console.debug("year", groupedResults);
 
         let minX = _.reduce(this.props.items, (min, result) => {
-            return (moment(result.fields.document.date) < min ? moment(result.fields.document.date) : min);
+            return (moment(fieldLocator(result.fields, 'date')) < min ? moment(fieldLocator(result.fields, 'date')) : min);
         }, moment());
 
         let maxX = _.reduce(this.props.items, (max, result) => {
-            return (moment(result.fields.document.date) > max ? moment(result.fields.document.date) : max);
+            return (moment(fieldLocator(result.fields, 'date')) > max ? moment(fieldLocator(result.fields, 'date')) : max);
         }, 0);
 
-        let periods = []; 
+        let periods = [];
 
         var year = minX.year();
         var month = minX.month();
-        for (; year < maxX.year() || (year == maxX.year() && month < maxX.month()) ; ) {
+        for (; year < maxX.year() || (year == maxX.year() && month < maxX.month());) {
             month++;
             if (month > 12) {
                 year++;
-                month=1;
+                month = 1;
             }
 
             periods.push(year + "-" + month);
@@ -498,11 +501,11 @@ class Histogram extends React.Component {
         y.domain([0, maxValue]);
 
         var yTickCount = 10,
-        yTicks = y.ticks(yTickCount),
-        yTickFormat = y.tickFormat(yTickCount);
+            yTicks = y.ticks(yTickCount),
+            yTickFormat = y.tickFormat(yTickCount);
 
         context.beginPath();
-        x.domain().forEach(function(d) {
+        x.domain().forEach(function (d) {
             context.moveTo(x(d) + x.bandwidth() / 2, height);
             context.lineTo(x(d) + x.bandwidth() / 2, height + 6);
         });
@@ -512,12 +515,12 @@ class Histogram extends React.Component {
 
         context.textAlign = "center";
         context.textBaseline = "top";
-        x.domain().forEach(function(d) {
+        x.domain().forEach(function (d) {
             context.fillText(d, x(d) + x.bandwidth() / 2, height + 6);
         });
 
         context.beginPath();
-        yTicks.forEach(function(d) {
+        yTicks.forEach(function (d) {
             context.moveTo(0, y(d) + 0.5);
             context.lineTo(-6, y(d) + 0.5);
         });
@@ -526,7 +529,7 @@ class Histogram extends React.Component {
 
         context.textAlign = "right";
         context.textBaseline = "middle";
-        yTicks.forEach(function(d) {
+        yTicks.forEach(function (d) {
             context.fillText(yTickFormat(d), -9, y(d));
         });
 
@@ -539,86 +542,100 @@ class Histogram extends React.Component {
         context.stroke();
 
         context.fillStyle = "steelblue";
-        _.forEach(groupedResults, function(d, v) {
+
+        _.forEach(groupedResults, function (d, v) {
             context.fillRect(x(v), y(d.length), x.bandwidth(), height - y(d.length));
+
         });
 
         context.restore();
 
         // requestAnimationFrame(this.draw);
     }
+
     render() {
         let style = {
             position: 'fixed',
             bottom: '0px'
         };
 
-        return <canvas style={ style } width={ this.props.width } height={ this.props.height } ref="canvas">histogram</canvas>;
+        return <canvas style={ style } width={ this.props.width } height={ this.props.height } ref="canvas">
+            histogram</canvas>;
     }
 }
 
 class Graph extends React.Component {
-  constructor(props) {
-    super(props);
+    constructor(props) {
+        super(props);
 
-    this.state = {
-	nodes: [],
-	links: [],
-	highlight_nodes: [],
-	edges: [],
-	clusters: {},
-	start: new Date(),
-	time: 0,
-	n: {
-	    id: 'test',
-	},
-	ticks: 0
-    };
+        this.state = {
+            nodes: [],
+            links: [],
+            highlight_nodes: [],
+            edges: [],
+            clusters: {},
+            start: new Date(),
+            time: 0,
+            n: {
+                id: 'test',
+            },
+            ticks: 0
+        };
 
-  }
-  componentDidMount() {
-      var $this = this;
-
-      network.onmouseclick = this.onMouseClick.bind(this);
-      network.onmousemove = this.onMouseMove.bind(this);
-
-      network.setup(this.refs["canvas"]);
-  }
-  shouldComponentUpdate(nextProps, nextState) {
-      return true; 
     }
+
+    componentDidMount() {
+        var $this = this;
+
+        network.onmouseclick = this.onMouseClick.bind(this);
+        network.onmousemove = this.onMouseMove.bind(this);
+
+        network.setup(this.refs["canvas"]);
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return true;
+    }
+
     onPortMouseOver(link) {
     }
+
     onMouseClick(node) {
-	//store.dispatch(selectNode({node:node}));
+        //store.dispatch(selectNode({node:node}));
     }
+
     onMouseMove(node) {
-	// store.dispatch(selectNode({node:node}));
+        // store.dispatch(selectNode({node:node}));
     }
+
     onMouseOver(node) {
-	// store.dispatch(selectNode({node:node}));
+        // store.dispatch(selectNode({node:node}));
     }
+
     componentWillReceiveProps(nextProps) {
         // console.debug("will receive props", nextProps);
     }
+
     componentDidUpdate(prevProps, prevState) {
         network.graph.queries = this.props.queries;
 
         var {graph} = this.state;
         var {fields} = this.props;
 
-	var nodes = [];
-	var links = [];
+        var nodes = [];
+        var links = [];
 
         var removed = _.difference(prevProps.items, this.props.items);
         if (removed.length > 0) {
-            var removed2=[];
+            var removed2 = [];
             _.forEach(removed, (d, i) => {
                 _.forEach(fields, (field) => {
-                    if (d.fields.document[field] === undefined)
-                            return;
+                    const value = fieldLocator(d.fields, field);
 
-                    removed2.push(d.fields.document[field]);
+                    if (value) {
+                        removed2.push(value);
+                    }
+
                 });
             });
 
@@ -634,13 +651,13 @@ class Graph extends React.Component {
             _.forEach(this.props.items, (d, i) => {
                 // should we hash the id?
                 _.forEach(fields, (field) => {
-                    if (d.fields.document[field] === undefined)
-                            return;
+                    const value = fieldLocator(d.fields, field);
+                    if (!value) return;
 
                     nodes.push({
-                        id: phone(d.fields.document[field]),
+                        id: phone(value),
                         query: d.q,
-                        name: d.fields.document[field],
+                        name: value,
                         color: d.color,
                         connections: 1
                     });
@@ -648,15 +665,17 @@ class Graph extends React.Component {
 
                 // create links of every possible source and target combination
                 _.forEach(fields, (source) => {
-                    if (d.fields.document[source] === undefined)
-                        return;
+                    const sourceValue = fieldLocator(d.fields, source);
+                    if (!sourceValue) return;
+
+
                     _.forEach(fields, (target) => {
-                        if (d.fields.document[target] === undefined)
-                            return;
+                        const targetValue = fieldLocator(d.fields, target);
+                        if (!targetValue) return;
 
                         links.push({
-                            source: phone(d.fields.document[source]),
-                            target: phone(d.fields.document[target]),
+                            source: phone(sourceValue),
+                            target: phone(targetValue),
                         });
                     });
                 });
@@ -672,66 +691,18 @@ class Graph extends React.Component {
         network.select(this.props.node);
         network.highlight(this.props.highlight_nodes);
     }
+
     render() {
-        var style={ fontFamily: 'fontAwesome' };
-        return <canvas style={style} ref='canvas' width={ this.props.width } height={ this.props.height } ref="canvas">histogram</canvas>;
+        var style = {fontFamily: 'fontAwesome'};
+        return <canvas style={style} ref='canvas' width={ this.props.width } height={ this.props.height } ref="canvas">
+            histogram</canvas>;
     }
 }
 
 const i18n = {
     locales: ["en-US"],
-    messages: {
-    }
+    messages: {}
 };
-
-class SearchBox extends React.Component {
-    constructor(props){
-        super(props);
-
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.state = { 
-            q: props.q, 
-            selectValue: this.props.indexes[0], 
-        };
-    }
-    handleSubmit(e) {
-	e.preventDefault();
-
-        let q = this.refs.q.value;
-        this.props.onSubmit(q, this.state.selectValue);
-    }
-    handleChange(e){
-        this.setState({selectValue:e.target.value});
-    }
-    componentDidUpdate(prevProps, prevState) {
-    }
-    render() {
-	let indexes = null;
-	if (this.props.indexes) {
-	    let options = _.map(this.props.indexes, (index) => {
-                return <option key={index} value={index}>{ index }</option>;
-	    });
-            indexes = <div>
-                <select onChange={this.handleChange.bind(this)} value={this.state.selectValue}>{options}</select>
-                </div>;
-	}
-        
-        let loader = classNames({ 'sk-search-box__loader': true, 'sk-spinning-loader': true, 'is-hidden': !this.props.isFetching });
-        return <div className="row">
-                <nav className="[ navbar ][ navbar-bootsnipp animate ]" role="navigation">
-                    <div className="col-md-offset-2 col-sm-offset-2 col-xs-offset-1 col-xs-10 col-sm-8 col-md-8 col-lg-6">
-                        <div className="form-group">
-                            <form onSubmit={this.handleSubmit.bind(this)}>
-                                <input ref="q" className="form-control" placeholder="query" value={ this.state.q } />
-                                <div data-qa="loader" className={loader}></div>
-                                { indexes }
-                            </form>
-                        </div>
-                    </div>
-                </nav>
-            </div>
-    }
-}
 
 function entries(state = {
     isFetching: false,
@@ -742,47 +713,46 @@ function entries(state = {
     node: [],
     highlight_nodes: [],
     columns: [],
-    errors: null, 
+    errors: null,
     fields: [],
     indexes: [],
     items: [],
     searches: [],
 }, action) {
     switch (action.type) {
-	case CLEAR_SELECTION:
-	    return Object.assign({}, state, {
-		node: [],
-	    })
-	case ADD_INDEX:
-	    var indexes = _.concat(state.indexes, action.index);
-	    return Object.assign({}, state, {
-		indexes: indexes,
-	    })
-	case DELETE_INDEX:
-	    var indexes = _.without(state.indexes,  action.index);
-	    return Object.assign({}, state, {
-		indexes: indexes,
-	    })
-	case DELETE_NODES:
+        case CLEAR_SELECTION:
+            return Object.assign({}, state, {
+                node: [],
+            })
+        case ADD_INDEX:
+            var indexes = _.concat(state.indexes, action.index);
+            return Object.assign({}, state, {
+                indexes: indexes,
+            })
+        case DELETE_INDEX:
+            var indexes = _.without(state.indexes, action.index);
+            return Object.assign({}, state, {
+                indexes: indexes,
+            })
+        case DELETE_NODES:
             // we want to remove nodes, not items. So packet to node conversion should happen here, not in render / addnode
             var items = _.concat(state.items);
             _.remove(items, (p) => {
                 return ( _.reduce(state.fields, (found, field) => {
                     found = found || _.find(action.nodes, (o) => {
-                        return phone(p.fields.document[field]) == o;
-                    });
-
+                            return phone(fieldLocator(p.fields, field)) == o;
+                        });
                     return found;
                 }, false));
             });
 
             // todo remove highlighted node
 
-	    return Object.assign({}, state, {
+            return Object.assign({}, state, {
                 items: items
-	    })
-	case DELETE_SEARCH:
-	    var searches = _.without(state.searches,  action.search);
+            })
+        case DELETE_SEARCH:
+            var searches = _.without(state.searches, action.search);
 
             // remove associated items from packet list
             var items = _.concat(state.items);
@@ -792,99 +762,103 @@ function entries(state = {
 
             console.debug("DELETE_SEARCH", items);
 
-	    return Object.assign({}, state, {
-		searches: searches,
+            return Object.assign({}, state, {
+                searches: searches,
                 items: items
-	    })
-	case TABLE_COLUMN_ADD:
-	    var columns = _.concat(state.columns, action.field);
-	    return Object.assign({}, state, {
-		columns: columns,
-	    })
-	case TABLE_COLUMN_REMOVE:
-	    var columns = _.without(state.columns,  action.field);
-	    return Object.assign({}, state, {
-		columns: columns,
-	    })
-	case ADD_FIELD:
-	    var fields = _.concat(state.fields, action.field);
-	    return Object.assign({}, state, {
-		fields: fields,
-	    })
-	case DELETE_FIELD:
-	    var fields = _.without(state.fields,  action.field);
-	    return Object.assign({}, state, {
-		fields: fields,
-	    })
-	case HIGHLIGHT_NODES:
-	    return Object.assign({}, state, {
-		highlight_nodes: action.nodes,
-	    })
-	case SELECT_NODES:
-	    var nodes = _.concat(action.nodes);
-	    return Object.assign({}, state, {
-		node: nodes,
-	    })
+            })
+        case TABLE_COLUMN_ADD:
+            var columns = _.concat(state.columns, action.field);
+            return Object.assign({}, state, {
+                columns: columns,
+            })
+        case TABLE_COLUMN_REMOVE:
+            var columns = _.without(state.columns, action.field);
+            return Object.assign({}, state, {
+                columns: columns,
+            })
+        case ADD_FIELD:
+            var fields = _.concat(state.fields, action.field);
+            return Object.assign({}, state, {
+                fields: fields,
+            })
+        case DELETE_FIELD:
+            var fields = _.without(state.fields, action.field);
+            return Object.assign({}, state, {
+                fields: fields,
+            })
+        case HIGHLIGHT_NODES:
+            return Object.assign({}, state, {
+                highlight_nodes: action.nodes,
+            })
+        case SELECT_NODES:
+            var nodes = _.concat(action.nodes);
+            return Object.assign({}, state, {
+                node: nodes,
+            })
 
-	case SELECT_NODE:
-/*
-	    _.forEach(state.node, (d, i) => {
-		if (
-		    action.node.id == state.node.id) {
-	    }
-	    if (state.node &&
-		    action.node &&
-		    action.node.id == state.node.id) {
-		return state;
-	    }
-*/
-	    var nodes = _.concat(state.node, action.node);
+        case SELECT_NODE:
+            /*
+             _.forEach(state.node, (d, i) => {
+             if (
+             action.node.id == state.node.id) {
+             }
+             if (state.node &&
+             action.node &&
+             action.node.id == state.node.id) {
+             return state;
+             }
+             */
+            var nodes = _.concat(state.node, action.node);
 
-	    return Object.assign({}, state, {
-		node: nodes,
-	    })
-	case ERROR:
-	    return Object.assign({}, state, {
+            return Object.assign({}, state, {
+                node: nodes,
+            })
+        case ERROR:
+            return Object.assign({}, state, {
                 ...action
-	    })
-	case AUTH_CONNECTED:
-	    return Object.assign({}, state, {
-		isFetching: true,
-		didInvalidate: false,
-                    ...action
-	    })
-	case REQUEST_ITEMS:
-	    sock.ws.postMessage({query: action.query, index: action.index, color: action.color});
+            })
+        case AUTH_CONNECTED:
+            return Object.assign({}, state, {
+                isFetching: true,
+                didInvalidate: false,
+                ...action
+            })
+        case REQUEST_ITEMS:
+            sock.ws.postMessage({query: action.query, index: action.index, color: action.color});
 
-	    return Object.assign({}, state, {
-		isFetching: true,
-		didInvalidate: false
-	    })
-	case RECEIVE_ITEMS:
-	    var searches = _.concat(state.searches, {q: action.items.query, color: action.items.color, count: action.items.results.hits.hits.length});
+            return Object.assign({}, state, {
+                isFetching: true,
+                didInvalidate: false
+            })
+        case RECEIVE_ITEMS:
+            var searches = _.concat(state.searches, {
+                q: action.items.query,
+                color: action.items.color,
+                count: action.items.results.hits.hits.length
+            });
 
             // so we want nodes instead of items. we want to update the links and nodes here, not
             // in the graph code itself
-	    var nodes = _.concat(state.nodes, []);
+            var nodes = _.concat(state.nodes, []);
             var links = [];
 
-	    var items = _.concat(state.items, []);
-	    _.forEach(action.items.results.hits.hits, (d, i) => {
-		items.push({ id: d._id, q: action.items.query, color: action.items.color, fields: d._source});
-                nodes.push({ id: d._id, q: action.items.query, color: action.items.color, fields: d._source, record: d });
-	    });
-            
+            var items = _.concat(state.items, []);
+            _.forEach(action.items.results.hits.hits, (d, i) => {
+                items.push({id: d._id, q: action.items.query, color: action.items.color, fields: d._source});
+                nodes.push({id: d._id, q: action.items.query, color: action.items.color, fields: d._source, record: d});
+            });
+
             // node -> heeft ook een package
-	    return Object.assign({}, state, {
+            return Object.assign({}, state, {
                 errors: null,
-                nodes: nodes, 
-		items: items,
-		searches: searches,
-		isFetching: false,
-		didInvalidate: false
-	    })
-	default:
-	    return state
+                nodes: nodes,
+                items: items,
+                searches: searches,
+                isFetching: false,
+                didInvalidate: false
+            })
+        default:
+            return state
     }
 }
 
@@ -893,15 +867,15 @@ function persistState(paths, config) {
     return (next) => (reducer, initialState, enhancer) => {
         if (typeof initialState === 'function' && typeof enhancer === 'undefined') {
             enhancer = initialState
-                initialState = {
-                    entries: {
-                        fields: [],
-                        colums: [],
-                        indexes: [
-                            "http://127.0.0.1:9200/",
-                        ],
-                    }
+            initialState = {
+                entries: {
+                    fields: [],
+                    colums: [],
+                    indexes: [
+                        "http://127.0.0.1:9200/",
+                    ],
                 }
+            }
         }
 
         try {
@@ -994,34 +968,36 @@ function authConnected(p) {
 
 export default class FlowWS {
     constructor(url, token, dispatcher) {
-	this.websocket = new WebSocket(url);
+        this.websocket = new WebSocket(url);
 
-	this.websocket.onopen = function (event) {
-	    console.debug(event);
+        this.websocket.onopen = function (event) {
+            console.debug(event);
             store.dispatch(authConnected({connected: true}));
-	}
-	this.websocket.onclose = function (event) {
-	    console.debug(event);
+        }
+        this.websocket.onclose = function (event) {
+            console.debug(event);
             store.dispatch(authConnected({connected: false}));
-	}
-	this.websocket.onerror = function (event) {
-	    console.debug(event);
+        }
+        this.websocket.onerror = function (event) {
+            console.debug(event);
             store.dispatch(error('test'));
-	}
-	this.websocket.onmessage = function (event) {
-	    dispatcher(JSON.parse(event.data));
-	}
+        }
+        this.websocket.onmessage = function (event) {
+            dispatcher(JSON.parse(event.data));
+        }
     }
+
     postMessage(data) {
-	this.websocket.send(
-		JSON.stringify({
-		    event_type: 1,
-		    ...data,
-		})
-		);
+        this.websocket.send(
+            JSON.stringify({
+                event_type: 1,
+                ...data,
+            })
+        );
     }
+
     close() {
-	this.websocket.close();
+        this.websocket.close();
     }
 }
 
@@ -1030,10 +1006,10 @@ const sock = {
     URL: 'ws://' + "127.0.0.1:8089" + '/ws',
     // URL: 'ws://' + location.host + '/ws',
     wsDispatcher: (msg) => {
-	const { session } = store.getState();
+        const { session } = store.getState();
         // check msg type, use correct dispacther
         if (msg.hits) {
-            return store.dispatch(receiveitems(msg.hits));
+            return store.dispatch(receiveItems(msg.hits));
         } else if (msg.error) {
             return store.dispatch(error(msg.error.message));
         } else {
@@ -1041,9 +1017,9 @@ const sock = {
         }
     },
     startWS: (session) => {
-	if(!!sock.ws){
-	    return;
-	}
+        if (!!sock.ws) {
+            return;
+        }
 
         try {
             sock.ws = new FlowWS(sock.URL, null, sock.wsDispatcher)
@@ -1078,7 +1054,7 @@ function addIndex(index) {
     return {
         type: ADD_INDEX,
         receivedAt: Date.now(),
-	index: index,
+        index: index,
     }
 }
 
@@ -1086,7 +1062,7 @@ function deleteIndex(index) {
     return {
         type: DELETE_INDEX,
         receivedAt: Date.now(),
-	index: index,
+        index: index,
     }
 }
 
@@ -1094,7 +1070,7 @@ function tableColumnRemove(field) {
     return {
         type: TABLE_COLUMN_REMOVE,
         receivedAt: Date.now(),
-	field: field,
+        field: field,
     }
 }
 
@@ -1102,7 +1078,7 @@ function tableColumnAdd(field) {
     return {
         type: TABLE_COLUMN_ADD,
         receivedAt: Date.now(),
-	field: field,
+        field: field,
     }
 }
 
@@ -1110,7 +1086,7 @@ function addField(field) {
     return {
         type: ADD_FIELD,
         receivedAt: Date.now(),
-	field: field,
+        field: field,
     }
 }
 
@@ -1118,7 +1094,7 @@ function deleteField(field) {
     return {
         type: DELETE_FIELD,
         receivedAt: Date.now(),
-	field: field,
+        field: field,
     }
 }
 
@@ -1127,7 +1103,7 @@ function clearSelection(opts) {
     return {
         type: CLEAR_SELECTION,
         receivedAt: Date.now(),
-	...opts,
+        ...opts,
     }
 }
 
@@ -1135,7 +1111,7 @@ function selectNode(opts) {
     return {
         type: SELECT_NODE,
         receivedAt: Date.now(),
-	...opts,
+        ...opts,
     }
 }
 
@@ -1143,7 +1119,7 @@ function selectNodes(opts) {
     return {
         type: SELECT_NODES,
         receivedAt: Date.now(),
-	...opts,
+        ...opts,
     }
 }
 
@@ -1151,7 +1127,7 @@ function deleteSearch(opts) {
     return {
         type: DELETE_SEARCH,
         receivedAt: Date.now(),
-	...opts,
+        ...opts,
     }
 }
 
@@ -1159,7 +1135,7 @@ function deleteNodes(opts) {
     return {
         type: DELETE_NODES,
         receivedAt: Date.now(),
-	nodes: opts,
+        nodes: opts,
     }
 }
 
@@ -1168,132 +1144,115 @@ function highlightNodes(opts) {
     return {
         type: HIGHLIGHT_NODES,
         receivedAt: Date.now(),
-	...opts,
+        ...opts,
     }
 }
 
-function fetchitems(opts={
-    from: 0,
-    size: 50,
-    index: "",
-    query: "",
-    color: "", 
-}) {
-    store.dispatch(requestitems(opts));
-};
-
-function requestitems(opts) {
-    return {
-        type: REQUEST_ITEMS,
-        receivedAt: Date.now(),
-	...opts,
-    }
-}
-
-function receiveitems(items, opts = {
-    from: 0
-}) {
-    return {
-        type: RECEIVE_ITEMS,
-        items: items, // json.data.children.map(child => child.data),
-        receivedAt: Date.now()
-    }
-}
 
 class App extends Intl {
     constructor() {
-        super( i18n.locales, i18n.messages );
+        super(i18n.locales, i18n.messages);
     }
+
     render() {
         return (
-              <Provider store={store}>
-                  <Router history={history}>
-                      <Route path='*' component={connect(mapStateToProps)(RootView)} />
-                  </Router>
-              </Provider>
-       );
+            <Provider store={store}>
+                <Router history={history}>
+                    <Route path='*' component={connect(mapStateToProps)(RootView)}/>
+                </Router>
+            </Provider>
+        );
     }
 }
 
 function phone(p) {
-    if (!p)
-        return "(null)";
-
-    p = p.replace(/^0/i, "31");
+    if (typeof p == 'string') {
+        p = p.replace(/^0/i, "31");
+    }
     return p;
 }
 
 class ConfigurationView extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
 
         this.show = this.show.bind(this);
     }
+
     handleAddField(e) {
-	e.preventDefault();
+        e.preventDefault();
 
         let field = this.refs.field.value;
-	store.dispatch(addField(field));
+        store.dispatch(addField(field));
     }
-    handleDeleteField(field, e) {
-	e.preventDefault();
 
-	store.dispatch(deleteField(field));
+    handleDeleteField(field, e) {
+        e.preventDefault();
+
+        store.dispatch(deleteField(field));
     }
+
     handleAddIndex(e) {
-	e.preventDefault();
+        e.preventDefault();
 
         let index = this.refs.index.value;
-	store.dispatch(addIndex(index));
+        store.dispatch(addIndex(index));
     }
-    handleDeleteIndex(field, e) {
-	e.preventDefault();
 
-	store.dispatch(deleteIndex(field));
+    handleDeleteIndex(field, e) {
+        e.preventDefault();
+
+        store.dispatch(deleteIndex(field));
     }
+
     show() {
         this.refs.dialogWithCallBacks.show();
     }
+
     render() {
-	let fields = null;
-	if (this.props.fields || []) {
-	    let options = _.map(this.props.fields || [], (field) => {
-                return <li key={field} value={ field }>{ field } <button onClick={this.handleDeleteField.bind(this, field) }>x</button></li>;
-	    });
+        let fields = null;
+        if (this.props.fields || []) {
+            let options = _.map(this.props.fields || [], (field) => {
+                return <li key={field} value={ field }>{ field }
+                    <button onClick={this.handleDeleteField.bind(this, field) }>x</button>
+                </li>;
+            });
             fields = <div>
                 <ul>{ options }</ul>
-                    <form onSubmit={this.handleAddField.bind(this)}>
-                <input type="text" ref="field" />
+                <form onSubmit={this.handleAddField.bind(this)}>
+                    <input type="text" ref="field"/>
                 </form>
             </div>;
-	}
+        }
 
-	let indexes = null;
-	if (this.props.indexes) {
-	    let options = _.map(this.props.indexes, (index) => {
-                return <li key={index} value={index}>{ index }<button onClick={this.handleDeleteIndex.bind(this, index) }>x</button></li>;
-	    });
+        let indexes = null;
+        if (this.props.indexes) {
+            let options = _.map(this.props.indexes, (index) => {
+                return <li key={index} value={index}>{ index }
+                    <button onClick={this.handleDeleteIndex.bind(this, index) }>x</button>
+                </li>;
+            });
             indexes = <div>
                 <ul>{options}</ul>
-                </div>;
-	}
+            </div>;
+        }
 
         return <SkyLight
             ref="dialogWithCallBacks"
             title="add Index">
             <div className="col-md-offset-2 col-sm-offset-2 col-xs-offset-1 col-xs-10 col-sm-8 col-md-8 col-lg-6">
                 <div className="form-group">
-                <h2>Indexes</h2>
-                { indexes }
+                    <h2>Indexes</h2>
+                    { indexes }
                 </div>
                 <div className="form-group">
                     <form onSubmit={this.handleAddIndex.bind(this)}>
-                        <input type="text" ref="index" />
+                        <input type="text" ref="index"/>
                     </form>
                 </div>
                 <h2>Fields</h2>
                 <div className="form-group">
-                { fields }
+                    { fields }
                 </div>
             </div>
         </SkyLight>;
@@ -1301,7 +1260,7 @@ class ConfigurationView extends React.Component {
 }
 
 class Record extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
 
         this.state = {
@@ -1309,194 +1268,199 @@ class Record extends React.Component {
             expanded: false,
         }
     }
+
     handleTableAddColumn(field) {
-	this.props.onTableAddColumn(field);
+        this.props.onTableAddColumn(field);
     }
+
     handleTableRemoveColumn(field) {
-	this.props.onTableRemoveColumn(field);
+        this.props.onTableRemoveColumn(field);
     }
+
     handleMouseOver(id) {
-	store.dispatch(highlightNodes({ nodes: [id] }));
+        store.dispatch(highlightNodes({nodes: [id]}));
     }
+
     toggleExpand(id) {
         this.setState({expanded: !this.state.expanded});
     }
-    render() {
-        var that =this;
 
-        let fields = _.map(this.props.packet.fields.document, function(value, key) {
+    render() {
+        var that = this;
+
+        let fields = _.map(this.props.packet.fields, function (value, key) {
             return <tr key={ 'field_' + key }>
-                <th>{ key} <button onClick={that.handleTableAddColumn.bind(that, key)}>add</button></th>
+                <th>{ key}
+                    <button onClick={that.handleTableAddColumn.bind(that, key)}>add</button>
+                </th>
                 <td colSpan="3">{ value}</td>
             </tr>;
         });
 
-        let columns = _.map(this.props.columns, function(value) {
-            return <td key={ 'column_' + that.props.packet.id + value }>{ that.props.packet.fields.document[value] }</td>;
+        let columns = _.map(this.props.columns, function (value) {
+            return <td
+                key={ 'column_' + that.props.packet.id + value }>{ that.props.packet.fields[value] }</td>;
         });
 
         let body = null;
-        if (this.state.expanded) { 
+        if (this.state.expanded) {
             body = [<tr>
                 <td colSpan="3">
-                <table>
-                <tbody>{ fields }</tbody>
-                </table>
+                    <table>
+                        <tbody>{ fields }</tbody>
+                    </table>
                 </td>
-                </tr>,
+            </tr>,
                 <tr className="json">
-                <td colSpan="3">
-                { JSON.stringify(this.props.packet.fields.document) }
-            </td>
+                    <td colSpan="3">
+                        { JSON.stringify(this.props.packet.fields.document) }
+                    </td>
                 </tr>];
-           }
-        
+        }
 
-        return <tr> 
-                <td>
+
+        return <tr>
+            <td>
                 <table>
-                <tbody>
-                    <tr onMouseOver={ that.handleMouseOver.bind(that, this.props.node.id) } className="columns">  
+                    <tbody>
+                    <tr onMouseOver={ that.handleMouseOver.bind(that, this.props.node.id) } className="columns">
                         <td>
-                        <button onClick={that.toggleExpand.bind(that, this.props.node.id) }>expand</button>
+                            <button onClick={that.toggleExpand.bind(that, this.props.node.id) }>expand</button>
                         </td>
                         {columns}
                     </tr>
                     { body }
-                </tbody>
+                    </tbody>
                 </table>
-                </td>
-            </tr>
+            </td>
+        </tr>
     }
 }
 
 class TableView extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
 
         this.state = {
             editNode: null,
         }
     }
+
     handleClearSelection() {
-	store.dispatch(clearSelection());
+        store.dispatch(clearSelection());
     }
+
     handleTableAddColumn(field) {
-	store.dispatch(tableColumnAdd(field));
+        store.dispatch(tableColumnAdd(field));
     }
+
     handleTableRemoveColumn(field) {
-	store.dispatch(tableColumnRemove(field));
+        store.dispatch(tableColumnRemove(field));
     }
+
     handleCancelEditNode(node) {
         this.setState({editNode: null});
     }
+
     handleEditNode(node) {
         this.setState({editNode: node});
     }
-    handleDeleteNode(node) {
-	store.dispatch(deleteNodes([node.id]));
-    }
-    render() {
-        var that =this;
 
-	let body = null;
-	if (this.props.node) {
-	    body = _.map(this.props.node, (node) => {
-		return  _.map(this.props.items, (packet) => {
+    handleDeleteNode(node) {
+        store.dispatch(deleteNodes([node.id]));
+    }
+
+    render() {
+        var that = this;
+
+        let body = null;
+        if (this.props.node) {
+            body = _.map(this.props.node, (node) => {
+                return _.map(this.props.items, (packet) => {
                     return _.map(this.props.fields || [], (value) => {
-                        if (phone(packet.fields.document[value])!==node.id) 
+                        if (phone(fieldLocator(packet.fields, value)) !== node.id)
                             return null;
 
-		    return <Record columns={ this.props.columns } node={ node } packet={packet} onTableAddColumn={that.handleTableAddColumn.bind(that) } onTableRemoveColumn={that.handleTableRemoveColumn.bind(that) }/>;
+                        return <Record columns={ this.props.columns } node={ node } packet={packet}
+                                       onTableAddColumn={that.handleTableAddColumn.bind(that) }
+                                       onTableRemoveColumn={that.handleTableRemoveColumn.bind(that) }/>;
                     });
-		});
-	    });
-	}
+                });
+            });
+        }
 
-        let headers = _.map(this.props.columns, function(value) {
-            return <th key={ 'header_' + value }>{ value }<button onClick={that.handleTableRemoveColumn.bind(that, value)}>remove</button></th>;
+        const headers = _.map(this.props.columns, function (value) {
+            return <th key={ 'header_' + value }>{ value }
+                <button onClick={that.handleTableRemoveColumn.bind(that, value)}>remove</button>
+            </th>;
         });
 
-	let selected = null;
-	if (this.props.node) {
-	    selected = _.map(this.props.node, (node) => {
+        let selected = null;
+        if (this.props.node) {
+            selected = _.map(this.props.node, (node) => {
                 if (this.state.editNode == node) {
-                    return <li key={node.id}><input type="text" value={node.id} /> <button onClick={that.handleCancelEditNode.bind(that, node) }>cancel</button> </li>;
+                    return <li key={node.id}><input type="text" value={node.id}/>
+                        <button onClick={that.handleCancelEditNode.bind(that, node) }>cancel</button>
+                    </li>;
                 } else {
-                    return <li key={node.id}>{node.id} <button onClick={that.handleEditNode.bind(that, node) }>edit</button> <button onClick={that.handleDeleteNode.bind(that, node)}>delete</button></li>;
+                    return <li key={node.id}>{node.id}
+                        <button onClick={that.handleEditNode.bind(that, node) }>edit</button>
+                        <button onClick={that.handleDeleteNode.bind(that, node)}>delete</button>
+                    </li>;
                 }
             });
         }
 
         return <div>
-                    <ul>
-                        {selected}
-                    </ul>
-                    <button onClick={this.handleClearSelection.bind(this)}>Clear</button>
-                    <table className='table table-condensed table-striped col-md-4 col-lg-4'>
-                        <tbody>
-                        <tr>
-                            { headers }
-                        </tr>
-                        {body}
-                        </tbody>
-                    </table>
-                </div>;
-    }
-}
-
-class ErrorStatus extends React.Component {
-    constructor(props){
-        super(props);
-    }
-    render() {
-	if (!this.props.error) 
-            return null;
-
-        return <div className="alert alert-danger">{ this.props.error } </div>;
-    }
-}
-
-class ConnectionStatus extends React.Component {
-    constructor(props){
-        super(props);
-    }
-    render() {
-	if (this.props.connected) {
-            return <div>connected </div>;
-	} else {
-            return <div>not connected </div>;
-        }
+            <ul>
+                {selected}
+            </ul>
+            <button onClick={this.handleClearSelection.bind(this)}>Clear</button>
+            <table className='table table-condensed table-striped col-md-4 col-lg-4'>
+                <tbody>
+                <tr>
+                    { headers }
+                </tr>
+                {body}
+                </tbody>
+            </table>
+        </div>;
     }
 }
 
 class Searches extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
-        this.state = { 
+        this.state = {
             editSearchValue: null,
         }
     }
+
     handleEditSearch(search, e) {
-	e.preventDefault();
+        e.preventDefault();
         this.setState({editSearchValue: search});
     }
+
     handleCancelEditSearch(search, e) {
-	e.preventDefault();
+        e.preventDefault();
         this.setState({editSearchValue: null});
     }
+
     handleDeleteSearch(search, e) {
-	e.preventDefault();
+        e.preventDefault();
 
         store.dispatch(deleteSearch({search: search}));
     }
+
     handleChangeSearchColorComplete(color) {
         let search = this.state.editSearchValue;
         search.color = color.hex;
         this.setState({editSearchValue: search});
     }
+
     render() {
-        var that =this;
+        var that = this;
+
 
         let searches = _.map(this.props.searches, (search) => {
             var divStyle = {
@@ -1504,9 +1468,16 @@ class Searches extends React.Component {
             };
 
             if (that.state.editSearchValue === search) {
-                return <div key={search.q} style={ divStyle }><SketchPicker  color={ search.color } onChangeComplete={ that.handleChangeSearchColorComplete.bind(that) }/> { search.q } ({search.count}) <button onClick={that.handleCancelEditSearch.bind(that, search) }>cancel</button> </div>
+                return <div key={search.q} style={ divStyle }><SketchPicker color={ search.color }
+                                                                            onChangeComplete={ that.handleChangeSearchColorComplete.bind(that) }/> { search.q }
+                    ({search.count})
+                    <button onClick={that.handleCancelEditSearch.bind(that, search) }>cancel</button>
+                </div>
             } else {
-                return <div key={search.q} style={ divStyle }>{ search.q } ({search.count}) <button onClick={that.handleEditSearch.bind(that, search) }>edit</button> <button onClick={that.handleDeleteSearch.bind(that, search) }>delete</button> </div>
+                return <div key={search.q} style={ divStyle }>{ search.q } ({search.count})
+                    <button onClick={that.handleEditSearch.bind(that, search) }>edit</button>
+                    <button onClick={that.handleDeleteSearch.bind(that, search) }>delete</button>
+                </div>
             }
         });
 
@@ -1515,110 +1486,104 @@ class Searches extends React.Component {
 }
 
 class RootView extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
 
-        this.state = { 
-            docs:[], 
-            error: null, 
-	    searches: [],
-            currentNode: null,
-            colorIndex: 0, 
-            colors: [
-                'red',
-                'blue',
-                'yellow',
-                'orange',
-                'purple',
-                'gray',
-            ],
+        this.state = {
+            docs: [],
+            error: null,
+            searches: [],
+            currentNode: null
         }
     }
+
     componentDidMount() {
     }
-    onSearchSubmit(q, index) {
-        fetchitems({ query: q, index: index, color: this.state.colors[this.state.colorIndex % (this.state.colors.length - 1)]});
 
-        this.setState({colorIndex: this.state.colorIndex + 1});
-    }
     componentWillReceiveProps(nextProps) {
     }
-    handleChange(e){
-        this.setState({selectValue:e.target.value});
+
+    handleChange(e) {
+        this.setState({selectValue: e.target.value});
     }
+
     handleMouseOver(node) {
         this.setState({currentNode: node});
     }
+
     render() {
         if (this.state.error != null) {
             return <div>{this.state.error.code}</div>
         }
 
-        var that =this;
+        var that = this;
 
         return <div className="container-fluid">
-                    <SearchBox isFetching={this.props.isFetching} total={this.props.total} q= { this.state.q } onSubmit={this.onSearchSubmit.bind(this)} indexes = {this.props.indexes}/>
-		    <div className="row">
-			<div className="col-xs-9 col-sm-9">
-			    <div className="row">
-                                <section>
-                                    <button onClick={() => this.refs.configurationView.show()}>Configure</button>
-                                </section>
-                                <section>
-                                    <ConnectionStatus connected={this.props.connected} />
-                                </section>
-                                <section>
-                                    <ErrorStatus error={this.props.errors} />
-                                </section>
-			    </div>
-			    <div className="row">
-				<Graph width="1600" height="800" node={this.props.node} queries={this.props.searches} fields={this.props.fields} items={this.props.items} highlight_nodes={this.props.highlight_nodes} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
-                            </div>
-                            <div>
-				<Histogram width="1600" height="200" node={this.props.node} queries={this.props.searches} fields={this.props.fields} items={this.props.items} highlight_nodes={this.props.highlight_nodes} className="histogram" />
-			    </div>
-			</div>
-			<div className="col-xs-3 col-sm-3">
-			    <div className="row">
-                                <b>Records:</b> { this.props.items.length }
-			    </div>
-			    <div className="row">
-                                <Searches searches={this.props.searches} />
-			    </div>
-			    <div className="row">
-                                <TableView nodes={this.props.nodes} items={this.props.items} fields={this.props.fields} columns={this.props.columns} node={this.props.node}/>
-			    </div>
-			</div>
-		    </div>
-                    <ConfigurationView ref="configurationView" fields={this.props.fields} indexes={this.props.indexes} />
-                    <footer></footer>
-                </div>;
+
+            <Header/>
+
+            <div className="row">
+                <div className="col-xs-9 col-sm-9">
+                    <div className="row">
+                        <section>
+                            <button onClick={() => this.refs.configurationView.show()}>Configure</button>
+                        </section>
+                        <section>
+                            <ErrorStatus error={this.props.errors}/>
+                        </section>
+                    </div>
+                    <div className="row">
+                        <Graph width="1600" height="800" node={this.props.node} queries={this.props.searches}
+                               fields={this.props.fields} items={this.props.items}
+                               highlight_nodes={this.props.highlight_nodes} className="graph"
+                               handleMouseOver={ this.handleMouseOver.bind(this) }/>
+                    </div>
+                    <div>
+                        <Histogram width="1600" height="200" node={this.props.node} queries={this.props.searches}
+                                   fields={this.props.fields} items={this.props.items}
+                                   highlight_nodes={this.props.highlight_nodes} className="histogram"/>
+                    </div>
+                </div>
+                <div className="col-xs-3 col-sm-3">
+                    <div className="row">
+                        <b>Records:</b> { this.props.items.length }
+                    </div>
+                    <div className="row">
+                        <Searches searches={this.props.searches}/>
+                    </div>
+                    <div className="row">
+                        <TableView nodes={this.props.nodes} items={this.props.items} fields={this.props.fields}
+                                   columns={this.props.columns} node={this.props.node}/>
+                    </div>
+                </div>
+            </div>
+            <ConfigurationView ref="configurationView" fields={this.props.fields} indexes={this.props.indexes}/>
+            <footer></footer>
+        </div>;
     }
 }
 
 const mapStateToProps = (state, ownProps) => {
     return {
-          ...ownProps,
-          isFetching: state.entries.isFetching,
-          noMoreHits: state.entries.noMoreHits,
-          hits: state.entries.hits,
-          node: state.entries.node,
-          connected: state.entries.connected,
-          errors: state.entries.errors,
-          items: state.entries.items,
-          indexes: state.entries.indexes,
-          fields: state.entries.fields,
-          columns: state.entries.columns,
-	  searches: state.entries.searches,
-	  highlight_nodes: state.entries.highlight_nodes,
-          aggs: state.entries.aggs,
-          total: state.entries.total
+        ...ownProps,
+        noMoreHits: state.entries.noMoreHits,
+        hits: state.entries.hits,
+        node: state.entries.node,
+        errors: state.entries.errors,
+        items: state.entries.items,
+        indexes: state.entries.indexes,
+        fields: state.entries.fields,
+        columns: state.entries.columns,
+        searches: state.entries.searches,
+        highlight_nodes: state.entries.highlight_nodes,
+        aggs: state.entries.aggs,
+        total: state.entries.total
     }
 }
 
 const history = syncHistoryWithStore(browserHistory, store);
 
 ReactDOM.render((
-            <App/>
+    <App/>
 ), document.getElementById('root'))
 
