@@ -461,15 +461,37 @@ class Histogram extends React.Component {
         });
 
         let groupedResults = _.groupBy(this.props.items, (result) => {
-                return moment(result.fields.document.date).startOf('isoWeek').year();
+                return moment(result.fields.document.date).year() + '-' + moment(result.fields.document.date).month();
         });
         
         console.debug("year", groupedResults);
 
-        x.domain(_.map(groupedResults, function(d, v) { return v; }));
+        let minX = _.reduce(this.props.items, (min, result) => {
+            return (moment(result.fields.document.date) < min ? moment(result.fields.document.date) : min);
+        }, moment());
 
-        let max = _.reduce(groupedResults, (max, n, m) => (n.length > max ? n.length : max), 0);
-        y.domain([0, max]);
+        let maxX = _.reduce(this.props.items, (max, result) => {
+            return (moment(result.fields.document.date) > max ? moment(result.fields.document.date) : max);
+        }, 0);
+
+        let periods = []; 
+
+        var year = minX.year();
+        var month = minX.month();
+        for (; year < maxX.year() || (year == maxX.year() && month < maxX.month()) ; ) {
+            month++;
+            if (month > 12) {
+                year++;
+                month=1;
+            }
+
+            periods.push(year + "-" + month);
+        }
+
+        x.domain(periods);
+
+        let maxValue = _.reduce(groupedResults, (max, n, m) => (n.length > max ? n.length : max), 0);
+        y.domain([0, maxValue]);
 
         var yTickCount = 10,
         yTicks = y.ticks(yTickCount),
