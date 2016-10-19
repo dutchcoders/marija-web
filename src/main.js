@@ -416,116 +416,10 @@ class Histogram extends React.Component {
         this.draw = this.draw.bind(this);
 
         this.state = {
-            data: [
-                {
-                    letter: 'A', 
-                    frequency :0.08167
-                },
-                {
-                    letter:    'B', 
-                    frequency :0.01492,
-                },
-                {
-                    letter:   'C', 
-                    frequency :0.02782,
-                },
-                {
-                    letter:  'D', 
-                    frequency :0.04253,
-                },
-                {
-                    letter: 'E', 
-                    frequency :0.12702,
-                },
-                {
-                    letter:    'F', 
-                    frequency :0.02288,
-                },
-                {
-                    letter:    'G', 
-                    frequency :0.02015,
-                },
-                {
-                    letter:    'H', 
-                    frequency :0.06094,
-                },
-                {
-                    letter:    'I', 
-                    frequency :0.06966,
-                },
-                {
-                    letter:    'J', 
-                    frequency :0.00153,
-                },
-                {
-                    letter:    'K', 
-                    frequency :0.00772,
-                },
-                {
-                    letter:    'L', 
-                    frequency :0.04025,
-                },
-                {
-                    letter:    'M', 
-                    frequency :0.02406,
-                },
-                {
-                    letter:    'N', 
-                    frequency :0.06749,
-                },
-                {
-                    letter:    'O', 
-                    frequency :0.07507,
-                },
-                {
-                    letter:    'P', 
-                    frequency :0.01929,
-                },
-                {
-                    letter:    'Q', 
-                    frequency :0.00095,
-                },
-                {
-                    letter:    'R', 
-                    frequency :0.05987,
-                },
-                {
-                    letter:    'S', 
-                    frequency :0.06327,
-                },
-                {
-                    letter:    'T', 
-                    frequency :0.09056,
-                },
-                {
-                    letter:    'U', 
-                    frequency :0.02758,
-                },
-                {
-                    letter:    'V', 
-                    frequency :0.00978,
-                },
-                {
-                    letter:    'W', 
-                    frequency :0.02360,
-                },
-                {
-                    letter:    'X', 
-                    frequency :0.00015,
-                },
-                {
-                    letter:    'Y', 
-                    frequency :0.01974,
-                },
-                {
-                    letter:    'Z', 
-                    frequency :0.00074
-                },
-            ]
-        }
+        };
     }
     componentDidMount() {
-        this.canvas =  this.refs["canvas"];
+        this.canvas =  this.refs.canvas;
         this.context = this.canvas.getContext('2d');
 
         this.draw();
@@ -535,14 +429,13 @@ class Histogram extends React.Component {
         // group items to periods using lodash? complete set
         // have selection filter and drag timeline to select nodes
         //
-        let groupedResults = _.groupBy(this.props.items, (result) => {
-                moment(result.fields.document.date).startOf('isoWeek')
-        });
-
-        console.debug("groupedResults", groupedResults);
         this.draw();
     }
     draw() {
+        if (this.props.items.length === 0) {
+            return;
+        }
+
         let canvas = d3.select(this.canvas);
         let context = this.context;
 
@@ -552,9 +445,7 @@ class Histogram extends React.Component {
             width = this.canvas.width - margin.left - margin.right,
             height = this.canvas.height - margin.top - margin.bottom;
 
-        this.context.clearRect(margin.left, margin.top, width, height);
-
-        let data = this.state.data;
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         var x = d3.scaleBand()
             .rangeRound([0, width])
@@ -565,12 +456,24 @@ class Histogram extends React.Component {
 
         context.translate(margin.left, margin.top);
 
-        x.domain(data.map(function(d) { return d.letter; }));
-        y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+        let groupedResultsWeek = _.groupBy(this.props.items, (result) => {
+                return moment(result.fields.document.date).startOf('isoWeek').week();
+        });
+
+        let groupedResults = _.groupBy(this.props.items, (result) => {
+                return moment(result.fields.document.date).startOf('isoWeek').year();
+        });
+        
+        console.debug("year", groupedResults);
+
+        x.domain(_.map(groupedResults, function(d, v) { return v; }));
+
+        let max = _.reduce(groupedResults, (max, n, m) => (n.length > max ? n.length : max), 0);
+        y.domain([0, max]);
 
         var yTickCount = 10,
         yTicks = y.ticks(yTickCount),
-        yTickFormat = y.tickFormat(yTickCount, "%");
+        yTickFormat = y.tickFormat(yTickCount);
 
         context.beginPath();
         x.domain().forEach(function(d) {
@@ -609,8 +512,8 @@ class Histogram extends React.Component {
         context.stroke();
 
         context.fillStyle = "steelblue";
-        data.forEach(function(d) {
-            context.fillRect(x(d.letter), y(d.frequency), x.bandwidth(), height - y(d.frequency));
+        _.forEach(groupedResults, function(d, v) {
+            context.fillRect(x(v), y(d.length), x.bandwidth(), height - y(d.length));
         });
 
         context.restore();
@@ -618,7 +521,12 @@ class Histogram extends React.Component {
         // requestAnimationFrame(this.draw);
     }
     render() {
-        return <canvas width={ this.props.width } height={ this.props.height } ref="canvas">histogram</canvas>;
+        let style = {
+            position: 'fixed',
+            bottom: '0px'
+        };
+
+        return <canvas style={ style } width={ this.props.width } height={ this.props.height } ref="canvas">histogram</canvas>;
     }
 }
 
@@ -1637,7 +1545,7 @@ class RootView extends React.Component {
 				<Graph width="1600" height="800" node={this.props.node} queries={this.props.searches} fields={this.props.fields} items={this.props.items} highlight_nodes={this.props.highlight_nodes} className="graph" handleMouseOver={ this.handleMouseOver.bind(this) } />
                             </div>
                             <div>
-				<Histogram width="1600" height="800" node={this.props.node} queries={this.props.searches} fields={this.props.fields} items={this.props.items} highlight_nodes={this.props.highlight_nodes} className="histogram" />
+				<Histogram width="1600" height="200" node={this.props.node} queries={this.props.searches} fields={this.props.fields} items={this.props.items} highlight_nodes={this.props.highlight_nodes} className="histogram" />
 			    </div>
 			</div>
 			<div className="col-xs-3 col-sm-3">
