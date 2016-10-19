@@ -11,6 +11,10 @@
 // meerdere indexen tegelijk zoeken
 // notities kunnen toevoegen
 // mini map
+// facets per search kunnen wijzigen
+// query zelf kunnen wijzigen
+// combine highlight and results on same node, in correct color
+// arc should show percentage, not equally
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -502,6 +506,7 @@ class Histogram extends React.Component {
             context.moveTo(x(d) + x.bandwidth() / 2, height);
             context.lineTo(x(d) + x.bandwidth() / 2, height + 6);
         });
+
         context.strokeStyle = "black";
         context.stroke();
 
@@ -947,10 +952,10 @@ function persistState(paths, config) {
 
 function configureStore() {
     return createStore(
-	    combineReducers({
-		entries,
-		routing: routerReducer
-	    }),
+            combineReducers({
+                entries,
+                routing: routerReducer
+            }),
             {
                 entries: {
                     isFetching: false,
@@ -966,7 +971,7 @@ function configureStore() {
                 },
             },
             compose(persistState(/*paths, config*/))
-                )
+            )
 }
 
 const store = configureStore({});
@@ -1211,6 +1216,9 @@ class App extends Intl {
 }
 
 function phone(p) {
+    if (!p)
+        return "(null)";
+
     p = p.replace(/^0/i, "31");
     return p;
 }
