@@ -12,6 +12,9 @@
 // notities kunnen toevoegen
 // mini map
 
+require('../index.html');
+require('../scss/app.scss');
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { dispatch, compose, createStore, combineReducers, applyMiddleware } from 'redux';
@@ -21,7 +24,10 @@ import { browserHistory, Router, Route, Link } from 'react-router';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import { Intl, FormattedDate, FormattedNumber }  from 'react-intl-es6';
 
-import { ErrorStatus, ConnectionStatus } from './components/index'
+import { ErrorStatus } from './modules/status/index'
+import { RECEIVE_ITEMS, REQUEST_ITEMS, receiveItems } from './modules/search/index'
+import { Header } from './components/index';
+
 import { fieldLocator } from './helpers/index'
 
 import ReactList from 'react-list';
@@ -56,9 +62,6 @@ const DELETE_INDEX = 'DELETE_INDEX';
 
 const AUTH_CONNECTED = 'AUTH_CONNECTED';
 const ERROR = 'ERROR';
-
-const REQUEST_ITEMS = 'REQUEST_ITEMS';
-const RECEIVE_ITEMS = 'RECEIVE_ITEMS';
 
 var network = {
     // Start data
@@ -397,20 +400,13 @@ var network = {
         d3.event.subject.fy = null;
     },
     dragsubject: function () {
-        var x = this.graph.transform.invertX(d3.event.x),
+        const x = this.graph.transform.invertX(d3.event.x),
             y = this.graph.transform.invertY(d3.event.y);
 
-        // adjust
         return this.simulation.find(x, y, 20);
     },
     mousemoved: function () {
-    },
-    /*
-     drawNode: function(d) {
-     context.moveTo(d.x + 3, d.y);
-     context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
-     }
-     */
+    }
 };
 
 class Histogram extends React.Component {
@@ -419,118 +415,11 @@ class Histogram extends React.Component {
 
         this.draw = this.draw.bind(this);
 
-        this.state = {
-            data: [
-                {
-                    letter: 'A',
-                    frequency: 0.08167
-                },
-                {
-                    letter: 'B',
-                    frequency: 0.01492,
-                },
-                {
-                    letter: 'C',
-                    frequency: 0.02782,
-                },
-                {
-                    letter: 'D',
-                    frequency: 0.04253,
-                },
-                {
-                    letter: 'E',
-                    frequency: 0.12702,
-                },
-                {
-                    letter: 'F',
-                    frequency: 0.02288,
-                },
-                {
-                    letter: 'G',
-                    frequency: 0.02015,
-                },
-                {
-                    letter: 'H',
-                    frequency: 0.06094,
-                },
-                {
-                    letter: 'I',
-                    frequency: 0.06966,
-                },
-                {
-                    letter: 'J',
-                    frequency: 0.00153,
-                },
-                {
-                    letter: 'K',
-                    frequency: 0.00772,
-                },
-                {
-                    letter: 'L',
-                    frequency: 0.04025,
-                },
-                {
-                    letter: 'M',
-                    frequency: 0.02406,
-                },
-                {
-                    letter: 'N',
-                    frequency: 0.06749,
-                },
-                {
-                    letter: 'O',
-                    frequency: 0.07507,
-                },
-                {
-                    letter: 'P',
-                    frequency: 0.01929,
-                },
-                {
-                    letter: 'Q',
-                    frequency: 0.00095,
-                },
-                {
-                    letter: 'R',
-                    frequency: 0.05987,
-                },
-                {
-                    letter: 'S',
-                    frequency: 0.06327,
-                },
-                {
-                    letter: 'T',
-                    frequency: 0.09056,
-                },
-                {
-                    letter: 'U',
-                    frequency: 0.02758,
-                },
-                {
-                    letter: 'V',
-                    frequency: 0.00978,
-                },
-                {
-                    letter: 'W',
-                    frequency: 0.02360,
-                },
-                {
-                    letter: 'X',
-                    frequency: 0.00015,
-                },
-                {
-                    letter: 'Y',
-                    frequency: 0.01974,
-                },
-                {
-                    letter: 'Z',
-                    frequency: 0.00074
-                },
-            ]
-        }
+        this.state = {};
     }
 
     componentDidMount() {
-        this.canvas = this.refs["canvas"];
+        this.canvas = this.refs.canvas;
         this.context = this.canvas.getContext('2d');
 
         this.draw();
@@ -541,15 +430,15 @@ class Histogram extends React.Component {
         // group items to periods using lodash? complete set
         // have selection filter and drag timeline to select nodes
         //
-        let groupedResults = _.groupBy(this.props.items, (result) => {
-            return moment(fieldLocator(result.fields, '@timestamp')).startOf('isoWeek')
-        });
 
-        console.debug("groupedResults", groupedResults);
         this.draw();
     }
 
     draw() {
+        if (this.props.items.length === 0) {
+            return;
+        }
+
         let canvas = d3.select(this.canvas);
         let context = this.context;
 
@@ -559,9 +448,7 @@ class Histogram extends React.Component {
             width = this.canvas.width - margin.left - margin.right,
             height = this.canvas.height - margin.top - margin.bottom;
 
-        this.context.clearRect(margin.left, margin.top, width, height);
-
-        let data = this.state.data;
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         var x = d3.scaleBand()
             .rangeRound([0, width])
@@ -572,16 +459,46 @@ class Histogram extends React.Component {
 
         context.translate(margin.left, margin.top);
 
-        x.domain(data.map(function (d) {
-            return d.letter;
-        }));
-        y.domain([0, d3.max(data, function (d) {
-            return d.frequency;
-        })]);
+        let groupedResultsWeek = _.groupBy(this.props.items, (result) => {
+            return moment(fieldLocator(result.fields, 'date')).startOf('isoWeek').week();
+        });
+
+        let groupedResults = _.groupBy(this.props.items, (result) => {
+            return moment(fieldLocator(result.fields, 'date')).year() + '-' + moment(fieldLocator(result.fields, 'date')).month();
+        });
+
+        console.debug("year", groupedResults);
+
+        let minX = _.reduce(this.props.items, (min, result) => {
+            return (moment(fieldLocator(result.fields, 'date')) < min ? moment(fieldLocator(result.fields, 'date')) : min);
+        }, moment());
+
+        let maxX = _.reduce(this.props.items, (max, result) => {
+            return (moment(fieldLocator(result.fields, 'date')) > max ? moment(fieldLocator(result.fields, 'date')) : max);
+        }, 0);
+
+        let periods = [];
+
+        var year = minX.year();
+        var month = minX.month();
+        for (; year < maxX.year() || (year == maxX.year() && month < maxX.month());) {
+            month++;
+            if (month > 12) {
+                year++;
+                month = 1;
+            }
+
+            periods.push(year + "-" + month);
+        }
+
+        x.domain(periods);
+
+        let maxValue = _.reduce(groupedResults, (max, n, m) => (n.length > max ? n.length : max), 0);
+        y.domain([0, maxValue]);
 
         var yTickCount = 10,
             yTicks = y.ticks(yTickCount),
-            yTickFormat = y.tickFormat(yTickCount, "%");
+            yTickFormat = y.tickFormat(yTickCount);
 
         context.beginPath();
         x.domain().forEach(function (d) {
@@ -620,8 +537,10 @@ class Histogram extends React.Component {
         context.stroke();
 
         context.fillStyle = "steelblue";
-        data.forEach(function (d) {
-            context.fillRect(x(d.letter), y(d.frequency), x.bandwidth(), height - y(d.frequency));
+
+        _.forEach(groupedResults, function (d, v) {
+            context.fillRect(x(v), y(d.length), x.bandwidth(), height - y(d.length));
+
         });
 
         context.restore();
@@ -630,7 +549,13 @@ class Histogram extends React.Component {
     }
 
     render() {
-        return <canvas width={ this.props.width } height={ this.props.height } ref="canvas">histogram</canvas>;
+        let style = {
+            position: 'fixed',
+            bottom: '0px'
+        };
+
+        return <canvas style={ style } width={ this.props.width } height={ this.props.height } ref="canvas">
+            histogram</canvas>;
     }
 }
 
@@ -773,63 +698,6 @@ const i18n = {
     locales: ["en-US"],
     messages: {}
 };
-
-class SearchBox extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.state = {
-            q: props.q,
-            selectValue: this.props.indexes[0],
-        };
-    }
-
-    handleSubmit(e) {
-        e.preventDefault();
-
-        let q = this.refs.q.value;
-        this.props.onSubmit(q, this.state.selectValue);
-    }
-
-    handleChange(e) {
-        this.setState({selectValue: e.target.value});
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-    }
-
-    render() {
-        let indexes = null;
-        if (this.props.indexes) {
-            let options = _.map(this.props.indexes, (index) => {
-                return <option key={index} value={index}>{ index }</option>;
-            });
-            indexes = <div>
-                <select onChange={this.handleChange.bind(this)} value={this.state.selectValue}>{options}</select>
-            </div>;
-        }
-
-        let loader = classNames({
-            'sk-search-box__loader': true,
-            'sk-spinning-loader': true,
-            'is-hidden': !this.props.isFetching
-        });
-        return <div className="row">
-            <nav className="[ navbar ][ navbar-bootsnipp animate ]" role="navigation">
-                <div className="col-md-offset-2 col-sm-offset-2 col-xs-offset-1 col-xs-10 col-sm-8 col-md-8 col-lg-6">
-                    <div className="form-group">
-                        <form onSubmit={this.handleSubmit.bind(this)}>
-                            <input ref="q" className="form-control" placeholder="query" value={ this.state.q }/>
-                            <div data-qa="loader" className={loader}></div>
-                            { indexes }
-                        </form>
-                    </div>
-                </div>
-            </nav>
-        </div>
-    }
-}
 
 function entries(state = {
     isFetching: false,
@@ -1136,7 +1004,7 @@ const sock = {
         const { session } = store.getState();
         // check msg type, use correct dispacther
         if (msg.hits) {
-            return store.dispatch(receiveitems(msg.hits));
+            return store.dispatch(receiveItems(msg.hits));
         } else if (msg.error) {
             return store.dispatch(error(msg.error.message));
         } else {
@@ -1275,33 +1143,6 @@ function highlightNodes(opts) {
     }
 }
 
-function fetchitems(opts = {
-    from: 0,
-    size: 50,
-    index: "",
-    query: "",
-    color: "",
-}) {
-    store.dispatch(requestitems(opts));
-};
-
-function requestitems(opts) {
-    return {
-        type: REQUEST_ITEMS,
-        receivedAt: Date.now(),
-        ...opts,
-    }
-}
-
-function receiveitems(items, opts = {
-    from: 0
-}) {
-    return {
-        type: RECEIVE_ITEMS,
-        items: items, // json.data.children.map(child => child.data),
-        receivedAt: Date.now()
-    }
-}
 
 class App extends Intl {
     constructor() {
@@ -1320,7 +1161,9 @@ class App extends Intl {
 }
 
 function phone(p) {
-    p = p.replace(/^0/i, "31");
+    if (typeof p == 'string') {
+        p = p.replace(/^0/i, "31");
+    }
     return p;
 }
 
@@ -1613,6 +1456,7 @@ class Searches extends React.Component {
     render() {
         var that = this;
 
+
         let searches = _.map(this.props.searches, (search) => {
             var divStyle = {
                 color: search.color,
@@ -1644,30 +1488,11 @@ class RootView extends React.Component {
             docs: [],
             error: null,
             searches: [],
-            currentNode: null,
-            colorIndex: 0,
-            colors: [
-                'red',
-                'blue',
-                'yellow',
-                'orange',
-                'purple',
-                'gray',
-            ],
+            currentNode: null
         }
     }
 
     componentDidMount() {
-    }
-
-    onSearchSubmit(q, index) {
-        fetchitems({
-            query: q,
-            index: index,
-            color: this.state.colors[this.state.colorIndex % (this.state.colors.length - 1)]
-        });
-
-        this.setState({colorIndex: this.state.colorIndex + 1});
     }
 
     componentWillReceiveProps(nextProps) {
@@ -1689,16 +1514,14 @@ class RootView extends React.Component {
         var that = this;
 
         return <div className="container-fluid">
-            <SearchBox isFetching={this.props.isFetching} total={this.props.total} q={ this.state.q }
-                       onSubmit={this.onSearchSubmit.bind(this)} indexes={this.props.indexes}/>
+
+            <Header/>
+
             <div className="row">
                 <div className="col-xs-9 col-sm-9">
                     <div className="row">
                         <section>
                             <button onClick={() => this.refs.configurationView.show()}>Configure</button>
-                        </section>
-                        <section>
-                            <ConnectionStatus connected={this.props.connected}/>
                         </section>
                         <section>
                             <ErrorStatus error={this.props.errors}/>
@@ -1711,7 +1534,7 @@ class RootView extends React.Component {
                                handleMouseOver={ this.handleMouseOver.bind(this) }/>
                     </div>
                     <div>
-                        <Histogram width="1600" height="800" node={this.props.node} queries={this.props.searches}
+                        <Histogram width="1600" height="200" node={this.props.node} queries={this.props.searches}
                                    fields={this.props.fields} items={this.props.items}
                                    highlight_nodes={this.props.highlight_nodes} className="histogram"/>
                     </div>
@@ -1738,11 +1561,9 @@ class RootView extends React.Component {
 const mapStateToProps = (state, ownProps) => {
     return {
         ...ownProps,
-        isFetching: state.entries.isFetching,
         noMoreHits: state.entries.noMoreHits,
         hits: state.entries.hits,
         node: state.entries.node,
-        connected: state.entries.connected,
         errors: state.entries.errors,
         items: state.entries.items,
         indexes: state.entries.indexes,
