@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import classNames from 'classnames/bind';
 
+
 export class SearchBox extends Component {
     constructor(props) {
         super(props);
 
         this.handleSubmit = this.handleSubmit.bind(this);
+
+        console.log(this.props.indexes);
 
         this.state = {
             q: props.q,
@@ -28,6 +31,7 @@ export class SearchBox extends Component {
     }
 
     render() {
+
         let indexes = null;
 
         if (this.props.indexes) {
