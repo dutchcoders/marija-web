@@ -11,6 +11,10 @@
 // meerdere indexen tegelijk zoeken
 // notities kunnen toevoegen
 // mini map
+// facets per search kunnen wijzigen
+// query zelf kunnen wijzigen
+// combine highlight and results on same node, in correct color
+// arc should show percentage, not equally
 
 require('../index.html');
 require('../scss/app.scss');
@@ -154,6 +158,7 @@ class Histogram extends React.Component {
             context.moveTo(x(d) + x.bandwidth() / 2, height);
             context.lineTo(x(d) + x.bandwidth() / 2, height + 6);
         });
+
         context.strokeStyle = "black";
         context.stroke();
 
@@ -568,26 +573,26 @@ function persistState(paths, config) {
 
 function configureStore() {
     return createStore(
-        combineReducers({
-            entries,
-            routing: routerReducer
-        }),
-        {
-            entries: {
-                isFetching: false,
-                noMoreHits: false,
-                didInvalidate: false,
-                total: 0,
-                node: [],
-                highlight_nodes: [],
-                fields: [],
-                indexes: [],
-                items: [],
-                searches: [],
+            combineReducers({
+                entries,
+                routing: routerReducer
+            }),
+            {
+                entries: {
+                    isFetching: false,
+                    noMoreHits: false,
+                    didInvalidate: false,
+                    total: 0,
+                    node: [],
+                    highlight_nodes: [],
+                    fields: [],
+                    indexes: [],
+                    items: [],
+                    searches: [],
+                },
             },
-        },
-        compose(persistState(/*paths, config*/))
-    )
+            compose(persistState(/*paths, config*/))
+            )
 }
 
 const store = configureStore({});
