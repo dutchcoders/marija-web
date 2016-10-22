@@ -1,2 +1,6 @@
 export const TABLE_COLUMN_ADD = 'TABLE_COLUMN_ADD';
 export const TABLE_COLUMN_REMOVE = 'TABLE_COLUMN_REMOVE';
+export const ADD_INDEX = "ADD_INDEX";
+export const DELETE_INDEX = "DELETE_INDEX";
+export const ADD_FIELD = "ADD_FIELD";
+export const DELETE_FIELD = "DELETE_FIELD";

@@ -1,2 +1,3 @@
 export const REQUEST_ITEMS = 'REQUEST_ITEMS';
 export const RECEIVE_ITEMS = 'RECEIVE_ITEMS';
+export const DELETE_SEARCH = 'DELETE_SEARCH';

@@ -1,18 +1,15 @@
 import React, { Component } from 'react';
 import classNames from 'classnames/bind';
 
-
-export class SearchBox extends Component {
+export default class SearchBox extends Component {
     constructor(props) {
         super(props);
 
         this.handleSubmit = this.handleSubmit.bind(this);
 
-        console.log(this.props.indexes);
-
         this.state = {
             q: props.q,
-            selectValue: this.props.indexes[0],
+            selectValue: this.props.indexes[0]
         };
     }
 
@@ -27,11 +24,7 @@ export class SearchBox extends Component {
         this.setState({selectValue: e.target.value});
     }
 
-    componentDidUpdate(prevProps, prevState) {
-    }
-
     render() {
-
         let indexes = null;
 
         if (this.props.indexes) {

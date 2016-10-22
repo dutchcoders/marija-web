@@ -4,25 +4,17 @@ import { connect } from 'react-redux';
 import { SearchBox, requestItems } from '../modules/search/index'
 import { ConnectionStatus } from '../modules/status/index'
 
-import { nodeColors as colors } from '../config';
+import { generateColour } from '../helpers/index'
 
 class Header extends Component {
 
     constructor(props) {
         super(props);
 
-        this.state = {
-            colorIndex: 0
-        }
     }
 
-    getColour() {
-        const { colorIndex } = this.state;
-        const currentColor = colors[colorIndex % (colors.length - 1)];
-
-        this.setState({colorIndex: colorIndex + 1});
-
-        return currentColor;
+    getColour(str) {
+        return generateColour(str);
     }
 
     onSearchSubmit(q, index) {
@@ -31,7 +23,7 @@ class Header extends Component {
         dispatch(requestItems({
             query: q,
             index: index,
-            color: this.getColour()
+            color: this.getColour(q)
         }));
     }
 
@@ -41,7 +33,6 @@ class Header extends Component {
         return (
             <header>
                 <ConnectionStatus connected={connected}/>
-
                 <SearchBox
                     isFetching={isFetching}
                     total={total}
