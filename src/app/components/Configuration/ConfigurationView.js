@@ -9,7 +9,6 @@ class ConfigurationView extends React.Component {
     constructor(props) {
         super(props);
 
-        this.show = this.show.bind(this);
     }
 
     handleAddField(e) {
