@@ -1,6 +1,21 @@
+@import "../../node_modules/bootstrap-css-only/css/bootstrap.min.css";
+@import "../../node_modules/ionicons/dist/css/ionicons.min.css";
+
+.col-xs-1, .col-xs-10, .col-xs-11, .col-xs-12, .col-xs-2, .col-xs-3, .col-xs-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9{
+    box-sizing:border-box;
+}
+
 @import "../css/default.css";
 @import "variables";
 
+@import 'search';
+@import 'nav';
+
 body {
-    background: $background-color;
+    background-color: $body-background-color;
+
+    header{
+        background-color: $header-background-color;
+    }
 }
+

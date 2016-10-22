@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import classNames from 'classnames/bind';
 
+import { map } from 'lodash';
+
 export default class SearchBox extends Component {
     constructor(props) {
         super(props);
@@ -24,37 +26,48 @@ export default class SearchBox extends Component {
         this.setState({selectValue: e.target.value});
     }
 
+    renderIndices(indices) {
+        const options = map(indices || [], (index) => {
+            return (
+                <option key={index} value={index}>{ index }</option>
+            );
+        });
+
+        return (
+            <div>
+                <select style={{'display': 'none'}}
+                        onChange={this.handleChange.bind(this)}
+                        value={this.state.selectValue}>
+                    {options}
+                </select>
+            </div>
+        );
+    }
+
     render() {
-        let indexes = null;
-
-        if (this.props.indexes) {
-            let options = _.map(this.props.indexes, (index) => {
-                return <option key={index} value={index}>{ index }</option>;
-            });
-
-            indexes = <div>
-                <select onChange={this.handleChange.bind(this)} value={this.state.selectValue}>{options}</select>
-            </div>;
-        }
+        const {children, isFetching, indexes} = this.props;
 
         let loader = classNames({
             'sk-search-box__loader': true,
             'sk-spinning-loader': true,
-            'is-hidden': !this.props.isFetching
+            'is-hidden': !isFetching
         });
 
-        return <div className="row">
-            <nav className="[ navbar ][ navbar-bootsnipp animate ]" role="navigation">
-                <div className="col-md-offset-2 col-sm-offset-2 col-xs-offset-1 col-xs-10 col-sm-8 col-md-8 col-lg-6">
+        return (
+            <nav className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation">
+                <div className="col-xs-1">
+                    {children}
+                </div>
+                <div className="col-xs-11">
                     <div className="form-group">
                         <form onSubmit={this.handleSubmit.bind(this)}>
-                            <input ref="q" className="form-control" placeholder="query" value={ this.state.q }/>
+                            <input ref="q" className="form-control" placeholder="Search" value={ this.state.q }/>
                             <div data-qa="loader" className={loader}></div>
-                            { indexes }
+                            { this.renderIndices(indexes) }
                         </form>
                     </div>
                 </div>
             </nav>
-        </div>
+        );
     }
 }

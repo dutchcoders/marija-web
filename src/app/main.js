@@ -1,7 +1,7 @@
 require('../index.html');
 require('../scss/app.scss');
 
-import { Component } from 'react';
+import React, { Component } from 'react';
 import { render } from 'react-dom';
 import { dispatch, compose, createStore, combineReducers, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';

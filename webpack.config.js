@@ -32,6 +32,10 @@ module.exports = {
             {
                 test: /\.(html)$/i,
                 loader: "file-loader?name=/[name].[ext]"
+            },
+            {
+                test: /\.(eot|svg|ttf|woff|woff2)([\?]?.*)$/,
+                loader: 'file?name=dist/fonts/[name].[ext]'
             }
         ]
     }

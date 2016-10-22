@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import { SearchBox, requestItems } from '../modules/search/index'
 import { ConnectionStatus } from '../modules/status/index'
+import { Icon } from '../components/index'
 
 import { generateColour } from '../helpers/index'
 
@@ -31,14 +32,16 @@ class Header extends Component {
         const { connected, isFetching, total, indexes } = this.props;
 
         return (
-            <header>
-                <ConnectionStatus connected={connected}/>
+            <header className="row">
                 <SearchBox
                     isFetching={isFetching}
                     total={total}
                     onSubmit={(q, index) => this.onSearchSubmit(q, index)}
                     indexes={indexes}
-                />
+                >
+                    <Icon name="ion-logo-buffer settings" />
+                    <ConnectionStatus connected={connected}/>
+                </SearchBox>
             </header>
         )
     }

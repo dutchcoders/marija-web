@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import Dimensions from 'react-dimensions'
 
 import * as d3 from 'd3';
 import { map, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign } from 'lodash';
 import moment from 'moment';
 
-import { selectNodes } from '../../modules/data/index';
+import { selectNodes, selectNode } from '../../modules/data/index';
 import { phone, fieldLocator } from '../../helpers/index';
 
 class Graph extends React.Component {
@@ -37,6 +38,8 @@ class Graph extends React.Component {
             ticks: 0
         };
 
+        const { containerHeight, containerWidth } = props;
+
         this.network = {
             graph: {
                 "nodes": [],
@@ -48,10 +51,9 @@ class Graph extends React.Component {
                 transform: d3.zoomIdentity,
                 queries: []
             },
+            height: containerHeight,
+            width: containerWidth,
             simulation: {},
-            // Graph design
-            width: 1600,
-            height: 800,
             lines: {
                 stroke: {
                     color: "#ccc",
@@ -78,7 +80,7 @@ class Graph extends React.Component {
 
                 this.canvas = el;
                 this.context = this.canvas.getContext('2d');
-                var canvas = d3.select(this.canvas);
+                var canvas = d3.select(this.canvas)
 
                 canvas.on("mousedown", this.mousedown.bind(this))
                     .on("mousemove", this.mousemove.bind(this))
@@ -379,35 +381,29 @@ class Graph extends React.Component {
         };
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return true;
-    }
-
-    onPortMouseOver(link) {
-    }
-
     onMouseClick(node) {
-        //store.dispatch(selectNode({node:node}));
+        const { dispatch } = this.props;
+        dispatch(selectNode({node: node}));
     }
 
     onMouseMove(node) {
-        // store.dispatch(selectNode({node:node}));
+        //const { dispatch } = this.props;
+        //dispatch(selectNode({node: node}));
     }
 
     onMouseOver(node) {
-        // store.dispatch(selectNode({node:node}));
+        //const { dispatch } = this.props;
+        //dispatch(selectNode({node: node}));
     }
 
     componentWillReceiveProps(nextProps) {
-        // console.debug("will receive props", nextProps);
     }
 
     componentDidUpdate(prevProps, prevState) {
-        console.debug(this.props);
-        const { dispatch } = this.props;
         const { network } = this;
+        const { queries } = this.props;
 
-        network.graph.queries = this.props.queries;
+        network.graph.queries = queries;
 
         var { fields } = this.props;
 
@@ -476,14 +472,18 @@ class Graph extends React.Component {
         network.highlight(this.props.highlight_nodes);
     }
 
+    shouldComponentUpdate(){
+        return true;
+    }
+
     render() {
-        var style = {fontFamily: 'fontAwesome'};
+        const { containerHeight, containerWidth } = this.props;
+
         return (
             <canvas
-                style={style}
-                ref='canvas'
-                width={ this.props.width }
-                height={ this.props.height }
+                style={{fontFamily: 'fontAwesome'}}
+                width={containerWidth}
+                height={containerHeight}
                 ref="canvas">
                 histogram
             </canvas>
@@ -502,4 +502,4 @@ const select = (state, ownProps) => {
     }
 }
 
-export default connect(select)(Graph);
+export default connect(select)(Dimensions()(Graph));

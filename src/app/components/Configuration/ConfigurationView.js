@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { map } from 'lodash';
-import SkyLight from 'react-skylight';
+
 
 import { addField, deleteField, addIndex, deleteIndex } from '../../modules/data/index';
 
@@ -43,11 +43,6 @@ class ConfigurationView extends React.Component {
         dispatch(deleteIndex(field));
     }
 
-    show() {
-        this.refs['dialogWithCallBacks'].show();
-    }
-
-
     renderFields(fields) {
         const options = map(fields || [], (field) => {
             return (
@@ -84,25 +79,21 @@ class ConfigurationView extends React.Component {
     render() {
         const { fields, indexes } = this.props;
         return (
-            <SkyLight
-                ref="dialogWithCallBacks"
-                title="add Index">
-                <div className="col-md-offset-2 col-sm-offset-2 col-xs-offset-1 col-xs-10 col-sm-8 col-md-8 col-lg-6">
-                    <div className="form-group">
-                        <h2>Indexes</h2>
-                        { this.renderIndices(indexes) }
-                    </div>
-                    <div className="form-group">
-                        <form onSubmit={() => this.handleAddIndex()}>
-                            <input type="text" ref="index"/>
-                        </form>
-                    </div>
-                    <h2>Fields</h2>
-                    <div className="form-group">
-                        { this.renderFields(fields) }
-                    </div>
+            <div className="col-md-offset-2 col-sm-offset-2 col-xs-offset-1 col-xs-10 col-sm-8 col-md-8 col-lg-6">
+                <div className="form-group">
+                    <h2>Indexes</h2>
+                    { this.renderIndices(indexes) }
                 </div>
-            </SkyLight>
+                <div className="form-group">
+                    <form onSubmit={() => this.handleAddIndex()}>
+                        <input type="text" ref="index"/>
+                    </form>
+                </div>
+                <h2>Fields</h2>
+                <div className="form-group">
+                    { this.renderFields(fields) }
+                </div>
+            </div>
         );
 
     }
