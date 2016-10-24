@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { Header, Record, TableView, ConfigurationView, Histogram, Graph } from './index'
+import { Header, Record, TableView, ConfigurationView, Histogram, Graph, Pane, Icon } from './index'
 import { Searches} from '../modules/search/index'
 import { ErrorStatus } from '../modules/status/index'
+import { openPane } from '../utils/index'
+
 
 class RootView extends Component {
     constructor(props) {
@@ -28,7 +30,14 @@ class RootView extends Component {
         this.setState({currentNode: node});
     }
 
+    openHistogram() {
+        const { dispatch } = this.props;
+        dispatch(openPane('histogram'));
+    }
+
     render() {
+        const { panes, dispatch } = this.props;
+
         return (
             <div className="container-fluid">
                 <Header/>
@@ -42,7 +51,22 @@ class RootView extends Component {
                         </div>
                     </div>
                 </div>
-                <ConfigurationView ref="configurationView"/>
+
+                <Pane name="Configuration" handle="configuration" panes={panes} dispatch={dispatch}>
+                    <ConfigurationView ref="configurationView"/>
+                </Pane>
+
+                <Pane name="Histogram" handle="histogram" panes={panes} dispatch={dispatch}>
+                    <div onClick={() => this.openHistogram()} className="open-tag">
+                        <Icon name="ion-ios-arrow-up"/>
+                    </div>
+
+                    <Histogram
+                        width="1600"
+                        height="200"
+                        className="histogram"
+                    />
+                </Pane>
             </div>
         );
     }
@@ -76,11 +100,7 @@ class RootView extends Component {
 /*
 
  <div>
- <Histogram
- width="1600"
- height="200"
- className="histogram"
- />
+
  </div>
  */
 
@@ -90,6 +110,7 @@ const select = (state, ownProps) => {
         ...ownProps,
         errors: state.entries.errors,
         items: state.entries.items,
+        panes: state.utils.panes
     }
 }
 export default connect(select)(RootView)

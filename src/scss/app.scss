@@ -17,6 +17,10 @@ body {
     overflow-x: hidden;
     background-color: $body-background-color;
 
+    letter-spacing: 0.6px;
+    font-weight: 300;
+    font-size: 12px;
+
     header {
         background-color: $header-background-color;
     }

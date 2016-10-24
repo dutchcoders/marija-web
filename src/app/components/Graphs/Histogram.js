@@ -138,20 +138,13 @@ class Histogram extends React.Component {
     }
 
     render() {
-        const style = {
-            position: 'fixed',
-            bottom: '0px'
-        };
 
         return (
             <canvas
-                style={ style }
                 width={ this.props.width }
                 height={ this.props.height }
                 ref="canvas"
-            >
-                histogram
-            </canvas>
+            />
         );
 
     }

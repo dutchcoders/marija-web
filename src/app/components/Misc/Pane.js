@@ -27,7 +27,7 @@ export default function Pane(props) {
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col-md-12">
+                    <div className="col-md-12 pane-content">
                         {children}
                     </div>
                 </div>

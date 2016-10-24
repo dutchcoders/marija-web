@@ -4,7 +4,7 @@ import { map } from 'lodash';
 
 
 import { addField, deleteField, addIndex, deleteIndex } from '../../modules/data/index';
-import { Pane, Icon } from '../index';
+import { Icon } from '../index';
 
 class ConfigurationView extends React.Component {
     constructor(props) {
@@ -18,15 +18,23 @@ class ConfigurationView extends React.Component {
         const { field } = this.refs;
         const { dispatch } = this.props;
 
+        if (field === '') {
+            return;
+        }
+
         dispatch(addField(field.value));
     }
 
     handleAddIndex(e) {
         e.preventDefault();
-        const index = this.refs.index.value;
-
+        const { index } = this.refs;
         const { dispatch } = this.props;
-        dispatch(addIndex(index));
+
+        if (index.value === '') {
+            return;
+        }
+
+        dispatch(addIndex(index.value));
     }
 
     handleDeleteField(field) {
@@ -94,10 +102,10 @@ class ConfigurationView extends React.Component {
     }
 
     render() {
-        const { fields, indexes, panes, dispatch } = this.props;
+        const { fields, indexes } = this.props;
 
         return (
-            <Pane name="Configuration" handle="configuration" panes={panes} dispatch={dispatch}>
+            <div>
                 <div className="form-group">
                     <h2>Indices</h2>
                     { this.renderIndices(indexes) }
@@ -107,10 +115,9 @@ class ConfigurationView extends React.Component {
                     <h2>Fields</h2>
                     { this.renderFields(fields) }
                 </div>
-            </Pane>
+            </div>
 
         );
-
     }
 }
 
@@ -118,8 +125,7 @@ class ConfigurationView extends React.Component {
 function select(state) {
     return {
         fields: state.entries.fields,
-        indexes: state.entries.indexes,
-        panes: state.utils.panes
+        indexes: state.entries.indexes
     };
 }
 
