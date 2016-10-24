@@ -35,6 +35,13 @@ class RootView extends Component {
         dispatch(openPane('histogram'));
     }
 
+
+    openTable() {
+        const { dispatch } = this.props;
+        dispatch(openPane('table'));
+    }
+
+
     render() {
         const { panes, dispatch } = this.props;
 
@@ -54,6 +61,14 @@ class RootView extends Component {
 
                 <Pane name="Configuration" handle="configuration" panes={panes} dispatch={dispatch}>
                     <ConfigurationView ref="configurationView"/>
+                </Pane>
+
+                <Pane name="Table" handle="table" panes={panes} dispatch={dispatch}>
+                    <div onClick={() => this.openTable()} className="open-tag">
+                        <Icon name="ion-ios-arrow-back"/>
+                    </div>
+
+                    <TableView />
                 </Pane>
 
                 <Pane name="Histogram" handle="histogram" panes={panes} dispatch={dispatch}>
@@ -92,7 +107,7 @@ class RootView extends Component {
  <Searches/>
  </div>
  <div className="row">
- <TableView />
+
  </div>
  </div>
  */

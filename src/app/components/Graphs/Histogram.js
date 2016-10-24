@@ -102,7 +102,6 @@ class Histogram extends React.Component {
         context.stroke();
 
         context.textAlign = "center";
-        context.textColor = "#b5b5b5";
         context.fillStyle = "#b5b5b5";
         context.textBaseline = "top";
         x.domain().forEach((d) => {
