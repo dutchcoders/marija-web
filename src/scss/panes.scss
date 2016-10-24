@@ -1,6 +1,7 @@
 .pane {
     background-color: $pane-background-color;
 
+
     .pane-header {
         position: relative;
         padding: 10px 0px;
@@ -21,8 +22,20 @@
         }
     }
 
+    .pane-holder{
+        position: absolute;
+        padding: 0px;
+        top: 45px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+
     .pane-content{
         position: relative;
+        width: 100% ;
+        height: 100%;
     }
 
     &.configuration {

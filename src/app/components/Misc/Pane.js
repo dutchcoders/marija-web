@@ -3,7 +3,7 @@ import React from 'react';
 import { Icon } from '../index';
 import { closePane } from '../../utils/index';
 
-export default function Pane(props) {
+export function Pane(props){
     const { handle, children, name, panes, dispatch } = props;
 
     const open = panes.reduce((value, item) => {
@@ -27,8 +27,10 @@ export default function Pane(props) {
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col-md-12 pane-content">
-                        {children}
+                    <div className="col-md-12 pane-holder">
+                        <div className="col-md-12 pane-content">
+                            {children}
+                        </div>
                     </div>
                 </div>
             </div>

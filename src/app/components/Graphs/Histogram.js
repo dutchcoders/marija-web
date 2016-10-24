@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { map, groupBy, reduce, forEach } from 'lodash';
+import Dimensions from 'react-dimensions'
 
 import * as d3 from 'd3';
 import moment from 'moment';
@@ -97,10 +98,12 @@ class Histogram extends React.Component {
             context.lineTo(x(d) + x.bandwidth() / 2, height + 6);
         });
 
-        context.strokeStyle = "black";
+        context.strokeStyle = "#b5b5b5";
         context.stroke();
 
         context.textAlign = "center";
+        context.textColor = "#b5b5b5";
+        context.fillStyle = "#b5b5b5";
         context.textBaseline = "top";
         x.domain().forEach((d) => {
             context.fillText(d, x(d) + x.bandwidth() / 2, height + 6);
@@ -111,11 +114,12 @@ class Histogram extends React.Component {
             context.moveTo(0, y(d) + 0.5);
             context.lineTo(-6, y(d) + 0.5);
         });
-        context.strokeStyle = "black";
+        context.strokeStyle = "#b5b5b5";
         context.stroke();
 
         context.textAlign = "right";
         context.textBaseline = "middle";
+        context.textColor = "#b5b5b5";
         yTicks.forEach((d) => {
             context.fillText(yTickFormat(d), -9, y(d));
         });
@@ -125,10 +129,10 @@ class Histogram extends React.Component {
         context.lineTo(0.5, 0 + 0.5);
         context.lineTo(0.5, height + 0.5);
         context.lineTo(-6.5, height + 0.5);
-        context.strokeStyle = "black";
+        context.strokeStyle = "#b5b5b5";
         context.stroke();
 
-        context.fillStyle = "steelblue";
+        context.fillStyle = "#57c17b";
 
         forEach(groupedResults, (d, v) => {
             context.fillRect(x(v), y(d.length), x.bandwidth(), height - y(d.length));
@@ -138,11 +142,12 @@ class Histogram extends React.Component {
     }
 
     render() {
+        const { containerHeight, containerWidth } = this.props;
 
         return (
             <canvas
-                width={ this.props.width }
-                height={ this.props.height }
+                width={ containerWidth }
+                height={ containerHeight }
                 ref="canvas"
             />
         );
@@ -157,8 +162,8 @@ const select = (state, ownProps) => {
         queries: state.entries.queries,
         fields: state.entries.fields,
         items: state.entries.items,
-        highlight_nodes: state.entries.highlight_nodes,
+        highlight_nodes: state.entries.highlight_nodes
     }
 }
 
-export default connect(select)(Histogram);
+export default connect(select)(Dimensions()(Histogram));
