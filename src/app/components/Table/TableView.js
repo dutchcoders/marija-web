@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 import { map } from 'lodash'
 
 import { Record, Icon } from '../index'
-import { clearSelection, highlightNodes} from '../../modules/graph/index'
+import { highlightNodes} from '../../modules/graph/index'
 import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index'
 import { fieldLocator, phone } from '../../helpers/index'
 
@@ -15,11 +15,6 @@ class TableView extends React.Component {
         this.state = {
             editNode: null
         }
-    }
-
-    handleClearSelection() {
-        const { dispatch } = this.props;
-        dispatch(clearSelection());
     }
 
     handleTableAddColumn(field) {
@@ -118,11 +113,12 @@ class TableView extends React.Component {
     render() {
         return (
             <div className="form-group">
-                <button onClick={() => this.handleClearSelection()}>Clear</button>
+
                 <table>
                     <tbody>
                     <tr>
-                        <th width="25"></th>
+                        <th width="25">
+                        </th>
                         { this.renderHeader() }
                     </tr>
                     {this.renderBody()}

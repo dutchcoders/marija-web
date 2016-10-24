@@ -52,7 +52,6 @@
         }
     }
 
-
     &.queries {
         transition: left 0.5s;
         position: absolute;
@@ -60,7 +59,6 @@
         left: -300px;
         bottom: 0;
         width: 300px;
-
 
         .open-tag {
             transition: all 0.5s;
@@ -258,20 +256,27 @@
                     font-size: 21px;
                     cursor: pointer;
                 }
-            }
 
-            th {
-                i{
-                    float:right;
-                    margin-right: 15px;
+                th {
+                    i {
+                        float: right;
+                        margin-right: 15px;
+                    }
+                }
+
+                td, th {
+                    &:hover {
+                        background-color: #4a4b4c;
+                    }
+                }
+
+                &.expanded {
+                    td, th {
+                        background-color: #4a4b4c;
+                    }
                 }
             }
 
-            td, th{
-                &:hover{
-                    background-color: #4a4b4c;
-                }
-            }
         }
 
         i.add {

@@ -33,34 +33,29 @@ export default class Record extends Component {
         this.setState({expanded: !this.state.expanded});
     }
 
-    renderExpandedRecord() {
+    renderExpandedRecord(columns) {
         const { packet } = this.props;
 
         const expandedFields = map(packet.fields, (value, key) => {
             return (
                 <tr key={ 'field_' + key }>
-                    <th>{ key}
-                        <button onClick={() => this.handleTableAddColumn(key)}>add</button>
-                    </th>
+                    <td width="110">{ key}
+                        <Icon onClick={() => this.handleTableAddColumn(key)}
+                              name="ion-ios-add-circle"
+                              style={{marginLeft: '8px', lineHeight: '20px', fontSize: '12px'}}/>
+                    </td>
                     <td colSpan="3">{ value }</td>
                 </tr>
             );
         });
 
-        return [
-            <tr>
-                <td colSpan="3">
-                    <table>
-                        <tbody>{ expandedFields }</tbody>
-                    </table>
-                </td>
-            </tr>,
-            <tr className="json">
-                <td colSpan="3">
-                    { JSON.stringify(packet.fields) }
-                </td>
-            </tr>
-        ];
+        return (
+            <td colSpan={columns.length ? columns.length : 1 }>
+                <table>
+                    <tbody>{ expandedFields }</tbody>
+                </table>
+            </td>
+        )
     }
 
 
@@ -72,18 +67,20 @@ export default class Record extends Component {
         const renderedColumns = (columns || []).map((value) => {
             return (
                 <td key={ 'column_' + packet.id + value }>
-                    { fieldLocator(packet.fields, value) }
+                    <span className={'length-limiter'}
+                          title={ fieldLocator(packet.fields, value) }>{ fieldLocator(packet.fields, value) }</span>
                 </td>
-            );
+            )
         });
 
         return (
-            <tr onMouseOver={() => this.handleMouseOver(node.id) } className="columns">
+            <tr onMouseOver={() => this.handleMouseOver(node.id) }
+                className={`columns ${expanded ? 'expanded' : 'closed'}`}>
                 <td width="25" style={{'textAlign': 'center'}}>
-                    <Icon onClick={() => this.toggleExpand(node.id) } name=" ion-ios-add"/>
+                    <Icon onClick={() => this.toggleExpand(node.id) }
+                          name={expanded ? 'ion-ios-remove' : 'ion-ios-add'}/>
                 </td>
-                { renderedColumns }
-                { expanded ? this.renderExpandedRecord() : null}
+                { expanded ? this.renderExpandedRecord(columns) : renderedColumns}
             </tr>
         )
     }

@@ -17,7 +17,7 @@ class Searches extends Component {
         }
     }
 
-    handleEditSearch(search, e) {
+    handleEditSearch(search) {
         this.setState({editSearchValue: search});
     }
 
@@ -25,13 +25,13 @@ class Searches extends Component {
         this.setState({editSearchValue: null});
     }
 
-    handleDeleteSearch(search, e) {
+    handleDeleteSearch(search) {
         const { dispatch } = this.props;
         dispatch(deleteSearch({search: search}));
     }
 
     handleChangeSearchColorComplete(color) {
-        let search = this.state.editSearchValue;
+        const search = this.state.editSearchValue;
 
         search.color = color.hex;
 
@@ -51,12 +51,14 @@ class Searches extends Component {
                                 <li key={search.q}>
                                     <SketchPicker
                                         color={ search.color }
-                                        onChangeComplete={() => this.handleChangeSearchColorComplete() }
+                                        onChangeComplete={(color) => this.handleChangeSearchColorComplete(color) }
                                     />
+                                    <span className="colorBall" style={{backgroundColor: search.color}}/>
 
                                     { search.q } ({search.count})
 
-                                    <button onClick={() => this.handleCancelEditSearch() }>cancel</button>
+                                    <Icon onClick={() => this.handleCancelEditSearch() }
+                                          name="ion-ios-checkmark-circle"/>
                                 </li>
                             );
                         } else {
@@ -66,7 +68,9 @@ class Searches extends Component {
 
                                     { search.q } ({search.count})
 
-                                    <Icon style={{'marginRight': '15px'}} onClick={(e) => this.handleEditSearch(search, e) } name="ion-ios-brush"/>
+                                    <Icon style={{'marginRight': '15px'}}
+                                          onClick={(e) => this.handleEditSearch(search, e) }
+                                          name="ion-ios-brush"/>
                                     <Icon onClick={(e) => this.handleDeleteSearch(search) }
                                           name="ion-ios-trash-outline"/>
                                 </li>

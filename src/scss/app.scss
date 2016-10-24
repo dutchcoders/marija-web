@@ -37,5 +37,15 @@ body {
 
         margin-right: 5px;
     }
+
+    .length-limiter {
+        display: block;
+        width: 160px;
+        max-width: 100%;
+        overflow: hidden;
+        -ms-text-overflow: ellipsis;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 }
 

@@ -17,6 +17,11 @@ class Nodes extends React.Component {
         }
     }
 
+    handleClearSelection() {
+        const { dispatch } = this.props;
+        dispatch(clearSelection());
+    }
+
     handleCancelEditNode(node) {
         const { dispatch } = this.props;
         this.setState({editNode: null});
@@ -60,6 +65,10 @@ class Nodes extends React.Component {
     render() {
         return (
             <div className="form-group">
+                <span style={{cursor: 'pointer'}} onClick={() => this.handleClearSelection()}>
+                    <Icon name="ion-ios-hand-outline"/> Clear selection
+                </span>
+                <br/><br/>
                 <ul>
                     {this.renderSelected()}
                 </ul>
