@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { map } from 'lodash';
 import { fieldLocator } from '../../helpers/index';
-import { highlightNodes } from '../../modules/graph/index'
+import { highlightNodes } from '../../modules/graph/index';
+import { Icon } from '../../components/index';
 
 export default class Record extends Component {
     constructor(props) {
@@ -77,20 +78,12 @@ export default class Record extends Component {
         });
 
         return (
-            <tr>
-                <td>
-                    <table>
-                        <tbody>
-                        <tr onMouseOver={() => this.handleMouseOver(node.id) } className="columns">
-                            <td>
-                                <button onClick={() => this.toggleExpand(node.id) }>expand</button>
-                            </td>
-                            { renderedColumns }
-                        </tr>
-                        { expanded ? this.renderExpandedRecord() : null}
-                        </tbody>
-                    </table>
+            <tr onMouseOver={() => this.handleMouseOver(node.id) } className="columns">
+                <td width="25" style={{'textAlign': 'center'}}>
+                    <Icon onClick={() => this.toggleExpand(node.id) } name=" ion-ios-add"/>
                 </td>
+                { renderedColumns }
+                { expanded ? this.renderExpandedRecord() : null}
             </tr>
         )
     }

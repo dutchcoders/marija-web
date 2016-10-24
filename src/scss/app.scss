@@ -14,7 +14,7 @@
 
 body {
     color: $base-font-color;
-    overflow-x: hidden;
+    overflow: hidden;
     background-color: $body-background-color;
 
     letter-spacing: 0.6px;
@@ -23,6 +23,19 @@ body {
 
     header {
         background-color: $header-background-color;
+    }
+
+    .colorBall{
+        display: inline-block;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+
+        position: relative;
+        top: 2px;
+        left: 0;
+
+        margin-right: 5px;
     }
 }
 

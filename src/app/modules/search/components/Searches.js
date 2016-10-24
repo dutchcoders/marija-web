@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { map } from 'lodash';
 
 import { deleteSearch } from '../index';
+import { Icon } from '../../../components/index';
 
 class Searches extends Component {
 
@@ -17,18 +18,14 @@ class Searches extends Component {
     }
 
     handleEditSearch(search, e) {
-        e.preventDefault();
         this.setState({editSearchValue: search});
     }
 
-    handleCancelEditSearch(search, e) {
-        e.preventDefault();
+    handleCancelEditSearch() {
         this.setState({editSearchValue: null});
     }
 
     handleDeleteSearch(search, e) {
-        e.preventDefault();
-
         const { dispatch } = this.props;
         dispatch(deleteSearch({search: search}));
     }
@@ -46,31 +43,37 @@ class Searches extends Component {
         const { editSearchValue } = this.state;
 
         return (
-            <div>
-                {map(searches, (search) => {
-                    var divStyle = {
-                        color: search.color
-                    };
+            <div className="form-group">
+                <ul>
+                    {map(searches, (search) => {
+                        if (editSearchValue === search) {
+                            return (
+                                <li key={search.q}>
+                                    <SketchPicker
+                                        color={ search.color }
+                                        onChangeComplete={() => this.handleChangeSearchColorComplete() }
+                                    />
 
-                    if (editSearchValue === search) {
-                        return (
-                            <div key={search.q} style={ divStyle }>
-                                <SketchPicker
-                                    color={ search.color }
-                                    onChangeComplete={ this.handleChangeSearchColorComplete() }/>
+                                    { search.q } ({search.count})
 
-                                { search.q } ({search.count})
+                                    <button onClick={() => this.handleCancelEditSearch() }>cancel</button>
+                                </li>
+                            );
+                        } else {
+                            return (
+                                <li key={search.q}>
+                                    <span className="colorBall" style={{backgroundColor: search.color}}/>
 
-                                <button onClick={() => this.handleCancelEditSearch(search) }>cancel</button>
-                            </div>
-                        );
-                    } else {
-                        return <div key={search.q} style={ divStyle }>{ search.q } ({search.count})
-                            <button onClick={() => this.handleEditSearch(search) }>edit</button>
-                            <button onClick={() => this.handleDeleteSearch(search) }>delete</button>
-                        </div>
-                    }
-                })}
+                                    { search.q } ({search.count})
+
+                                    <Icon onClick={(e) => this.handleEditSearch(search, e) } name="ion-ios-brush"/>
+                                    <Icon onClick={(e) => this.handleDeleteSearch(search) }
+                                          name="ion-ios-trash-outline"/>
+                                </li>
+                            );
+                        }
+                    })}
+                </ul>
             </div>
         )
 

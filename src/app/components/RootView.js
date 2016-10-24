@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { Header, Record, TableView, ConfigurationView, Histogram, Graph, Pane, Icon } from './index'
+import { Header, Record, TableView, ConfigurationView, Histogram, Graph, Pane, Icon, Nodes } from './index'
 import { Searches} from '../modules/search/index'
 import { ErrorStatus } from '../modules/status/index'
-import { openPane } from '../utils/index'
 
 
 class RootView extends Component {
@@ -30,20 +29,9 @@ class RootView extends Component {
         this.setState({currentNode: node});
     }
 
-    openHistogram() {
-        const { dispatch } = this.props;
-        dispatch(openPane('histogram'));
-    }
-
-
-    openTable() {
-        const { dispatch } = this.props;
-        dispatch(openPane('table'));
-    }
-
 
     render() {
-        const { panes, dispatch } = this.props;
+        const { items, panes, dispatch } = this.props;
 
         return (
             <div className="container-fluid">
@@ -63,19 +51,19 @@ class RootView extends Component {
                     <ConfigurationView ref="configurationView"/>
                 </Pane>
 
-                <Pane name="Table" handle="table" panes={panes} dispatch={dispatch}>
-                    <div onClick={() => this.openTable()} className="open-tag">
-                        <Icon name="ion-ios-arrow-back"/>
-                    </div>
+                <Pane name={`Queries (${items.length})`} handle="queries" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-forward">
+                    <Searches/>
+                </Pane>
 
+                <Pane name="Nodes" handle="nodes" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-back">
+                    <Nodes />
+                </Pane>
+
+                <Pane name="Table" handle="table" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-back">
                     <TableView />
                 </Pane>
 
-                <Pane name="Histogram" handle="histogram" panes={panes} dispatch={dispatch}>
-                    <div onClick={() => this.openHistogram()} className="open-tag">
-                        <Icon name="ion-ios-arrow-up"/>
-                    </div>
-
+                <Pane name="Histogram" handle="histogram" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-up">
                     <Histogram
                         width="1600"
                         height="200"
@@ -86,15 +74,11 @@ class RootView extends Component {
         );
     }
 }
+
 /*
- <div className="row">
- <section>
- <button onClick={() => this.refs['configurationView'].show()}>Configure</button>
- </section>
- <section>
- <ErrorStatus error={this.props.errors}/>
- </section>
- </div>
+ <ul>
+ {this.renderSelected()}
+ </ul>
  */
 
 

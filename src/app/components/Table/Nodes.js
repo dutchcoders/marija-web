@@ -1,0 +1,79 @@
+import React, { Component } from 'react';
+import {connect} from 'react-redux';
+
+import { map } from 'lodash'
+
+import { Icon } from '../index'
+import { clearSelection, highlightNodes, deleteNodes} from '../../modules/graph/index'
+import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index'
+import { fieldLocator, phone } from '../../helpers/index'
+
+class Nodes extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            editNode: null
+        }
+    }
+
+    handleCancelEditNode(node) {
+        const { dispatch } = this.props;
+        this.setState({editNode: null});
+    }
+
+    handleEditNode(node) {
+        this.setState({editNode: node});
+    }
+
+    handleDeleteNode(node) {
+        const { dispatch } = this.props;
+        dispatch(deleteNodes([node.id]));
+    }
+
+    renderSelected() {
+        const { node } = this.props;
+        const { editNode } = this.state;
+
+        return (
+            node ?
+                map(node, (i_node) => {
+                    if (editNode == i_node) {
+                        return (
+                            <li key={i_node.id}><input type="text" value={i_node.id}/>
+                                <button onClick={(n) => this.handleCancelEditNode(n) }>cancel</button>
+                            </li>
+                        )
+                    } else {
+                        return (
+                            <li key={i_node.id}>{i_node.id}
+                                <Icon onClick={(n) => this.handleDeleteNode(n)} name="ion-ios-remove-circle-outline"/>
+                            </li>
+                        )
+                    }
+                })
+                : null
+        )
+    }
+
+
+    render() {
+        return (
+            <div className="form-group">
+                <ul>
+                    {this.renderSelected()}
+                </ul>
+            </div>
+        )
+    }
+}
+
+
+function select(state) {
+    return {
+        node: state.entries.node
+    };
+}
+
+
+export default connect(select)(Nodes);

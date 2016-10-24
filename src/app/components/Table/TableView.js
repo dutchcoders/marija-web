@@ -3,8 +3,8 @@ import {connect} from 'react-redux';
 
 import { map } from 'lodash'
 
-import { Record } from '../index'
-import { clearSelection } from '../../modules/graph/index'
+import { Record, Icon } from '../index'
+import { clearSelection, highlightNodes} from '../../modules/graph/index'
 import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index'
 import { fieldLocator, phone } from '../../helpers/index'
 
@@ -27,8 +27,7 @@ class TableView extends React.Component {
         dispatch(tableColumnAdd(field));
     }
 
-    handleTableRemoveColumn(field) {
-        const { dispatch } = this.props;
+    handleTableRemoveColumn(dispatch, field) {
         dispatch(tableColumnRemove(field));
     }
 
@@ -62,7 +61,7 @@ class TableView extends React.Component {
                                 <Record
                                     columns={ columns }
                                     node={ sub_node }
-                                    packet={packet}
+                                    packet={ packet }
                                     onMouseOver={(nodes) => { dispatch(highlightNodes(nodes)) } }
                                     onTableAddColumn={(field) => this.handleTableAddColumn(field) }
                                     onTableRemoveColumn={(field) => this.handleTableRemoveColumn(field) }
@@ -84,14 +83,18 @@ class TableView extends React.Component {
             node ?
                 map(node, (i_node) => {
                     if (editNode == i_node) {
-                        return <li key={i_node.id}><input type="text" value={i_node.id}/>
-                            <button onClick={(n) => this.handleCancelEditNode(n) }>cancel</button>
-                        </li>;
+                        return (
+                            <li key={i_node.id}><input type="text" value={i_node.id}/>
+                                <button onClick={(n) => this.handleCancelEditNode(n) }>cancel</button>
+                            </li>
+                        )
                     } else {
-                        return <li key={i_node.id}>{i_node.id}
-                            <button onClick={(n) => this.handleEditNode(n) }>edit</button>
-                            <button onClick={(n) => this.handleDeleteNode(n)}>delete</button>
-                        </li>;
+                        return (
+                            <li key={i_node.id}>{i_node.id}
+                                <button onClick={(n) => this.handleEditNode(n) }>edit</button>
+                                <button onClick={(n) => this.handleDeleteNode(n)}>delete</button>
+                            </li>
+                        )
                     }
                 })
                 : null
@@ -99,31 +102,34 @@ class TableView extends React.Component {
     }
 
     renderHeader() {
-        const { columns } = this.props;
+        const { columns, dispatch } = this.props;
+        const { handleTableRemoveColumn } = this;
 
         return map(columns, function (value) {
-            return <th key={ 'header_' + value }>{ value }
-                <button onClick={() => this.handleTableRemoveColumn(value)}>remove</button>
-            </th>;
+            return (
+                <th key={ 'header_' + value }>
+                    { value }
+                    <Icon onClick={(e) => handleTableRemoveColumn(dispatch, value)} name="ion-ios-trash-outline"/>
+                </th>
+            );
         });
     }
 
     render() {
-        return <div>
-            <ul>
-                {this.renderSelected()}
-            </ul>
-
-            <button onClick={() => this.handleClearSelection()}>Clear</button>
-            <table className='table table-condensed table-striped col-md-4 col-lg-4'>
-                <tbody>
-                <tr>
-                    { this.renderHeader() }
-                </tr>
-                {this.renderBody()}
-                </tbody>
-            </table>
-        </div>;
+        return (
+            <div className="form-group">
+                <button onClick={() => this.handleClearSelection()}>Clear</button>
+                <table>
+                    <tbody>
+                    <tr>
+                        <th width="25"></th>
+                        { this.renderHeader() }
+                    </tr>
+                    {this.renderBody()}
+                    </tbody>
+                </table>
+            </div>
+        )
     }
 }
 
