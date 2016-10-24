@@ -66,7 +66,7 @@ class Searches extends Component {
 
                                     { search.q } ({search.count})
 
-                                    <Icon onClick={(e) => this.handleEditSearch(search, e) } name="ion-ios-brush"/>
+                                    <Icon style={{'marginRight': '15px'}} onClick={(e) => this.handleEditSearch(search, e) } name="ion-ios-brush"/>
                                     <Icon onClick={(e) => this.handleDeleteSearch(search) }
                                           name="ion-ios-trash-outline"/>
                                 </li>
