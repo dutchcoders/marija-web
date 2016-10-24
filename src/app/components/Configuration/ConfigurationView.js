@@ -50,7 +50,8 @@ class ConfigurationView extends React.Component {
     renderFields(fields) {
         const options = map(fields || [], (field) => {
             return (
-                <li key={field} value={ field }>{ field }
+                <li key={field} value={ field }>
+                    { field }
                     <Icon onClick={() => this.handleDeleteField(field)} name="ion-ios-trash-outline"/>
                 </li>
             );
@@ -84,7 +85,6 @@ class ConfigurationView extends React.Component {
         return (
             <div>
                 <ul>{options}</ul>
-
                 <div className="form-group">
                     <form onSubmit={this.handleAddIndex.bind(this)}>
                         <div className="row">
