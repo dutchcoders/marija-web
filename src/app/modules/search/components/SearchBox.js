@@ -45,6 +45,7 @@ export default class SearchBox extends Component {
     }
 
     render() {
+
         const {children, isFetching, indexes} = this.props;
 
         let loader = classNames({

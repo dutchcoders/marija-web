@@ -8,5 +8,6 @@ export { default as Histogram } from './Graphs/Histogram'
 export { default as Graph } from './Graphs/Graph'
 
 export { default as Icon } from './Misc/Icon'
+export { default as Pane } from './Misc/Pane'
 
 export { default as ConfigurationView } from './Configuration/ConfigurationView'

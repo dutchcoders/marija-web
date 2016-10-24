@@ -1,0 +1,84 @@
+.pane {
+    background-color: $pane-background-color;
+
+    .pane-header {
+        position: relative;
+        padding: 10px 0px;
+        background-color: $pane-header-background-color;
+        font-size: 16px;
+        font-weight: 300;
+        letter-spacing: 0.3px;
+
+        i {
+            &.shut {
+                float: right;
+                font-size: 25px;
+                line-height: 25px;
+                padding: 0px 10px;
+                margin-right: -10px;
+                cursor: pointer;
+            }
+        }
+    }
+
+    &.configuration {
+        transition: left 0.5s;
+        position: absolute;
+        top: 74px;
+        left: -300px;
+        bottom: 0;
+        width: 300px;
+
+        &.open {
+            left: 0;
+        }
+    }
+
+    .form-group {
+        h2 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 300;
+        }
+
+        ul {
+            padding-left: 0;
+
+            li {
+                position: relative;
+                font-weight: 300;
+                list-style-type: none;
+                padding: 3px 6px;
+                letter-spacing: 0.6px;
+                font-size: 12px;
+
+                &:nth-child(odd) {
+                    background-color: $input-background-color;
+                }
+
+                &:nth-child(even) {
+                    background-color: #56575a;
+                }
+
+                &:hover{
+                    background-color: #505052;
+                }
+
+                i{
+                    position: absolute;
+                    top: 1px;
+                    right: 5px;
+                    font-size: 21px;
+                    cursor: pointer;
+                }
+            }
+        }
+
+        i.add {
+            font-size: 28px;
+            margin-top: 8px;
+            margin-left: -9px;
+        }
+    }
+}

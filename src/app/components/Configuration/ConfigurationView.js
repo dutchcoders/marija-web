@@ -4,6 +4,7 @@ import { map } from 'lodash';
 
 
 import { addField, deleteField, addIndex, deleteIndex } from '../../modules/data/index';
+import { Pane, Icon } from '../index';
 
 class ConfigurationView extends React.Component {
     constructor(props) {
@@ -20,13 +21,6 @@ class ConfigurationView extends React.Component {
         dispatch(addField(field.value));
     }
 
-    handleDeleteField(e, field) {
-        e.preventDefault();
-
-        const { dispatch } = this.props;
-        dispatch(deleteField(field));
-    }
-
     handleAddIndex(e) {
         e.preventDefault();
         const index = this.refs.index.value;
@@ -35,9 +29,12 @@ class ConfigurationView extends React.Component {
         dispatch(addIndex(index));
     }
 
-    handleDeleteIndex(e, field) {
-        e.preventDefault();
+    handleDeleteField(field) {
+        const { dispatch } = this.props;
+        dispatch(deleteField(field));
+    }
 
+    handleDeleteIndex(field) {
         const { dispatch } = this.props;
         dispatch(deleteIndex(field));
     }
@@ -46,7 +43,7 @@ class ConfigurationView extends React.Component {
         const options = map(fields || [], (field) => {
             return (
                 <li key={field} value={ field }>{ field }
-                    <button onClick={() => this.handleDeleteField(field) }>x</button>
+                    <Icon onClick={() => this.handleDeleteField(field)} name="ion-ios-trash-outline"/>
                 </li>
             );
         });
@@ -54,8 +51,15 @@ class ConfigurationView extends React.Component {
         return (
             <div>
                 <ul>{ options }</ul>
-                <form onSubmit={() => this.handleAddField()}>
-                    <input type="text" ref="field"/>
+                <form onSubmit={this.handleAddField.bind(this)}>
+                    <div className="row">
+                        <div className="col-xs-10">
+                            <input className="form-control" type="text" ref="field" placeholder="New field"/>
+                        </div>
+                        <div className="col-xs-1">
+                            <Icon onClick={this.handleAddField.bind(this)} name="ion-ios-add-circle-outline add"/>
+                        </div>
+                    </div>
                 </form>
             </div>
         );
@@ -63,36 +67,48 @@ class ConfigurationView extends React.Component {
 
     renderIndices(indices) {
         const options = map(indices, (index) => {
-            return <li key={index} value={index}>{ index }
-                <button onClick={(e) => this.handleDeleteIndex(e, index) }>x</button>
+            return <li key={index} value={index}>
+                { index }
+                <Icon onClick={() => this.handleDeleteIndex(field)} name="ion-ios-trash-outline"/>
             </li>;
         });
 
         return (
             <div>
                 <ul>{options}</ul>
+
+                <div className="form-group">
+                    <form onSubmit={this.handleAddIndex.bind(this)}>
+                        <div className="row">
+                            <div className="col-xs-10">
+                                <input className="form-control" type="text" ref="index" placeholder="New index"/>
+                            </div>
+                            <div className="col-xs-1">
+                                <Icon onClick={this.handleAddIndex.bind(this)} name="ion-ios-add-circle-outline add"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         );
     }
 
     render() {
-        const { fields, indexes } = this.props;
+        const { fields, indexes, panes, dispatch } = this.props;
+
         return (
-            <div className="col-md-offset-2 col-sm-offset-2 col-xs-offset-1 col-xs-10 col-sm-8 col-md-8 col-lg-6">
+            <Pane name="Configuration" handle="configuration" panes={panes} dispatch={dispatch}>
                 <div className="form-group">
-                    <h2>Indexes</h2>
+                    <h2>Indices</h2>
                     { this.renderIndices(indexes) }
                 </div>
+
                 <div className="form-group">
-                    <form onSubmit={() => this.handleAddIndex()}>
-                        <input type="text" ref="index"/>
-                    </form>
-                </div>
-                <h2>Fields</h2>
-                <div className="form-group">
+                    <h2>Fields</h2>
                     { this.renderFields(fields) }
                 </div>
-            </div>
+            </Pane>
+
         );
 
     }
@@ -102,7 +118,8 @@ class ConfigurationView extends React.Component {
 function select(state) {
     return {
         fields: state.entries.fields,
-        indexes: state.entries.indexes
+        indexes: state.entries.indexes,
+        panes: state.utils.panes
     };
 }
 

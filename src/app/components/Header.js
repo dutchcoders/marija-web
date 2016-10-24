@@ -6,6 +6,7 @@ import { ConnectionStatus } from '../modules/status/index'
 import { Icon } from '../components/index'
 
 import { generateColour } from '../helpers/index'
+import { openPane } from '../utils/index'
 
 class Header extends Component {
 
@@ -28,6 +29,11 @@ class Header extends Component {
         }));
     }
 
+    openPane() {
+        const { dispatch } = this.props;
+        dispatch(openPane('configuration'));
+    }
+
     render() {
         const { connected, isFetching, total, indexes } = this.props;
 
@@ -39,7 +45,7 @@ class Header extends Component {
                     onSubmit={(q, index) => this.onSearchSubmit(q, index)}
                     indexes={indexes}
                 >
-                    <Icon name="ion-logo-buffer settings" />
+                    <Icon onClick={() => this.openPane()} name="ion-logo-buffer settings"/>
                     <ConnectionStatus connected={connected}/>
                 </SearchBox>
             </header>

@@ -11,7 +11,7 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import { Intl }  from 'react-intl-es6';
 
 import { RootView } from './components/index';
-import { entries, defaultState } from './reducers/index'
+import { entries, utils, defaultState } from './reducers/index'
 import { persistState } from './helpers/index'
 import { Socket } from './utils/index'
 import { i18n } from './config'
@@ -20,6 +20,7 @@ function configureStore() {
     return createStore(
         combineReducers({
             entries,
+            utils,
             routing: routerReducer
         }), {
             entries: defaultState

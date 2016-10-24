@@ -1,11 +1,15 @@
+$base-font-color: #b5b5b5;
+
 $body-background-color: #5e5f63;
 $header-background-color: #4d515b;
+$pane-background-color: #43454c;
+$pane-header-background-color: #35383e;
 
 $green: #57c17b;
 $red: #ea4552;
 
 $input-border-color: #797979;
-$input-border-color-focus: #b5b5b5;
+$input-border-color-focus: $base-font-color;
 $input-background-color: #5e5f63;
 
 $input-color: $input-border-color;
