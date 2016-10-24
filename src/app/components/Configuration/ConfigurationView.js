@@ -18,7 +18,7 @@ class ConfigurationView extends React.Component {
         const { field } = this.refs;
         const { dispatch } = this.props;
 
-        if (field === '') {
+        if (field.value === '') {
             return;
         }
 
@@ -77,7 +77,7 @@ class ConfigurationView extends React.Component {
         const options = map(indices, (index) => {
             return <li key={index} value={index}>
                 { index }
-                <Icon onClick={() => this.handleDeleteIndex(field)} name="ion-ios-trash-outline"/>
+                <Icon onClick={() => this.handleDeleteIndex(index)} name="ion-ios-trash-outline"/>
             </li>;
         });
 
