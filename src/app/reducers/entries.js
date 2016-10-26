@@ -41,6 +41,15 @@ export default function entries(state = defaultState, action) {
             })
         case DELETE_NODES:
             var items = concat(state.items);
+            var nodes = concat(state.node);
+
+            remove(nodes, (p) => {
+                return find(action.nodes, (o) => {
+                    return o == p.id;
+                });
+            });
+
+            // remove from selection as well
             remove(items, (p) => {
                 return (reduce(state.fields, (found, field) => {
                     found = found || find(action.nodes, (o) => {
@@ -51,7 +60,8 @@ export default function entries(state = defaultState, action) {
             });
 
             return Object.assign({}, state, {
-                items: items
+                items: items,
+                node: nodes
             })
         case DELETE_SEARCH:
             var searches = without(state.searches, action.search);
