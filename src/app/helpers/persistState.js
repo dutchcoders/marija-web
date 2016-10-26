@@ -7,10 +7,8 @@ export default function persistState() {
             initialState = {
                 entries: {
                     fields: [],
-                    colums: [],
-                    indexes: [
-                        "http://127.0.0.1:9200/",
-                    ],
+                    columns: [],
+                    indexes: [],
                 }
             }
         }
