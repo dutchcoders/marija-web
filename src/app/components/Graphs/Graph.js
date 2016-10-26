@@ -280,7 +280,7 @@ class Graph extends React.Component {
                     y = this.graph.transform.invertY(d3.event.layerY);
 
                 var subject = this.simulation.find(x, y, 20);
-                if (subject === undefined) {
+                if (typeof subject === undefined) {
                     this.graph.selection = {x1: x, y1: y, x2: x, y2: y};
                     dispatch(selectNodes({nodes: []}));
                     return;
@@ -292,8 +292,6 @@ class Graph extends React.Component {
                     }
 
                     dispatch(selectNodes({nodes: this.graph.selectedNodes}));
-
-                    this.onmouseclick(subject);
                 }
             },
             mouseup: function () {
