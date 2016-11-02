@@ -1,16 +1,31 @@
 import { FlowWS, error } from '../../utils/index';
-import {receiveItems} from '../../modules/search/index';
+import { receiveItems, RECEIVE_ITEMS } from '../../modules/search/index';
+import { receiveIndices, RECEIVE_INDICES } from '../../modules/indices/index';
 
 export const Socket = {
     ws: null,
     URL: 'ws://' + "127.0.0.1:8089" + '/ws',
-    wsDispatcher: (msg, storeDispatcher) => {
-        if (msg.hits) {
-            return storeDispatcher(receiveItems(msg.hits));
-        } else if (msg.error) {
-            return storeDispatcher(error(msg.error.message));
-        } else {
-            console.debug("unknown message type", msg);
+    wsDispatcher: (message, storeDispatcher) => {
+        if (message.error) {
+            return storeDispatcher(error(message.error.message));
+        }
+
+        let handler = () => {
+            console.debug("unknown message type");
+        };
+
+        switch (message.type) {
+            case RECEIVE_ITEMS:
+                handler = receiveItems;
+                break;
+
+            case RECEIVE_INDICES:
+                handler = receiveIndices;
+                break;
+        }
+
+        if (message.hits) {
+            return storeDispatcher(handler(message.hits));
         }
     },
     startWS: (dispatch) => {

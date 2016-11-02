@@ -225,6 +225,14 @@
                     right: 5px;
                     font-size: 21px;
                     cursor: pointer;
+
+                    &:first-of-type {
+                        margin-right: 20px;
+                    }
+
+                    &:last-of-type {
+                        margin-right: 0px;
+                    }
                 }
             }
         }

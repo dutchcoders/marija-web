@@ -1,9 +1,10 @@
-import { concat, without, reduce, remove, find, forEach } from 'lodash';
+import { concat, without, reduce, remove, find, forEach, union } from 'lodash';
 
 import {  DELETE_NODES, HIGHLIGHT_NODES, SELECT_NODE, SELECT_NODES, CLEAR_SELECTION } from '../modules/graph/index'
 import {  DELETE_SEARCH, RECEIVE_ITEMS, REQUEST_ITEMS } from '../modules/search/index'
-import {  ERROR, AUTH_CONNECTED, Socket } from '../utils/index'
+import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index'
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, ADD_INDEX, DELETE_INDEX, ADD_FIELD, DELETE_FIELD } from '../modules/data/index'
+import {  RECEIVE_INDICES, REQUEST_INDICES } from '../modules/indices/index'
 
 import { phone, fieldLocator } from '../helpers/index'
 
@@ -20,8 +21,8 @@ export const defaultState = {
     fields: [],
     indexes: [],
     items: [],
-    searches: [],
-}
+    searches: []
+};
 
 export default function entries(state = defaultState, action) {
     switch (action.type) {
@@ -114,7 +115,9 @@ export default function entries(state = defaultState, action) {
             });
             break;
         case REQUEST_ITEMS:
-            Socket.ws.postMessage({query: action.query, index: action.index, color: action.color});
+            Socket.ws.postMessage(
+                {query: action.query, index: action.index, server: action.index, color: action.color}
+            );
             return Object.assign({}, state, {
                 isFetching: true,
                 didInvalidate: false
@@ -144,6 +147,30 @@ export default function entries(state = defaultState, action) {
             });
             break;
 
+        case REQUEST_INDICES:
+            Socket.ws.postMessage(
+                {
+                    server: action.payload.server
+                },
+                DiscoverIndicesMessage
+            );
+
+            return Object.assign({}, state, {
+                isFetching: true,
+                didInvalidate: false
+            });
+
+        case RECEIVE_INDICES:
+            const indices = union(state.indexes, Object.keys(action.payload.indices).filter((item) => {
+                return item.split('').shift() !== '.';
+            }).map((index) => {
+                return `${action.payload.server}${index}`
+            }));
+
+            return Object.assign({}, state, {
+                indexes: indices,
+                isFetching: false
+            });
         default:
             return state;
             break;

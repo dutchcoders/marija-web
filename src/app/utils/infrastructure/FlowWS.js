@@ -1,5 +1,9 @@
 import {authConnected, error} from '../index'
 
+export const SearchMessage = 1;
+export const DiscoverIndicesMessage = 2;
+export const DiscoverFieldsMessage = 3;
+
 export default class FlowWS {
     constructor(url, token, dispatcher, storeDispatcher) {
         const websocket = new WebSocket(url);
@@ -23,11 +27,11 @@ export default class FlowWS {
         this.websocket = websocket;
     }
 
-    postMessage(data) {
+    postMessage(data, type = SearchMessage) {
         this.websocket.send(
             JSON.stringify({
-                event_type: 1,
-                ...data,
+                event_type: type,
+                ...data
             })
         );
     }

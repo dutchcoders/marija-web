@@ -1,37 +1,37 @@
-import { concat } from 'lodash'
+import { concat, merge } from 'lodash'
 
 export default function persistState() {
     return (next) => (reducer, initialState, enhancer) => {
-        if (typeof initialState === 'function' && typeof enhancer === 'undefined') {
-            enhancer = initialState
-            initialState = {
-                entries: {
-                    fields: [],
-                    colums: [],
-                    indexes: [
-                        "http://127.0.0.1:9200/",
-                    ],
-                }
-            }
-        }
 
         try {
-            initialState.entries.fields = JSON.parse(localStorage.getItem("fields"))
+            const fields = JSON.parse(localStorage.getItem("fields"));
+            initialState.entries.fields = merge(initialState.entries.fields, fields);
         } catch (e) {
             console.warn('failed to retrieve initialize state from localstorage:', e)
         }
 
         try {
-            initialState.entries.columns = JSON.parse(localStorage.getItem("columns"))
+            const columns = JSON.parse(localStorage.getItem("columns"));
+            initialState.entries.columns = merge(initialState.entries.columns, columns);
         } catch (e) {
             console.warn('failed to retrieve initialize state from localstorage:', e)
         }
 
         try {
-            initialState.entries.indexes = concat(initialState.entries.indexes, JSON.parse(localStorage.getItem("indexes")));
+            const indices = JSON.parse(localStorage.getItem("indexes"));
+            initialState.entries.indexes = merge(initialState.entries.indexes, indices);
         } catch (e) {
             console.warn('Failed to retrieve initialize state from localStorage:', e)
         }
+
+
+        try {
+            const servers = JSON.parse(localStorage.getItem("servers"));
+            initialState.servers = merge(initialState.servers, servers);
+        } catch (e) {
+            console.warn('Failed to retrieve initialize state from localStorage:', e)
+        }
+
 
         const store = next(reducer, initialState, enhancer)
 
@@ -52,6 +52,12 @@ export default function persistState() {
 
             try {
                 localStorage.setItem("indexes", JSON.stringify(state.entries.indexes))
+            } catch (e) {
+                console.warn('Unable to persist state to localStorage:', e)
+            }
+
+            try {
+                localStorage.setItem("servers", JSON.stringify(state.servers))
             } catch (e) {
                 console.warn('Unable to persist state to localStorage:', e)
             }
