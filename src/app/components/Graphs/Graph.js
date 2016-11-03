@@ -332,7 +332,7 @@ class Graph extends React.Component {
                 var subject = this.simulation.find(x, y, 20);
                 if (subject === undefined) {
                     graph.tooltip = null;
-                } else {
+                } else if (!graph.tooltip || graph.tooltip.node !== subject) {
                     graph.tooltip = {node: subject, x: x, y: y};
                     this.onmousemove(subject);
                 }
