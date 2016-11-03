@@ -23,7 +23,9 @@ function configureStore() {
             utils,
             routing: routerReducer
         }), {
-            entries: defaultState
+            entries: {
+                ...defaultState
+            }
         },
         compose(persistState())
     )
