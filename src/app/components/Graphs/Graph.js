@@ -261,7 +261,7 @@ class Graph extends React.Component {
             mousedown: function () {
                 const { dispatch, graph } = this;
 
-                if (d3.event.altKeys) {
+                if (d3.event.altKey) {
                     return;
                 }
 
@@ -284,22 +284,43 @@ class Graph extends React.Component {
                 }
             },
             mouseup: function () {
-                const { graph } = this;
+                const { graph, dispatch } = this;
 
-                if (d3.event.altKeys) {
+                if (d3.event.altKey) {
                     return;
                 }
 
                 var x = graph.transform.invertX(d3.event.layerX),
-                    y = graph.transform.invertY(d3.event.layerY);
+                y = graph.transform.invertY(d3.event.layerY);
 
-                // find all nodes within selection and highliht
-                graph.selection = null;
+                if (graph.selection) {
+                    graph.selection = assign(graph.selection, {x2: x, y2: y});
+
+                    graph.nodes.forEach((d)=> {
+                        if ((d.x > graph.selection.x1 && d.x < graph.selection.x2) &&
+                                (d.y > graph.selection.y1 && d.y < graph.selection.y2)) {
+                            if (!includes(graph.selectedNodes, d)) {
+                                graph.selectedNodes.push(d);
+                            }
+                        }
+
+                        if ((d.x > graph.selection.x2 && d.x < graph.selection.x1) &&
+                                (d.y > graph.selection.y2 && d.y < graph.selection.y1)) {
+                            if (!includes(graph.selectedNodes, d)) {
+                                graph.selectedNodes.push(d);
+                            }
+                        }
+                    });
+
+                    dispatch(selectNodes({nodes: graph.selectedNodes}));
+
+                    graph.selection = null;
+                }
             },
             mousemove: function (n) {
                 const { dispatch, graph } = this;
 
-                if (d3.event.altKeys) {
+                if (d3.event.altKey) {
                     return;
                 }
 
@@ -308,25 +329,6 @@ class Graph extends React.Component {
 
                 if (graph.selection) {
                     graph.selection = assign(graph.selection, {x2: x, y2: y});
-
-                    graph.nodes.forEach((d)=> {
-                        if ((d.x > graph.selection.x1 && d.x < graph.selection.x2) &&
-                            (d.y > graph.selection.y1 && d.y < graph.selection.y2)) {
-                            if (!includes(graph.selectedNodes, d)) {
-                                graph.selectedNodes.push(d);
-                            }
-                        }
-
-                        if ((d.x > graph.selection.x2 && d.x < graph.selection.x1) &&
-                            (d.y > graph.selection.y2 && d.y < graph.selection.y1)) {
-                            if (!includes(graph.selectedNodes, d)) {
-                                graph.selectedNodes.push(d);
-                            }
-                        }
-                    });
-
-                    dispatch(selectNodes({nodes: graph.selectedNodes}));
-                    return;
                 }
 
                 var subject = this.simulation.find(x, y, 20);

@@ -51,5 +51,9 @@ body {
         text-overflow: ellipsis;
         white-space: normal;
     }
+
+    canvas {
+        cursor: default;
+    }
 }
 
