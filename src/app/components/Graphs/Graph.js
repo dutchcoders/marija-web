@@ -307,7 +307,6 @@ class Graph extends React.Component {
                     y = graph.transform.invertY(d3.event.layerY);
 
                 if (graph.selection) {
-                    console.debug("BLA", "mousemove");
                     graph.selection = assign(graph.selection, {x2: x, y2: y});
 
                     graph.nodes.forEach((d)=> {
