@@ -6,7 +6,7 @@ import { map } from 'lodash'
 import { Record, Icon } from '../index'
 import { highlightNodes} from '../../modules/graph/index'
 import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index'
-import { fieldLocator, phone } from '../../helpers/index'
+import { fieldLocator, normalize } from '../../helpers/index'
 
 class TableView extends React.Component {
     constructor(props) {
@@ -49,7 +49,7 @@ class TableView extends React.Component {
                 map(node, (sub_node) => {
                     return map(items, (record) => {
                         return map(fields || [], (value) => {
-                            if (phone(fieldLocator(record.fields, value)) !== sub_node.id)
+                            if (normalize(fieldLocator(record.fields, value)) !== sub_node.id)
                                 return null;
 
                             return (

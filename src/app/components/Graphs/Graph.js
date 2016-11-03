@@ -7,7 +7,7 @@ import { map, groupBy, reduce, forEach, difference, find, uniq, remove, each, in
 import moment from 'moment';
 
 import { selectNodes, selectNode } from '../../modules/data/index';
-import { phone, fieldLocator } from '../../helpers/index';
+import { normalize, fieldLocator } from '../../helpers/index';
 
 class Graph extends React.Component {
     constructor(props) {
@@ -441,7 +441,7 @@ class Graph extends React.Component {
                     if (!value) return;
 
                     nodes.push({
-                        id: phone(value),
+                        id: normalize(value),
                         query: d.q,
                         name: value,
                         color: d.color,
@@ -459,8 +459,8 @@ class Graph extends React.Component {
                         if (!targetValue) return;
 
                         links.push({
-                            source: phone(sourceValue),
-                            target: phone(targetValue),
+                            source: normalize(sourceValue),
+                            target: normalize(targetValue),
                         });
                     });
                 });

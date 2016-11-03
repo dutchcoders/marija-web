@@ -5,7 +5,7 @@ import {  DELETE_SEARCH, RECEIVE_ITEMS, REQUEST_ITEMS } from '../modules/search/
 import {  ERROR, AUTH_CONNECTED, Socket } from '../utils/index'
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, ADD_INDEX, DELETE_INDEX, ADD_FIELD, DELETE_FIELD } from '../modules/data/index'
 
-import { phone, fieldLocator } from '../helpers/index'
+import { normalize, fieldLocator } from '../helpers/index'
 
 export const defaultState = {
     isFetching: false,
@@ -43,17 +43,17 @@ export default function entries(state = defaultState, action) {
             var items = concat(state.items);
             var nodes = concat(state.node);
 
+            // remove from selection as well
             remove(nodes, (p) => {
                 return find(action.nodes, (o) => {
                     return o == p.id;
                 });
             });
 
-            // remove from selection as well
             remove(items, (p) => {
                 return (reduce(state.fields, (found, field) => {
                     found = found || find(action.nodes, (o) => {
-                            return phone(fieldLocator(p.fields, field)) == o;
+                            return normalize(fieldLocator(p.fields, field)) == o;
                         });
                     return found;
                 }, false));
