@@ -10,17 +10,6 @@ import { selectNodes, selectNode } from '../../modules/data/index';
 import { phone, fieldLocator } from '../../helpers/index';
 
 class Graph extends React.Component {
-    componentDidMount() {
-        const { network } = this;
-        const { dispatch } = this.props;
-
-        network.dispatch = dispatch;
-        network.onmouseclick = this.onMouseClick.bind(this);
-        network.onmousemove = this.onMouseMove.bind(this);
-
-        network.setup(this.refs["canvas"]);
-    }
-
     constructor(props) {
         super(props);
 
@@ -42,9 +31,9 @@ class Graph extends React.Component {
 
         this.network = {
             graph: {
-                "nodes": [],
-                "links": [],
-                "highlight_nodes": [],
+                nodes: [],
+                links: [],
+                highlight_nodes: [],
                 selection: null,
                 selectedNodes: [],
                 tooltip: null,
@@ -377,6 +366,17 @@ class Graph extends React.Component {
             mousemoved: function () {
             }
         };
+    }
+
+    componentDidMount() {
+        const { network } = this;
+        const { dispatch } = this.props;
+
+        network.dispatch = dispatch;
+        network.onmouseclick = this.onMouseClick.bind(this);
+        network.onmousemove = this.onMouseMove.bind(this);
+
+        network.setup(this.refs["canvas"]);
     }
 
     onMouseClick(node) {
