@@ -47,16 +47,16 @@ class TableView extends React.Component {
         return (
             node ?
                 map(node, (sub_node) => {
-                    return map(items, (packet) => {
+                    return map(items, (record) => {
                         return map(fields || [], (value) => {
-                            if (phone(fieldLocator(packet.fields, value)) !== sub_node.id)
+                            if (phone(fieldLocator(record.fields, value)) !== sub_node.id)
                                 return null;
 
                             return (
                                 <Record
                                     columns={ columns }
                                     node={ sub_node }
-                                    packet={ packet }
+                                    record={ record }
                                     onMouseOver={(nodes) => { dispatch(highlightNodes(nodes)) } }
                                     onTableAddColumn={(field) => this.handleTableAddColumn(field) }
                                     onTableRemoveColumn={(field) => this.handleTableRemoveColumn(field) }
