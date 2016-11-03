@@ -1,8 +1,11 @@
 import {authConnected, error} from '../index'
+import Websocket from 'reconnecting-websocket';
 
 export default class FlowWS {
     constructor(url, token, dispatcher, storeDispatcher) {
-        const websocket = new WebSocket(url);
+        this.url = url;
+
+        const websocket = new Websocket(url);
 
         websocket.onopen = function (event) {
             console.debug(event);
