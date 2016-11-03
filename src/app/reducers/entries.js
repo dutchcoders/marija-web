@@ -118,7 +118,7 @@ export default function entries(state = defaultState, action) {
             break;
         case AUTH_CONNECTED:
             return Object.assign({}, state, {
-                isFetching: true,
+                isFetching: false,
                 didInvalidate: false,
                 ...action
             });
