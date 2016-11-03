@@ -259,78 +259,82 @@ class Graph extends React.Component {
                 // this.context.fillText(d.icon, d.x - ( d.r) + 1, d.y + 5);
             },
             mousedown: function () {
-                const { dispatch } = this;
+                const { dispatch, graph } = this;
 
                 if (d3.event.altKeys) {
                     return;
                 }
 
-                var x = this.graph.transform.invertX(d3.event.layerX),
-                    y = this.graph.transform.invertY(d3.event.layerY);
+                var x = graph.transform.invertX(d3.event.layerX),
+                    y = graph.transform.invertY(d3.event.layerY);
 
                 var subject = this.simulation.find(x, y, 20);
-                if (typeof subject === undefined) {
-                    this.graph.selection = {x1: x, y1: y, x2: x, y2: y};
+                if (!subject) {
+                    graph.selection = {x1: x, y1: y, x2: x, y2: y};
                     dispatch(selectNodes({nodes: []}));
                     return;
                 } else {
-                    if (!includes(this.graph.selectedNodes, subject)) {
-                        this.graph.selectedNodes.push(subject);
+                    if (!includes(graph.selectedNodes, subject)) {
+                        graph.selectedNodes.push(subject);
                     } else {
-                        remove(this.graph.selectedNodes, subject);
+                        remove(graph.selectedNodes, subject);
                     }
 
-                    dispatch(selectNodes({nodes: this.graph.selectedNodes}));
+                    dispatch(selectNodes({nodes: graph.selectedNodes}));
                 }
             },
             mouseup: function () {
+                const { graph } = this;
+
                 if (d3.event.altKeys) {
                     return;
                 }
 
-                var x = this.graph.transform.invertX(d3.event.layerX),
-                    y = this.graph.transform.invertY(d3.event.layerY);
+                var x = graph.transform.invertX(d3.event.layerX),
+                    y = graph.transform.invertY(d3.event.layerY);
 
                 // find all nodes within selection and highliht
-                this.graph.selection = null;
+                graph.selection = null;
             },
             mousemove: function (n) {
-                const { dispatch } = this;
+                const { dispatch, graph } = this;
+
                 if (d3.event.altKeys) {
                     return;
                 }
 
-                var x = this.graph.transform.invertX(d3.event.layerX),
-                    y = this.graph.transform.invertY(d3.event.layerY);
+                var x = graph.transform.invertX(d3.event.layerX),
+                    y = graph.transform.invertY(d3.event.layerY);
 
-                if (this.graph.selection) {
-                    this.graph.selection = assign(this.graph.selection, {x2: x, y2: y});
+                if (graph.selection) {
+                    console.debug("BLA", "mousemove");
+                    graph.selection = assign(graph.selection, {x2: x, y2: y});
 
-                    this.graph.nodes.forEach((d)=> {
-                        if ((d.x > this.graph.selection.x1 && d.x < this.graph.selection.x2) &&
-                            (d.y > this.graph.selection.y1 && d.y < this.graph.selection.y2)) {
-                            if (!includes(this.graph.selectedNodes, d)) {
-                                this.graph.selectedNodes.push(d);
+                    graph.nodes.forEach((d)=> {
+                        if ((d.x > graph.selection.x1 && d.x < graph.selection.x2) &&
+                            (d.y > graph.selection.y1 && d.y < graph.selection.y2)) {
+                            if (!includes(graph.selectedNodes, d)) {
+                                graph.selectedNodes.push(d);
                             }
                         }
 
-                        if ((d.x > this.graph.selection.x2 && d.x < this.graph.selection.x1) &&
-                            (d.y > this.graph.selection.y2 && d.y < this.graph.selection.y1)) {
-                            if (!includes(this.graph.selectedNodes, d)) {
-                                this.graph.selectedNodes.push(d);
+                        if ((d.x > graph.selection.x2 && d.x < graph.selection.x1) &&
+                            (d.y > graph.selection.y2 && d.y < graph.selection.y1)) {
+                            if (!includes(graph.selectedNodes, d)) {
+                                graph.selectedNodes.push(d);
                             }
                         }
                     });
 
-                    dispatch(selectNodes({nodes: this.graph.selectedNodes}));
+                    dispatch(selectNodes({nodes: graph.selectedNodes}));
                     return;
                 }
 
                 var subject = this.simulation.find(x, y, 20);
                 if (subject === undefined) {
-                    this.graph.tooltip = null;
+                    graph.tooltip = null;
                 } else {
-                    this.graph.tooltip = {node: subject, x: x, y: y};
+                    graph.tooltip = {node: subject, x: x, y: y};
                     this.onmousemove(subject);
                 }
             },
