@@ -101,6 +101,9 @@ class Histogram extends React.Component {
             context.lineTo(x(d) + x.bandwidth() / 2, height + 6);
         });
 
+        // todo(nl5887): add selection
+        // todo(nl5887): show difference between queries
+
         context.strokeStyle = "#b5b5b5";
         context.stroke();
 
