@@ -3,7 +3,8 @@ import {receiveItems} from '../../modules/search/index';
 
 export const Socket = {
     ws: null,
-    URL: 'ws://' + "127.0.0.1:8089" + '/ws',
+    URL: 'ws://' + "127.0.0.1:8089" + '/ws', 
+    // URL: 'ws://' + location.host + '/ws', 
     wsDispatcher: (msg, storeDispatcher) => {
         if (msg.hits) {
             return storeDispatcher(receiveItems(msg.hits));

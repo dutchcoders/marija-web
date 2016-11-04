@@ -18,6 +18,7 @@ class Graph extends React.Component {
             links: [],
             highlight_nodes: [],
             edges: [],
+            queries: [],
             clusters: {},
             start: new Date(),
             time: 0,
@@ -37,8 +38,7 @@ class Graph extends React.Component {
                 selection: null,
                 selectedNodes: [],
                 tooltip: null,
-                transform: d3.zoomIdentity,
-                queries: []
+                transform: d3.zoomIdentity
             },
             height: containerHeight,
             width: containerWidth,
@@ -113,7 +113,7 @@ class Graph extends React.Component {
             highlight: function (nodes) {
                 this.graph.highlight_nodes = nodes;
             },
-            addNodes: function (graph) {
+            updateNodes: function (graph) {
                 var countExtent = d3.extent(graph.nodes, function (d) {
                         return d.connections;
                     }),
@@ -122,35 +122,51 @@ class Graph extends React.Component {
                 var newNodes = false;
 
                 var that = this;
+
+                // remove deleted nodes
+                var removedNodes = difference(this.graph.nodes, graph.nodes);
+                remove(this.graph.nodes, (n) => {
+                    return find(removedNodes, {id: n});
+                });
+
                 each(graph.nodes, function (node) {
+                    // todo(nl5887): cleanup
                     var n = find(that.graph.nodes, {id: node.id});
                     if (n) {
-                        n.connections++;
-
-                        n.r = radiusScale(n.connections);
-                        n.force = that.forceScale(n);
-
-                        n.query.push(node.query);
-                        n.query = uniq(n.query);
-
-                        n.color.push(node.color);
-                        n.color = uniq(n.color);
-
+                        n = assign(n, node);
+                        n = assign(n, {force: that.forceScale(n), r: radiusScale(n.connections)});
                         return;
                     }
 
-                    node.color = [node.color];
-                    node.query = [node.query];
-                    node.force = that.forceScale(node);
-                    node.r = radiusScale(node.connections);
-                    node.icon = "\uF047";
+                    let node2 = _.clone(node);
+                    node2 = assign(node2, {force: that.forceScale(node2), r: radiusScale(node2.connections)});
 
-                    that.graph.nodes.push(node);
+                    that.graph.nodes.push(node2);
 
                     newNodes = true;
                 });
 
-                this.graph.links = this.graph.links.concat(graph.links);
+                var removedLinks = difference(this.graph.links, graph.links);
+                remove(this.graph.links, (link) => {
+                    return find(removedLinks, (o) => {
+                        return link.source.id == o.source && link.target.id == o.target;
+                    });
+                });
+
+                each(graph.links, function (link) {
+                    var n = find(that.graph.links, (o) => {
+                        return o.source.id == link.source && o.target.id == link.target;
+                    });
+
+                    if (n) {
+                        return;
+                    }
+
+                    that.graph.links.push({source: link.source, target: link.target});
+                });
+
+
+                this.graph.queries = graph.queries;
 
                 if (!newNodes)
                     return;
@@ -162,17 +178,6 @@ class Graph extends React.Component {
                     .links(this.graph.links);
 
                 this.simulation.alpha(0.3).restart();
-            },
-            removeNodes: function (removed) {
-                // remove nodes
-                this.graph.nodes = remove(this.graph.nodes, (n) => {
-                    return find(removed, {id: n});
-                });
-
-                // find links
-                this.graph.links = remove(this.graph.links, (n) => {
-                    return find(removed, {id: n.source.id}) || find(removed, {id: n.target.id});
-                });
             },
             render: function () {
                 if (!this.graph) {
@@ -231,16 +236,17 @@ class Graph extends React.Component {
                 // this.context.moveTo(d.x + d.r, d.y);
                 // for each different query, show a part. This will show that the edge
                 //  has been found in multiple queries.
-                for (var i = 0; i < d.query.length; i++) {
+                for (var i = 0; i < d.queries.length; i++) {
                     // find color
-
                     this.context.beginPath();
-                    this.context.arc(d.x, d.y, d.r, 2 * Math.PI * (i / d.color.length), 2 * Math.PI * ( (i + 1) / d.color.length));
+                    this.context.moveTo(d.x, d.y);
+                    this.context.arc(d.x, d.y, d.r, 2 * Math.PI * (i / d.queries.length), 2 * Math.PI * ( (i + 1) / d.queries.length));
+                    this.context.lineTo(d.x, d.y);
 
                     var color = '#000'; // d.searches[i];
 
                     for (var j = 0; j < this.graph.queries.length; j++) {
-                        if (this.graph.queries[j].q === d.query[i])
+                        if (this.graph.queries[j].q === d.queries[i])
                             color = this.graph.queries[j].color;
                     }
 
@@ -346,9 +352,10 @@ class Graph extends React.Component {
                 var x = d3.event.x,
                     y = d3.event.y;
 
-                if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
                 d3.event.subject.fx = x;
                 d3.event.subject.fy = y;
+
+                if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
             },
             dragged: function () {
                 var x = d3.event.x,
@@ -358,9 +365,10 @@ class Graph extends React.Component {
                 d3.event.subject.fy = (y);
             },
             dragended: function () {
-                if (!d3.event.active) this.simulation.alphaTarget(0);
                 d3.event.subject.fx = null;
                 d3.event.subject.fy = null;
+
+                if (!d3.event.active) this.simulation.alphaTarget(0);
             },
             dragsubject: function () {
                 const x = this.graph.transform.invertX(d3.event.x),
@@ -404,73 +412,17 @@ class Graph extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         const { network } = this;
-        const { queries } = this.props;
+        const { fields } = this.props;
 
-        network.graph.queries = queries;
+        console.debug("componentDidUpdate");
 
-        var { fields } = this.props;
+        // todo(nl5887): only when adding new nodes
+        network.updateNodes({
+            nodes: this.props.nodes,
+            links: this.props.links,
+            queries: this.props.queries,
+        });
 
-        var nodes = [];
-        var links = [];
-
-        var removed = difference(prevProps.items, this.props.items);
-        if (removed.length > 0) {
-            var removed2 = [];
-            forEach(removed, (d, i) => {
-                forEach(fields, (field) => {
-                    const value = fieldLocator(d.fields, field);
-
-                    if (value) {
-                        removed2.push(value);
-                    }
-
-                });
-            });
-
-            // this should be node id not packet
-            network.removeNodes({
-                nodes: removed2,
-            });
-        }
-
-
-        if (this.props.items.length > 0) {
-            forEach(this.props.items, (d, i) => {
-                forEach(fields, (field) => {
-                    const value = fieldLocator(d.fields, field);
-                    if (!value) return;
-
-                    nodes.push({
-                        id: normalize(value),
-                        query: d.q,
-                        name: value,
-                        color: d.color,
-                        connections: 1
-                    });
-                });
-
-
-                forEach(fields, (source) => {
-                    const sourceValue = fieldLocator(d.fields, source);
-                    if (!sourceValue) return;
-
-                    forEach(fields, (target) => {
-                        const targetValue = fieldLocator(d.fields, target);
-                        if (!targetValue) return;
-
-                        links.push({
-                            source: normalize(sourceValue),
-                            target: normalize(targetValue),
-                        });
-                    });
-                });
-            });
-
-            network.addNodes({
-                nodes: nodes,
-                links: links,
-            });
-        }
         network.select(this.props.node);
         network.highlight(this.props.highlight_nodes);
     }
@@ -498,6 +450,8 @@ const select = (state, ownProps) => {
     return {
         ...ownProps,
         node: state.entries.node,
+        nodes: state.entries.nodes,
+        links: state.entries.links,
         queries: state.entries.searches,
         fields: state.entries.fields,
         items: state.entries.items,

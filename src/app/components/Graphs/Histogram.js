@@ -58,17 +58,17 @@ class Histogram extends React.Component {
         context.translate(margin.left, margin.top);
 
         const groupedResults = groupBy(this.props.items, (result) => {
-            let date = fieldLocator(result.fields, 'document.date');
+            let date = fieldLocator(result.fields, 'received_date');
             return moment(date).year() + '-' + moment(date).month();
         });
 
         const minX = reduce(this.props.items, (min, result) => {
-            let date = fieldLocator(result.fields, 'document.date');
+            let date = fieldLocator(result.fields, 'received_date');
             return (moment(date) < min ? moment(date) : min);
         }, moment());
 
         const maxX = reduce(this.props.items, (max, result) => {
-            let date = fieldLocator(result.fields, 'document.date');
+            let date = fieldLocator(result.fields, 'received_date');
             return (moment(date) > max ? moment(date) : max);
         }, 0);
 

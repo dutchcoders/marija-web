@@ -21,9 +21,14 @@ export const defaultState = {
     indexes: [],
     items: [],
     searches: [],
+
+    nodes: [], // all nodes
+    links: [], // relations between nodes
 }
 
 export default function entries(state = defaultState, action) {
+    console.debug("STATE", state);
+
     switch (action.type) {
         case CLEAR_SELECTION:
             return Object.assign({}, state, {
@@ -41,27 +46,34 @@ export default function entries(state = defaultState, action) {
             })
         case DELETE_NODES:
             var items = concat(state.items);
-            var nodes = concat(state.node);
+            var node = concat(state.node);
+            var nodes = concat(state.nodes);
+            var links = concat(state.links);
 
             // remove from selection as well
+            remove(node, (p) => {
+                return find(action.nodes, (o) => {
+                    return o == p.id;
+                });
+            });
+
             remove(nodes, (p) => {
                 return find(action.nodes, (o) => {
                     return o == p.id;
                 });
             });
 
-            remove(items, (p) => {
-                return (reduce(state.fields, (found, field) => {
-                    found = found || find(action.nodes, (o) => {
-                            return normalize(fieldLocator(p.fields, field)) == o;
-                        });
-                    return found;
-                }, false));
+            remove(links, (p) => {
+                return find(action.nodes, (o) => {
+                    return p.source == o || p.target == o;
+                });
             });
 
             return Object.assign({}, state, {
                 items: items,
-                node: nodes
+                node: node,
+                nodes: nodes,
+                links: links
             })
         case DELETE_SEARCH:
             var searches = without(state.searches, action.search);
@@ -70,6 +82,8 @@ export default function entries(state = defaultState, action) {
             remove(items, (p) => {
                 return (p.q === action.search.q)
             });
+
+            // todo(nl5887): remove related nodes and links
 
             return Object.assign({}, state, {
                 searches: searches,
@@ -137,17 +151,59 @@ export default function entries(state = defaultState, action) {
                 count: action.items.results.hits.hits.length
             });
 
+            // update nodes and links
             var nodes = concat(state.nodes, []);
-            var items = concat(state.items, []);
+            var links = concat(state.links, []);
+
+            var items = [];
             forEach(action.items.results.hits.hits, (d, i) => {
                 items.push({id: d._id, q: action.items.query, color: action.items.color, fields: d._source});
-                nodes.push({id: d._id, q: action.items.query, color: action.items.color, fields: d._source, record: d});
+            });
+
+            const fields = state.fields;
+            forEach(items, (d, i) => {
+                forEach(fields, (source) => {
+                    const sourceValue = fieldLocator(d.fields, source);
+                    if (!sourceValue) return;
+
+                    let n = find(nodes, {id: normalize(sourceValue)})
+                    if (n) {
+                        n.connections++; 
+                        n.queries.push(d.q); 
+                        return;
+                    }
+
+                    nodes.push({
+                        id: normalize(sourceValue),
+                        queries: [d.q],
+                        name: sourceValue,
+                        colors: [d.color],
+                        connections: 1,
+                        icon: "\uF047"
+                    });
+
+                    forEach(fields, (target) => {
+                        const targetValue = fieldLocator(d.fields, target);
+                        if (!targetValue) return;
+
+                        if (find(links, {source: normalize(sourceValue), target: normalize(targetValue)})) {
+                            // link already exists
+                            return;
+                        }
+
+                        links.push({
+                            source: normalize(sourceValue),
+                            target: normalize(targetValue),
+                        });
+                    });
+                });
             });
 
             return Object.assign({}, state, {
                 errors: null,
                 nodes: nodes,
-                items: items,
+                links: links, 
+                items: concat(state.items, items),
                 searches: searches,
                 isFetching: false,
                 didInvalidate: false

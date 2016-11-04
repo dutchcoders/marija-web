@@ -17,6 +17,7 @@ export default class FlowWS {
         };
         websocket.onerror = function (event) {
             console.debug(event);
+            
             storeDispatcher(error('test'));
         };
         websocket.onmessage = function (event) {
