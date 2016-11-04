@@ -163,6 +163,8 @@ class Graph extends React.Component {
                         return;
                     }
 
+                    // todo(nl5887): why?
+
                     that.graph.links.push({source: link.source, target: link.target});
                 });
 
@@ -226,6 +228,7 @@ class Graph extends React.Component {
 
                 this.context.restore();
 
+                // only when simulation is running?
                 requestAnimationFrame(this.render);
             },
             drawLink: function (d) {
@@ -239,6 +242,7 @@ class Graph extends React.Component {
                 for (var i = 0; i < d.queries.length; i++) {
                     // find color
                     this.context.beginPath();
+
                     this.context.moveTo(d.x, d.y);
                     this.context.arc(d.x, d.y, d.r, 2 * Math.PI * (i / d.queries.length), 2 * Math.PI * ( (i + 1) / d.queries.length));
                     this.context.lineTo(d.x, d.y);
@@ -428,12 +432,14 @@ class Graph extends React.Component {
 
         console.debug("componentDidUpdate");
 
-        // todo(nl5887): only when adding new nodes
-        network.updateNodes({
-            nodes: this.props.nodes,
-            links: this.props.links,
-            queries: this.props.queries,
-        });
+        // todo(nl5887): only when adding or removing new nodes
+        if (prevProps.nodes !== this.props.nodes) {
+            network.updateNodes({
+                nodes: this.props.nodes,
+                links: this.props.links,
+                queries: this.props.queries,
+            });
+        }
 
         network.select(this.props.node);
         network.highlight(this.props.highlight_nodes);
