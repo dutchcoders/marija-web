@@ -7,20 +7,9 @@ import { map, groupBy, reduce, forEach, difference, find, uniq, remove, each, in
 import moment from 'moment';
 
 import { selectNodes, selectNode } from '../../modules/data/index';
-import { phone, fieldLocator } from '../../helpers/index';
+import { normalize, fieldLocator } from '../../helpers/index';
 
 class Graph extends React.Component {
-    componentDidMount() {
-        const { network } = this;
-        const { dispatch } = this.props;
-
-        network.dispatch = dispatch;
-        network.onmouseclick = this.onMouseClick.bind(this);
-        network.onmousemove = this.onMouseMove.bind(this);
-
-        network.setup(this.refs["canvas"]);
-    }
-
     constructor(props) {
         super(props);
 
@@ -29,6 +18,7 @@ class Graph extends React.Component {
             links: [],
             highlight_nodes: [],
             edges: [],
+            queries: [],
             clusters: {},
             start: new Date(),
             time: 0,
@@ -42,14 +32,14 @@ class Graph extends React.Component {
 
         this.network = {
             graph: {
-                "nodes": [],
-                "links": [],
-                "highlight_nodes": [],
+                nodes: [],
+                links: [],
+                highlight_nodes: [],
                 selection: null,
+                queries: [],
                 selectedNodes: [],
                 tooltip: null,
-                transform: d3.zoomIdentity,
-                queries: []
+                transform: d3.zoomIdentity
             },
             height: containerHeight,
             width: containerWidth,
@@ -124,7 +114,7 @@ class Graph extends React.Component {
             highlight: function (nodes) {
                 this.graph.highlight_nodes = nodes;
             },
-            addNodes: function (graph) {
+            updateNodes: function (graph) {
                 var countExtent = d3.extent(graph.nodes, function (d) {
                         return d.connections;
                     }),
@@ -133,35 +123,50 @@ class Graph extends React.Component {
                 var newNodes = false;
 
                 var that = this;
+
+                // remove deleted nodes
+                remove(this.graph.nodes, (n) => {
+                    return !find(graph.nodes, (o) => {
+                        return (o.id==n.id);
+                    });
+                });
+
                 each(graph.nodes, function (node) {
+                    // todo(nl5887): cleanup
                     var n = find(that.graph.nodes, {id: node.id});
                     if (n) {
-                        n.connections++;
-
-                        n.r = radiusScale(n.connections);
-                        n.force = that.forceScale(n);
-
-                        n.query.push(node.query);
-                        n.query = uniq(n.query);
-
-                        n.color.push(node.color);
-                        n.color = uniq(n.color);
-
+                        n = assign(n, node);
+                        n = assign(n, {force: that.forceScale(n), r: radiusScale(n.connections)});
                         return;
                     }
 
-                    node.color = [node.color];
-                    node.query = [node.query];
-                    node.force = that.forceScale(node);
-                    node.r = radiusScale(node.connections);
-                    node.icon = "\uF047";
+                    let node2 = _.clone(node);
+                    node2 = assign(node2, {force: that.forceScale(node2), r: radiusScale(node2.connections)});
 
-                    that.graph.nodes.push(node);
+                    that.graph.nodes.push(node2);
 
                     newNodes = true;
                 });
 
-                this.graph.links = this.graph.links.concat(graph.links);
+                remove(this.graph.links, (link) => {
+                    return !find(graph.links, (o) => {
+                        return (link.source.id == o.source && link.target.id == o.target);
+                    });
+                });
+
+                each(graph.links, function (link) {
+                    var n = find(that.graph.links, (o) => {
+                        return o.source.id == link.source && o.target.id == link.target;
+                    });
+
+                    if (n) {
+                        return;
+                    }
+
+                    that.graph.links.push({source: link.source, target: link.target});
+                });
+
+                this.graph.queries = graph.queries;
 
                 if (!newNodes)
                     return;
@@ -173,17 +178,6 @@ class Graph extends React.Component {
                     .links(this.graph.links);
 
                 this.simulation.alpha(0.3).restart();
-            },
-            removeNodes: function (removed) {
-                // remove nodes
-                this.graph.nodes = remove(this.graph.nodes, (n) => {
-                    return find(removed, {id: n});
-                });
-
-                // find links
-                this.graph.links = remove(this.graph.links, (n) => {
-                    return find(removed, {id: n.source.id}) || find(removed, {id: n.target.id});
-                });
             },
             render: function () {
                 if (!this.graph) {
@@ -242,27 +236,32 @@ class Graph extends React.Component {
                 // this.context.moveTo(d.x + d.r, d.y);
                 // for each different query, show a part. This will show that the edge
                 //  has been found in multiple queries.
-                for (var i = 0; i < d.query.length; i++) {
+                for (var i = 0; i < d.queries.length; i++) {
                     // find color
-
                     this.context.beginPath();
-                    this.context.arc(d.x, d.y, d.r, 2 * Math.PI * (i / d.color.length), 2 * Math.PI * ( (i + 1) / d.color.length));
+                    this.context.moveTo(d.x, d.y);
+                    this.context.arc(d.x, d.y, d.r, 2 * Math.PI * (i / d.queries.length), 2 * Math.PI * ( (i + 1) / d.queries.length));
+                    this.context.lineTo(d.x, d.y);
 
                     var color = '#000'; // d.searches[i];
 
                     for (var j = 0; j < this.graph.queries.length; j++) {
-                        if (this.graph.queries[j].q === d.query[i])
+                        if (this.graph.queries[j].q === d.queries[i])
                             color = this.graph.queries[j].color;
                     }
 
                     this.context.fillStyle = color;
                     this.context.fill();
 
-                    if (includes(this.graph.selectedNodes, d)) {
-                        this.context.strokeStyle = '#993833';
-                        this.context.lineWidth = this.nodes.stroke.thickness;
-                        this.context.stroke();
-                    }
+                }
+
+                this.context.beginPath();
+                this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
+
+                if (includes(this.graph.selectedNodes, d)) {
+                    this.context.strokeStyle = '#993833';
+                    this.context.lineWidth = this.nodes.stroke.thickness;
+                    this.context.stroke();
                 }
 
                 // this.context.font="14px FontAwesome";
@@ -270,80 +269,83 @@ class Graph extends React.Component {
                 // this.context.fillText(d.icon, d.x - ( d.r) + 1, d.y + 5);
             },
             mousedown: function () {
-                const { dispatch } = this;
+                const { dispatch, graph } = this;
 
-                if (d3.event.altKeys) {
+                if (d3.event.altKey) {
                     return;
                 }
 
-                var x = this.graph.transform.invertX(d3.event.layerX),
-                    y = this.graph.transform.invertY(d3.event.layerY);
+                var x = graph.transform.invertX(d3.event.layerX),
+                    y = graph.transform.invertY(d3.event.layerY);
 
                 var subject = this.simulation.find(x, y, 20);
-                if (subject === undefined) {
-                    this.graph.selection = {x1: x, y1: y, x2: x, y2: y};
+                if (!subject) {
+                    graph.selection = {x1: x, y1: y, x2: x, y2: y};
                     dispatch(selectNodes({nodes: []}));
                     return;
                 } else {
-                    if (!includes(this.graph.selectedNodes, subject)) {
-                        this.graph.selectedNodes.push(subject);
+                    if (!includes(graph.selectedNodes, subject)) {
+                        graph.selectedNodes.push(subject);
                     } else {
-                        remove(this.graph.selectedNodes, subject);
+                        remove(graph.selectedNodes, subject);
                     }
 
-                    dispatch(selectNodes({nodes: this.graph.selectedNodes}));
-
-                    this.onmouseclick(subject);
+                    dispatch(selectNodes({nodes: graph.selectedNodes}));
                 }
             },
             mouseup: function () {
-                if (d3.event.altKeys) {
+                const { graph, dispatch } = this;
+
+                if (d3.event.altKey) {
                     return;
                 }
 
-                var x = this.graph.transform.invertX(d3.event.layerX),
-                    y = this.graph.transform.invertY(d3.event.layerY);
+                var x = graph.transform.invertX(d3.event.layerX),
+                y = graph.transform.invertY(d3.event.layerY);
 
-                // find all nodes within selection and highliht
-                this.graph.selection = null;
-            },
-            mousemove: function (n) {
-                const { dispatch } = this;
-                if (d3.event.altKeys) {
-                    return;
-                }
+                if (graph.selection) {
+                    graph.selection = assign(graph.selection, {x2: x, y2: y});
 
-                var x = this.graph.transform.invertX(d3.event.layerX),
-                    y = this.graph.transform.invertY(d3.event.layerY);
-
-                if (this.graph.selection) {
-                    this.graph.selection = assign(this.graph.selection, {x2: x, y2: y});
-
-                    this.graph.nodes.forEach((d)=> {
-                        if ((d.x > this.graph.selection.x1 && d.x < this.graph.selection.x2) &&
-                            (d.y > this.graph.selection.y1 && d.y < this.graph.selection.y2)) {
-                            if (!includes(this.graph.selectedNodes, d)) {
-                                this.graph.selectedNodes.push(d);
+                    graph.nodes.forEach((d)=> {
+                        if ((d.x > graph.selection.x1 && d.x < graph.selection.x2) &&
+                                (d.y > graph.selection.y1 && d.y < graph.selection.y2)) {
+                            if (!includes(graph.selectedNodes, d)) {
+                                graph.selectedNodes.push(d);
                             }
                         }
 
-                        if ((d.x > this.graph.selection.x2 && d.x < this.graph.selection.x1) &&
-                            (d.y > this.graph.selection.y2 && d.y < this.graph.selection.y1)) {
-                            if (!includes(this.graph.selectedNodes, d)) {
-                                this.graph.selectedNodes.push(d);
+                        if ((d.x > graph.selection.x2 && d.x < graph.selection.x1) &&
+                                (d.y > graph.selection.y2 && d.y < graph.selection.y1)) {
+                            if (!includes(graph.selectedNodes, d)) {
+                                graph.selectedNodes.push(d);
                             }
                         }
                     });
 
-                    dispatch(selectNodes({nodes: this.graph.selectedNodes}));
+                    dispatch(selectNodes({nodes: graph.selectedNodes}));
+
+                    graph.selection = null;
+                }
+            },
+            mousemove: function (n) {
+                const { dispatch, graph } = this;
+
+                if (d3.event.altKey) {
                     return;
+                }
+
+                var x = graph.transform.invertX(d3.event.layerX),
+                    y = graph.transform.invertY(d3.event.layerY);
+
+                if (graph.selection) {
+                    graph.selection = assign(graph.selection, {x2: x, y2: y});
                 }
 
                 var subject = this.simulation.find(x, y, 20);
                 if (subject === undefined) {
-                    this.graph.tooltip = null;
-                } else {
-                    this.graph.tooltip = {node: subject, x: x, y: y};
+                    graph.tooltip = null;
+                } else if (!graph.tooltip || graph.tooltip.node !== subject) {
+                    graph.tooltip = {node: subject, x: x, y: y};
                     this.onmousemove(subject);
                 }
             },
@@ -354,9 +356,10 @@ class Graph extends React.Component {
                 var x = d3.event.x,
                     y = d3.event.y;
 
-                if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
                 d3.event.subject.fx = x;
                 d3.event.subject.fy = y;
+
+                if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
             },
             dragged: function () {
                 var x = d3.event.x,
@@ -366,9 +369,10 @@ class Graph extends React.Component {
                 d3.event.subject.fy = (y);
             },
             dragended: function () {
-                if (!d3.event.active) this.simulation.alphaTarget(0);
                 d3.event.subject.fx = null;
                 d3.event.subject.fy = null;
+
+                if (!d3.event.active) this.simulation.alphaTarget(0);
             },
             dragsubject: function () {
                 const x = this.graph.transform.invertX(d3.event.x),
@@ -379,6 +383,17 @@ class Graph extends React.Component {
             mousemoved: function () {
             }
         };
+    }
+
+    componentDidMount() {
+        const { network } = this;
+        const { dispatch } = this.props;
+
+        network.dispatch = dispatch;
+        network.onmouseclick = this.onMouseClick.bind(this);
+        network.onmousemove = this.onMouseMove.bind(this);
+
+        network.setup(this.refs["canvas"]);
     }
 
     onMouseClick(node) {
@@ -401,73 +416,17 @@ class Graph extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         const { network } = this;
-        const { queries } = this.props;
+        const { fields } = this.props;
 
-        network.graph.queries = queries;
+        console.debug("componentDidUpdate");
 
-        var { fields } = this.props;
+        // todo(nl5887): only when adding new nodes
+        network.updateNodes({
+            nodes: this.props.nodes,
+            links: this.props.links,
+            queries: this.props.queries,
+        });
 
-        var nodes = [];
-        var links = [];
-
-        var removed = difference(prevProps.items, this.props.items);
-        if (removed.length > 0) {
-            var removed2 = [];
-            forEach(removed, (d, i) => {
-                forEach(fields, (field) => {
-                    const value = fieldLocator(d.fields, field);
-
-                    if (value) {
-                        removed2.push(value);
-                    }
-
-                });
-            });
-
-            // this should be node id not packet
-            network.removeNodes({
-                nodes: removed2,
-            });
-        }
-
-
-        if (this.props.items.length > 0) {
-            forEach(this.props.items, (d, i) => {
-                forEach(fields, (field) => {
-                    const value = fieldLocator(d.fields, field);
-                    if (!value) return;
-
-                    nodes.push({
-                        id: phone(value),
-                        query: d.q,
-                        name: value,
-                        color: d.color,
-                        connections: 1
-                    });
-                });
-
-
-                forEach(fields, (source) => {
-                    const sourceValue = fieldLocator(d.fields, source);
-                    if (!sourceValue) return;
-
-                    forEach(fields, (target) => {
-                        const targetValue = fieldLocator(d.fields, target);
-                        if (!targetValue) return;
-
-                        links.push({
-                            source: phone(sourceValue),
-                            target: phone(targetValue),
-                        });
-                    });
-                });
-            });
-
-            network.addNodes({
-                nodes: nodes,
-                links: links,
-            });
-        }
         network.select(this.props.node);
         network.highlight(this.props.highlight_nodes);
     }
@@ -495,6 +454,8 @@ const select = (state, ownProps) => {
     return {
         ...ownProps,
         node: state.entries.node,
+        nodes: state.entries.nodes,
+        links: state.entries.links,
         queries: state.entries.searches,
         fields: state.entries.fields,
         items: state.entries.items,

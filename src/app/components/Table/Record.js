@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { map,reduce } from 'lodash';
+import { map, mapValues, reduce } from 'lodash';
 import { fieldLocator } from '../../helpers/index';
 import { highlightNodes } from '../../modules/graph/index';
 import { Icon } from '../../components/index';
@@ -35,7 +35,7 @@ export default class Record extends Component {
 
 
     extractAllFields(fields, keySeed = false) {
-        return reduce(map(fields, (value, key) => {
+        return reduce(mapValues(fields, (value, key) => {
             const keyParts = [key];
             if (keySeed) {
                 keyParts.unshift(keySeed);
@@ -56,9 +56,9 @@ export default class Record extends Component {
     }
 
     renderExpandedRecord(columns) {
-        const { packet } = this.props;
+        const { record } = this.props;
 
-        const allFields = this.extractAllFields(packet.fields, false);
+        const allFields = this.extractAllFields(record.fields, false);
 
         const expandedFields = map(allFields, (value, key) => {
             return (
@@ -68,7 +68,7 @@ export default class Record extends Component {
                               name="ion-ios-add-circle"
                               style={{marginLeft: '8px', lineHeight: '20px', fontSize: '12px'}}/>
                     </td>
-                    <td colSpan="3">{ fieldLocator(packet.fields, value) }</td>
+                    <td colSpan="3">{ fieldLocator(record.fields, value) }</td>
                 </tr>
             );
         });
@@ -84,15 +84,15 @@ export default class Record extends Component {
 
 
     render() {
-        const { packet, columns, node } = this.props;
+        const { record, columns, node } = this.props;
         const { expanded } = this.state;
 
 
         const renderedColumns = (columns || []).map((value) => {
             return (
-                <td key={ 'column_' + packet.id + value }>
+                <td key={ 'column_' + record.id + value }>
                     <span className={'length-limiter'}
-                          title={ fieldLocator(packet.fields, value) }>{ fieldLocator(packet.fields, value) }</span>
+                          title={ fieldLocator(record.fields, value) }>{ fieldLocator(record.fields, value) }</span>
                 </td>
             )
         });

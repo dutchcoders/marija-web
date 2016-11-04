@@ -1,4 +1,5 @@
 import {authConnected, error} from '../index'
+import Websocket from 'reconnecting-websocket';
 
 export const SearchMessage = 1;
 export const DiscoverIndicesMessage = 2;
@@ -6,7 +7,9 @@ export const DiscoverFieldsMessage = 3;
 
 export default class FlowWS {
     constructor(url, token, dispatcher, storeDispatcher) {
-        const websocket = new WebSocket(url);
+        this.url = url;
+
+        const websocket = new Websocket(url);
 
         websocket.onopen = function (event) {
             console.debug(event);
@@ -18,6 +21,7 @@ export default class FlowWS {
         };
         websocket.onerror = function (event) {
             console.debug(event);
+            
             storeDispatcher(error('test'));
         };
         websocket.onmessage = function (event) {

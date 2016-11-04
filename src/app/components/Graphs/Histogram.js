@@ -58,15 +58,18 @@ class Histogram extends React.Component {
         context.translate(margin.left, margin.top);
 
         const groupedResults = groupBy(this.props.items, (result) => {
-            return moment(fieldLocator(result.fields, 'date')).year() + '-' + moment(fieldLocator(result.fields, 'date')).month();
+            let date = fieldLocator(result.fields, 'received_date');
+            return moment(date).year() + '-' + moment(date).month();
         });
 
         const minX = reduce(this.props.items, (min, result) => {
-            return (moment(fieldLocator(result.fields, 'date')) < min ? moment(fieldLocator(result.fields, 'date')) : min);
+            let date = fieldLocator(result.fields, 'received_date');
+            return (moment(date) < min ? moment(date) : min);
         }, moment());
 
         const maxX = reduce(this.props.items, (max, result) => {
-            return (moment(fieldLocator(result.fields, 'date')) > max ? moment(fieldLocator(result.fields, 'date')) : max);
+            let date = fieldLocator(result.fields, 'received_date');
+            return (moment(date) > max ? moment(date) : max);
         }, 0);
 
         const periods = [];

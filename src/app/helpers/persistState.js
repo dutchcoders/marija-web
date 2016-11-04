@@ -2,7 +2,6 @@ import { concat, merge } from 'lodash'
 
 export default function persistState() {
     return (next) => (reducer, initialState, enhancer) => {
-
         try {
             const fields = JSON.parse(localStorage.getItem("fields"));
             initialState.entries.fields = merge(initialState.entries.fields, fields);

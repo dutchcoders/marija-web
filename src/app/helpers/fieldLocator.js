@@ -7,6 +7,7 @@ export default function fieldLocator(document, field) {
         if (typeof currentLevelInDocument[currentField] !== 'undefined') {
             return currentLevelInDocument[currentField];
         }
+
         return false;
     }, document);
 

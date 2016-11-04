@@ -24,10 +24,13 @@ function configureStore() {
             servers,
             routing: routerReducer
         }), {
-            entries: defaultState,
             servers: [
                 "http://127.0.0.1:9200/"
-            ]
+            ],
+            entries: {
+                ...defaultState
+            }
+
         },
         compose(persistState())
     )

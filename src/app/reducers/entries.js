@@ -6,7 +6,7 @@ import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, 
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, ADD_INDEX, DELETE_INDEX, ADD_FIELD, DELETE_FIELD } from '../modules/data/index'
 import {  RECEIVE_INDICES, REQUEST_INDICES } from '../modules/indices/index'
 
-import { phone, fieldLocator } from '../helpers/index'
+import { normalize, fieldLocator } from '../helpers/index'
 
 export const defaultState = {
     isFetching: false,
@@ -21,10 +21,16 @@ export const defaultState = {
     fields: [],
     indexes: [],
     items: [],
-    searches: []
-};
+    searches: [],
+
+    nodes: [], // all nodes
+    links: [], // relations between nodes
+}
+
 
 export default function entries(state = defaultState, action) {
+    console.debug("STATE", state);
+
     switch (action.type) {
         case CLEAR_SELECTION:
             return Object.assign({}, state, {
@@ -42,17 +48,34 @@ export default function entries(state = defaultState, action) {
             })
         case DELETE_NODES:
             var items = concat(state.items);
-            remove(items, (p) => {
-                return (reduce(state.fields, (found, field) => {
-                    found = found || find(action.nodes, (o) => {
-                            return phone(fieldLocator(p.fields, field)) == o;
-                        });
-                    return found;
-                }, false));
+            var node = concat(state.node);
+            var nodes = concat(state.nodes);
+            var links = concat(state.links);
+
+            // remove from selection as well
+            remove(node, (p) => {
+                return find(action.nodes, (o) => {
+                    return o == p.id;
+                });
+            });
+
+            remove(nodes, (p) => {
+                return find(action.nodes, (o) => {
+                    return o == p.id;
+                });
+            });
+
+            remove(links, (p) => {
+                return find(action.nodes, (o) => {
+                    return p.source == o || p.target == o;
+                });
             });
 
             return Object.assign({}, state, {
-                items: items
+                items: items,
+                node: node,
+                nodes: nodes,
+                links: links
             })
         case DELETE_SEARCH:
             var searches = without(state.searches, action.search);
@@ -61,6 +84,8 @@ export default function entries(state = defaultState, action) {
             remove(items, (p) => {
                 return (p.q === action.search.q)
             });
+
+            // todo(nl5887): remove related nodes and links
 
             return Object.assign({}, state, {
                 searches: searches,
@@ -109,7 +134,7 @@ export default function entries(state = defaultState, action) {
             break;
         case AUTH_CONNECTED:
             return Object.assign({}, state, {
-                isFetching: true,
+                isFetching: false,
                 didInvalidate: false,
                 ...action
             });
@@ -130,17 +155,59 @@ export default function entries(state = defaultState, action) {
                 count: action.items.results.hits.hits.length
             });
 
+            // update nodes and links
             var nodes = concat(state.nodes, []);
-            var items = concat(state.items, []);
+            var links = concat(state.links, []);
+
+            var items = [];
             forEach(action.items.results.hits.hits, (d, i) => {
                 items.push({id: d._id, q: action.items.query, color: action.items.color, fields: d._source});
-                nodes.push({id: d._id, q: action.items.query, color: action.items.color, fields: d._source, record: d});
+            });
+
+            const fields = state.fields;
+            forEach(items, (d, i) => {
+                forEach(fields, (source) => {
+                    const sourceValue = fieldLocator(d.fields, source);
+                    if (!sourceValue) return;
+
+                    let n = find(nodes, {id: normalize(sourceValue)})
+                    if (n) {
+                        n.connections++;
+                        n.queries.push(d.q);
+                        return;
+                    }
+
+                    nodes.push({
+                        id: normalize(sourceValue),
+                        queries: [d.q],
+                        name: sourceValue,
+                        colors: [d.color],
+                        connections: 1,
+                        icon: "\uF047"
+                    });
+
+                    forEach(fields, (target) => {
+                        const targetValue = fieldLocator(d.fields, target);
+                        if (!targetValue) return;
+
+                        if (find(links, {source: normalize(sourceValue), target: normalize(targetValue)})) {
+                            // link already exists
+                            return;
+                        }
+
+                        links.push({
+                            source: normalize(sourceValue),
+                            target: normalize(targetValue),
+                        });
+                    });
+                });
             });
 
             return Object.assign({}, state, {
                 errors: null,
                 nodes: nodes,
-                items: items,
+                links: links,
+                items: concat(state.items, items),
                 searches: searches,
                 isFetching: false,
                 didInvalidate: false
