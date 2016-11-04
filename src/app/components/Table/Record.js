@@ -68,7 +68,7 @@ export default class Record extends Component {
                               name="ion-ios-add-circle"
                               style={{marginLeft: '8px', lineHeight: '20px', fontSize: '12px'}}/>
                     </td>
-                    <td colSpan="3">{ fieldLocator(record.fields, value.path ) }</td>
+                    <td colSpan="3">{ fieldLocator(record.fields, value) }</td>
                 </tr>
             );
         });
@@ -92,7 +92,7 @@ export default class Record extends Component {
             return (
                 <td key={ 'column_' + record.id + value }>
                     <span className={'length-limiter'}
-                          title={ fieldLocator(record.fields, value.path ) }>{ fieldLocator(record.fields, value.path) }</span>
+                          title={ fieldLocator(record.fields, value) }>{ fieldLocator(record.fields, value) }</span>
                 </td>
             )
         });
