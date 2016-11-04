@@ -21,6 +21,8 @@
     "css-loader": "^0.9.1",
     "eslint": "^3.9.1",
     "eslint-config-google": "^0.7.0",
+    "eslint-loader": "^1.6.1",
+    "eslint-plugin-react": "^3.16.1",
     "extract-text-webpack-plugin": "^0.3.8",
     "faker": "^2.1.2",
     "fetch": "^1.0.1",
