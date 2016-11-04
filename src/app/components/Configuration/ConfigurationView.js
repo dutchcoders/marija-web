@@ -22,7 +22,10 @@ class ConfigurationView extends React.Component {
             return;
         }
 
-        dispatch(addField(field.value));
+        dispatch(addField({
+            icon: null,
+            path: field.value
+        }));
     }
 
     handleAddIndex(e) {
@@ -50,8 +53,8 @@ class ConfigurationView extends React.Component {
     renderFields(fields) {
         const options = map(fields || [], (field) => {
             return (
-                <li key={field} value={ field }>
-                    { field }
+                <li key={field.path} value={ field.path }>
+                    { field.path }
                     <Icon onClick={() => this.handleDeleteField(field)} name="ion-ios-trash-outline"/>
                 </li>
             );

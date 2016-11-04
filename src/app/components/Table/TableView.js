@@ -49,7 +49,7 @@ class TableView extends React.Component {
                 map(node, (sub_node) => {
                     return map(items, (record) => {
                         return map(fields || [], (value) => {
-                            if (normalize(fieldLocator(record.fields, value)) !== sub_node.id)
+                            if (normalize(fieldLocator(record.fields, value.path)) !== sub_node.id)
                                 return null;
 
                             return (

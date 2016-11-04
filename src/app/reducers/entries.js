@@ -163,7 +163,7 @@ export default function entries(state = defaultState, action) {
             const fields = state.fields;
             forEach(items, (d, i) => {
                 forEach(fields, (source) => {
-                    const sourceValue = fieldLocator(d.fields, source);
+                    const sourceValue = fieldLocator(d.fields, source.path);
                     if (!sourceValue) return;
 
                     let n = find(nodes, {id: normalize(sourceValue)})
@@ -183,7 +183,7 @@ export default function entries(state = defaultState, action) {
                     });
 
                     forEach(fields, (target) => {
-                        const targetValue = fieldLocator(d.fields, target);
+                        const targetValue = fieldLocator(d.fields, target.path);
                         if (!targetValue) return;
 
                         if (find(links, {source: normalize(sourceValue), target: normalize(targetValue)})) {
