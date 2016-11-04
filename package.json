@@ -19,6 +19,8 @@
     "bundle-loader": "^0.5.2",
     "classnames": "^2.2.3",
     "css-loader": "^0.9.1",
+    "eslint": "^3.9.1",
+    "eslint-config-google": "^0.7.0",
     "extract-text-webpack-plugin": "^0.3.8",
     "faker": "^2.1.2",
     "fetch": "^1.0.1",
