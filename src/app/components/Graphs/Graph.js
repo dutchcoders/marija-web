@@ -253,12 +253,15 @@ class Graph extends React.Component {
                     this.context.fillStyle = color;
                     this.context.fill();
 
+                    this.context.strokeStyle = color;
+                    this.context.stroke();
+
                 }
 
-                this.context.beginPath();
-                this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
-
                 if (includes(this.graph.selectedNodes, d)) {
+                    this.context.beginPath();
+                    this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
+
                     this.context.strokeStyle = '#993833';
                     this.context.lineWidth = this.nodes.stroke.thickness;
                     this.context.stroke();
