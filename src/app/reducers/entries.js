@@ -27,8 +27,6 @@ export const defaultState = {
 };
 
 export default function entries(state = defaultState, action) {
-    console.debug("STATE", state);
-
     switch (action.type) {
         case CLEAR_SELECTION:
             return Object.assign({}, state, {
