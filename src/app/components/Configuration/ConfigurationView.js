@@ -22,8 +22,12 @@ class ConfigurationView extends React.Component {
             return;
         }
 
+        const icons = ["\u20ac", "\ue136", "\ue137", "\ue138", "\ue139", "\ue140", "\ue141", "\ue142", "\ue143"];
+
+        const icon = icons[Math.floor((Math.random() * icons.length))];
+
         dispatch(addField({
-            icon: null,
+            icon: icon,
             path: field.value
         }));
     }
@@ -54,7 +58,7 @@ class ConfigurationView extends React.Component {
         const options = map(fields || [], (field) => {
             return (
                 <li key={field.path} value={ field.path }>
-                    { field.path }
+                    <i className="glyphicon">{ field.icon }</i>{ field.path }
                     <Icon onClick={() => this.handleDeleteField(field)} name="ion-ios-trash-outline"/>
                 </li>
             );

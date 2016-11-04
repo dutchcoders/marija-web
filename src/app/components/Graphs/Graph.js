@@ -259,17 +259,22 @@ class Graph extends React.Component {
                 }
 
                 if (includes(this.graph.selectedNodes, d)) {
-                    this.context.beginPath();
-                    this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
-
                     this.context.strokeStyle = '#993833';
                     this.context.lineWidth = this.nodes.stroke.thickness;
+
+                    this.context.beginPath();
+                    this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
                     this.context.stroke();
                 }
 
-                // this.context.font="14px FontAwesome";
-                // this.context.fillStyle = '#fff';
-                // this.context.fillText(d.icon, d.x - ( d.r) + 1, d.y + 5);
+                if (d.icon) {
+                    let fontHeight = 14 + (0.1*d.r);
+                    this.context.font=fontHeight + "px glyphicons halflings";
+                    this.context.fillStyle = '#fff';
+
+                    const {width} = this.context.measureText(d.icon);
+                    this.context.fillText(d.icon, d.x - (width/2), d.y + (d.r) - (fontHeight/2));
+                }
             },
             mousedown: function () {
                 const { dispatch, graph } = this;

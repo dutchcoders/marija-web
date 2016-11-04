@@ -179,7 +179,7 @@ export default function entries(state = defaultState, action) {
                         name: sourceValue,
                         colors: [d.color],
                         connections: 1,
-                        icon: "\uF047"
+                        icon: source.icon
                     });
 
                     forEach(fields, (target) => {
