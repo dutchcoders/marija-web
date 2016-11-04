@@ -9,6 +9,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 module.exports = {
     entry: './src/app/main.js',
     target: 'web',
+    devtool: 'source-map',
     plugins: [
         new ExtractTextPlugin('../dist/app.css'),
     ],
