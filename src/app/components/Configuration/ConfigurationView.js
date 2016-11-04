@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { map } from 'lodash';
 
 
-import { addField, deleteField, addIndex, deleteIndex } from '../../modules/data/index';
+import { fieldAdd, fieldDelete, indexAdd, indexDelete } from '../../modules/data/index';
 import { Icon } from '../index';
 
 class ConfigurationView extends React.Component {
@@ -26,7 +26,7 @@ class ConfigurationView extends React.Component {
 
         const icon = icons[Math.floor((Math.random() * icons.length))];
 
-        dispatch(addField({
+        dispatch(fieldAdd({
             icon: icon,
             path: field.value
         }));
@@ -41,17 +41,17 @@ class ConfigurationView extends React.Component {
             return;
         }
 
-        dispatch(addIndex(index.value));
+        dispatch(indexAdd(index.value));
     }
 
     handleDeleteField(field) {
         const { dispatch } = this.props;
-        dispatch(deleteField(field));
+        dispatch(fieldDelete(field));
     }
 
     handleDeleteIndex(field) {
         const { dispatch } = this.props;
-        dispatch(deleteIndex(field));
+        dispatch(indexDelete(field));
     }
 
     renderFields(fields) {

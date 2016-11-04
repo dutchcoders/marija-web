@@ -1,6 +1,6 @@
 export const TABLE_COLUMN_ADD = 'TABLE_COLUMN_ADD';
 export const TABLE_COLUMN_REMOVE = 'TABLE_COLUMN_REMOVE';
-export const ADD_INDEX = "ADD_INDEX";
-export const DELETE_INDEX = "DELETE_INDEX";
-export const ADD_FIELD = "ADD_FIELD";
-export const DELETE_FIELD = "DELETE_FIELD";
+export const INDEX_ADD = "INDEX_ADD";
+export const INDEX_DELETE = "INDEX_DELETE";
+export const FIELD_ADD = "FIELD_ADD";
+export const FIELD_DELETE = "FIELD_DELETE";

@@ -6,7 +6,7 @@ import * as d3 from 'd3';
 import { map, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign } from 'lodash';
 import moment from 'moment';
 
-import { selectNodes, selectNode } from '../../modules/data/index';
+import { nodeSelects, nodeSelect } from '../../modules/data/index';
 import { normalize, fieldLocator } from '../../helpers/index';
 
 class Graph extends React.Component {
@@ -293,7 +293,7 @@ class Graph extends React.Component {
                 var subject = this.simulation.find(x, y, 20);
                 if (!subject) {
                     graph.selection = {x1: x, y1: y, x2: x, y2: y};
-                    dispatch(selectNodes({nodes: []}));
+                    dispatch(nodeSelects({nodes: []}));
                     return;
                 } else {
                     if (!includes(graph.selectedNodes, subject)) {
@@ -302,7 +302,7 @@ class Graph extends React.Component {
                         remove(graph.selectedNodes, subject);
                     }
 
-                    dispatch(selectNodes({nodes: graph.selectedNodes}));
+                    dispatch(nodeSelects({nodes: graph.selectedNodes}));
                 }
             },
             mouseup: function () {
@@ -334,7 +334,7 @@ class Graph extends React.Component {
                         }
                     });
 
-                    dispatch(selectNodes({nodes: graph.selectedNodes}));
+                    dispatch(nodeSelects({nodes: graph.selectedNodes}));
 
                     graph.selection = null;
                 }
@@ -410,17 +410,17 @@ class Graph extends React.Component {
 
     onMouseClick(node) {
         const { dispatch } = this.props;
-        dispatch(selectNode({node: node}));
+        dispatch(nodeSelect({node: node}));
     }
 
     onMouseMove(node) {
         //const { dispatch } = this.props;
-        //dispatch(selectNode({node: node}));
+        //dispatch(nodeSelect({node: node}));
     }
 
     onMouseOver(node) {
         //const { dispatch } = this.props;
-        //dispatch(selectNode({node: node}));
+        //dispatch(nodeSelect({node: node}));
     }
 
     componentWillReceiveProps(nextProps) {

@@ -1,9 +1,9 @@
 import { concat, without, reduce, remove, find, forEach } from 'lodash';
 
-import {  DELETE_NODES, HIGHLIGHT_NODES, SELECT_NODE, SELECT_NODES, CLEAR_SELECTION } from '../modules/graph/index';
-import {  DELETE_SEARCH, RECEIVE_ITEMS, REQUEST_ITEMS } from '../modules/search/index';
+import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_SELECT, NODES_SELECT, SELECTION_CLEAR } from '../modules/graph/index';
+import {  SEARCH_DELETE, ITEMS_RECEIVE, ITEMS_REQUEST } from '../modules/search/index';
 import {  ERROR, AUTH_CONNECTED, Socket } from '../utils/index';
-import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, ADD_INDEX, DELETE_INDEX, ADD_FIELD, DELETE_FIELD } from '../modules/data/index';
+import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE } from '../modules/data/index';
 
 import { normalize, fieldLocator } from '../helpers/index';
 
@@ -28,21 +28,21 @@ export const defaultState = {
 
 export default function entries(state = defaultState, action) {
     switch (action.type) {
-        case CLEAR_SELECTION:
+        case SELECTION_CLEAR:
             return Object.assign({}, state, {
                 node: [],
             });
-        case ADD_INDEX:
+        case INDEX_ADD:
             var indexes = concat(state.indexes, action.index);
             return Object.assign({}, state, {
                 indexes: indexes,
             });
-        case DELETE_INDEX:
+        case INDEX_DELETE:
             var indexes = without(state.indexes, action.index);
             return Object.assign({}, state, {
                 indexes: indexes,
             });
-        case DELETE_NODES:
+        case NODES_DELETE:
             var items = concat(state.items);
             var node = concat(state.node);
             var nodes = concat(state.nodes);
@@ -73,7 +73,7 @@ export default function entries(state = defaultState, action) {
                 nodes: nodes,
                 links: links
             });
-        case DELETE_SEARCH:
+        case SEARCH_DELETE:
             var searches = without(state.searches, action.search);
 
             var items = concat(state.items);
@@ -95,23 +95,23 @@ export default function entries(state = defaultState, action) {
             return Object.assign({}, state, {
                 columns: without(state.columns, action.field)
             });
-        case ADD_FIELD:
+        case FIELD_ADD:
             return Object.assign({}, state, {
                 fields: concat(state.fields, action.field)
             });
-        case DELETE_FIELD:
+        case FIELD_DELETE:
             return Object.assign({}, state, {
                 fields: without(state.fields, action.field)
             });
-        case HIGHLIGHT_NODES:
+        case NODES_HIGHLIGHT:
             return Object.assign({}, state, {
                 highlight_nodes: action.nodes
             });
-        case SELECT_NODES:
+        case NODES_SELECT:
             return Object.assign({}, state, {
                 node: concat(action.nodes)
             });
-        case SELECT_NODE:
+        case NODE_SELECT:
             return Object.assign({}, state, {
                 node: concat(state.node, action.node)
             });
@@ -125,13 +125,13 @@ export default function entries(state = defaultState, action) {
                 didInvalidate: false,
                 ...action
             });
-        case REQUEST_ITEMS:
+        case ITEMS_REQUEST:
             Socket.ws.postMessage({query: action.query, index: action.index, color: action.color});
             return Object.assign({}, state, {
                 isFetching: true,
                 didInvalidate: false
             });
-        case RECEIVE_ITEMS:
+        case ITEMS_RECEIVE:
             var searches = concat(state.searches, {
                 q: action.items.query,
                 color: action.items.color,
