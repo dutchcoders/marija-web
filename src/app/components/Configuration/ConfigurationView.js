@@ -55,7 +55,7 @@ class ConfigurationView extends React.Component {
     }
 
     renderFields(fields) {
-        const options = map(fields || [], (field) => {
+        const options = map(fields, (field) => {
             return (
                 <li key={field.path} value={ field.path }>
                     <i className="glyphicon">{ field.icon }</i>{ field.path }
