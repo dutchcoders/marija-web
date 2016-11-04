@@ -36,6 +36,7 @@ class Graph extends React.Component {
                 links: [],
                 highlight_nodes: [],
                 selection: null,
+                queries: [],
                 selectedNodes: [],
                 tooltip: null,
                 transform: d3.zoomIdentity
@@ -124,9 +125,10 @@ class Graph extends React.Component {
                 var that = this;
 
                 // remove deleted nodes
-                var removedNodes = difference(this.graph.nodes, graph.nodes);
                 remove(this.graph.nodes, (n) => {
-                    return find(removedNodes, {id: n});
+                    return !find(graph.nodes, (o) => {
+                        return (o.id==n.id);
+                    });
                 });
 
                 each(graph.nodes, function (node) {
@@ -146,10 +148,9 @@ class Graph extends React.Component {
                     newNodes = true;
                 });
 
-                var removedLinks = difference(this.graph.links, graph.links);
                 remove(this.graph.links, (link) => {
-                    return find(removedLinks, (o) => {
-                        return link.source.id == o.source && link.target.id == o.target;
+                    return !find(graph.links, (o) => {
+                        return (link.source.id == o.source && link.target.id == o.target);
                     });
                 });
 
@@ -164,7 +165,6 @@ class Graph extends React.Component {
 
                     that.graph.links.push({source: link.source, target: link.target});
                 });
-
 
                 this.graph.queries = graph.queries;
 
