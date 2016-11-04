@@ -1,11 +1,11 @@
-import { DELETE_NODES, HIGHLIGHT_NODES, CLEAR_SELECTION } from './index'
+import { DELETE_NODES, HIGHLIGHT_NODES, CLEAR_SELECTION } from './index';
 
 export function deleteNodes(opts) {
     return {
         type: DELETE_NODES,
         receivedAt: Date.now(),
         nodes: opts
-    }
+    };
 }
 
 
@@ -14,7 +14,7 @@ export function highlightNodes(opts) {
         type: HIGHLIGHT_NODES,
         receivedAt: Date.now(),
         ...opts
-    }
+    };
 }
 
 
@@ -23,5 +23,5 @@ export function clearSelection(opts) {
         type: CLEAR_SELECTION,
         receivedAt: Date.now(),
         ...opts,
-    }
+    };
 }

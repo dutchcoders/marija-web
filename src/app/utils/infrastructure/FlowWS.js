@@ -1,4 +1,4 @@
-import {authConnected, error} from '../index'
+import {authConnected, error} from '../index';
 import Websocket from 'reconnecting-websocket';
 
 export default class FlowWS {

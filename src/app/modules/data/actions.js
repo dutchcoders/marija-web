@@ -1,12 +1,12 @@
-import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, ADD_INDEX, DELETE_INDEX, ADD_FIELD, DELETE_FIELD} from './index'
-import { SELECT_NODE, SELECT_NODES } from '../graph/index'
+import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, ADD_INDEX, DELETE_INDEX, ADD_FIELD, DELETE_FIELD} from './index';
+import { SELECT_NODE, SELECT_NODES } from '../graph/index';
 
 export function tableColumnRemove(field) {
     return {
         type: TABLE_COLUMN_REMOVE,
         receivedAt: Date.now(),
         field: field
-    }
+    };
 }
 
 export function tableColumnAdd(field) {
@@ -14,7 +14,7 @@ export function tableColumnAdd(field) {
         type: TABLE_COLUMN_ADD,
         receivedAt: Date.now(),
         field: field
-    }
+    };
 }
 
 export function addIndex(index) {
@@ -22,7 +22,7 @@ export function addIndex(index) {
         type: ADD_INDEX,
         receivedAt: Date.now(),
         index: index
-    }
+    };
 }
 
 export function deleteIndex(index) {
@@ -30,7 +30,7 @@ export function deleteIndex(index) {
         type: DELETE_INDEX,
         receivedAt: Date.now(),
         index: index
-    }
+    };
 }
 
 export function addField(field) {
@@ -38,7 +38,7 @@ export function addField(field) {
         type: ADD_FIELD,
         receivedAt: Date.now(),
         field: field
-    }
+    };
 }
 
 export function deleteField(field) {
@@ -46,7 +46,7 @@ export function deleteField(field) {
         type: DELETE_FIELD,
         receivedAt: Date.now(),
         field: field
-    }
+    };
 }
 
 export function selectNode(opts) {
@@ -54,7 +54,7 @@ export function selectNode(opts) {
         type: SELECT_NODE,
         receivedAt: Date.now(),
         ...opts
-    }
+    };
 }
 
 export function selectNodes(opts) {
@@ -62,5 +62,5 @@ export function selectNodes(opts) {
         type: SELECT_NODES,
         receivedAt: Date.now(),
         ...opts
-    }
+    };
 }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { map, groupBy, reduce, forEach } from 'lodash';
-import Dimensions from 'react-dimensions'
+import Dimensions from 'react-dimensions';
 
 import * as d3 from 'd3';
 import moment from 'moment';
@@ -168,7 +168,7 @@ const select = (state, ownProps) => {
         fields: state.entries.fields,
         items: state.entries.items,
         highlight_nodes: state.entries.highlight_nodes
-    }
-}
+    };
+};
 
 export default connect(select)(Dimensions()(Histogram));

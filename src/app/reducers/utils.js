@@ -1,4 +1,4 @@
-import { OPEN_PANE, CLOSE_PANE } from '../utils/index'
+import { OPEN_PANE, CLOSE_PANE } from '../utils/index';
 
 
 const defaultState = {

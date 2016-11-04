@@ -6,7 +6,7 @@ export default class Icon extends Component {
         return (
             <i className={`ion ${name}`} {...this.props} />
         );
-    };
+    }
 }
 
 Icon.propTypes = {

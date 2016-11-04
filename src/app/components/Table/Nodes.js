@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
-import { map } from 'lodash'
+import { map } from 'lodash';
 
-import { Icon } from '../index'
-import { clearSelection, highlightNodes, deleteNodes} from '../../modules/graph/index'
-import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index'
-import { fieldLocator } from '../../helpers/index'
+import { Icon } from '../index';
+import { clearSelection, highlightNodes, deleteNodes} from '../../modules/graph/index';
+import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
+import { fieldLocator } from '../../helpers/index';
 
 class Nodes extends React.Component {
     constructor(props) {
@@ -14,7 +14,7 @@ class Nodes extends React.Component {
 
         this.state = {
             editNode: null
-        }
+        };
     }
 
     handleClearSelection() {
@@ -50,7 +50,7 @@ class Nodes extends React.Component {
                                 <input type="text" value={i_node.id}/>
                                 <button onClick={(n) => this.handleCancelEditNode(n) }>cancel</button>
                             </li>
-                        )
+                        );
                     } else {
                         return (
                             <li key={i_node.id}>
@@ -58,11 +58,11 @@ class Nodes extends React.Component {
                                 {i_node.id}
                                 <Icon onClick={(n) => this.handleDeleteNode(i_node)} name="ion-ios-remove-circle-outline"/>
                             </li>
-                        )
+                        );
                     }
                 })
                 : null
-        )
+        );
     }
 
 
@@ -77,7 +77,7 @@ class Nodes extends React.Component {
                     {this.renderSelected()}
                 </ul>
             </div>
-        )
+        );
     }
 }
 

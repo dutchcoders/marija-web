@@ -11,10 +11,10 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import { Intl }  from 'react-intl-es6';
 
 import { RootView } from './components/index';
-import { entries, utils, defaultState } from './reducers/index'
-import { persistState } from './helpers/index'
-import { Socket } from './utils/index'
-import { i18n } from './config'
+import { entries, utils, defaultState } from './reducers/index';
+import { persistState } from './helpers/index';
+import { Socket } from './utils/index';
+import { i18n } from './config';
 
 function configureStore() {
     return createStore(
@@ -28,7 +28,7 @@ function configureStore() {
             }
         },
         compose(persistState())
-    )
+    );
 }
 
 const store = configureStore({});
@@ -54,5 +54,5 @@ class App extends Intl {
 
 render((
     <App/>
-), document.getElementById('root'))
+), document.getElementById('root'));
 

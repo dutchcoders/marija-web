@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
-import { map } from 'lodash'
+import { map } from 'lodash';
 
-import { Record, Icon } from '../index'
-import { highlightNodes} from '../../modules/graph/index'
-import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index'
-import { fieldLocator, normalize } from '../../helpers/index'
+import { Record, Icon } from '../index';
+import { highlightNodes} from '../../modules/graph/index';
+import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
+import { fieldLocator, normalize } from '../../helpers/index';
 
 class TableView extends React.Component {
     constructor(props) {
@@ -14,7 +14,7 @@ class TableView extends React.Component {
 
         this.state = {
             editNode: null
-        }
+        };
     }
 
     handleTableAddColumn(field) {
@@ -50,14 +50,14 @@ class TableView extends React.Component {
                     return map(items, (record) => {
                         return map(fields || [], (value) => {
                             if (normalize(fieldLocator(record.fields, value.path)) !== sub_node.id)
-                                return null;
+                                {return null;}
 
                             return (
                                 <Record
                                     columns={ columns }
                                     node={ sub_node }
                                     record={ record }
-                                    onMouseOver={(nodes) => { dispatch(highlightNodes(nodes)) } }
+                                    onMouseOver={(nodes) => { dispatch(highlightNodes(nodes)); } }
                                     onTableAddColumn={(field) => this.handleTableAddColumn(field) }
                                     onTableRemoveColumn={(field) => this.handleTableRemoveColumn(field) }
                                 />
@@ -67,7 +67,7 @@ class TableView extends React.Component {
                 })
                 : null
 
-        )
+        );
     }
 
     renderSelected() {
@@ -82,18 +82,18 @@ class TableView extends React.Component {
                             <li key={i_node.id}><input type="text" value={i_node.id}/>
                                 <button onClick={(n) => this.handleCancelEditNode(n) }>cancel</button>
                             </li>
-                        )
+                        );
                     } else {
                         return (
                             <li key={i_node.id}>{i_node.id}
                                 <button onClick={(n) => this.handleEditNode(n) }>edit</button>
                                 <button onClick={(n) => this.handleDeleteNode(n)}>delete</button>
                             </li>
-                        )
+                        );
                     }
                 })
                 : null
-        )
+        );
     }
 
     renderHeader() {
@@ -125,7 +125,7 @@ class TableView extends React.Component {
                     </tbody>
                 </table>
             </div>
-        )
+        );
     }
 }
 
