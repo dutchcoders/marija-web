@@ -16,14 +16,13 @@ export const defaultState = {
     node: [],
     highlight_nodes: [],
     columns: [],
-    errors: null,
     fields: [],
     indexes: [],
     items: [],
     searches: [],
-
     nodes: [], // all nodes
     links: [], // relations between nodes
+    errors: null
 };
 
 export default function entries(state = defaultState, action) {
@@ -117,7 +116,7 @@ export default function entries(state = defaultState, action) {
             });
         case ERROR:
             return Object.assign({}, state, {
-                ...action
+                errors: action.errors
             });
         case AUTH_CONNECTED:
             return Object.assign({}, state, {

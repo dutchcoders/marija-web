@@ -37,6 +37,12 @@ class Header extends Component {
     render() {
         const { connected, isFetching, total, indexes } = this.props;
 
+        let errors = null;
+
+        if (this.props.errors) {
+            errors = <div className="alert alert-danger"><strong>Error executing query: </strong>{ this.props.errors }</div>;
+        }
+
         return (
             <header className="row">
                 <SearchBox
@@ -48,6 +54,7 @@ class Header extends Component {
                     <Icon onClick={() => this.openPane()} name="ion-logo-buffer settings"/>
                     <ConnectionStatus connected={connected}/>
                 </SearchBox>
+                { errors }
             </header>
         );
     }
@@ -58,6 +65,7 @@ function select(state) {
     return {
         isFetching: state.entries.isFetching,
         connected: state.entries.connected,
+        errors: state.entries.errors,
         indexes: state.entries.indexes,
         total: state.entries.total
     };
