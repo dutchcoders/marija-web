@@ -50,19 +50,19 @@ export default function entries(state = defaultState, action) {
             // remove from selection as well
             remove(node, (p) => {
                 return find(action.nodes, (o) => {
-                    return o == p.id;
+                    return o.id == p.id;
                 });
             });
 
             remove(nodes, (p) => {
                 return find(action.nodes, (o) => {
-                    return o == p.id;
+                    return o.id == p.id;
                 });
             });
 
             remove(links, (p) => {
                 return find(action.nodes, (o) => {
-                    return p.source == o || p.target == o;
+                    return p.source == o.id || p.target == o.id;
                 });
             });
 

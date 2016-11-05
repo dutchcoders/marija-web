@@ -33,7 +33,12 @@ class Nodes extends React.Component {
 
     handleDeleteNode(node) {
         const { dispatch } = this.props;
-        dispatch(deleteNodes([node.id]));
+        dispatch(deleteNodes([node]));
+    }
+
+    handleDeleteAllNodes() {
+        const { dispatch, node } = this.props;
+        dispatch(deleteNodes(node));
     }
 
     renderSelected() {
@@ -71,6 +76,9 @@ class Nodes extends React.Component {
             <div className="form-group">
                 <span style={{cursor: 'pointer'}} onClick={() => this.handleClearSelection()}>
                     <Icon name="ion-ios-hand-outline"/> Clear selection
+                </span>
+                <span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllNodes()}>
+                    <Icon name="ion-ios-hand-outline"/> Delete all nodes
                 </span>
                 <br/><br/>
                 <ul>
