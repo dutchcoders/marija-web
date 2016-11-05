@@ -272,12 +272,12 @@ class Graph extends React.Component {
                 }
 
                 if (d.icon) {
-                    let fontHeight = 12 + Math.floor(0.5*d.r);
+                    let fontHeight = 6 + Math.floor(0.8*d.r);
                     this.context.font=fontHeight + "px glyphicons halflings";
                     this.context.fillStyle = '#fff';
 
                     const {width} = this.context.measureText(d.icon);
-                    this.context.fillText(d.icon, d.x - (width/2), d.y + (d.r) - ((fontHeight*0.4)/2));
+                    this.context.fillText(d.icon, d.x - ((width - 0.5) /2), d.y + (fontHeight + 0.5)/2);
                 }
             },
             mousedown: function () {
