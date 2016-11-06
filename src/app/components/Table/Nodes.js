@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
-import { map } from 'lodash'
+import { map } from 'lodash';
 
-import { Icon } from '../index'
-import { clearSelection, highlightNodes, deleteNodes} from '../../modules/graph/index'
-import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index'
-import { fieldLocator } from '../../helpers/index'
+import { Icon } from '../index';
+import { clearSelection, highlightNodes, deleteNodes} from '../../modules/graph/index';
+import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
+import { fieldLocator } from '../../helpers/index';
 
 class Nodes extends React.Component {
     constructor(props) {
@@ -14,7 +14,7 @@ class Nodes extends React.Component {
 
         this.state = {
             editNode: null
-        }
+        };
     }
 
     handleClearSelection() {
@@ -33,7 +33,12 @@ class Nodes extends React.Component {
 
     handleDeleteNode(node) {
         const { dispatch } = this.props;
-        dispatch(deleteNodes([node.id]));
+        dispatch(deleteNodes([node]));
+    }
+
+    handleDeleteAllNodes() {
+        const { dispatch, node } = this.props;
+        dispatch(deleteNodes(node));
     }
 
     renderSelected() {
@@ -45,20 +50,24 @@ class Nodes extends React.Component {
                 map(node, (i_node) => {
                     if (editNode == i_node) {
                         return (
-                            <li key={i_node.id}><input type="text" value={i_node.id}/>
+                            <li key={i_node.id}>
+                                <i className="glyphicon">{ i_node.icon }</i>
+                                <input type="text" value={i_node.id}/>
                                 <button onClick={(n) => this.handleCancelEditNode(n) }>cancel</button>
                             </li>
-                        )
+                        );
                     } else {
                         return (
-                            <li key={i_node.id}>{i_node.id}
+                            <li key={i_node.id}>
+                                <i className="glyphicon">{ i_node.icon }</i>
+                                {i_node.id}
                                 <Icon onClick={(n) => this.handleDeleteNode(i_node)} name="ion-ios-remove-circle-outline"/>
                             </li>
-                        )
+                        );
                     }
                 })
                 : null
-        )
+        );
     }
 
 
@@ -68,12 +77,15 @@ class Nodes extends React.Component {
                 <span style={{cursor: 'pointer'}} onClick={() => this.handleClearSelection()}>
                     <Icon name="ion-ios-hand-outline"/> Clear selection
                 </span>
+                <span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllNodes()}>
+                    <Icon name="ion-ios-hand-outline"/> Delete all nodes
+                </span>
                 <br/><br/>
                 <ul>
                     {this.renderSelected()}
                 </ul>
             </div>
-        )
+        );
     }
 }
 

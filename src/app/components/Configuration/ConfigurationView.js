@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { map } from 'lodash';
 
-
-import { addField, deleteField, addIndex, deleteIndex } from '../../modules/data/index';
 import { requestIndices } from '../../modules/indices/index';
+import { fieldAdd, fieldDelete, indexAdd, indexDelete } from '../../modules/data/index';
+
 import { Icon } from '../index';
 
 class ConfigurationView extends React.Component {
@@ -23,7 +23,14 @@ class ConfigurationView extends React.Component {
             return;
         }
 
-        dispatch(addField(field.value));
+        const icons = ["\u20ac", "\ue136", "\ue137", "\ue138", "\ue139", "\ue140", "\ue141", "\ue142", "\ue143"];
+
+        const icon = icons[Math.floor((Math.random() * icons.length))];
+
+        dispatch(fieldAdd({
+            icon: icon,
+            path: field.value
+        }));
     }
 
     handleAddIndex(e) {
@@ -35,17 +42,17 @@ class ConfigurationView extends React.Component {
             return;
         }
 
-        dispatch(addIndex(index.value));
+        dispatch(indexAdd(index.value));
     }
 
     handleDeleteField(field) {
         const { dispatch } = this.props;
-        dispatch(deleteField(field));
+        dispatch(fieldDelete(field));
     }
 
     handleDeleteIndex(field) {
         const { dispatch } = this.props;
-        dispatch(deleteIndex(field));
+        dispatch(indexDelete(field));
     }
 
     handleRequestIndices(server) {
@@ -73,10 +80,10 @@ class ConfigurationView extends React.Component {
 
 
     renderFields(fields) {
-        const options = map(fields || [], (field) => {
+        const options = map(fields, (field) => {
             return (
-                <li key={field} value={ field }>
-                    { field }
+                <li key={field.path} value={ field.path }>
+                    <i className="glyphicon">{ field.icon }</i>{ field.path }
                     <Icon onClick={() => this.handleDeleteField(field)} name="ion-ios-trash-outline"/>
                 </li>
             );

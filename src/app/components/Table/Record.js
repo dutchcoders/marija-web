@@ -11,7 +11,7 @@ export default class Record extends Component {
         this.state = {
             editNode: null,
             expanded: false
-        }
+        };
     }
 
     handleTableAddColumn(field) {
@@ -79,7 +79,7 @@ export default class Record extends Component {
                     <tbody>{ expandedFields }</tbody>
                 </table>
             </td>
-        )
+        );
     }
 
 
@@ -94,7 +94,7 @@ export default class Record extends Component {
                     <span className={'length-limiter'}
                           title={ fieldLocator(record.fields, value) }>{ fieldLocator(record.fields, value) }</span>
                 </td>
-            )
+            );
         });
 
         return (
@@ -106,6 +106,6 @@ export default class Record extends Component {
                 </td>
                 { expanded ? this.renderExpandedRecord(columns) : renderedColumns}
             </tr>
-        )
+        );
     }
 }

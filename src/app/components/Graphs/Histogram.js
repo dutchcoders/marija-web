@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { map, groupBy, reduce, forEach } from 'lodash';
-import Dimensions from 'react-dimensions'
+import { find, map, groupBy, reduce, forEach, filter } from 'lodash';
+import Dimensions from 'react-dimensions';
 
 import * as d3 from 'd3';
 import moment from 'moment';
 
-import { fieldLocator } from '../../helpers/index';
+import { normalize, fieldLocator } from '../../helpers/index';
 
 class Histogram extends React.Component {
     constructor(props) {
@@ -32,9 +32,10 @@ class Histogram extends React.Component {
     }
 
     draw() {
-        const { items } = this.props;
+        const { node, fields } = this.props;
         const { canvas } = this;
 
+        let { items } = this.props;
         if (!items.length) {
             return;
         }
@@ -57,17 +58,17 @@ class Histogram extends React.Component {
 
         context.translate(margin.left, margin.top);
 
-        const groupedResults = groupBy(this.props.items, (result) => {
+        const groupedResults = groupBy(items, (result) => {
             let date = fieldLocator(result.fields, 'received_date');
             return moment(date).year() + '-' + moment(date).month();
         });
 
-        const minX = reduce(this.props.items, (min, result) => {
+        const minX = reduce(items, (min, result) => {
             let date = fieldLocator(result.fields, 'received_date');
             return (moment(date) < min ? moment(date) : min);
         }, moment());
 
-        const maxX = reduce(this.props.items, (max, result) => {
+        const maxX = reduce(items, (max, result) => {
             let date = fieldLocator(result.fields, 'received_date');
             return (moment(date) > max ? moment(date) : max);
         }, 0);
@@ -100,6 +101,9 @@ class Histogram extends React.Component {
             context.moveTo(x(d) + x.bandwidth() / 2, height);
             context.lineTo(x(d) + x.bandwidth() / 2, height + 6);
         });
+
+        // todo(nl5887): add selection
+        // todo(nl5887): show difference between queries
 
         context.strokeStyle = "#b5b5b5";
         context.stroke();
@@ -140,18 +144,51 @@ class Histogram extends React.Component {
             context.fillRect(x(v), y(d.length), x.bandwidth(), height - y(d.length));
         });
 
+        if (node.length > 0) {
+            items = filter(items, (item) => {
+                // check if node contains item
+                return reduce(fields, (found, field) => {
+                    const val = fieldLocator(item.fields, field.path);
+                    if (!val) {return found;}
+
+                    return found || find(node, (o) => {
+                        return (o.id === normalize(val));
+                    });
+                }, false);
+            });
+
+            const groupedResultsSelection = groupBy(items, (result) => {
+                let date = fieldLocator(result.fields, 'received_date');
+                return moment(date).year() + '-' + moment(date).month();
+            });
+
+            context.fillStyle = "#b5b5b5";
+            forEach(groupedResultsSelection, (d, v) => {
+                context.fillRect(x(v), y(d.length), x.bandwidth(), height - y(d.length));
+            });
+        }
+
+
         context.restore();
     }
 
     render() {
-        const { containerHeight, containerWidth } = this.props;
+        const { items, containerHeight, containerWidth } = this.props;
+
+        let noitems = null; 
+        if (items.length == 0) {
+            noitems = <div>No items</div>;
+        }
 
         return (
-            <canvas
-                width={ containerWidth }
-                height={ containerHeight }
-                ref="canvas"
-            />
+            <div>
+                { noitems }
+                <canvas
+                    width={ containerWidth }
+                    height={ containerHeight }
+                    ref="canvas"
+                />
+            </div>
         );
 
     }
@@ -165,7 +202,7 @@ const select = (state, ownProps) => {
         fields: state.entries.fields,
         items: state.entries.items,
         highlight_nodes: state.entries.highlight_nodes
-    }
-}
+    };
+};
 
 export default connect(select)(Dimensions()(Histogram));

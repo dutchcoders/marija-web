@@ -9,6 +9,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 module.exports = {
     entry: './src/app/main.js',
     target: 'web',
+    devtool: 'source-map',
     plugins: [
         new ExtractTextPlugin('../dist/app.css'),
     ],
@@ -21,6 +22,11 @@ module.exports = {
     },
     module: {
         loaders: [
+            {
+                test: /\.js$/,
+                loaders: ["babel-loader", "eslint-loader"],
+                exclude: /node_modules/
+            },
             {
                 test: /.js?$/,
                 loader: 'babel-loader',
@@ -39,7 +45,7 @@ module.exports = {
             },
             {
                 test: /\.(eot|svg|ttf|woff|woff2)([\?]?.*)$/,
-                loader: 'file?name=dist/fonts/[name].[ext]'
+                loader: 'file?name=fonts/[name].[ext]'
             }
         ]
     }

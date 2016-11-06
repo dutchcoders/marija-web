@@ -1,12 +1,16 @@
 import { concat, without, reduce, remove, find, forEach, union } from 'lodash';
 
-import {  DELETE_NODES, HIGHLIGHT_NODES, SELECT_NODE, SELECT_NODES, CLEAR_SELECTION } from '../modules/graph/index'
-import {  DELETE_SEARCH, RECEIVE_ITEMS, REQUEST_ITEMS } from '../modules/search/index'
-import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index'
-import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, ADD_INDEX, DELETE_INDEX, ADD_FIELD, DELETE_FIELD } from '../modules/data/index'
+import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage }
+    from '../utils/index'
+import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE}
+    from '../modules/data/index'
 import {  RECEIVE_INDICES, REQUEST_INDICES } from '../modules/indices/index'
+import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_SELECT, NODES_SELECT, SELECTION_CLEAR } from '../modules/graph/index'
+import {  SEARCH_DELETE, ITEMS_RECEIVE, ITEMS_REQUEST } from '../modules/search/index';
+import {  ERROR, AUTH_CONNECTED, Socket } from '../utils/index';
+import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE } from '../modules/data/index';
 
-import { normalize, fieldLocator } from '../helpers/index'
+import { normalize, fieldLocator } from '../helpers/index';
 
 export const defaultState = {
     isFetching: false,
@@ -17,36 +21,33 @@ export const defaultState = {
     node: [],
     highlight_nodes: [],
     columns: [],
-    errors: null,
     fields: [],
     indexes: [],
     items: [],
     searches: [],
-
     nodes: [], // all nodes
     links: [], // relations between nodes
-}
+    errors: null
+};
 
 
 export default function entries(state = defaultState, action) {
-    console.debug("STATE", state);
-
     switch (action.type) {
-        case CLEAR_SELECTION:
+        case SELECTION_CLEAR:
             return Object.assign({}, state, {
                 node: [],
-            })
-        case ADD_INDEX:
+            });
+        case INDEX_ADD:
             var indexes = concat(state.indexes, action.index);
             return Object.assign({}, state, {
                 indexes: indexes,
-            })
-        case DELETE_INDEX:
+            });
+        case INDEX_DELETE:
             var indexes = without(state.indexes, action.index);
             return Object.assign({}, state, {
                 indexes: indexes,
-            })
-        case DELETE_NODES:
+            });
+        case NODES_DELETE:
             var items = concat(state.items);
             var node = concat(state.node);
             var nodes = concat(state.nodes);
@@ -55,19 +56,19 @@ export default function entries(state = defaultState, action) {
             // remove from selection as well
             remove(node, (p) => {
                 return find(action.nodes, (o) => {
-                    return o == p.id;
+                    return o.id == p.id;
                 });
             });
 
             remove(nodes, (p) => {
                 return find(action.nodes, (o) => {
-                    return o == p.id;
+                    return o.id == p.id;
                 });
             });
 
             remove(links, (p) => {
                 return find(action.nodes, (o) => {
-                    return p.source == o || p.target == o;
+                    return p.source == o.id || p.target == o.id;
                 });
             });
 
@@ -76,13 +77,13 @@ export default function entries(state = defaultState, action) {
                 node: node,
                 nodes: nodes,
                 links: links
-            })
-        case DELETE_SEARCH:
+            });
+        case SEARCH_DELETE:
             var searches = without(state.searches, action.search);
 
             var items = concat(state.items);
             remove(items, (p) => {
-                return (p.q === action.search.q)
+                return (p.q === action.search.q);
             });
 
             // todo(nl5887): remove related nodes and links
@@ -91,64 +92,52 @@ export default function entries(state = defaultState, action) {
                 searches: searches,
                 items: items
             });
-            break;
         case TABLE_COLUMN_ADD:
             return Object.assign({}, state, {
                 columns: concat(state.columns, action.field),
             });
-            break;
         case TABLE_COLUMN_REMOVE:
             return Object.assign({}, state, {
                 columns: without(state.columns, action.field)
             });
-            break;
-        case ADD_FIELD:
+        case FIELD_ADD:
             return Object.assign({}, state, {
                 fields: concat(state.fields, action.field)
             });
-            break;
-        case DELETE_FIELD:
+        case FIELD_DELETE:
             return Object.assign({}, state, {
                 fields: without(state.fields, action.field)
             });
-            break;
-        case HIGHLIGHT_NODES:
+        case NODES_HIGHLIGHT:
             return Object.assign({}, state, {
                 highlight_nodes: action.nodes
             });
-            break;
-        case SELECT_NODES:
+        case NODES_SELECT:
             return Object.assign({}, state, {
                 node: concat(action.nodes)
             });
-            break;
-        case SELECT_NODE:
+        case NODE_SELECT:
             return Object.assign({}, state, {
                 node: concat(state.node, action.node)
             });
-            break;
         case ERROR:
             return Object.assign({}, state, {
-                ...action
+                errors: action.errors
             });
-            break;
         case AUTH_CONNECTED:
             return Object.assign({}, state, {
                 isFetching: false,
                 didInvalidate: false,
                 ...action
             });
-            break;
-        case REQUEST_ITEMS:
-            Socket.ws.postMessage(
-                {query: action.query, index: action.index, server: action.index, color: action.color}
-            );
+        case ITEMS_REQUEST:
+            Socket.ws.postMessage({query: action.query, index: action.index, color: action.color});
+
             return Object.assign({}, state, {
                 isFetching: true,
                 didInvalidate: false
             });
-            break;
-        case RECEIVE_ITEMS:
+        case ITEMS_RECEIVE:
             var searches = concat(state.searches, {
                 q: action.items.query,
                 color: action.items.color,
@@ -167,10 +156,12 @@ export default function entries(state = defaultState, action) {
             const fields = state.fields;
             forEach(items, (d, i) => {
                 forEach(fields, (source) => {
-                    const sourceValue = fieldLocator(d.fields, source);
-                    if (!sourceValue) return;
+                    const sourceValue = fieldLocator(d.fields, source.path);
+                    if (!sourceValue) {
+                        return;
+                    }
 
-                    let n = find(nodes, {id: normalize(sourceValue)})
+                    let n = find(nodes, {id: normalize(sourceValue)});
                     if (n) {
                         n.connections++;
                         n.queries.push(d.q);
@@ -183,12 +174,14 @@ export default function entries(state = defaultState, action) {
                         name: sourceValue,
                         colors: [d.color],
                         connections: 1,
-                        icon: "\uF047"
+                        icon: source.icon
                     });
 
                     forEach(fields, (target) => {
-                        const targetValue = fieldLocator(d.fields, target);
-                        if (!targetValue) return;
+                        const targetValue = fieldLocator(d.fields, target.path);
+                        if (!targetValue) {
+                            return;
+                        }
 
                         if (find(links, {source: normalize(sourceValue), target: normalize(targetValue)})) {
                             // link already exists
@@ -212,6 +205,7 @@ export default function entries(state = defaultState, action) {
                 isFetching: false,
                 didInvalidate: false
             });
+
             break;
 
         case REQUEST_INDICES:
@@ -240,6 +234,5 @@ export default function entries(state = defaultState, action) {
             });
         default:
             return state;
-            break;
     }
 }

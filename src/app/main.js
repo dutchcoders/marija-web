@@ -11,6 +11,7 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import { Intl }  from 'react-intl-es6';
 
 import { RootView } from './components/index';
+
 import { entries, utils, servers, defaultState } from './reducers/index'
 import { persistState } from './helpers/index'
 import { Socket } from './utils/index'
@@ -33,7 +34,7 @@ function configureStore() {
 
         },
         compose(persistState())
-    )
+    );
 }
 
 const store = configureStore({});
@@ -59,5 +60,5 @@ class App extends Intl {
 
 render((
     <App/>
-), document.getElementById('root'))
+), document.getElementById('root'));
 

@@ -14,7 +14,7 @@ class Searches extends Component {
 
         this.state = {
             editSearchValue: null
-        }
+        };
     }
 
     handleEditSearch(search) {
@@ -79,7 +79,7 @@ class Searches extends Component {
                     })}
                 </ul>
             </div>
-        )
+        );
 
     }
 }

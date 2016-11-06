@@ -1,12 +1,12 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import Dimensions from 'react-dimensions'
+import React, {Component} from 'react';
+import { connect} from 'react-redux';
+import Dimensions from 'react-dimensions';
 
 import * as d3 from 'd3';
 import { map, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign } from 'lodash';
 import moment from 'moment';
 
-import { selectNodes, selectNode } from '../../modules/data/index';
+import { nodeSelects, nodeSelect } from '../../modules/data/index';
 import { normalize, fieldLocator } from '../../helpers/index';
 
 class Graph extends React.Component {
@@ -70,7 +70,7 @@ class Graph extends React.Component {
 
                 this.canvas = el;
                 this.context = this.canvas.getContext('2d');
-                var canvas = d3.select(this.canvas)
+                var canvas = d3.select(this.canvas);
 
                 canvas.on("mousedown", this.mousedown.bind(this))
                     .on("mousemove", this.mousemove.bind(this))
@@ -163,13 +163,15 @@ class Graph extends React.Component {
                         return;
                     }
 
+                    // todo(nl5887): why?
+
                     that.graph.links.push({source: link.source, target: link.target});
                 });
 
                 this.graph.queries = graph.queries;
 
                 if (!newNodes)
-                    return;
+                    {return;}
 
                 this.simulation
                     .nodes(this.graph.nodes);
@@ -226,6 +228,7 @@ class Graph extends React.Component {
 
                 this.context.restore();
 
+                // only when simulation is running?
                 requestAnimationFrame(this.render);
             },
             drawLink: function (d) {
@@ -239,6 +242,7 @@ class Graph extends React.Component {
                 for (var i = 0; i < d.queries.length; i++) {
                     // find color
                     this.context.beginPath();
+
                     this.context.moveTo(d.x, d.y);
                     this.context.arc(d.x, d.y, d.r, 2 * Math.PI * (i / d.queries.length), 2 * Math.PI * ( (i + 1) / d.queries.length));
                     this.context.lineTo(d.x, d.y);
@@ -247,26 +251,34 @@ class Graph extends React.Component {
 
                     for (var j = 0; j < this.graph.queries.length; j++) {
                         if (this.graph.queries[j].q === d.queries[i])
-                            color = this.graph.queries[j].color;
+                            {color = this.graph.queries[j].color;}
                     }
 
                     this.context.fillStyle = color;
                     this.context.fill();
 
-                }
+                    this.context.strokeStyle = color;
+                    this.context.stroke();
 
-                this.context.beginPath();
-                this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
+                }
 
                 if (includes(this.graph.selectedNodes, d)) {
                     this.context.strokeStyle = '#993833';
                     this.context.lineWidth = this.nodes.stroke.thickness;
+
+                    this.context.beginPath();
+                    this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
                     this.context.stroke();
                 }
 
-                // this.context.font="14px FontAwesome";
-                // this.context.fillStyle = '#fff';
-                // this.context.fillText(d.icon, d.x - ( d.r) + 1, d.y + 5);
+                if (d.icon) {
+                    let fontHeight = 6 + Math.floor(0.8*d.r);
+                    this.context.font=fontHeight + "px glyphicons halflings";
+                    this.context.fillStyle = '#fff';
+
+                    const {width} = this.context.measureText(d.icon);
+                    this.context.fillText(d.icon, d.x - ((width - 0.5) /2), d.y + (fontHeight + 0.5)/2);
+                }
             },
             mousedown: function () {
                 const { dispatch, graph } = this;
@@ -281,7 +293,7 @@ class Graph extends React.Component {
                 var subject = this.simulation.find(x, y, 20);
                 if (!subject) {
                     graph.selection = {x1: x, y1: y, x2: x, y2: y};
-                    dispatch(selectNodes({nodes: []}));
+                    dispatch(nodeSelects({nodes: []}));
                     return;
                 } else {
                     if (!includes(graph.selectedNodes, subject)) {
@@ -290,7 +302,7 @@ class Graph extends React.Component {
                         remove(graph.selectedNodes, subject);
                     }
 
-                    dispatch(selectNodes({nodes: graph.selectedNodes}));
+                    dispatch(nodeSelects({nodes: graph.selectedNodes}));
                 }
             },
             mouseup: function () {
@@ -322,7 +334,7 @@ class Graph extends React.Component {
                         }
                     });
 
-                    dispatch(selectNodes({nodes: graph.selectedNodes}));
+                    dispatch(nodeSelects({nodes: graph.selectedNodes}));
 
                     graph.selection = null;
                 }
@@ -359,7 +371,7 @@ class Graph extends React.Component {
                 d3.event.subject.fx = x;
                 d3.event.subject.fy = y;
 
-                if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
+                if (!d3.event.active) {this.simulation.alphaTarget(0.3).restart();}
             },
             dragged: function () {
                 var x = d3.event.x,
@@ -372,7 +384,7 @@ class Graph extends React.Component {
                 d3.event.subject.fx = null;
                 d3.event.subject.fy = null;
 
-                if (!d3.event.active) this.simulation.alphaTarget(0);
+                if (!d3.event.active) {this.simulation.alphaTarget(0);}
             },
             dragsubject: function () {
                 const x = this.graph.transform.invertX(d3.event.x),
@@ -393,22 +405,22 @@ class Graph extends React.Component {
         network.onmouseclick = this.onMouseClick.bind(this);
         network.onmousemove = this.onMouseMove.bind(this);
 
-        network.setup(this.refs["canvas"]);
+        network.setup(this.refs.canvas);
     }
 
     onMouseClick(node) {
         const { dispatch } = this.props;
-        dispatch(selectNode({node: node}));
+        dispatch(nodeSelect({node: node}));
     }
 
     onMouseMove(node) {
         //const { dispatch } = this.props;
-        //dispatch(selectNode({node: node}));
+        //dispatch(nodeSelect({node: node}));
     }
 
     onMouseOver(node) {
         //const { dispatch } = this.props;
-        //dispatch(selectNode({node: node}));
+        //dispatch(nodeSelect({node: node}));
     }
 
     componentWillReceiveProps(nextProps) {
@@ -418,14 +430,14 @@ class Graph extends React.Component {
         const { network } = this;
         const { fields } = this.props;
 
-        console.debug("componentDidUpdate");
-
-        // todo(nl5887): only when adding new nodes
-        network.updateNodes({
-            nodes: this.props.nodes,
-            links: this.props.links,
-            queries: this.props.queries,
-        });
+        // todo(nl5887): only when adding or removing new nodes
+        if (prevProps.nodes !== this.props.nodes) {
+            network.updateNodes({
+                nodes: this.props.nodes,
+                links: this.props.links,
+                queries: this.props.queries,
+            });
+        }
 
         network.select(this.props.node);
         network.highlight(this.props.highlight_nodes);
@@ -460,7 +472,7 @@ const select = (state, ownProps) => {
         fields: state.entries.fields,
         items: state.entries.items,
         highlight_nodes: state.entries.highlight_nodes,
-    }
-}
+    };
+};
 
 export default connect(select)(Dimensions()(Graph));

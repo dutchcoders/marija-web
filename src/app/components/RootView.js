@@ -1,9 +1,9 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
-import { Header, Record, TableView, ConfigurationView, Histogram, Graph, Pane, Icon, Nodes } from './index'
-import { Searches} from '../modules/search/index'
-import { ErrorStatus } from '../modules/status/index'
+import { Header, Record, TableView, ConfigurationView, Histogram, Graph, Pane, Icon, Nodes } from './index';
+import { Searches} from '../modules/search/index';
+import { ErrorStatus } from '../modules/status/index';
 
 
 class RootView extends Component {
@@ -12,7 +12,7 @@ class RootView extends Component {
 
         this.state = {
             currentNode: null
-        }
+        };
     }
 
     componentDidMount() {
@@ -112,6 +112,6 @@ const select = (state, ownProps) => {
         nodes: state.entries.nodes,
         links: state.entries.links,
         panes: state.utils.panes
-    }
-}
-export default connect(select)(RootView)
+    };
+};
+export default connect(select)(RootView);

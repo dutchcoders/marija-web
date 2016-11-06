@@ -5,7 +5,7 @@ export function error(msg) {
         type: ERROR,
         receivedAt: Date.now(),
         errors: msg
-    }
+    };
 }
 
 export function authConnected(p) {
@@ -13,14 +13,14 @@ export function authConnected(p) {
         type: AUTH_CONNECTED,
         receivedAt: Date.now(),
         ...p
-    }
+    };
 }
 
 export function openPane(pane) {
     return {
         type: OPEN_PANE,
         pane: pane
-    }
+    };
 }
 
 
@@ -28,5 +28,5 @@ export function closePane(pane) {
     return {
         type: CLOSE_PANE,
         pane: pane
-    }
+    };
 }

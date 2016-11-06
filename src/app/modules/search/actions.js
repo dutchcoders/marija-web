@@ -1,4 +1,4 @@
-import { RECEIVE_ITEMS, REQUEST_ITEMS, DELETE_SEARCH } from './index'
+import { ITEMS_RECEIVE, ITEMS_REQUEST, SEARCH_DELETE } from './index';
 
 const defaultOpts = {
     from: 0,
@@ -10,24 +10,24 @@ const defaultOpts = {
 
 export function requestItems(opts = defaultOpts) {
     return {
-        type: REQUEST_ITEMS,
+        type: ITEMS_REQUEST,
         receivedAt: Date.now(),
         ...opts
-    }
+    };
 }
 
 export function receiveItems(items, opts = {from: 0}) {
     return {
-        type: RECEIVE_ITEMS,
+        type: ITEMS_RECEIVE,
         items: items,
         receivedAt: Date.now()
-    }
+    };
 }
 
 export function deleteSearch(opts) {
     return {
-        type: DELETE_SEARCH,
+        type: SEARCH_DELETE,
         receivedAt: Date.now(),
         ...opts
-    }
+    };
 }

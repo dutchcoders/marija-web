@@ -34,7 +34,7 @@ export const Socket = {
         }
 
         try {
-            Socket.ws = new FlowWS(Socket.URL, null, Socket.wsDispatcher, dispatch)
+            Socket.ws = new FlowWS(Socket.URL, null, Socket.wsDispatcher, dispatch);
         } catch (e) {
             dispatch(error(e));
         }
