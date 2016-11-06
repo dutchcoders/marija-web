@@ -1,6 +1,6 @@
 import { concat, without, reduce, remove, find, forEach, union, filter } from 'lodash';
 
-import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index'
+import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
 
 import {  INDICES_RECEIVE, INDICES_REQUEST } from '../modules/indices/index'
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_SELECT, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
