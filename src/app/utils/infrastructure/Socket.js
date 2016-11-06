@@ -4,8 +4,7 @@ import { receiveIndices, INDICES_RECEIVE} from '../../modules/indices/index';
 
 export const Socket = {
     ws: null,
-    //URL: 'ws://' + location.host + '/ws',
-    URL: 'ws://127.0.0.1:8089/ws',
+    URL: 'ws://' + location.host + '/ws',
     wsDispatcher: (message, storeDispatcher) => {
         if (message.error) {
             return storeDispatcher(error(message.error.message));

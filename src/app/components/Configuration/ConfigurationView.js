@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { map } from 'lodash';
+import { map, includes } from 'lodash';
 
 import { requestIndices } from '../../modules/indices/index';
 import { fieldAdd, fieldDelete, indexAdd, indexDelete } from '../../modules/data/index';
 import { serverAdd, serverRemove } from '../../modules/servers/index';
-
+import { activateIndex, deActivateIndex} from '../../modules/indices/index';
 import { Icon } from '../index';
 
 class ConfigurationView extends React.Component {
@@ -136,11 +136,26 @@ class ConfigurationView extends React.Component {
     }
 
     renderIndices(indices) {
+        const { dispatch,activeIndices } = this.props;
+
         const options = map(indices, (index) => {
-            return <li key={index} value={index}>
-                { index }
-                <Icon onClick={() => this.handleDeleteIndex(index)} name="ion-ios-trash-outline"/>
-            </li>;
+            const indexName = index;
+
+            return (
+                <li key={index} value={index}>
+                    <div className="index-name" title={index}>
+                        { index }
+                    </div>
+
+                    {includes(activeIndices, indexName) ?
+                        <Icon onClick={() => dispatch(deActivateIndex(indexName))} name="ion-ios-eye"/>
+                        :
+                        <Icon onClick={() => dispatch(activateIndex(indexName))} name="ion-ios-eye-off"/>
+                    }
+
+                    <Icon onClick={() => this.handleDeleteIndex(index)} name="ion-ios-trash-outline"/>
+                </li>
+            )
         });
 
         return (
@@ -191,6 +206,7 @@ function select(state) {
     return {
         fields: state.entries.fields,
         indexes: state.entries.indexes,
+        activeIndices: state.indices.activeIndices,
         servers: state.servers
     };
 }

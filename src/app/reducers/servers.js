@@ -12,9 +12,11 @@ export default function servers(state = defaultState, action) {
         case SERVER_ADD:
             const newServers = concat(state, action.server);
             return newServers;
+
         case SERVER_REMOVE:
             const filteredServers = without(state, action.server);
             return filteredServers;
+
         default:
             return state;
     }

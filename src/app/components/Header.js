@@ -20,11 +20,11 @@ class Header extends Component {
     }
 
     onSearchSubmit(q, index) {
-        const { dispatch } = this.props;
+        const { dispatch, activeIndices } = this.props;
 
         dispatch(requestItems({
             query: q,
-            index: index,
+            index: activeIndices,
             color: this.getColour(q)
         }));
     }
@@ -67,6 +67,7 @@ function select(state) {
         connected: state.entries.connected,
         errors: state.entries.errors,
         indexes: state.entries.indexes,
+        activeIndices: state.indices.activeIndices,
         total: state.entries.total
     };
 }

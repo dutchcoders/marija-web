@@ -1,4 +1,4 @@
-import { INDICES_RECEIVE, INDICES_REQUEST} from './index'
+import { INDICES_RECEIVE, INDICES_REQUEST, INDEX_ACTIVATED, INDEX_DEACTIVATED } from './index'
 
 export function requestIndices(server) {
     return {
@@ -14,6 +14,23 @@ export function receiveIndices(response) {
         type: INDICES_RECEIVE,
         payload: {
             ...response
+        }
+    }
+}
+
+export function activateIndex(index) {
+    return {
+        type: INDEX_ACTIVATED,
+        payload: {
+            index: index
+        }
+    }
+}
+export function deActivateIndex(index) {
+    return {
+        type: INDEX_DEACTIVATED,
+        payload: {
+            index: index
         }
     }
 }

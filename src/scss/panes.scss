@@ -196,6 +196,13 @@
             font-weight: 300;
         }
 
+        .index-name{
+            width: calc(100% - 42px);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
         ul {
             padding-left: 0;
 

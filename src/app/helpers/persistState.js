@@ -12,7 +12,13 @@ export default function persistState() {
         try {
             const columns = JSON.parse(localStorage.getItem("columns"));
             initialState.entries.columns = merge(initialState.entries.columns, columns);
+        } catch (e) {
+            console.warn('failed to retrieve initialize state from localstorage:', e);
+        }
 
+        try {
+            const activeIndices = JSON.parse(localStorage.getItem("active_indices"));
+            initialState.indices.activeIndices = merge(initialState.indices.activeIndices, activeIndices);
         } catch (e) {
             console.warn('failed to retrieve initialize state from localstorage:', e);
         }
@@ -22,13 +28,11 @@ export default function persistState() {
             initialState.entries.indexes = merge(initialState.entries.indexes, indices);
         } catch (e) {
             console.warn('Failed to retrieve initialize state from localStorage:', e)
-
         }
 
         try {
             const servers = JSON.parse(localStorage.getItem("servers"));
             initialState.servers = merge(initialState.servers, servers);
-
         } catch (e) {
             console.warn('Failed to retrieve initialize state from localStorage:', e);
         }
@@ -44,6 +48,12 @@ export default function persistState() {
 
             try {
                 localStorage.setItem("columns", JSON.stringify(state.entries.columns));
+            } catch (e) {
+                console.warn('Unable to persist state to localStorage:', e);
+            }
+
+            try {
+                localStorage.setItem("active_indices", JSON.stringify(state.indices.activeIndices));
             } catch (e) {
                 console.warn('Unable to persist state to localStorage:', e);
             }
