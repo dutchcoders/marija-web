@@ -1,2 +1,2 @@
-export { REQUEST_INDICES, RECEIVE_INDICES } from './constants'
+export { INDICES_REQUEST, INDICES_RECEIVE } from './constants'
 export { receiveIndices, requestIndices } from './actions'

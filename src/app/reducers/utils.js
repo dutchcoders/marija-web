@@ -1,6 +1,5 @@
 import { OPEN_PANE, CLOSE_PANE } from '../utils/index';
 
-
 const defaultState = {
     panes: [
         {name: 'configuration', state: false},

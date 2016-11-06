@@ -1,13 +1,11 @@
 import { concat, without, reduce, remove, find, forEach, union } from 'lodash';
 
-import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage }
-    from '../utils/index'
-import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE}
-    from '../modules/data/index'
-import {  RECEIVE_INDICES, REQUEST_INDICES } from '../modules/indices/index'
+import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index'
+
+import {  INDICES_RECEIVE, INDICES_REQUEST } from '../modules/indices/index'
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_SELECT, NODES_SELECT, SELECTION_CLEAR } from '../modules/graph/index'
 import {  SEARCH_DELETE, ITEMS_RECEIVE, ITEMS_REQUEST } from '../modules/search/index';
-import {  ERROR, AUTH_CONNECTED, Socket } from '../utils/index';
+
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE } from '../modules/data/index';
 
 import { normalize, fieldLocator } from '../helpers/index';
@@ -131,7 +129,7 @@ export default function entries(state = defaultState, action) {
                 ...action
             });
         case ITEMS_REQUEST:
-            Socket.ws.postMessage({query: action.query, index: action.index, color: action.color});
+            Socket.ws.postMessage({query: action.query, index: action.index, color: action.color, host: action.index});
 
             return Object.assign({}, state, {
                 isFetching: true,
@@ -208,12 +206,12 @@ export default function entries(state = defaultState, action) {
 
             break;
 
-        case REQUEST_INDICES:
+        case INDICES_REQUEST:
             Socket.ws.postMessage(
                 {
-                    server: action.payload.server
+                    host: action.payload.server
                 },
-                DiscoverIndicesMessage
+                INDICES_REQUEST
             );
 
             return Object.assign({}, state, {
@@ -221,8 +219,8 @@ export default function entries(state = defaultState, action) {
                 didInvalidate: false
             });
 
-        case RECEIVE_INDICES:
-            const indices = union(state.indexes, Object.keys(action.payload.indices).filter((item) => {
+        case INDICES_RECEIVE:
+            const indices = union(state.indexes, Object.keys(action.payload.results).filter((item) => {
                 return item.split('').shift() !== '.';
             }).map((index) => {
                 return `${action.payload.server}${index}`

@@ -1,10 +1,11 @@
 import { FlowWS, error } from '../../utils/index';
-import { receiveItems, RECEIVE_ITEMS } from '../../modules/search/index';
-import { receiveIndices, RECEIVE_INDICES } from '../../modules/indices/index';
+import { receiveItems, ITEMS_RECEIVE } from '../../modules/search/index';
+import { receiveIndices, INDICES_RECEIVE} from '../../modules/indices/index';
 
 export const Socket = {
     ws: null,
-    URL: 'ws://' + location.host + '/ws',
+    //URL: 'ws://' + location.host + '/ws',
+    URL: 'ws://127.0.0.1:8089/ws',
     wsDispatcher: (message, storeDispatcher) => {
         if (message.error) {
             return storeDispatcher(error(message.error.message));
@@ -15,11 +16,11 @@ export const Socket = {
         };
 
         switch (message.type) {
-            case RECEIVE_ITEMS:
+            case ITEMS_RECEIVE:
                 handler = receiveItems;
                 break;
 
-            case RECEIVE_INDICES:
+            case INDICES_RECEIVE:
                 handler = receiveIndices;
                 break;
         }

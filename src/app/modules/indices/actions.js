@@ -1,8 +1,8 @@
-import { RECEIVE_INDICES, REQUEST_INDICES} from './index'
+import { INDICES_RECEIVE, INDICES_REQUEST} from './index'
 
 export function requestIndices(server) {
     return {
-        type: REQUEST_INDICES,
+        type: INDICES_REQUEST,
         payload: {
             server
         }
@@ -11,7 +11,7 @@ export function requestIndices(server) {
 
 export function receiveIndices(response) {
     return {
-        type: RECEIVE_INDICES,
+        type: INDICES_RECEIVE,
         payload: {
             ...response
         }
