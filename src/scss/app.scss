@@ -38,7 +38,7 @@ body {
         margin-right: 5px;
     }
 
-    .columns td  {
+    .columns td {
         padding: 0 5px 0 0;
     }
 
@@ -54,6 +54,12 @@ body {
 
     canvas {
         cursor: default;
+    }
+
+    .logo {
+        max-width: 100%;
+        max-height: 42px;
+        margin-left: 15px;
     }
 }
 

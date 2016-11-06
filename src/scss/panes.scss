@@ -52,6 +52,34 @@
         }
     }
 
+
+    &.configuration{
+        .open-tag {
+            transition: all 0.5s;
+            position: absolute;
+            right: -48px;
+            top: 50%;
+            padding: 10px 20px;
+            font-size: 20px;
+            margin-top: -48px;
+            cursor: pointer;
+            background-color: $header-background-color;
+
+            &:hover {
+                background-color: $header-background-color;
+                opacity: 0.7;
+            }
+        }
+
+        &.open {
+            left: 0;
+
+            .open-tag {
+                opacity: 0;
+            }
+        }
+    }
+
     &.queries {
         transition: left 0.5s;
         position: absolute;

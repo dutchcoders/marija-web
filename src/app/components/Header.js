@@ -51,7 +51,6 @@ class Header extends Component {
                     onSubmit={(q, index) => this.onSearchSubmit(q, index)}
                     indexes={indexes}
                 >
-                    <Icon onClick={() => this.openPane()} name="ion-logo-buffer settings"/>
                     <ConnectionStatus connected={connected}/>
                 </SearchBox>
                 { errors }

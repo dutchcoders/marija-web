@@ -56,10 +56,10 @@ export default class SearchBox extends Component {
 
         return (
             <nav className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation">
-                <div className="col-xs-1">
-                    {children}
+                <div className="col-xs-2">
+                    <img className="logo" src="/images/logo.png" />
                 </div>
-                <div className="col-xs-11">
+                <div className="col-xs-9">
                     <div className="form-group">
                         <form onSubmit={this.handleSubmit.bind(this)}>
                             <input ref="q" className="form-control" placeholder="Search" value={ this.state.q }/>
@@ -67,6 +67,11 @@ export default class SearchBox extends Component {
                             { this.renderIndices(indexes) }
                         </form>
                     </div>
+                </div>
+                <div className="col-xs-1">
+                    <center>
+                        {children}
+                    </center>
                 </div>
             </nav>
         );

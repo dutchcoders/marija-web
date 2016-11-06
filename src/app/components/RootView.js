@@ -47,7 +47,7 @@ class RootView extends Component {
                     </div>
                 </div>
 
-                <Pane name="Configuration" handle="configuration" panes={panes} dispatch={dispatch}>
+                <Pane name="Configuration" handle="configuration" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-forward">
                     <ConfigurationView ref="configurationView"/>
                 </Pane>
 

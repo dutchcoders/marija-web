@@ -1,5 +1,7 @@
 require('../index.html');
 require('../scss/app.scss');
+require('../images/logo.png');
+require('../images/favicon.png');
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
