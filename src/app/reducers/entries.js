@@ -169,6 +169,7 @@ export default function entries(state = defaultState, action) {
                     let n = find(nodes, {id: normalize(sourceValue)});
                     if (n) {
                         n.connections++;
+                        n.items.push(d.id);
                         n.queries.push(d.q);
                         return;
                     }
@@ -176,6 +177,7 @@ export default function entries(state = defaultState, action) {
                     nodes.push({
                         id: normalize(sourceValue),
                         queries: [d.q],
+                        items: [d.id],
                         name: sourceValue,
                         colors: [d.color],
                         connections: 1,
