@@ -4,6 +4,7 @@ import { map } from 'lodash';
 
 import { requestIndices } from '../../modules/indices/index';
 import { fieldAdd, fieldDelete, indexAdd, indexDelete } from '../../modules/data/index';
+import { serverAdd, serverRemove } from '../../modules/servers/index';
 
 import { Icon } from '../index';
 
@@ -45,6 +46,24 @@ class ConfigurationView extends React.Component {
         dispatch(indexAdd(index.value));
     }
 
+    handleAddServer(e) {
+        e.preventDefault();
+
+        const { server } = this.refs;
+        const { dispatch } = this.props;
+
+        if (server.value === '') {
+            return;
+        }
+
+        dispatch(serverAdd(server.value));
+    }
+
+    handleDeleteServer(server) {
+        const { dispatch } = this.props;
+        dispatch(serverRemove(server));
+    }
+
     handleDeleteField(field) {
         const { dispatch } = this.props;
         dispatch(fieldDelete(field));
@@ -66,7 +85,7 @@ class ConfigurationView extends React.Component {
                 <li key={server} value={ server }>
                     { server }
                     <Icon onClick={() => this.handleRequestIndices(server) } name="ion-ios-cloud-download-outline"/>
-                    <Icon name="ion-ios-trash-outline"/>
+                    <Icon onClick={() => this.handleDeleteServer(server)} name="ion-ios-trash-outline"/>
                 </li>
             );
         });
@@ -74,6 +93,16 @@ class ConfigurationView extends React.Component {
         return (
             <div>
                 <ul>{ options }</ul>
+                <form onSubmit={this.handleAddServer.bind(this)}>
+                    <div className="row">
+                        <div className="col-xs-10">
+                            <input className="form-control" type="text" ref="server" placeholder="New server"/>
+                        </div>
+                        <div className="col-xs-1">
+                            <Icon onClick={this.handleAddServer.bind(this)} name="ion-ios-add-circle-outline add"/>
+                        </div>
+                    </div>
+                </form>
             </div>
         )
     }
@@ -117,6 +146,16 @@ class ConfigurationView extends React.Component {
         return (
             <div>
                 <ul>{options}</ul>
+                <form onSubmit={this.handleAddIndex.bind(this)}>
+                    <div className="row">
+                        <div className="col-xs-10">
+                            <input className="form-control" type="text" ref="index" placeholder="New index"/>
+                        </div>
+                        <div className="col-xs-1">
+                            <Icon onClick={this.handleAddIndex.bind(this)} name="ion-ios-add-circle-outline add"/>
+                        </div>
+                    </div>
+                </form>
             </div>
         );
     }
@@ -131,17 +170,16 @@ class ConfigurationView extends React.Component {
                     { this.renderServers(servers) }
                 </div>
 
-                {indexes.length ?
-                    <div className="form-group">
-                        <h2>Indices</h2>
-                        { this.renderIndices(indexes) }
-                    </div> : null}
 
-                {fields.length ?
-                    <div className="form-group">
-                        <h2>Fields</h2>
-                        { this.renderFields(fields) }
-                    </div> : null }
+                <div className="form-group">
+                    <h2>Indices</h2>
+                    { this.renderIndices(indexes) }
+                </div>
+
+                <div className="form-group">
+                    <h2>Fields</h2>
+                    { this.renderFields(fields) }
+                </div>
             </div>
 
         );

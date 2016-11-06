@@ -1,2 +1,2 @@
-export const ADD_SERVER = 'ADD_SERVER';
-export const REMOVE_SERVER = 'REMOVE_SERVER';
+export const SERVER_ADD = 'SERVER_ADD';
+export const SERVER_REMOVE = 'SERVER_REMOVE';

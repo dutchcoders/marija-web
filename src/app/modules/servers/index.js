@@ -1,1 +1,2 @@
-export { ADD_SERVER, REMOVE_SERVER } from './constants'
+export { SERVER_ADD, SERVER_REMOVE} from './constants'
+export { serverAdd, serverRemove } from './actions'
