@@ -209,7 +209,7 @@ export default function entries(state = defaultState, action) {
         case INDICES_REQUEST:
             Socket.ws.postMessage(
                 {
-                    host: action.payload.server
+                    host: [action.payload.server]
                 },
                 INDICES_REQUEST
             );
