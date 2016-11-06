@@ -1,9 +1,9 @@
-import { concat, without, reduce, remove, find, forEach, union } from 'lodash';
+import { concat, without, reduce, remove, find, forEach, union, filter } from 'lodash';
 
-import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index'
+import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
 
 import {  INDICES_RECEIVE, INDICES_REQUEST } from '../modules/indices/index'
-import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_SELECT, NODES_SELECT, SELECTION_CLEAR } from '../modules/graph/index'
+import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_SELECT, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
 import {  SEARCH_DELETE, ITEMS_RECEIVE, ITEMS_REQUEST } from '../modules/search/index';
 
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE } from '../modules/data/index';
@@ -114,11 +114,18 @@ export default function entries(state = defaultState, action) {
             return Object.assign({}, state, {
                 node: concat(action.nodes)
             });
+        case NODES_DESELECT:
+            return Object.assign({}, state, {
+                node: filter(state.node, (o) => {
+                  return !find(action.nodes, o);
+                })
+            });
         case NODE_SELECT:
             return Object.assign({}, state, {
                 node: concat(state.node, action.node)
             });
         case ERROR:
+            console.debug(action);
             return Object.assign({}, state, {
                 errors: action.errors
             });
@@ -162,6 +169,7 @@ export default function entries(state = defaultState, action) {
                     let n = find(nodes, {id: normalize(sourceValue)});
                     if (n) {
                         n.connections++;
+                        n.items.push(d.id);
                         n.queries.push(d.q);
                         return;
                     }
@@ -169,6 +177,7 @@ export default function entries(state = defaultState, action) {
                     nodes.push({
                         id: normalize(sourceValue),
                         queries: [d.q],
+                        items: [d.id],
                         name: sourceValue,
                         colors: [d.color],
                         connections: 1,

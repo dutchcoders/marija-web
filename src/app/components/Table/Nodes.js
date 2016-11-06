@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 import { map } from 'lodash';
 
 import { Icon } from '../index';
-import { clearSelection, highlightNodes, deleteNodes} from '../../modules/graph/index';
+import { clearSelection, highlightNodes, deleteNodes, deselectNodes} from '../../modules/graph/index';
 import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
 import { fieldLocator } from '../../helpers/index';
 
@@ -29,6 +29,11 @@ class Nodes extends React.Component {
 
     handleEditNode(node) {
         this.setState({editNode: node});
+    }
+
+    handleDeselectNode(node) {
+        const { dispatch } = this.props;
+        dispatch(deselectNodes([node]));
     }
 
     handleDeleteNode(node) {
@@ -61,7 +66,8 @@ class Nodes extends React.Component {
                             <li key={i_node.id}>
                                 <i className="glyphicon">{ i_node.icon }</i>
                                 {i_node.id}
-                                <Icon onClick={(n) => this.handleDeleteNode(i_node)} name="ion-ios-remove-circle-outline"/>
+                                <Icon onClick={(n) => this.handleDeselectNode(i_node)} name="ion-ios-remove-circle-outline"/>
+                                <Icon onClick={(n) => this.handleDeleteNode(i_node)} name="ion-ios-close-outline"/>
                             </li>
                         );
                     }
