@@ -5,6 +5,7 @@ import { receiveIndices, INDICES_RECEIVE} from '../../modules/indices/index';
 export const Socket = {
     ws: null,
     URL: 'ws://' + location.host + '/ws',
+
     wsDispatcher: (message, storeDispatcher) => {
         if (message.error) {
             return storeDispatcher(error(message.error.message));
@@ -25,7 +26,7 @@ export const Socket = {
         }
 
         if (message.hits) {
-            return storeDispatcher(handler(message.hits));
+            storeDispatcher(handler(message.hits));
         }
     },
     startWS: (dispatch) => {

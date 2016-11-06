@@ -10,6 +10,7 @@ import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_
 
 import { normalize, fieldLocator } from '../helpers/index';
 
+
 export const defaultState = {
     isFetching: false,
     noMoreHits: false,
@@ -117,7 +118,7 @@ export default function entries(state = defaultState, action) {
         case NODES_DESELECT:
             return Object.assign({}, state, {
                 node: filter(state.node, (o) => {
-                  return !find(action.nodes, o);
+                    return !find(action.nodes, o);
                 })
             });
         case NODE_SELECT:
@@ -232,7 +233,8 @@ export default function entries(state = defaultState, action) {
             const indices = union(state.indexes, Object.keys(action.payload.results).filter((item) => {
                 return item.split('').shift() !== '.';
             }).map((index) => {
-                return `${action.payload.server}${index}`
+                const indexName = `${action.payload.server}${index}`;
+                return indexName;
             }));
 
             return Object.assign({}, state, {

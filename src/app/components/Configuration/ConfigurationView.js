@@ -44,6 +44,7 @@ class ConfigurationView extends React.Component {
         }
 
         dispatch(indexAdd(index.value));
+        dispatch(activateIndex(index.value));
     }
 
     handleAddServer(e) {
@@ -72,6 +73,7 @@ class ConfigurationView extends React.Component {
     handleDeleteIndex(field) {
         const { dispatch } = this.props;
         dispatch(indexDelete(field));
+        dispatch(deActivateIndex(field));
     }
 
     handleRequestIndices(server) {
