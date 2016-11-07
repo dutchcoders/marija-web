@@ -156,7 +156,7 @@ export default function entries(state = defaultState, action) {
 
             var items = [];
             forEach(action.items.results.hits.hits, (d, i) => {
-                items.push({id: d._id, q: action.items.query, color: action.items.color, fields: d._source});
+                items.push({id: d._id, q: action.items.query, color: action.items.color, fields: d._source, highlight: d.highlight});
             });
 
             const fields = state.fields;

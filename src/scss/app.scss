@@ -65,6 +65,12 @@ body {
     tr.columns td {
         vertical-align: top;
     }
+
+    tr.columns td em, table.details td em {
+        background-color: #fbf425;
+        color: #000;
+        font-style: normal;
+    }
 }
 
 

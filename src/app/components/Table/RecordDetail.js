@@ -58,6 +58,8 @@ export default class Record extends Component {
         const allFields = this.extractAllFields(record.fields, false);
 
         const expandedFields = map(allFields, (value, key) => {
+            const field_value = record.highlight[value] || fieldLocator(record.fields, value) ;
+
             return (
                 <tr key={ 'field_' + value }>
                     <td width="110">{value}
@@ -65,7 +67,7 @@ export default class Record extends Component {
                             name="ion-ios-add-circle"
                             style={{marginLeft: '8px', lineHeight: '20px', fontSize: '12px'}}/>
                     </td>
-                    <td colSpan="3">{ fieldLocator(record.fields, value) }</td>
+                    <td colSpan="3" dangerouslySetInnerHTML={{ __html: field_value }}></td>
                 </tr>
             );
         });
@@ -74,7 +76,7 @@ export default class Record extends Component {
             <td>
             </td>,
             <td colSpan={columns.length ? columns.length : 1 }>
-                <table>
+                <table className="details">
                     <tbody>{ expandedFields }</tbody>
                 </table>
             </td>
