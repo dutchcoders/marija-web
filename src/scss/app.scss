@@ -61,5 +61,10 @@ body {
         max-height: 42px;
         margin-left: 15px;
     }
+
+    tr.columns td {
+        vertical-align: top;
+    }
 }
+
 
