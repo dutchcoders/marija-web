@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
-import { map } from 'lodash';
+import { findIndex, pull, concat, map } from 'lodash';
 
-import { Record, Icon } from '../index';
+import { Record, RecordDetail, Icon } from '../index';
 import { highlightNodes} from '../../modules/graph/index';
 import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
 import { fieldLocator, normalize } from '../../helpers/index';
@@ -13,33 +13,21 @@ class TableView extends React.Component {
         super(props);
 
         this.state = {
-            editNode: null
+            expandedNodes: [],
         };
+
+        this.toggleExpand = this.toggleExpand.bind(this);
     }
 
-    handleTableAddColumn(field) {
-        const { dispatch } = this.props;
-        dispatch(tableColumnAdd(field));
+    toggleExpand(id) {
+        if (findIndex(this.state.expandedNodes, (o) => { return (o == id); }) >= 0) {
+            // remove 
+            this.setState({expandedNodes: pull(this.state.expandedNodes, id)});
+        } else {
+            // add
+            this.setState({expandedNodes: concat(this.state.expandedNodes, id)});
+        }
     }
-
-    handleTableRemoveColumn(dispatch, field) {
-        dispatch(tableColumnRemove(field));
-    }
-
-    handleCancelEditNode(node) {
-        const { dispatch } = this.props;
-        this.setState({editNode: null});
-    }
-
-    handleEditNode(node) {
-        this.setState({editNode: node});
-    }
-
-    handleDeleteNode(node) {
-        const { dispatch } = this.props;
-        dispatch(deleteNodes([node.id]));
-    }
-
 
     renderBody() {
         const { node, items, fields, columns, dispatch} = this.props;
@@ -52,16 +40,24 @@ class TableView extends React.Component {
                             if (normalize(fieldLocator(record.fields, value.path)) !== sub_node.id)
                                 {return null;}
 
-                            return (
+                            const expanded = (findIndex(this.state.expandedNodes, function(o) { return o == record.id; }) >= 0);
+                            return [
                                 <Record
                                     columns={ columns }
                                     node={ sub_node }
                                     record={ record }
-                                    onMouseOver={(nodes) => { dispatch(highlightNodes(nodes)); } }
+                                    toggleExpand = { this.toggleExpand }
+                                    expanded = { expanded }
+                                />,
+                                <RecordDetail
+                                    columns={ columns }
+                                    node={ sub_node }
+                                    record={ record }
                                     onTableAddColumn={(field) => this.handleTableAddColumn(field) }
                                     onTableRemoveColumn={(field) => this.handleTableRemoveColumn(field) }
+                                    expanded = { expanded }
                                 />
-                            );
+                            ];
                         });
                     });
                 })

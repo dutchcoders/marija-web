@@ -9,19 +9,18 @@ export default class Record extends Component {
         super(props);
 
         this.state = {
+            editNode: null,
+            expanded: false
         };
-
-        this.handleToggleExpand.bind(this);
     }
 
-    handleToggleExpand(id) {
-        const { toggleExpand } = this.props;
-        toggleExpand(id);
+    toggleExpand(id) {
+        this.setState({expanded: !this.state.expanded});
     }
 
     render() {
         const { record, columns, node } = this.props;
-        const { expanded } = this.props;
+        const { expanded } = this.state;
 
         const renderedColumns = (columns || []).map((value) => {
             return (
@@ -33,9 +32,10 @@ export default class Record extends Component {
         });
 
         return (
-            <tr className={`columns ${expanded ? 'expanded' : 'closed'}`}>
+            <tr onMouseOver={() => this.handleMouseOver(node.id) }
+                className={`columns ${expanded ? 'expanded' : 'closed'}`}>
                 <td width="25" style={{'textAlign': 'center'}}>
-                    <Icon onClick={() => this.handleToggleExpand(record.id) }
+                    <Icon onClick={() => this.toggleExpand(node.id) }
                           name={expanded ? 'ion-ios-remove' : 'ion-ios-add'}/>
                 </td>
                 { renderedColumns}
