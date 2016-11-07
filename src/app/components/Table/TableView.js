@@ -29,6 +29,22 @@ class TableView extends React.Component {
         }
     }
 
+    handleTableAddColumn(field) {
+        const { dispatch } = this.props;
+        dispatch(tableColumnAdd(field));
+    }
+
+    handleTableRemoveColumn(dispatch, field) {
+        dispatch(tableColumnRemove(field));
+        this.toggleExpand = this.toggleExpand.bind(this);
+    }
+
+    handleCancelEditNode(node) {
+        const { dispatch } = this.props;
+        this.setState({editNode: null});
+
+    }
+
     renderBody() {
         const { node, items, fields, columns, dispatch} = this.props;
 
