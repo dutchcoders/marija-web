@@ -59,7 +59,7 @@ class RootView extends Component {
                     <Nodes />
                 </Pane>
 
-                <Pane name="Table" handle="table" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-back">
+                <Pane name="Table" count={items.length} handle="table" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-back">
                     <TableView />
                 </Pane>
 
