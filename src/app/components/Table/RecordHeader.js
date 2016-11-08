@@ -19,7 +19,7 @@ export default class Record extends Component {
     }
 
     render() {
-        const { record, columns, node } = this.props;
+        const { record, columns } = this.props;
         const { expanded } = this.state;
 
         const renderedColumns = (columns || []).map((value) => {
@@ -33,10 +33,9 @@ export default class Record extends Component {
         });
 
         return (
-            <tr onMouseOver={() => this.handleMouseOver(node.id) }
-                className={`columns ${expanded ? 'expanded' : 'closed'}`}>
+            <tr className={`columns ${expanded ? 'expanded' : 'closed'}`}>
                 <td width="25" style={{'textAlign': 'center'}}>
-                    <Icon onClick={() => this.toggleExpand(node.id) }
+                    <Icon onClick={() => this.toggleExpand(record.id) }
                           name={expanded ? 'ion-ios-remove' : 'ion-ios-add'}/>
                 </td>
                 { renderedColumns}

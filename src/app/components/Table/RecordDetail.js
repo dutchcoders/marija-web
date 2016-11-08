@@ -91,7 +91,7 @@ export default class Record extends Component {
         }
 
         return (
-            <tr onMouseOver={() => this.handleMouseOver(node.id) }>
+            <tr>
                 { this.renderDetails(columns) }
             </tr>
         );
