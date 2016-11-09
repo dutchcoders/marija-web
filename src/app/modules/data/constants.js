@@ -4,3 +4,5 @@ export const INDEX_ADD = "INDEX_ADD";
 export const INDEX_DELETE = "INDEX_DELETE";
 export const FIELD_ADD = "FIELD_ADD";
 export const FIELD_DELETE = "FIELD_DELETE";
+export const DATE_FIELD_ADD = "DATE_FIELD_ADD";
+export const DATE_FIELD_DELETE = "DATE_FIELD_DELETE";

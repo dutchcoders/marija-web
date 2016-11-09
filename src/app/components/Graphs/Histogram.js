@@ -32,7 +32,7 @@ class Histogram extends React.Component {
     }
 
     draw() {
-        const { node, fields } = this.props;
+        const { node, fields, date_fields } = this.props;
         const { canvas } = this;
 
         let { items } = this.props;
@@ -59,18 +59,36 @@ class Histogram extends React.Component {
         context.translate(margin.left, margin.top);
 
         const groupedResults = groupBy(items, (result) => {
-            let date = fieldLocator(result.fields, 'received_date');
-            return moment(date).year() + '-' + moment(date).month();
+            for (var date_field of date_fields) {
+                let date = fieldLocator(result.fields, date_field.path);
+                if (!date) {
+                    continue;
+                }
+
+                return moment(date).year() + '-' + moment(date).month();
+            }
         });
 
         const minX = reduce(items, (min, result) => {
-            let date = fieldLocator(result.fields, 'received_date');
-            return (moment(date) < min ? moment(date) : min);
+            for (var date_field of date_fields) {
+                let date = fieldLocator(result.fields, date_field.path);
+                if (!date) {
+                    continue;
+                }
+
+                return (moment(date) < min ? moment(date) : min);
+            }
         }, moment());
 
         const maxX = reduce(items, (max, result) => {
-            let date = fieldLocator(result.fields, 'received_date');
-            return (moment(date) > max ? moment(date) : max);
+            for (var date_field of date_fields) {
+                let date = fieldLocator(result.fields, date_field.path);
+                if (!date) {
+                    continue;
+                }
+
+                return (moment(date) > max ? moment(date) : max);
+            }
         }, 0);
 
         const periods = [];
@@ -158,8 +176,14 @@ class Histogram extends React.Component {
             });
 
             const groupedResultsSelection = groupBy(items, (result) => {
-                let date = fieldLocator(result.fields, 'received_date');
-                return moment(date).year() + '-' + moment(date).month();
+                for (var date_field of date_fields) {
+                    let date = fieldLocator(result.fields, date_field.path);
+                    if (!date) {
+                        continue;
+                    }
+
+                    return moment(date).year() + '-' + moment(date).month();
+                }
             });
 
             context.fillStyle = "#b5b5b5";
@@ -200,6 +224,7 @@ const select = (state, ownProps) => {
         node: state.entries.node,
         queries: state.entries.queries,
         fields: state.entries.fields,
+        date_fields: state.entries.date_fields,
         items: state.entries.items,
         highlight_nodes: state.entries.highlight_nodes
     };

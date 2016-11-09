@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { map, includes } from 'lodash';
 
 import { requestIndices } from '../../modules/indices/index';
-import { fieldAdd, fieldDelete, indexAdd, indexDelete } from '../../modules/data/index';
+import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, indexAdd, indexDelete } from '../../modules/data/index';
 import { serverAdd, serverRemove } from '../../modules/servers/index';
 import { activateIndex, deActivateIndex} from '../../modules/indices/index';
 import { Icon } from '../index';
@@ -30,6 +30,21 @@ class ConfigurationView extends React.Component {
 
         dispatch(fieldAdd({
             icon: icon,
+            path: field.value
+        }));
+    }
+
+    handleAddDateField(e) {
+        e.preventDefault();
+
+        const { field } = this.refs;
+        const { dispatch } = this.props;
+
+        if (field.value === '') {
+            return;
+        }
+
+        dispatch(dateFieldAdd({
             path: field.value
         }));
     }
@@ -70,6 +85,12 @@ class ConfigurationView extends React.Component {
         dispatch(fieldDelete(field));
     }
 
+    handleDeleteDateField(field) {
+        const { dispatch } = this.props;
+        dispatch(dateFieldDelete(field));
+    }
+
+
     handleDeleteIndex(field) {
         const { dispatch } = this.props;
         dispatch(indexDelete(field));
@@ -107,6 +128,33 @@ class ConfigurationView extends React.Component {
                 </form>
             </div>
         )
+    }
+
+    renderDateFields(fields) {
+        const options = map(fields, (field) => {
+            return (
+                <li key={field.path} value={ field.path }>
+                    <i className="glyphicon">{ field.icon }</i>{ field.path }
+                    <Icon onClick={() => this.handleDeleteDateField(field)} name="ion-ios-trash-outline"/>
+                </li>
+            );
+        });
+
+        return (
+            <div>
+                <ul>{ options }</ul>
+                <form onSubmit={this.handleAddDateField.bind(this)}>
+                    <div className="row">
+                        <div className="col-xs-10">
+                            <input className="form-control" type="text" ref="field" placeholder="New field"/>
+                        </div>
+                        <div className="col-xs-1">
+                            <Icon onClick={this.handleAddDateField.bind(this)} name="ion-ios-add-circle-outline add"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        );
     }
 
 
@@ -178,7 +226,7 @@ class ConfigurationView extends React.Component {
     }
 
     render() {
-        const { fields, indexes, servers } = this.props;
+        const { fields, date_fields, indexes, servers } = this.props;
 
         return (
             <div>
@@ -195,7 +243,14 @@ class ConfigurationView extends React.Component {
 
                 <div className="form-group">
                     <h2>Fields</h2>
+                    <p>The fields are used as node id.</p>
                     { this.renderFields(fields) }
+                </div>
+
+                <div className="form-group">
+                    <h2>Date fields</h2>
+                    <p>The date fields are being used for the histogram.</p>
+                    { this.renderDateFields(date_fields) }
                 </div>
             </div>
 
@@ -207,6 +262,7 @@ class ConfigurationView extends React.Component {
 function select(state) {
     return {
         fields: state.entries.fields,
+        date_fields: state.entries.date_fields,
         indexes: state.entries.indexes,
         activeIndices: state.indices.activeIndices,
         servers: state.servers

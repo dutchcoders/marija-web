@@ -1,4 +1,4 @@
-import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE} from './index';
+import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE} from './index';
 import { NODE_SELECT, NODES_SELECT } from '../graph/index';
 
 export function tableColumnRemove(field) {
@@ -32,6 +32,23 @@ export function indexDelete(index) {
         index: index
     };
 }
+
+export function dateFieldAdd(field) {
+    return {
+        type: DATE_FIELD_ADD,
+        receivedAt: Date.now(),
+        field: field
+    };
+}
+
+export function dateFieldDelete(field) {
+    return {
+        type: DATE_FIELD_DELETE,
+        receivedAt: Date.now(),
+        field: field
+    };
+}
+
 
 export function fieldAdd(field) {
     return {

@@ -6,7 +6,7 @@ import {  INDICES_RECEIVE, INDICES_REQUEST } from '../modules/indices/index'
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_SELECT, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
 import {  SEARCH_DELETE, ITEMS_RECEIVE, ITEMS_REQUEST } from '../modules/search/index';
 
-import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE } from '../modules/data/index';
+import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE } from '../modules/data/index';
 
 import { normalize, fieldLocator } from '../helpers/index';
 
@@ -21,6 +21,7 @@ export const defaultState = {
     highlight_nodes: [],
     columns: [],
     fields: [],
+    date_fields: [],
     indexes: [],
     items: [],
     searches: [],
@@ -106,6 +107,14 @@ export default function entries(state = defaultState, action) {
         case FIELD_DELETE:
             return Object.assign({}, state, {
                 fields: without(state.fields, action.field)
+            });
+        case DATE_FIELD_ADD:
+            return Object.assign({}, state, {
+                date_fields: concat(state.date_fields, action.field)
+            });
+        case DATE_FIELD_DELETE:
+            return Object.assign({}, state, {
+                date_fields: without(state.date_fields, action.field)
             });
         case NODES_HIGHLIGHT:
             return Object.assign({}, state, {
