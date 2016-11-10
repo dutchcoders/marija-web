@@ -127,7 +127,7 @@ class ConfigurationView extends React.Component {
                     </div>
                 </form>
             </div>
-        )
+        );
     }
 
     renderDateFields(fields) {
@@ -205,7 +205,7 @@ class ConfigurationView extends React.Component {
 
                     <Icon onClick={() => this.handleDeleteIndex(index)} name="ion-ios-trash-outline"/>
                 </li>
-            )
+            );
         });
 
         return (
@@ -232,12 +232,14 @@ class ConfigurationView extends React.Component {
             <div>
                 <div className="form-group">
                     <h2>Servers</h2>
+                    <p>Add the elasticsearch servers you want to discover here.</p>
                     { this.renderServers(servers) }
                 </div>
 
 
                 <div className="form-group">
                     <h2>Indices</h2>
+                    <p>Select and add the indices to query.</p>
                     { this.renderIndices(indexes) }
                 </div>
 
