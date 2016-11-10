@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
-import { map } from 'lodash';
+import { map, differenceWith } from 'lodash';
 
 import { Icon } from '../index';
 import { clearSelection, highlightNodes, deleteNodes, deselectNodes} from '../../modules/graph/index';
@@ -39,6 +39,18 @@ class Nodes extends React.Component {
     handleDeleteNode(node) {
         const { dispatch } = this.props;
         dispatch(deleteNodes([node]));
+    }
+
+    handleDeleteAllButSelectedNodes() {
+        const { dispatch, node, nodes } = this.props;
+
+        const delete_nodes = differenceWith(nodes, node, (n1, n2) => {
+            return n1.id == n2.id;
+        });
+
+        console.debug("delete_nodes", node, nodes, delete_nodes);
+
+        dispatch(deleteNodes(delete_nodes));
     }
 
     handleDeleteAllNodes() {
@@ -86,6 +98,9 @@ class Nodes extends React.Component {
                 <span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllNodes()}>
                     <Icon name="ion-ios-hand-outline"/> Delete all nodes
                 </span>
+                <span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllButSelectedNodes()}>
+                    <Icon name="ion-ios-hand-outline"/> Delete all but selected nodes
+                </span>
                 <br/><br/>
                 <ul>
                     {this.renderSelected()}
@@ -98,7 +113,8 @@ class Nodes extends React.Component {
 
 function select(state) {
     return {
-        node: state.entries.node
+        node: state.entries.node,
+        nodes: state.entries.nodes
     };
 }
 
