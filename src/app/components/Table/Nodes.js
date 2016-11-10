@@ -56,25 +56,47 @@ class Nodes extends React.Component {
 
         const related_nodes = [];
 
-        // find all nodes recursively through links
-        for (let n of node) {
+
+        let x = (n) => {
+            related_nodes.push(n);
+
             for (let link of links) {
                 if (link.source === n.id) {
-                    related_nodes.push(find(nodes, (n2) => {
+                    // check if already visited
+                    if (find(related_nodes, (o) => {
+                        return (link.target === o.id);
+                    })) {
+                        continue;
+                    }
+
+                    const target_node = find(nodes, (n2) => {
                         return (link.target == n2.id);
-                    }));
+                    });
+
+                    x(target_node);
                 } 
 
                 if (link.target === n.id) {
-                    related_nodes.push(find(nodes, (n2) => {
+                    if (find(related_nodes, (o) => {
+                        return (link.source === o.id);
+                    })) {
+                        continue;
+                    }
+
+                    const source_node = find(nodes, (n2) => {
                         return (link.source == n2.id);
-                    }));
+                    });
+
+                    x(source_node);
                 } 
             }
+        };
+
+        for (let n of node) {
+            x(n);
         }
 
-        // todo(nl5887): uniq is cheap...
-        dispatch(nodesSelect(uniq(related_nodes)));
+        dispatch(nodesSelect(related_nodes));
     }
 
     handleDeleteAllNodes() {
