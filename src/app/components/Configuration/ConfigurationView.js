@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { map, includes } from 'lodash';
 
 import { requestIndices } from '../../modules/indices/index';
-import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, indexAdd, indexDelete } from '../../modules/data/index';
+import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, normalizationAdd, normalizationDelete, indexAdd, indexDelete } from '../../modules/data/index';
 import { serverAdd, serverRemove } from '../../modules/servers/index';
 import { activateIndex, deActivateIndex} from '../../modules/indices/index';
 import { Icon } from '../index';
@@ -49,6 +49,22 @@ class ConfigurationView extends React.Component {
         }));
     }
 
+    handleAddNormalization(e) {
+        e.preventDefault();
+
+        const { regex, replaceWith  } = this.refs;
+        const { dispatch } = this.props;
+
+        if (regex.value === '' || replaceWith.value === '') {
+            return;
+        }
+
+        dispatch(normalizationAdd({
+            regex: regex.value,
+            replaceWith: replaceWith.value
+        }));
+    }
+
     handleAddIndex(e) {
         e.preventDefault();
         const { index } = this.refs;
@@ -90,6 +106,10 @@ class ConfigurationView extends React.Component {
         dispatch(dateFieldDelete(field));
     }
 
+    handleDeleteNormalization(normalization) {
+        const { dispatch } = this.props;
+        dispatch(normalizationDelete(normalization));
+    }
 
     handleDeleteIndex(field) {
         const { dispatch } = this.props;
@@ -185,6 +205,36 @@ class ConfigurationView extends React.Component {
         );
     }
 
+
+    renderNormalizations(normalizations) {
+        const options = map(normalizations, (normalization) => {
+            return (
+                <li key={normalization.path} value={ normalization.path }>
+                    <label>Regex:</label><span>{ normalization.regex }</span>
+                    <label>Replace With:</label><span>{ normalization.replaceWith }</span>
+                    <Icon onClick={() => this.handleDeleteNormalization(normalization)} name="ion-ios-trash-outline"/>
+                </li>
+            );
+        });
+
+        return (
+            <div>
+                <ul>{ options }</ul>
+                <form onSubmit={this.handleAddNormalization.bind(this)}>
+                    <div className="row">
+                        <div className="col-xs-10">
+                            <input className="form-control" type="text" ref="regex" placeholder="regex"/>
+                            <input className="form-control" type="text" ref="replaceWith" placeholder="replace value"/>
+                        </div>
+                        <div className="col-xs-1">
+                            <Icon onClick={this.handleAddNormalization.bind(this)} name="ion-ios-add-circle-outline add"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        );
+    }
+
     renderIndices(indices) {
         const { dispatch,activeIndices } = this.props;
 
@@ -226,7 +276,7 @@ class ConfigurationView extends React.Component {
     }
 
     render() {
-        const { fields, date_fields, indexes, servers } = this.props;
+        const { fields, date_fields, normalizations, indexes, servers } = this.props;
 
         return (
             <div>
@@ -254,6 +304,12 @@ class ConfigurationView extends React.Component {
                     <p>The date fields are being used for the histogram.</p>
                     { this.renderDateFields(date_fields) }
                 </div>
+
+                <div className="form-group">
+                    <h2>Normalizations</h2>
+                    <p>Normalizations are regular expressions being used to normalize the node identifiers and fields.</p>
+                    { this.renderNormalizations(normalizations) }
+                </div>
             </div>
 
         );
@@ -266,6 +322,7 @@ function select(state) {
         fields: state.entries.fields,
         date_fields: state.entries.date_fields,
         indexes: state.entries.indexes,
+        normalizations: state.entries.normalizations,
         activeIndices: state.indices.activeIndices,
         servers: state.servers
     };
