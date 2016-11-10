@@ -6,6 +6,7 @@ import { requestIndices } from '../../modules/indices/index';
 import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, normalizationAdd, normalizationDelete, indexAdd, indexDelete } from '../../modules/data/index';
 import { serverAdd, serverRemove } from '../../modules/servers/index';
 import { activateIndex, deActivateIndex} from '../../modules/indices/index';
+import { getFields } from '../../modules/fields/index'
 import { Icon } from '../index';
 
 class ConfigurationView extends React.Component {
@@ -293,9 +294,9 @@ class ConfigurationView extends React.Component {
                     </div>
 
                     {includes(activeIndices, indexName) ?
-                        <Icon onClick={() => dispatch(deActivateIndex(indexName))} name="ion-ios-eye"/>
+                        <Icon onClick={() => dispatch(deActivateIndex(indexName)) } name="ion-ios-eye"/>
                         :
-                        <Icon onClick={() => dispatch(activateIndex(indexName))} name="ion-ios-eye-off"/>
+                        <Icon onClick={() => dispatch(activateIndex(indexName)) } name="ion-ios-eye-off"/>
                     }
 
                     <Icon onClick={() => this.handleDeleteIndex(index)} name="ion-ios-trash-outline"/>
@@ -327,7 +328,8 @@ class ConfigurationView extends React.Component {
     }
 
     render() {
-        const { fields, date_fields, normalizations, indexes, servers } = this.props;
+        const { fields, date_fields, normalizations, indexes, servers,dispatch } = this.props;
+
 
         return (
             <div>
@@ -337,7 +339,6 @@ class ConfigurationView extends React.Component {
                     { this.renderServers(servers) }
                 </div>
 
-
                 <div className="form-group">
                     <h2>Indices</h2>
                     <p>Select and add the indices to query.</p>
@@ -346,6 +347,7 @@ class ConfigurationView extends React.Component {
 
                 <div className="form-group">
                     <h2>Fields</h2>
+                    <Icon onClick={() => dispatch(getFields(indexes))} name="ion-ios-refresh"/>
                     <p>The fields are used as node id.</p>
                     { this.renderFields(fields) }
                 </div>
@@ -362,7 +364,6 @@ class ConfigurationView extends React.Component {
                     { this.renderNormalizations(normalizations) }
                 </div>
             </div>
-
         );
     }
 }

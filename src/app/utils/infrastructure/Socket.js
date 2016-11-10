@@ -1,6 +1,7 @@
 import { FlowWS, error } from '../../utils/index';
 import { receiveItems, ITEMS_RECEIVE } from '../../modules/search/index';
 import { receiveIndices, INDICES_RECEIVE} from '../../modules/indices/index';
+import { receiveFields, FIELDS_RECEIVE} from '../../modules/fields/index';
 
 export const Socket = {
     ws: null,
@@ -22,6 +23,10 @@ export const Socket = {
 
             case INDICES_RECEIVE:
                 handler = receiveIndices;
+                break;
+
+            case FIELDS_RECEIVE:
+                handler = receiveFields;
                 break;
         }
 

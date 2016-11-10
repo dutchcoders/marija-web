@@ -14,7 +14,7 @@ import { Intl }  from 'react-intl-es6';
 
 import { RootView } from './components/index';
 
-import { entries, utils, servers, indices, defaultState } from './reducers/index'
+import { entries, utils, servers, indices, fields, defaultState } from './reducers/index'
 import { persistState } from './helpers/index'
 import { Socket } from './utils/index'
 import { i18n } from './config'
@@ -26,6 +26,7 @@ function configureStore() {
             utils,
             servers,
             indices,
+            fields,
             routing: routerReducer
         }), {
             servers: [
