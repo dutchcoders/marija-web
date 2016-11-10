@@ -32,7 +32,7 @@ class Histogram extends React.Component {
     }
 
     draw() {
-        const { node, fields, date_fields } = this.props;
+        const { node, normalizations, fields, date_fields } = this.props;
         const { canvas } = this;
 
         let { items } = this.props;
@@ -170,7 +170,7 @@ class Histogram extends React.Component {
                     if (!val) {return found;}
 
                     return found || find(node, (o) => {
-                        return (o.id === normalize(val));
+                        return (o.id === normalize(normalizations, val));
                     });
                 }, false);
             });
@@ -224,6 +224,7 @@ const select = (state, ownProps) => {
         node: state.entries.node,
         queries: state.entries.queries,
         fields: state.entries.fields,
+        normalizations: state.entries.normalizations,
         date_fields: state.entries.date_fields,
         items: state.entries.items,
         highlight_nodes: state.entries.highlight_nodes
