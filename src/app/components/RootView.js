@@ -31,7 +31,7 @@ class RootView extends Component {
 
 
     render() {
-        const { items, panes, dispatch, nodes, links } = this.props;
+        const { items, panes, dispatch, node } = this.props;
 
         return (
             <div className="container-fluid">
