@@ -16,8 +16,6 @@ class TableView extends React.Component {
             items: [],
             expandedItems: [],
         };
-
-        this.toggleExpand = this.toggleExpand.bind(this);
     }
 
     toggleExpand(id) {
@@ -37,7 +35,6 @@ class TableView extends React.Component {
 
     handleTableRemoveColumn(dispatch, field) {
         dispatch(tableColumnRemove(field));
-        this.toggleExpand = this.toggleExpand.bind(this);
     }
 
     handleCancelEditNode(node) {
@@ -80,7 +77,7 @@ class TableView extends React.Component {
                     <Record
                         columns={ columns }
                         record={ record }
-                        toggleExpand = { this.toggleExpand }
+                        toggleExpand = { this.toggleExpand.bind(this) }
                         expanded = { expanded }
                     />,
                     <RecordDetail
