@@ -37,15 +37,15 @@ class ConfigurationView extends React.Component {
     handleAddDateField(e) {
         e.preventDefault();
 
-        const { field } = this.refs;
+        const { date_field } = this.refs;
         const { dispatch } = this.props;
 
-        if (field.value === '') {
+        if (date_field.value === '') {
             return;
         }
 
         dispatch(dateFieldAdd({
-            path: field.value
+            path: date_field.value
         }));
     }
 
@@ -180,7 +180,7 @@ class ConfigurationView extends React.Component {
                 <form onSubmit={this.handleAddDateField.bind(this)}>
                     <div className="row">
                         <div className="col-xs-10">
-                            <input className="form-control" type="text" ref="field" placeholder="New field"/>
+                            <input className="form-control" type="text" ref="date_field" placeholder="New date field"/>
                         </div>
                         <div className="col-xs-1">
                             <Icon onClick={this.handleAddDateField.bind(this)} name="ion-ios-add-circle-outline add"/>
