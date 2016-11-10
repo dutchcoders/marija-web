@@ -2,12 +2,12 @@ import { concat, without, reduce, remove, find, forEach, union, filter } from 'l
 
 import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
 
-import {  INDICES_RECEIVE, INDICES_REQUEST } from '../modules/indices/index'
-import {  FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index'
+import {  INDICES_RECEIVE, INDICES_REQUEST } from '../modules/indices/index';
+import {  FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index';
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_SELECT, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
 import {  SEARCH_DELETE, ITEMS_RECEIVE, ITEMS_REQUEST } from '../modules/search/index';
 
-import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE } from '../modules/data/index';
+import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE } from '../modules/data/index';
 
 import { normalize, fieldLocator } from '../helpers/index';
 
@@ -23,6 +23,7 @@ export const defaultState = {
     columns: [],
     fields: [],
     date_fields: [],
+    normalizations: [], 
     indexes: [],
     items: [],
     searches: [],
@@ -109,6 +110,14 @@ export default function entries(state = defaultState, action) {
             return Object.assign({}, state, {
                 fields: without(state.fields, action.field)
             });
+        case NORMALIZATION_ADD:
+            return Object.assign({}, state, {
+                normalizations: concat(state.normalizations, action.normalization)
+            });
+        case NORMALIZATION_DELETE:
+            return Object.assign({}, state, {
+                normalizations: without(state.normalizations, action.normalization)
+            });
         case DATE_FIELD_ADD:
             return Object.assign({}, state, {
                 date_fields: concat(state.date_fields, action.field)
@@ -160,6 +169,8 @@ export default function entries(state = defaultState, action) {
                 count: action.items.results.hits.hits.length
             });
 
+            const { normalizations } = state;
+
             // update nodes and links
             var nodes = concat(state.nodes, []);
             var links = concat(state.links, []);
@@ -183,7 +194,9 @@ export default function entries(state = defaultState, action) {
                         return;
                     }
 
-                    let n = find(nodes, {id: normalize(sourceValue)});
+                    const normalizedSourceValue = normalize(normalizations, sourceValue);
+
+                    let n = find(nodes, {id: normalizedSourceValue });
                     if (n) {
                         n.connections++;
                         n.items.push(d.id);
@@ -192,7 +205,7 @@ export default function entries(state = defaultState, action) {
                     }
 
                     nodes.push({
-                        id: normalize(sourceValue),
+                        id: normalizedSourceValue,
                         queries: [d.q],
                         items: [d.id],
                         name: sourceValue,
@@ -207,14 +220,16 @@ export default function entries(state = defaultState, action) {
                             return;
                         }
 
-                        if (find(links, {source: normalize(sourceValue), target: normalize(targetValue)})) {
+                        const normalizedTargetValue = normalize(normalizations, targetValue);
+
+                        if (find(links, {source: normalizedSourceValue, target: normalizedTargetValue})) {
                             // link already exists
                             return;
                         }
 
                         links.push({
-                            source: normalize(sourceValue),
-                            target: normalize(targetValue),
+                            source: normalizedSourceValue,
+                            target: normalizedTargetValue,
                         });
                     });
                 });

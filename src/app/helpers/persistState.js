@@ -17,6 +17,13 @@ export default function persistState() {
         }
 
         try {
+            const normalizations = JSON.parse(localStorage.getItem("normalizations"));
+            initialState.entries.normalizations = merge(initialState.entries.normalizations, normalizations);
+        } catch (e) {
+            console.warn('failed to retrieve initialize state from localstorage:', e);
+        }
+
+        try {
             const columns = JSON.parse(localStorage.getItem("columns"));
             initialState.entries.columns = merge(initialState.entries.columns, columns);
         } catch (e) {
@@ -73,6 +80,12 @@ export default function persistState() {
 
             try {
                 localStorage.setItem("date_fields", JSON.stringify(state.entries.date_fields));
+            } catch (e) {
+                console.warn('Unable to persist state to localStorage:', e);
+            }
+
+            try {
+                localStorage.setItem("normalizations", JSON.stringify(state.entries.normalizations));
             } catch (e) {
                 console.warn('Unable to persist state to localStorage:', e);
             }

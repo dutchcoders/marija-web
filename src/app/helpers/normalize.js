@@ -1,11 +1,12 @@
-export default function normalize(p) {
-    // todo(nl5887)
-    // we need to make this customizable, allow users
-    // to add their own regexes
+import { reduce } from 'lodash';
+
+// get store
+export default function normalize(normalizations, p, normalization) {
     if (typeof p == 'string') {
-        p = p.replace(/^0/i, "31");
-        p = p.replace(/SPAM\:\s+/i, "");
-        p = p.replace(/\s+\<.+?\>/i, "");
+        return reduce(normalizations, (currentValue, normalization) => {
+            var re = new RegExp(normalization.regex, "i");
+            return currentValue.replace(re, normalization.replaceWith);
+        }, p);
     }
     return p;
 }

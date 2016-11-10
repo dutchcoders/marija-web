@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { map, includes } from 'lodash';
 
 import { requestIndices } from '../../modules/indices/index';
-import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, indexAdd, indexDelete } from '../../modules/data/index';
+import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, normalizationAdd, normalizationDelete, indexAdd, indexDelete } from '../../modules/data/index';
 import { serverAdd, serverRemove } from '../../modules/servers/index';
 import { activateIndex, deActivateIndex} from '../../modules/indices/index';
 import { getFields } from '../../modules/fields/index'
@@ -13,6 +13,10 @@ class ConfigurationView extends React.Component {
     constructor(props) {
         super(props);
 
+
+        this.state = {
+            normalization_error: ''
+        };
     }
 
     handleAddField(e) {
@@ -38,15 +42,40 @@ class ConfigurationView extends React.Component {
     handleAddDateField(e) {
         e.preventDefault();
 
-        const { field } = this.refs;
+        const { date_field } = this.refs;
         const { dispatch } = this.props;
 
-        if (field.value === '') {
+        if (date_field.value === '') {
             return;
         }
 
         dispatch(dateFieldAdd({
-            path: field.value
+            path: date_field.value
+        }));
+    }
+
+    handleAddNormalization(e) {
+        e.preventDefault();
+
+        const { regex, replaceWith  } = this.refs;
+        const { dispatch } = this.props;
+
+        if (regex.value === '') {
+            return;
+        }
+
+        try {
+            new RegExp(regex.value, "i");
+        } catch (e) {
+            this.setState({'normalization_error': e.message});
+            return;
+        }
+
+        this.setState({'normalization_error': null});
+
+        dispatch(normalizationAdd({
+            regex: regex.value,
+            replaceWith: replaceWith.value
         }));
     }
 
@@ -91,6 +120,10 @@ class ConfigurationView extends React.Component {
         dispatch(dateFieldDelete(field));
     }
 
+    handleDeleteNormalization(normalization) {
+        const { dispatch } = this.props;
+        dispatch(normalizationDelete(normalization));
+    }
 
     handleDeleteIndex(field) {
         const { dispatch } = this.props;
@@ -114,9 +147,16 @@ class ConfigurationView extends React.Component {
             );
         });
 
+        let no_servers = null;
+
+        if (servers.length == 0) {
+            no_servers = <div className='text-warning'>No servers configured.</div>;
+        }
+
         return (
             <div>
                 <ul>{ options }</ul>
+                { no_servers }
                 <form onSubmit={this.handleAddServer.bind(this)}>
                     <div className="row">
                         <div className="col-xs-10">
@@ -128,7 +168,7 @@ class ConfigurationView extends React.Component {
                     </div>
                 </form>
             </div>
-        )
+        );
     }
 
     renderDateFields(fields) {
@@ -141,13 +181,20 @@ class ConfigurationView extends React.Component {
             );
         });
 
+        let no_date_fields = null;
+
+        if (fields.length == 0) {
+            no_date_fields = <div className='text-warning'>No date fields configured.</div>;
+        }
+
         return (
             <div>
                 <ul>{ options }</ul>
+                { no_date_fields } 
                 <form onSubmit={this.handleAddDateField.bind(this)}>
                     <div className="row">
                         <div className="col-xs-10">
-                            <input className="form-control" type="text" ref="field" placeholder="New field"/>
+                            <input className="form-control" type="text" ref="date_field" placeholder="New date field"/>
                         </div>
                         <div className="col-xs-1">
                             <Icon onClick={this.handleAddDateField.bind(this)} name="ion-ios-add-circle-outline add"/>
@@ -169,9 +216,16 @@ class ConfigurationView extends React.Component {
             );
         });
 
+        let no_fields = null;
+
+        if (fields.length == 0) {
+            no_fields = <div className='text-warning'>No fields configured.</div>;
+        }
+
         return (
             <div>
                 <ul>{ options }</ul>
+                { no_fields }
                 <form onSubmit={this.handleAddField.bind(this)}>
                     <div className="row">
                         <div className="col-xs-10">
@@ -179,6 +233,47 @@ class ConfigurationView extends React.Component {
                         </div>
                         <div className="col-xs-1">
                             <Icon onClick={this.handleAddField.bind(this)} name="ion-ios-add-circle-outline add"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        );
+    }
+
+
+    renderNormalizations(normalizations) {
+        const { normalization_error } = this.state;
+
+        const options = map(normalizations, (normalization) => {
+            return (
+                <li key={normalization.path} value={ normalization.path }>
+                    <span dangerouslySetInnerHTML={{ __html: `Regex '<b>${normalization.regex}</b>' will be replaced with value '<b>${normalization.replaceWith}</b>'.`}}></span>
+                    <Icon onClick={() => this.handleDeleteNormalization(normalization)} name="ion-ios-trash-outline"/>
+                </li>
+            );
+        });
+
+        let no_normalizations = null;
+
+        if (normalizations.length == 0) {
+            no_normalizations = <div className='text-warning'>No normalizations configured.</div>;
+        }
+
+        return (
+            <div>
+                <ul>{ options }</ul>
+                { no_normalizations }
+                <form onSubmit={this.handleAddNormalization.bind(this)}>
+                    <div className="row">
+                        <span className='text-danger'>{ normalization_error }</span>
+                    </div>
+                    <div className="row">
+                        <div className="col-xs-10">
+                            <input className="form-control" type="text" ref="regex" placeholder="regex"/>
+                            <input className="form-control" type="text" ref="replaceWith" placeholder="replace value"/>
+                        </div>
+                        <div className="col-xs-1">
+                            <Icon onClick={this.handleAddNormalization.bind(this)} name="ion-ios-add-circle-outline add"/>
                         </div>
                     </div>
                 </form>
@@ -206,12 +301,18 @@ class ConfigurationView extends React.Component {
 
                     <Icon onClick={() => this.handleDeleteIndex(index)} name="ion-ios-trash-outline"/>
                 </li>
-            )
+            );
         });
 
+        let no_indices = null;
+
+        if (indices.length == 0) {
+            no_indices = <div className='text-warning'>No indices configured.</div>;
+        }
         return (
             <div>
                 <ul>{options}</ul>
+                { no_indices }
                 <form onSubmit={this.handleAddIndex.bind(this)}>
                     <div className="row">
                         <div className="col-xs-10">
@@ -227,17 +328,20 @@ class ConfigurationView extends React.Component {
     }
 
     render() {
-        const { fields, date_fields, indexes, servers, dispatch } = this.props;
+        const { fields, date_fields, normalizations, indexes, servers,dispatch } = this.props;
+
 
         return (
             <div>
                 <div className="form-group">
                     <h2>Servers</h2>
+                    <p>Add the elasticsearch servers you want to discover here.</p>
                     { this.renderServers(servers) }
                 </div>
 
                 <div className="form-group">
                     <h2>Indices</h2>
+                    <p>Select and add the indices to query.</p>
                     { this.renderIndices(indexes) }
                 </div>
 
@@ -253,6 +357,12 @@ class ConfigurationView extends React.Component {
                     <p>The date fields are being used for the histogram.</p>
                     { this.renderDateFields(date_fields) }
                 </div>
+
+                <div className="form-group">
+                    <h2>Normalizations</h2>
+                    <p>Normalizations are regular expressions being used to normalize the node identifiers and fields.</p>
+                    { this.renderNormalizations(normalizations) }
+                </div>
             </div>
         );
     }
@@ -264,6 +374,7 @@ function select(state) {
         fields: state.entries.fields,
         date_fields: state.entries.date_fields,
         indexes: state.entries.indexes,
+        normalizations: state.entries.normalizations,
         activeIndices: state.indices.activeIndices,
         servers: state.servers
     };

@@ -33,7 +33,7 @@ export default class Record extends Component {
         });
 
         return (
-            <tr className={`columns ${expanded ? 'expanded' : 'closed'}`}>
+            <tr key={`record_${record.id}`} className={`columns ${expanded ? 'expanded' : 'closed'}`}>
                 <td width="25" style={{'textAlign': 'center'}}>
                     <Icon onClick={() => this.handleToggleExpand(record.id) }
                           name={expanded ? 'ion-ios-remove' : 'ion-ios-add'}/>
