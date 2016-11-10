@@ -133,9 +133,16 @@ class ConfigurationView extends React.Component {
             );
         });
 
+        let no_servers = null;
+
+        if (servers.length == 0) {
+            no_servers = <div className='text-warning'>No servers configured.</div>;
+        }
+
         return (
             <div>
                 <ul>{ options }</ul>
+                { no_servers }
                 <form onSubmit={this.handleAddServer.bind(this)}>
                     <div className="row">
                         <div className="col-xs-10">
@@ -160,9 +167,16 @@ class ConfigurationView extends React.Component {
             );
         });
 
+        let no_date_fields = null;
+
+        if (fields.length == 0) {
+            no_date_fields = <div className='text-warning'>No date fields configured.</div>;
+        }
+
         return (
             <div>
                 <ul>{ options }</ul>
+                { no_date_fields } 
                 <form onSubmit={this.handleAddDateField.bind(this)}>
                     <div className="row">
                         <div className="col-xs-10">
@@ -188,9 +202,16 @@ class ConfigurationView extends React.Component {
             );
         });
 
+        let no_fields = null;
+
+        if (fields.length == 0) {
+            no_fields = <div className='text-warning'>No fields configured.</div>;
+        }
+
         return (
             <div>
                 <ul>{ options }</ul>
+                { no_fields }
                 <form onSubmit={this.handleAddField.bind(this)}>
                     <div className="row">
                         <div className="col-xs-10">
@@ -210,16 +231,22 @@ class ConfigurationView extends React.Component {
         const options = map(normalizations, (normalization) => {
             return (
                 <li key={normalization.path} value={ normalization.path }>
-                    <label>Regex:</label><span>{ normalization.regex }</span>
-                    <label>Replace With:</label><span>{ normalization.replaceWith }</span>
+                    <span dangerouslySetInnerHTML={{ __html: `Regex <b>${normalization.regex}</b> will be replaced with value <b>${normalization.replaceWith}</b>.`}}></span>
                     <Icon onClick={() => this.handleDeleteNormalization(normalization)} name="ion-ios-trash-outline"/>
                 </li>
             );
         });
 
+        let no_normalizations = null;
+
+        if (normalizations.length == 0) {
+            no_normalizations = <div className='text-warning'>No normalizations configured.</div>;
+        }
+
         return (
             <div>
                 <ul>{ options }</ul>
+                { no_normalizations }
                 <form onSubmit={this.handleAddNormalization.bind(this)}>
                     <div className="row">
                         <div className="col-xs-10">
@@ -258,9 +285,15 @@ class ConfigurationView extends React.Component {
             );
         });
 
+        let no_indices = null;
+
+        if (indices.length == 0) {
+            no_indices = <div className='text-warning'>No indices configured.</div>;
+        }
         return (
             <div>
                 <ul>{options}</ul>
+                { no_indices }
                 <form onSubmit={this.handleAddIndex.bind(this)}>
                     <div className="row">
                         <div className="col-xs-10">
