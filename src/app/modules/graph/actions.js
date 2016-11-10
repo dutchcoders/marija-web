@@ -1,4 +1,4 @@
-import { NODES_DESELECT, NODES_DELETE, NODES_HIGHLIGHT, SELECTION_CLEAR } from './index';
+import { NODES_DESELECT, NODES_DELETE, NODES_HIGHLIGHT, NODE_SELECT, NODES_SELECT, SELECTION_CLEAR } from './index';
 
 export function deselectNodes(opts) {
     return {
@@ -31,5 +31,21 @@ export function clearSelection(opts) {
         type: SELECTION_CLEAR,
         receivedAt: Date.now(),
         ...opts,
+    };
+}
+
+export function nodeSelect(opts) {
+    return {
+        type: NODE_SELECT,
+        receivedAt: Date.now(),
+        ...opts
+    };
+}
+
+export function nodesSelect(opts) {
+    return {
+        type: NODES_SELECT,
+        receivedAt: Date.now(),
+        nodes: opts
     };
 }

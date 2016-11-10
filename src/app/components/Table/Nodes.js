@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
-import { map, differenceWith } from 'lodash';
+import { map, uniq, find, differenceWith } from 'lodash';
 
 import { Icon } from '../index';
-import { clearSelection, highlightNodes, deleteNodes, deselectNodes} from '../../modules/graph/index';
+import { clearSelection, highlightNodes, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
 import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
 import { fieldLocator } from '../../helpers/index';
 
@@ -48,9 +48,33 @@ class Nodes extends React.Component {
             return n1.id == n2.id;
         });
 
-        console.debug("delete_nodes", node, nodes, delete_nodes);
-
         dispatch(deleteNodes(delete_nodes));
+    }
+
+    handleSelectRelatedNodes() {
+        const { dispatch, node, nodes, links } = this.props;
+
+        const related_nodes = [];
+
+        // find all nodes recursively through links
+        for (let n of node) {
+            for (let link of links) {
+                if (link.source === n.id) {
+                    related_nodes.push(find(nodes, (n2) => {
+                        return (link.target == n2.id);
+                    }));
+                } 
+
+                if (link.target === n.id) {
+                    related_nodes.push(find(nodes, (n2) => {
+                        return (link.source == n2.id);
+                    }));
+                } 
+            }
+        }
+
+        // todo(nl5887): uniq is cheap...
+        dispatch(nodesSelect(uniq(related_nodes)));
     }
 
     handleDeleteAllNodes() {
@@ -101,6 +125,9 @@ class Nodes extends React.Component {
                 <span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllButSelectedNodes()}>
                     <Icon name="ion-ios-hand-outline"/> Delete all but selected nodes
                 </span>
+                <span style={{cursor: 'pointer'}} onClick={() => this.handleSelectRelatedNodes()}>
+                    <Icon name="ion-ios-hand-outline"/> Selected related nodes
+                </span>
                 <br/><br/>
                 <ul>
                     {this.renderSelected()}
@@ -114,7 +141,8 @@ class Nodes extends React.Component {
 function select(state) {
     return {
         node: state.entries.node,
-        nodes: state.entries.nodes
+        nodes: state.entries.nodes,
+        links: state.entries.links
     };
 }
 

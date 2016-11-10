@@ -1,5 +1,4 @@
 import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE} from './index';
-import { NODE_SELECT, NODES_SELECT } from '../graph/index';
 
 export function tableColumnRemove(field) {
     return {
@@ -82,18 +81,3 @@ export function normalizationDelete(normalization) {
     };
 }
 
-export function nodeSelect(opts) {
-    return {
-        type: NODE_SELECT,
-        receivedAt: Date.now(),
-        ...opts
-    };
-}
-
-export function nodeSelects(opts) {
-    return {
-        type: NODES_SELECT,
-        receivedAt: Date.now(),
-        ...opts
-    };
-}
