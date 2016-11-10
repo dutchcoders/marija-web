@@ -47,13 +47,21 @@ class TableView extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { selectedNodes, items, fields, columns, dispatch} = this.props;
-        let selectedItems = reduce(selectedNodes , (result, node) => {
-            forEach(items, (record) => {
-                forEach(fields || [], (value) => {
+        const { selectedNodes, items, fields, columns, dispatch, normalizations } = this.props;
+        let selectedItems = reduce(selectedNodes, (result, node) => {
+            for (var record of items) {
+                for (var field of fields) {
+                    const value = fieldLocator(record.fields, field.path);
+                    const normalizedValue = normalize(normalizations, value);
+
+                    if (node.id !== normalizedValue) {
+                        continue;
+                    }
+
                     result.push(record);
-                });
-            });
+                }
+            }
+
             return result;
         }, []);
 
@@ -63,11 +71,10 @@ class TableView extends React.Component {
     }
 
     renderBody() {
-        const { fields, columns, dispatch} = this.props;
+        const { columns, dispatch} = this.props;
         const { items } = this.state;
 
         return map(items, (record) => {
-            return map(fields || [], (value) => {
                 const expanded = (findIndex(this.state.expandedItems, function(o) { return o == record.id; }) >= 0);
                 return [
                     <Record
@@ -84,7 +91,6 @@ class TableView extends React.Component {
                         expanded = { expanded }
                     />
                 ];
-            });
         });
     }
 
@@ -125,6 +131,7 @@ class TableView extends React.Component {
 function select(state) {
     return {
         selectedNodes: state.entries.node,
+        normalizations: state.entries.normalizations,
         items: state.entries.items,
         fields: state.entries.fields,
         columns: state.entries.columns
