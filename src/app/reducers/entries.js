@@ -3,6 +3,7 @@ import { concat, without, reduce, remove, find, forEach, union, filter } from 'l
 import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
 
 import {  INDICES_RECEIVE, INDICES_REQUEST } from '../modules/indices/index'
+import {  FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index'
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_SELECT, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
 import {  SEARCH_DELETE, ITEMS_RECEIVE, ITEMS_REQUEST } from '../modules/search/index';
 
@@ -165,7 +166,13 @@ export default function entries(state = defaultState, action) {
 
             var items = [];
             forEach(action.items.results.hits.hits, (d, i) => {
-                items.push({id: d._id, q: action.items.query, color: action.items.color, fields: d._source, highlight: d.highlight});
+                items.push({
+                    id: d._id,
+                    q: action.items.query,
+                    color: action.items.color,
+                    fields: d._source,
+                    highlight: d.highlight
+                });
             });
 
             const fields = state.fields;
@@ -224,7 +231,6 @@ export default function entries(state = defaultState, action) {
             });
 
             break;
-
         case INDICES_REQUEST:
             Socket.ws.postMessage(
                 {
@@ -250,6 +256,18 @@ export default function entries(state = defaultState, action) {
                 indexes: indices,
                 isFetching: false
             });
+
+        case FIELDS_REQUEST:
+            return Object.assign({}, state, {
+                isFetching: true
+            });
+            break;
+
+        case FIELDS_RECEIVE:
+            return Object.assign({}, state, {
+                isFetching: false
+            });
+            break;
         default:
             return state;
     }
