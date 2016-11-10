@@ -58,7 +58,7 @@ class Graph extends React.Component {
                     color: "#fff",
                     thickness: 3
                 },
-                sizeRange: [12, 30]
+                sizeRange: [15, 30]
             },
             zoomed: function () {
                 this.graph.transform = d3.event.transform;
@@ -97,7 +97,7 @@ class Graph extends React.Component {
                     .force("link", d3.forceLink().id(function (d) {
                         return d.id;
                     }))
-                    .force("charge", d3.forceManyBody().strength(-100).distanceMax(300))
+                    .force("charge", d3.forceManyBody().strength(-100).distanceMax(500))
                     .force("center", d3.forceCenter(this.width / 2, this.height / 2))
                     .force("vertical", d3.forceY().strength(0.018))
                     .force("horizontal", d3.forceX().strength(0.006));
