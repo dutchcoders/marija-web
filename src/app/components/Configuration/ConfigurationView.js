@@ -12,6 +12,10 @@ class ConfigurationView extends React.Component {
     constructor(props) {
         super(props);
 
+
+        this.state = {
+            normalization_error: ''
+        };
     }
 
     handleAddField(e) {
@@ -55,9 +59,18 @@ class ConfigurationView extends React.Component {
         const { regex, replaceWith  } = this.refs;
         const { dispatch } = this.props;
 
-        if (regex.value === '' || replaceWith.value === '') {
+        if (regex.value === '') {
             return;
         }
+
+        try {
+            new RegExp(regex.value, "i");
+        } catch (e) {
+            this.setState({'normalization_error': e.message});
+            return;
+        }
+
+        this.setState({'normalization_error': null});
 
         dispatch(normalizationAdd({
             regex: regex.value,
@@ -228,6 +241,8 @@ class ConfigurationView extends React.Component {
 
 
     renderNormalizations(normalizations) {
+        const { normalization_error } = this.state;
+
         const options = map(normalizations, (normalization) => {
             return (
                 <li key={normalization.path} value={ normalization.path }>
@@ -248,6 +263,9 @@ class ConfigurationView extends React.Component {
                 <ul>{ options }</ul>
                 { no_normalizations }
                 <form onSubmit={this.handleAddNormalization.bind(this)}>
+                    <div className="row">
+                        <span className='text-danger'>{ normalization_error }</span>
+                    </div>
                     <div className="row">
                         <div className="col-xs-10">
                             <input className="form-control" type="text" ref="regex" placeholder="regex"/>
