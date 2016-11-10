@@ -246,7 +246,7 @@ class ConfigurationView extends React.Component {
         const options = map(normalizations, (normalization) => {
             return (
                 <li key={normalization.path} value={ normalization.path }>
-                    <span dangerouslySetInnerHTML={{ __html: `Regex <b>${normalization.regex}</b> will be replaced with value <b>${normalization.replaceWith}</b>.`}}></span>
+                    <span dangerouslySetInnerHTML={{ __html: `Regex '<b>${normalization.regex}</b>' will be replaced with value '<b>${normalization.replaceWith}</b>'.`}}></span>
                     <Icon onClick={() => this.handleDeleteNormalization(normalization)} name="ion-ios-trash-outline"/>
                 </li>
             );
