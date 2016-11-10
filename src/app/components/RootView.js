@@ -55,7 +55,7 @@ class RootView extends Component {
                     <Searches/>
                 </Pane>
 
-                <Pane name="Nodes" handle="nodes" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-back">
+                <Pane name={`Nodes (${node.length})`} handle="nodes" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-back">
                     <Nodes />
                 </Pane>
 
@@ -109,6 +109,7 @@ const select = (state, ownProps) => {
         ...ownProps,
         errors: state.entries.errors,
         items: state.entries.items,
+        node: state.entries.node,
         nodes: state.entries.nodes,
         links: state.entries.links,
         panes: state.utils.panes
