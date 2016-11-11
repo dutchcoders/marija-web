@@ -2,22 +2,16 @@ import { reduce, merge } from 'lodash';
 
 export default class Fields {
 
-
-    /**
-     * defaultType
-     * @type {string}
-     */
-    const defaultType = '_default_';
-
-
     /**
      * getTypes
      * @param mappings
      * @returns {Array|*}
      */
     static getTypes(mappings) {
+        const defaultType = '_default_';
+
         return filter(Object.keys(mappings), (type) => {
-            return type !== this.defaultType;
+            return type !== defaultType;
         });
     }
 
