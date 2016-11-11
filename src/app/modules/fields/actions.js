@@ -1,4 +1,11 @@
-import { FIELDS_RECEIVE, FIELDS_REQUEST } from './index'
+import { FIELDS_RECEIVE, FIELDS_REQUEST, FIELDS_CLEAR } from './index'
+
+
+export function clearAllFields(){
+    return {
+        type: FIELDS_CLEAR,
+    }
+}
 
 
 export function receiveFields(payload) {

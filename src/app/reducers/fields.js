@@ -1,4 +1,4 @@
-import { FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index'
+import { FIELDS_RECEIVE, FIELDS_REQUEST, FIELDS_CLEAR } from '../modules/fields/index'
 
 import { concat, without, map, filter, union, reduce, merge } from 'lodash'
 import { Fields } from '../domain/index'
@@ -25,6 +25,10 @@ export default function fields(state = defaultState, action) {
                 FIELDS_REQUEST
             );
             return state;
+
+        case FIELDS_CLEAR:
+            return Object.assign({}, state, { availableFields: defaultState.availableFields });
+            break;
         default:
             return state;
     }

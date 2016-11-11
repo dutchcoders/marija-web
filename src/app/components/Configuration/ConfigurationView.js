@@ -5,8 +5,8 @@ import { map, includes, slice } from 'lodash';
 import { requestIndices } from '../../modules/indices/index';
 import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, normalizationAdd, normalizationDelete, indexAdd, indexDelete } from '../../modules/data/index';
 import { serverAdd, serverRemove } from '../../modules/servers/index';
-import { activateIndex, deActivateIndex} from '../../modules/indices/index';
-import { getFields } from '../../modules/fields/index'
+import { activateIndex, deActivateIndex } from '../../modules/indices/index';
+import { getFields, clearAllFields } from '../../modules/fields/index';
 import { Icon } from '../index';
 
 class ConfigurationView extends React.Component {
@@ -371,7 +371,7 @@ class ConfigurationView extends React.Component {
                 <div className="form-group">
                     <h2>
                         Fields
-                        <Icon onClick={() => dispatch(getFields(indexes))} name="ion-ios-refresh" style={{float: "right", fontSize:"23px"}}/>
+                        <Icon onClick={() => {dispatch(clearAllFields()); dispatch(getFields(indexes));} } name="ion-ios-refresh" style={{float: "right", fontSize:"23px"}}/>
                     </h2>
 
                     <p>The fields are used as node id.</p>

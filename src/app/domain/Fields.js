@@ -1,4 +1,4 @@
-import { reduce, merge } from 'lodash';
+import { reduce, merge, filter } from 'lodash';
 
 export default class Fields {
 
@@ -70,7 +70,7 @@ export default class Fields {
                 combinedFields.push({
                     name: base ? [base, field].join('.') : field,
                     document_type: type,
-                    type: shouldExtract[field].type,
+                    type: shouldExtract[field].type || "nested",
                     format: shouldExtract[field].format || null
                 });
 
