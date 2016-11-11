@@ -353,7 +353,7 @@ class ConfigurationView extends React.Component {
 
                     <ul>
                         {slice(availableFields.filter((item) => {
-                            const inSearch = item.name.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) >= 0;
+                            const inSearch = item.name.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) === 0;
                             const inCurrentFields = fields.reduce((value, field) => {
                                 if (value) {
                                     return true;
@@ -389,7 +389,7 @@ class ConfigurationView extends React.Component {
                                 return (false);
                             }
 
-                            const inSearch = item.name.toLowerCase().indexOf(currentDateFieldSearchValue.toLowerCase()) >= 0;
+                            const inSearch = item.name.toLowerCase().indexOf(currentDateFieldSearchValue.toLowerCase()) === 0;
                             const inCurrentFields = fields.reduce((value, field) => {
                                 if (value) {
                                     return true;
