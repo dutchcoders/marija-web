@@ -108,7 +108,6 @@ class TableView extends React.Component {
     render() {
         return (
             <div className="form-group">
-
                 <table>
                     <tbody>
                     <tr>

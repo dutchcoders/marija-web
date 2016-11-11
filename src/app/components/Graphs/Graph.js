@@ -6,7 +6,7 @@ import * as d3 from 'd3';
 import { map, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign } from 'lodash';
 import moment from 'moment';
 
-import { nodeSelects, nodeSelect } from '../../modules/data/index';
+import { nodesSelect, nodeSelect } from '../../modules/graph/index';
 import { normalize, fieldLocator } from '../../helpers/index';
 
 class Graph extends React.Component {
@@ -58,7 +58,7 @@ class Graph extends React.Component {
                     color: "#fff",
                     thickness: 3
                 },
-                sizeRange: [12, 30]
+                sizeRange: [15, 30]
             },
             zoomed: function () {
                 this.graph.transform = d3.event.transform;
@@ -97,7 +97,7 @@ class Graph extends React.Component {
                     .force("link", d3.forceLink().id(function (d) {
                         return d.id;
                     }))
-                    .force("charge", d3.forceManyBody().strength(-100).distanceMax(300))
+                    .force("charge", d3.forceManyBody().strength(-100).distanceMax(500))
                     .force("center", d3.forceCenter(this.width / 2, this.height / 2))
                     .force("vertical", d3.forceY().strength(0.018))
                     .force("horizontal", d3.forceX().strength(0.006));
@@ -262,7 +262,10 @@ class Graph extends React.Component {
 
                 }
 
-                if (includes(this.graph.selectedNodes, d)) {
+                // todo(nl5887): we're having graph and react nodes here, go fix.
+                if (find(this.graph.selectedNodes, (n) => {
+                    return n.id == d.id;
+                })) {
                     this.context.strokeStyle = '#993833';
                     this.context.lineWidth = this.nodes.stroke.thickness;
 
@@ -293,7 +296,7 @@ class Graph extends React.Component {
                 var subject = this.simulation.find(x, y, 20);
                 if (!subject) {
                     graph.selection = {x1: x, y1: y, x2: x, y2: y};
-                    dispatch(nodeSelects({nodes: []}));
+                    dispatch(nodesSelect([]));
                     return;
                 } else {
                     if (!includes(graph.selectedNodes, subject)) {
@@ -302,7 +305,7 @@ class Graph extends React.Component {
                         remove(graph.selectedNodes, subject);
                     }
 
-                    dispatch(nodeSelects({nodes: graph.selectedNodes}));
+                    dispatch(nodesSelect(graph.selectedNodes));
                 }
             },
             mouseup: function () {
@@ -334,7 +337,7 @@ class Graph extends React.Component {
                         }
                     });
 
-                    dispatch(nodeSelects({nodes: graph.selectedNodes}));
+                    dispatch(nodesSelect(graph.selectedNodes));
 
                     graph.selection = null;
                 }
@@ -439,11 +442,14 @@ class Graph extends React.Component {
             });
         }
 
+        // todo(nl5887): we're having graph and react nodes here, go fix.
         network.select(this.props.node);
+
         network.highlight(this.props.highlight_nodes);
     }
 
     shouldComponentUpdate(){
+        // todo(nl5887): not always update, only on changes
         return true;
     }
 
