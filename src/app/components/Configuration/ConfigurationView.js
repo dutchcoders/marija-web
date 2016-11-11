@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { map, includes } from 'lodash';
+import { map, includes, slice } from 'lodash';
 
 import { requestIndices } from '../../modules/indices/index';
 import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, normalizationAdd, normalizationDelete, indexAdd, indexDelete } from '../../modules/data/index';
@@ -16,7 +16,8 @@ class ConfigurationView extends React.Component {
 
         this.state = {
             normalization_error: '',
-            currentFieldSearchValue: ''
+            currentFieldSearchValue: '',
+            currentDateFieldSearchValue: ''
         };
     }
 
@@ -40,7 +41,7 @@ class ConfigurationView extends React.Component {
         }));
     }
 
-    addField(path) {
+    handleAddField(path) {
         const { dispatch } = this.props;
 
         const icons = ["\u20ac", "\ue136", "\ue137", "\ue138", "\ue139", "\ue140", "\ue141", "\ue142", "\ue143"];
@@ -53,8 +54,12 @@ class ConfigurationView extends React.Component {
         }));
     }
 
-    handleSearchChange(event) {
+    handleFieldSearchChange(event) {
         this.setState({currentFieldSearchValue: event.target.value});
+    }
+
+    handleDateFieldSearchChange(event) {
+        this.setState({currentDateFieldSearchValue: event.target.value});
     }
 
     handleAddDateField(e) {
@@ -210,11 +215,10 @@ class ConfigurationView extends React.Component {
                 { no_date_fields }
                 <form onSubmit={this.handleAddDateField.bind(this)}>
                     <div className="row">
-                        <div className="col-xs-10">
-                            <input className="form-control" type="text" ref="date_field" placeholder="New date field"/>
-                        </div>
-                        <div className="col-xs-1">
-                            <Icon onClick={this.handleAddDateField.bind(this)} name="ion-ios-add-circle-outline add"/>
+                        <div className="col-xs-12">
+                            <input className="form-control" value={this.state.currentDateFieldSearchValue}
+                                   onChange={this.handleDateFieldSearchChange.bind(this)} type="text" ref="date_field"
+                                   placeholder="Search date fields"/>
                         </div>
                     </div>
                 </form>
@@ -245,13 +249,10 @@ class ConfigurationView extends React.Component {
                 { no_fields }
                 <form onSubmit={this.handleAddField.bind(this)}>
                     <div className="row">
-                        <div className="col-xs-10">
+                        <div className="col-xs-12">
                             <input className="form-control" value={this.state.currentFieldSearchValue}
-                                   onChange={this.handleSearchChange.bind(this)} type="text" ref="field"
-                                   placeholder="New field"/>
-                        </div>
-                        <div className="col-xs-1">
-                            <Icon onClick={this.handleAddField.bind(this)} name="ion-ios-add-circle-outline add"/>
+                                   onChange={this.handleFieldSearchChange.bind(this)} type="text" ref="field"
+                                   placeholder="Search fields"/>
                         </div>
                     </div>
                 </form>
@@ -351,7 +352,7 @@ class ConfigurationView extends React.Component {
 
     render() {
         const { fields, date_fields, normalizations, indexes, servers, availableFields, dispatch } = this.props;
-        const { currentFieldSearchValue } = this.state;
+        const { currentFieldSearchValue, currentDateFieldSearchValue } = this.state;
 
         return (
             <div>
@@ -376,9 +377,9 @@ class ConfigurationView extends React.Component {
                     <p>The fields are used as node id.</p>
                     { this.renderFields(fields) }
 
-                    <ul style={{maxHeight: "125px", "overflowY": "scroll"}}>
-                        {availableFields.filter((item) => {
-                            const inSearch = item.name.indexOf(currentFieldSearchValue) === 0;
+                    <ul>
+                        {slice(availableFields.filter((item) => {
+                            const inSearch = item.name.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) >= 0;
                             const inCurrentFields = fields.reduce((value, field) => {
                                 if (value) {
                                     return true;
@@ -387,11 +388,11 @@ class ConfigurationView extends React.Component {
                             }, false);
 
                             return inSearch && !inCurrentFields;
-                        }).map((item) => {
+                        }), 0, 10).map((item) => {
                             return (
                                 <li key={item.name}>
                                     {item.name}
-                                    <Icon onClick={() => this.addField(item.name) }
+                                    <Icon onClick={() => this.handleAddField(item.name) }
                                           name="ion-ios-add-circle-outline"/>
                                 </li>
                             )
@@ -400,10 +401,39 @@ class ConfigurationView extends React.Component {
                 </div>
 
                 <div className="form-group">
-                    <h2>Date fields</h2>
+                    <h2>
+                        Date fields
+                        <Icon onClick={() => dispatch(getFields(indexes))} name="ion-ios-refresh" style={{float: "right", fontSize:"23px"}}/>
+                    </h2>
                     <p>The date fields are being used for the histogram.</p>
 
                     { this.renderDateFields(date_fields) }
+
+                    <ul>
+                        {slice(availableFields.filter((item) => {
+                            if (item.type !== 'date') {
+                                return (false);
+                            }
+
+                            const inSearch = item.name.toLowerCase().indexOf(currentDateFieldSearchValue.toLowerCase()) >= 0;
+                            const inCurrentFields = fields.reduce((value, field) => {
+                                if (value) {
+                                    return true;
+                                }
+                                return field.path == item.name;
+                            }, false);
+
+                            return inSearch && !inCurrentFields;
+                        }), 0, 10).map((item) => {
+                            return (
+                                <li key={item.name}>
+                                    {item.name}
+                                    <Icon onClick={() => this.handleAddDateField(item.name) }
+                                          name="ion-ios-add-circle-outline"/>
+                                </li>
+                            )
+                        })}
+                    </ul>
                 </div>
 
                 <div className="form-group">

@@ -51,6 +51,12 @@ class Nodes extends React.Component {
         dispatch(deleteNodes(delete_nodes));
     }
 
+    handleSelectAllNodes() {
+        const { dispatch, node, nodes, links } = this.props;
+
+        dispatch(nodesSelect(nodes));
+    }
+
     handleSelectRelatedNodes() {
         const { dispatch, node, nodes, links } = this.props;
 
@@ -148,7 +154,10 @@ class Nodes extends React.Component {
                     <Icon name="ion-ios-hand-outline"/> Delete all but selected nodes
                 </span>
                 <span style={{cursor: 'pointer'}} onClick={() => this.handleSelectRelatedNodes()}>
-                    <Icon name="ion-ios-hand-outline"/> Selected related nodes
+                    <Icon name="ion-ios-hand-outline"/> Select related nodes
+                </span>
+                <span style={{cursor: 'pointer'}} onClick={() => this.handleSelectAllNodes()}>
+                    <Icon name="ion-ios-hand-outline"/> Select all nodes
                 </span>
                 <br/><br/>
                 <ul>
