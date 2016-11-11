@@ -21,26 +21,6 @@ class ConfigurationView extends React.Component {
         };
     }
 
-    handleAddField(e) {
-        e.preventDefault();
-
-        const { field } = this.refs;
-        const { dispatch } = this.props;
-
-        if (field.value === '') {
-            return;
-        }
-
-        const icons = ["\u20ac", "\ue136", "\ue137", "\ue138", "\ue139", "\ue140", "\ue141", "\ue142", "\ue143"];
-
-        const icon = icons[Math.floor((Math.random() * icons.length))];
-
-        dispatch(fieldAdd({
-            icon: icon,
-            path: field.value
-        }));
-    }
-
     handleAddField(path) {
         const { dispatch } = this.props;
 
@@ -62,18 +42,12 @@ class ConfigurationView extends React.Component {
         this.setState({currentDateFieldSearchValue: event.target.value});
     }
 
-    handleAddDateField(e) {
-        e.preventDefault();
-
+    handleAddDateField(path) {
         const { date_field } = this.refs;
         const { dispatch } = this.props;
 
-        if (date_field.value === '') {
-            return;
-        }
-
         dispatch(dateFieldAdd({
-            path: date_field.value
+            path: path
         }));
     }
 
@@ -213,7 +187,7 @@ class ConfigurationView extends React.Component {
             <div>
                 <ul>{ options }</ul>
                 { no_date_fields }
-                <form onSubmit={this.handleAddDateField.bind(this)}>
+                <form>
                     <div className="row">
                         <div className="col-xs-12">
                             <input className="form-control" value={this.state.currentDateFieldSearchValue}
@@ -247,7 +221,7 @@ class ConfigurationView extends React.Component {
             <div>
                 <ul>{ options }</ul>
                 { no_fields }
-                <form onSubmit={this.handleAddField.bind(this)}>
+                <form>
                     <div className="row">
                         <div className="col-xs-12">
                             <input className="form-control" value={this.state.currentFieldSearchValue}
