@@ -1,0 +1,16 @@
+.field {
+    i {
+        width: 16px;
+        text-align: center;
+
+        &.type-indicator {
+            display: block;
+            position: static !important;
+            top: 0 !important;
+            float: left;
+            line-height: 20px;
+            font-size: 12px !important;
+            margin-right: 5px !important;
+        }
+    }
+}

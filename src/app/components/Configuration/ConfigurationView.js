@@ -6,7 +6,7 @@ import { requestIndices } from '../../modules/indices/index';
 import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, normalizationAdd, normalizationDelete, indexAdd, indexDelete } from '../../modules/data/index';
 import { serverAdd, serverRemove } from '../../modules/servers/index';
 import { activateIndex, deActivateIndex } from '../../modules/indices/index';
-import { getFields, clearAllFields } from '../../modules/fields/index';
+import { getFields, clearAllFields, Field } from '../../modules/fields/index';
 import { Icon } from '../index';
 
 class ConfigurationView extends React.Component {
@@ -205,7 +205,7 @@ class ConfigurationView extends React.Component {
         const options = map(fields, (field) => {
             return (
                 <li key={field.path} value={ field.path }>
-                    <i className="glyphicon">{ field.icon }</i>{ field.path }
+                    { field.path }
                     <Icon onClick={() => this.handleDeleteField(field)} name="ion-ios-trash-outline"/>
                 </li>
             );
@@ -345,7 +345,8 @@ class ConfigurationView extends React.Component {
                 <div className="form-group">
                     <h2>
                         Fields
-                        <Icon onClick={() => {dispatch(clearAllFields()); dispatch(getFields(indexes));} } name="ion-ios-refresh" style={{float: "right", fontSize:"23px"}}/>
+                        <Icon onClick={() => {dispatch(clearAllFields()); dispatch(getFields(indexes));} }
+                              name="ion-ios-refresh" style={{float: "right", fontSize:"23px"}}/>
                     </h2>
 
                     <p>The fields are used as node id.</p>
@@ -364,12 +365,11 @@ class ConfigurationView extends React.Component {
                             return inSearch && !inCurrentFields;
                         }), 0, 10).map((item) => {
                             return (
-                                <li key={item.name}>
-                                    {item.name}
-                                    <Icon onClick={() => this.handleAddField(item.name) }
-                                          name="ion-ios-add-circle-outline"/>
-                                </li>
-                            )
+                                <Field
+                                    key={item.name}
+                                    item={item} handler={() => this.handleAddField(item.name)}
+                                    icon={'ion-ios-add-circle-outline'}/>
+                            );
                         })}
                     </ul>
                 </div>
@@ -377,7 +377,8 @@ class ConfigurationView extends React.Component {
                 <div className="form-group">
                     <h2>
                         Date fields
-                        <Icon onClick={() => dispatch(getFields(indexes))} name="ion-ios-refresh" style={{float: "right", fontSize:"23px"}}/>
+                        <Icon onClick={() => dispatch(getFields(indexes))} name="ion-ios-refresh"
+                              style={{float: "right", fontSize:"23px"}}/>
                     </h2>
                     <p>The date fields are being used for the histogram.</p>
 
@@ -400,11 +401,10 @@ class ConfigurationView extends React.Component {
                             return inSearch && !inCurrentFields;
                         }), 0, 10).map((item) => {
                             return (
-                                <li key={item.name}>
-                                    {item.name}
-                                    <Icon onClick={() => this.handleAddDateField(item.name) }
-                                          name="ion-ios-add-circle-outline"/>
-                                </li>
+                                <Field
+                                    key={item.name}
+                                    item={item} handler={() => this.handleAddDateField(item.name)}
+                                    icon={'ion-ios-add-circle-outline'}/>
                             )
                         })}
                     </ul>
