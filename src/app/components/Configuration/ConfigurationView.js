@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { map, includes } from 'lodash';
+import { map, includes, slice } from 'lodash';
 
 import { requestIndices } from '../../modules/indices/index';
 import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, normalizationAdd, normalizationDelete, indexAdd, indexDelete } from '../../modules/data/index';
@@ -40,7 +40,7 @@ class ConfigurationView extends React.Component {
         }));
     }
 
-    addField(path) {
+    handleAddField(path) {
         const { dispatch } = this.props;
 
         const icons = ["\u20ac", "\ue136", "\ue137", "\ue138", "\ue139", "\ue140", "\ue141", "\ue142", "\ue143"];
@@ -53,7 +53,7 @@ class ConfigurationView extends React.Component {
         }));
     }
 
-    handleSearchChange(event) {
+    handleFieldSearchChange(event) {
         this.setState({currentFieldSearchValue: event.target.value});
     }
 
@@ -245,13 +245,10 @@ class ConfigurationView extends React.Component {
                 { no_fields }
                 <form onSubmit={this.handleAddField.bind(this)}>
                     <div className="row">
-                        <div className="col-xs-10">
+                        <div className="col-xs-12">
                             <input className="form-control" value={this.state.currentFieldSearchValue}
-                                   onChange={this.handleSearchChange.bind(this)} type="text" ref="field"
-                                   placeholder="New field"/>
-                        </div>
-                        <div className="col-xs-1">
-                            <Icon onClick={this.handleAddField.bind(this)} name="ion-ios-add-circle-outline add"/>
+                                   onChange={this.handleFieldSearchChange.bind(this)} type="text" ref="field"
+                                   placeholder="Search fields"/>
                         </div>
                     </div>
                 </form>
@@ -376,9 +373,9 @@ class ConfigurationView extends React.Component {
                     <p>The fields are used as node id.</p>
                     { this.renderFields(fields) }
 
-                    <ul style={{maxHeight: "125px", "overflowY": "scroll"}}>
-                        {availableFields.filter((item) => {
-                            const inSearch = item.name.indexOf(currentFieldSearchValue) === 0;
+                    <ul>
+                        {slice(availableFields.filter((item) => {
+                            const inSearch = item.name.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) >= 0;
                             const inCurrentFields = fields.reduce((value, field) => {
                                 if (value) {
                                     return true;
@@ -387,11 +384,11 @@ class ConfigurationView extends React.Component {
                             }, false);
 
                             return inSearch && !inCurrentFields;
-                        }).map((item) => {
+                        }), 0, 10).map((item) => {
                             return (
                                 <li key={item.name}>
                                     {item.name}
-                                    <Icon onClick={() => this.addField(item.name) }
+                                    <Icon onClick={() => this.handleAddField(item.name) }
                                           name="ion-ios-add-circle-outline"/>
                                 </li>
                             )
