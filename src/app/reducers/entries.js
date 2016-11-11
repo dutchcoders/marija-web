@@ -182,7 +182,7 @@ export default function entries(state = defaultState, action) {
                     q: action.items.query,
                     color: action.items.color,
                     fields: d._source,
-                    highlight: d.highlight
+                    highlight: d.highlight || {},
                 });
             });
 
