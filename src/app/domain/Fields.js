@@ -66,13 +66,14 @@ export default class Fields {
                 );
 
                 const combinedFields = fields.concat(innerFields, results);
-
-                combinedFields.push({
-                    name: base ? [base, field].join('.') : field,
-                    document_type: type,
-                    type: shouldExtract[field].type || "nested",
-                    format: shouldExtract[field].format || null
-                });
+                if (typeof shouldExtract[field].type != 'undefined') {
+                    combinedFields.push({
+                        name: base ? [base, field].join('.') : field,
+                        document_type: type,
+                        type: shouldExtract[field].type || "nested",
+                        format: shouldExtract[field].format || null
+                    });
+                }
 
                 return combinedFields;
             }, []);
