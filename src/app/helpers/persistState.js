@@ -53,7 +53,9 @@ export default function persistState() {
 
         try {
             const fields_reducer = JSON.parse(localStorage.getItem("fields_reducer"));
-            initialState.fields = fields_reducer;
+            if (fields_reducer) {
+                initialState.fields = fields_reducer;
+            }
         } catch (e) {
             console.warn('Failed to retrieve initialize state from localStorage:', e);
         }
