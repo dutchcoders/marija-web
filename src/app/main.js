@@ -36,7 +36,10 @@ function configureStore() {
                 ...defaultState
             },
             indices: {
-                'activeIndices': []
+                activeIndices: []
+            },
+            fields: {
+                availableFields: []
             }
 
         },

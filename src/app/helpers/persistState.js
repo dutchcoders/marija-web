@@ -51,6 +51,12 @@ export default function persistState() {
             console.warn('Failed to retrieve initialize state from localStorage:', e);
         }
 
+        try {
+            const fields_reducer = JSON.parse(localStorage.getItem("fields_reducer"));
+            initialState.fields = fields_reducer;
+        } catch (e) {
+            console.warn('Failed to retrieve initialize state from localStorage:', e);
+        }
 
         const store = next(reducer, initialState, enhancer);
 
@@ -59,6 +65,12 @@ export default function persistState() {
             const state = store.getState();
 
             // todo(nl5887): verify if changed
+
+            try {
+                localStorage.setItem("fields_reducer", JSON.stringify(state.fields));
+            } catch (e) {
+                console.warn('Unable to persist state to localStorage:', e);
+            }
 
             try {
                 localStorage.setItem("columns", JSON.stringify(state.entries.columns));
