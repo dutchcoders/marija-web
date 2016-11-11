@@ -61,15 +61,16 @@ export default function fields(state = defaultState, action) {
                 return results.concat(discoveredFields);
             }, []);
 
+
             const newAvailableFields = reduce(fields, (allFields, newItem) => {
                 if (typeof state.availableFields.find((item) => item.name === newItem.name) == 'undefined') {
                     allFields.push(newItem);
                 }
 
                 return allFields;
-            }, state.availableFields);
+            }, []);
 
-            return Object.assign({}, state, {availableFields: newAvailableFields});
+            return Object.assign({}, state, { availableFields: state.availableFields.concat(newAvailableFields)});
 
         case FIELDS_REQUEST:
             Socket.ws.postMessage(

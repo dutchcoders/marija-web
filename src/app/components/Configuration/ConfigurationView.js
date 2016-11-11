@@ -15,7 +15,8 @@ class ConfigurationView extends React.Component {
 
 
         this.state = {
-            normalization_error: ''
+            normalization_error: '',
+            currentFieldSearchValue: ''
         };
     }
 
@@ -37,6 +38,23 @@ class ConfigurationView extends React.Component {
             icon: icon,
             path: field.value
         }));
+    }
+
+    addField(path) {
+        const { dispatch } = this.props;
+
+        const icons = ["\u20ac", "\ue136", "\ue137", "\ue138", "\ue139", "\ue140", "\ue141", "\ue142", "\ue143"];
+
+        const icon = icons[Math.floor((Math.random() * icons.length))];
+
+        dispatch(fieldAdd({
+            icon: icon,
+            path: path
+        }));
+    }
+
+    handleSearchChange(event) {
+        this.setState({currentFieldSearchValue: event.target.value});
     }
 
     handleAddDateField(e) {
@@ -147,8 +165,7 @@ class ConfigurationView extends React.Component {
             );
         });
 
-        let no_servers = null;
-
+        let no_servers;
         if (servers.length == 0) {
             no_servers = <div className='text-warning'>No servers configured.</div>;
         }
@@ -190,7 +207,7 @@ class ConfigurationView extends React.Component {
         return (
             <div>
                 <ul>{ options }</ul>
-                { no_date_fields } 
+                { no_date_fields }
                 <form onSubmit={this.handleAddDateField.bind(this)}>
                     <div className="row">
                         <div className="col-xs-10">
@@ -229,7 +246,9 @@ class ConfigurationView extends React.Component {
                 <form onSubmit={this.handleAddField.bind(this)}>
                     <div className="row">
                         <div className="col-xs-10">
-                            <input className="form-control" type="text" ref="field" placeholder="New field"/>
+                            <input className="form-control" value={this.state.currentFieldSearchValue}
+                                   onChange={this.handleSearchChange.bind(this)} type="text" ref="field"
+                                   placeholder="New field"/>
                         </div>
                         <div className="col-xs-1">
                             <Icon onClick={this.handleAddField.bind(this)} name="ion-ios-add-circle-outline add"/>
@@ -247,7 +266,9 @@ class ConfigurationView extends React.Component {
         const options = map(normalizations, (normalization) => {
             return (
                 <li key={normalization.path} value={ normalization.path }>
-                    <span dangerouslySetInnerHTML={{ __html: `Regex '<b>${normalization.regex}</b>' will be replaced with value '<b>${normalization.replaceWith}</b>'.`}}></span>
+                    <span>
+                       Regex '<b>{normalization.regex}</b>' will be replaced with value '<b>{normalization.replaceWith}</b>'.
+                    </span>
                     <Icon onClick={() => this.handleDeleteNormalization(normalization)} name="ion-ios-trash-outline"/>
                 </li>
             );
@@ -273,7 +294,8 @@ class ConfigurationView extends React.Component {
                             <input className="form-control" type="text" ref="replaceWith" placeholder="replace value"/>
                         </div>
                         <div className="col-xs-1">
-                            <Icon onClick={this.handleAddNormalization.bind(this)} name="ion-ios-add-circle-outline add"/>
+                            <Icon onClick={this.handleAddNormalization.bind(this)}
+                                  name="ion-ios-add-circle-outline add"/>
                         </div>
                     </div>
                 </form>
@@ -305,10 +327,10 @@ class ConfigurationView extends React.Component {
         });
 
         let no_indices = null;
-
         if (indices.length == 0) {
             no_indices = <div className='text-warning'>No indices configured.</div>;
         }
+
         return (
             <div>
                 <ul>{options}</ul>
@@ -328,8 +350,8 @@ class ConfigurationView extends React.Component {
     }
 
     render() {
-        const { fields, date_fields, normalizations, indexes, servers,dispatch } = this.props;
-
+        const { fields, date_fields, normalizations, indexes, servers, availableFields, dispatch } = this.props;
+        const { currentFieldSearchValue } = this.state;
 
         return (
             <div>
@@ -346,21 +368,48 @@ class ConfigurationView extends React.Component {
                 </div>
 
                 <div className="form-group">
-                    <h2>Fields</h2>
-                    <Icon onClick={() => dispatch(getFields(indexes))} name="ion-ios-refresh"/>
+                    <h2>
+                        Fields
+                        <Icon onClick={() => dispatch(getFields(indexes))} name="ion-ios-refresh" style={{float: "right", fontSize:"23px"}}/>
+                    </h2>
+
                     <p>The fields are used as node id.</p>
                     { this.renderFields(fields) }
+
+                    <ul style={{maxHeight: "125px", "overflowY": "scroll"}}>
+                        {availableFields.filter((item) => {
+                            const inSearch = item.name.indexOf(currentFieldSearchValue) === 0;
+                            const inCurrentFields = fields.reduce((value, field) => {
+                                if (value) {
+                                    return true;
+                                }
+                                return field.path == item.name;
+                            }, false);
+
+                            return inSearch && !inCurrentFields;
+                        }).map((item) => {
+                            return (
+                                <li key={item.name}>
+                                    {item.name}
+                                    <Icon onClick={() => this.addField(item.name) }
+                                          name="ion-ios-add-circle-outline"/>
+                                </li>
+                            )
+                        })}
+                    </ul>
                 </div>
 
                 <div className="form-group">
                     <h2>Date fields</h2>
                     <p>The date fields are being used for the histogram.</p>
+
                     { this.renderDateFields(date_fields) }
                 </div>
 
                 <div className="form-group">
                     <h2>Normalizations</h2>
-                    <p>Normalizations are regular expressions being used to normalize the node identifiers and fields.</p>
+                    <p>Normalizations are regular expressions being used to normalize the node identifiers and
+                        fields.</p>
                     { this.renderNormalizations(normalizations) }
                 </div>
             </div>
@@ -372,6 +421,7 @@ class ConfigurationView extends React.Component {
 function select(state) {
     return {
         fields: state.entries.fields,
+        availableFields: state.fields.availableFields,
         date_fields: state.entries.date_fields,
         indexes: state.entries.indexes,
         normalizations: state.entries.normalizations,
