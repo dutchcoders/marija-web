@@ -148,10 +148,10 @@ class Nodes extends React.Component {
                     <Icon name="ion-ios-hand-outline"/> Clear selection
                 </span>
                 <span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllNodes()}>
-                    <Icon name="ion-ios-hand-outline"/> Delete all nodes
+                    <Icon name="ion-ios-hand-outline"/> Delete selected nodes
                 </span>
                 <span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllButSelectedNodes()}>
-                    <Icon name="ion-ios-hand-outline"/> Delete all but selected nodes
+                    <Icon name="ion-ios-hand-outline"/> Delete but selected nodes
                 </span>
                 <span style={{cursor: 'pointer'}} onClick={() => this.handleSelectRelatedNodes()}>
                     <Icon name="ion-ios-hand-outline"/> Select related nodes
