@@ -13,7 +13,7 @@ class TableView extends React.Component {
         super(props);
 
         this.state = {
-            items: [],
+            items: this.getSelectedItems(),
             expandedItems: [],
         };
     }
@@ -43,7 +43,7 @@ class TableView extends React.Component {
 
     }
 
-    componentWillReceiveProps(nextProps) {
+    getSelectedItems() {
         const { selectedNodes, items, fields, columns, dispatch, normalizations } = this.props;
         let selectedItems = reduce(selectedNodes, (result, node) => {
             for (var record of items) {
@@ -62,11 +62,13 @@ class TableView extends React.Component {
             return result;
         }, []);
 
-        this.setState({items: uniqWith(selectedItems, (value, other) => {
+        return uniqWith(selectedItems, (value, other) => {
             return (value.id == other.id);
-        })});
+        });
     }
-
+    componentWillReceiveProps(nextProps) {
+        this.setState({items: this.getSelectedItems()});
+    }
     renderBody() {
         const { columns, dispatch} = this.props;
         const { items } = this.state;
