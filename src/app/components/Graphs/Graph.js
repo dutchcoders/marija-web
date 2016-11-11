@@ -116,7 +116,7 @@ class Graph extends React.Component {
             },
             updateNodes: function (graph) {
                 var countExtent = d3.extent(graph.nodes, function (d) {
-                        return d.connections;
+                        return d.items.length;
                     }),
                     radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(this.nodes.sizeRange);
 
@@ -136,12 +136,12 @@ class Graph extends React.Component {
                     var n = find(that.graph.nodes, {id: node.id});
                     if (n) {
                         n = assign(n, node);
-                        n = assign(n, {force: that.forceScale(n), r: radiusScale(n.connections)});
+                        n = assign(n, {force: that.forceScale(n), r: radiusScale(n.items.length)});
                         return;
                     }
 
                     let node2 = _.clone(node);
-                    node2 = assign(node2, {force: that.forceScale(node2), r: radiusScale(node2.connections)});
+                    node2 = assign(node2, {force: that.forceScale(node2), r: radiusScale(node2.items.length)});
 
                     that.graph.nodes.push(node2);
 

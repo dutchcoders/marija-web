@@ -166,16 +166,15 @@ export default function entries(state = defaultState, action) {
             var searches = concat(state.searches, {
                 q: action.items.query,
                 color: action.items.color,
-                count: action.items.results.hits.hits.length
+                count: action.items.results.length
             });
 
             const { normalizations } = state;
 
             // update nodes and links
-            var nodes = concat(state.nodes, []);
-            var links = concat(state.links, []);
+            var items = action.items.results;
 
-            var items = [];
+            /*
             forEach(action.items.results.hits.hits, (d, i) => {
                 items.push({
                     id: d._id,
@@ -185,6 +184,10 @@ export default function entries(state = defaultState, action) {
                     highlight: d.highlight || {},
                 });
             });
+            */
+
+            var nodes = concat(state.nodes, []);
+            var links = concat(state.links, []);
 
             const fields = state.fields;
             forEach(items, (d, i) => {
@@ -198,20 +201,18 @@ export default function entries(state = defaultState, action) {
 
                     let n = find(nodes, {id: normalizedSourceValue });
                     if (n) {
-                        n.connections++;
                         n.items.push(d.id);
-                        n.queries.push(d.q);
+                        n.queries.push(action.items.query);
                         return;
                     }
 
                     nodes.push({
                         id: normalizedSourceValue,
-                        queries: [d.q],
+                        queries: [action.items.query],
                         items: [d.id],
                         name: sourceValue,
-                        colors: [d.color],
-                        connections: 1,
-                        icon: source.icon
+                        icon: source.icon,
+                        fields: [source.path],
                     });
 
                     forEach(fields, (target) => {
