@@ -142,6 +142,12 @@ class Nodes extends React.Component {
 
 
     render() {
+        let highlight_node = null;
+
+        if (this.props.highlight_nodes.length > 0) {
+            highlight_node = <div><hr/><span>{this.props.highlight_nodes[0].name}</span></div>;
+        }
+
         return (
             <div className="form-group">
                 <span style={{cursor: 'pointer'}} onClick={() => this.handleClearSelection()}>
@@ -163,6 +169,7 @@ class Nodes extends React.Component {
                 <ul>
                     {this.renderSelected()}
                 </ul>
+                {highlight_node}
             </div>
         );
     }
@@ -172,6 +179,7 @@ class Nodes extends React.Component {
 function select(state) {
     return {
         node: state.entries.node,
+        highlight_nodes: state.entries.highlight_nodes,
         nodes: state.entries.nodes,
         links: state.entries.links
     };

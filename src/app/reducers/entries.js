@@ -128,7 +128,7 @@ export default function entries(state = defaultState, action) {
             });
         case NODES_HIGHLIGHT:
             return Object.assign({}, state, {
-                highlight_nodes: action.nodes
+                highlight_nodes: action.highlight_nodes
             });
         case NODES_SELECT:
             return Object.assign({}, state, {

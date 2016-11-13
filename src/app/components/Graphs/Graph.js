@@ -6,7 +6,7 @@ import * as d3 from 'd3';
 import { map, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign } from 'lodash';
 import moment from 'moment';
 
-import { nodesSelect, nodeSelect } from '../../modules/graph/index';
+import { nodesSelect, highlightNodes, nodeSelect } from '../../modules/graph/index';
 import { normalize, fieldLocator } from '../../helpers/index';
 
 class Graph extends React.Component {
@@ -359,9 +359,11 @@ class Graph extends React.Component {
                 var subject = this.simulation.find(x, y, 20);
                 if (subject === undefined) {
                     graph.tooltip = null;
+                    this.onHighlightNode([]);
                 } else if (!graph.tooltip || graph.tooltip.node !== subject) {
-                    graph.tooltip = {node: subject, x: x, y: y};
+                    // graph.tooltip = {node: subject, x: x, y: y};
                     this.onmousemove(subject);
+                    this.onHighlightNode([subject]);
                 }
             },
             dragstarted: function () {
@@ -407,6 +409,7 @@ class Graph extends React.Component {
         network.dispatch = dispatch;
         network.onmouseclick = this.onMouseClick.bind(this);
         network.onmousemove = this.onMouseMove.bind(this);
+        network.onHighlightNode = this.onHighlightNode.bind(this);
 
         network.setup(this.refs.canvas);
     }
@@ -414,6 +417,12 @@ class Graph extends React.Component {
     onMouseClick(node) {
         const { dispatch } = this.props;
         dispatch(nodeSelect({node: node}));
+    }
+
+    onHighlightNode(nodes) {
+        // todo(nl5887): dispatch actual react (this.props.nodes, not graph nodes)
+        const { dispatch } = this.props;
+        dispatch(highlightNodes(nodes));
     }
 
     onMouseMove(node) {

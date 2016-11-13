@@ -21,7 +21,7 @@ export function highlightNodes(opts) {
     return {
         type: NODES_HIGHLIGHT,
         receivedAt: Date.now(),
-        ...opts
+        highlight_nodes: opts
     };
 }
 
