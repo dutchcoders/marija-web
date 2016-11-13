@@ -24,6 +24,8 @@ class Header extends Component {
 
         dispatch(requestItems({
             query: q,
+            from: 0, 
+            size: 500,
             index: activeIndices,
             color: this.getColour(q)
         }));

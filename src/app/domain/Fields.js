@@ -22,6 +22,7 @@ export default class Fields {
      * @returns {*}
      */
     static getFieldsFromResult(fields) {
+        console.debug("fields", fields);
         return fields;
     }
 
