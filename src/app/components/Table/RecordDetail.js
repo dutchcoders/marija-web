@@ -58,7 +58,8 @@ export default class Record extends Component {
         const allFields = this.extractAllFields(record.fields, false);
 
         const expandedFields = map(allFields, (value, key) => {
-            const field_value = record.highlight[value] || fieldLocator(record.fields, value) ;
+            const highlight =  (record.highlight || {});
+            const field_value = highlight[value] || fieldLocator(record.fields, value) ;
 
             return (
                 <tr key={ 'field_' + value }>
