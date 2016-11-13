@@ -120,7 +120,7 @@ class Nodes extends React.Component {
                     if (editNode == i_node) {
                         return (
                             <li key={i_node.id}>
-                                <Icon className="glyphicon">{ i_node.icon }</Icon>
+                                <Icon className="glyphicon" name={ i_node.icon }></Icon>
                                 <input type="text" value={i_node.id}/>
                                 <button onClick={(n) => this.handleCancelEditNode(n) }>cancel</button>
                             </li>
@@ -129,7 +129,7 @@ class Nodes extends React.Component {
                         return (
                             <li key={i_node.id}>
                                 {i_node.id}
-                                <Icon style={{'marginRight': '40px'}}  className="glyphicon">{ i_node.icon }</Icon>
+                                <Icon style={{'marginRight': '40px'}}  className="glyphicon" name={ i_node.icon }></Icon>
                                 <Icon style={{'marginRight': '20px'}} onClick={(n) => this.handleDeselectNode(i_node)} name="ion-ios-remove-circle-outline"/>
                                 <Icon onClick={(n) => this.handleDeleteNode(i_node)} name="ion-ios-close-circle-outline"/>
                             </li>
