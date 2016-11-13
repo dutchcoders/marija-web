@@ -284,7 +284,7 @@ class Graph extends React.Component {
                 }
             },
             mousedown: function () {
-                const { dispatch, graph } = this;
+                const { graph } = this;
 
                 if (d3.event.altKey) {
                     return;
@@ -296,7 +296,7 @@ class Graph extends React.Component {
                 var subject = this.simulation.find(x, y, 20);
                 if (!subject) {
                     graph.selection = {x1: x, y1: y, x2: x, y2: y};
-                    dispatch(nodesSelect([]));
+                    this.onNodesSelect(graph.selectedNodes);
                     return;
                 } else {
                     if (!includes(graph.selectedNodes, subject)) {
@@ -305,11 +305,11 @@ class Graph extends React.Component {
                         remove(graph.selectedNodes, subject);
                     }
 
-                    dispatch(nodesSelect(graph.selectedNodes));
+                    this.onNodesSelect(graph.selectedNodes);
                 }
             },
             mouseup: function () {
-                const { graph, dispatch } = this;
+                const { graph } = this;
 
                 if (d3.event.altKey) {
                     return;
@@ -337,13 +337,13 @@ class Graph extends React.Component {
                         }
                     });
 
-                    dispatch(nodesSelect(graph.selectedNodes));
+                    this.onNodesSelect(graph.selectedNodes);
 
                     graph.selection = null;
                 }
             },
             mousemove: function (n) {
-                const { dispatch, graph } = this;
+                const { graph } = this;
 
                 if (d3.event.altKey) {
                     return;
@@ -410,6 +410,7 @@ class Graph extends React.Component {
         network.onmouseclick = this.onMouseClick.bind(this);
         network.onmousemove = this.onMouseMove.bind(this);
         network.onHighlightNode = this.onHighlightNode.bind(this);
+        network.onNodesSelect = this.onNodesSelect.bind(this);
 
         network.setup(this.refs.canvas);
     }
@@ -423,6 +424,12 @@ class Graph extends React.Component {
         // todo(nl5887): dispatch actual react (this.props.nodes, not graph nodes)
         const { dispatch } = this.props;
         dispatch(highlightNodes(nodes));
+    }
+
+    onNodesSelect(nodes) {
+        // todo(nl5887): dispatch actual react (this.props.nodes, not graph nodes)
+        const { dispatch } = this.props;
+        dispatch(nodesSelect(nodes));
     }
 
     onMouseMove(node) {
