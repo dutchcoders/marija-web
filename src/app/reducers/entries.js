@@ -156,7 +156,7 @@ export default function entries(state = defaultState, action) {
                 ...action
             });
         case ITEMS_REQUEST:
-            Socket.ws.postMessage({query: action.query, index: action.index, color: action.color, host: action.index});
+            Socket.ws.postMessage({query: action.query, index: action.index, from: action.from, size: action.size, color: action.color, host: action.index});
 
             return Object.assign({}, state, {
                 isFetching: true,
