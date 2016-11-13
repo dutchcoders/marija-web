@@ -354,20 +354,20 @@ class ConfigurationView extends React.Component {
 
                     <ul>
                         {slice(availableFields.filter((item) => {
-                            const inSearch = item.name.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) === 0;
+                            const inSearch = item.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) === 0;
                             const inCurrentFields = fields.reduce((value, field) => {
                                 if (value) {
                                     return true;
                                 }
-                                return field.path == item.name;
+                                return field.path == item.path;
                             }, false);
 
                             return inSearch && !inCurrentFields;
                         }), 0, 10).map((item) => {
                             return (
                                 <Field
-                                    key={item.name}
-                                    item={item} handler={() => this.handleAddField(item.name)}
+                                    key={item.path}
+                                    item={item} handler={() => this.handleAddField(item.path)}
                                     icon={'ion-ios-add-circle-outline'}/>
                             );
                         })}
@@ -390,20 +390,20 @@ class ConfigurationView extends React.Component {
                                 return (false);
                             }
 
-                            const inSearch = item.name.toLowerCase().indexOf(currentDateFieldSearchValue.toLowerCase()) === 0;
+                            const inSearch = item.path.toLowerCase().indexOf(currentDateFieldSearchValue.toLowerCase()) === 0;
                             const inCurrentFields = fields.reduce((value, field) => {
                                 if (value) {
                                     return true;
                                 }
-                                return field.path == item.name;
+                                return field.path == item.path;
                             }, false);
 
                             return inSearch && !inCurrentFields;
                         }), 0, 10).map((item) => {
                             return (
                                 <Field
-                                    key={item.name}
-                                    item={item} handler={() => this.handleAddDateField(item.name)}
+                                    key={item.path}
+                                    item={item} handler={() => this.handleAddDateField(item.path)}
                                     icon={'ion-ios-add-circle-outline'}/>
                             )
                         })}

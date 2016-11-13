@@ -22,15 +22,7 @@ export default class Fields {
      * @returns {*}
      */
     static getFieldsFromResult(fields) {
-        return reduce(fields, (results, field) => {
-            const types = Fields.getTypes(field.mappings);
-
-            const discoveredFields = reduce(types, (perType, type) => {
-                return perType.concat(Fields.recurseFields(type, field.mappings[type], ''));
-            }, []);
-
-            return results.concat(discoveredFields);
-        }, []);
+        return fields;
     }
 
 

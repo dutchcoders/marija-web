@@ -174,18 +174,6 @@ export default function entries(state = defaultState, action) {
             // update nodes and links
             var items = action.items.results;
 
-            /*
-            forEach(action.items.results.hits.hits, (d, i) => {
-                items.push({
-                    id: d._id,
-                    q: action.items.query,
-                    color: action.items.color,
-                    fields: d._source,
-                    highlight: d.highlight || {},
-                });
-            });
-            */
-
             var nodes = concat(state.nodes, []);
             var links = concat(state.links, []);
 
@@ -261,9 +249,7 @@ export default function entries(state = defaultState, action) {
             });
 
         case INDICES_RECEIVE:
-            const indices = union(state.indexes, Object.keys(action.payload.results).filter((item) => {
-                return item.split('').shift() !== '.';
-            }).map((index) => {
+            const indices = union(state.indexes, action.payload.indices.map((index) => {
                 const indexName = `${action.payload.server}${index}`;
                 return indexName;
             }));
