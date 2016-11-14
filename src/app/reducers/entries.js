@@ -167,7 +167,9 @@ export default function entries(state = defaultState, action) {
                 ...action
             });
         case ITEMS_REQUEST:
-            Socket.ws.postMessage({query: action.query, index: action.index, from: action.from, size: action.size, color: action.color, host: action.index});
+            // should check if we've already got results for this query, if then change start to items.length
+            let message = {query: action.query, index: action.index, from: action.from, size: action.size, color: action.color, host: action.index}
+            Socket.ws.postMessage(message);
 
             return Object.assign({}, state, {
                 isFetching: true,
