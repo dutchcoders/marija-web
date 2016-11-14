@@ -16,7 +16,8 @@ class Nodes extends React.Component {
 
         this.state = {
             editNode: null,
-            value: ""
+            value: "",
+            description: ""
         };
     }
 
@@ -31,10 +32,10 @@ class Nodes extends React.Component {
     }
 
     handleUpdateEditNode(node) {
-        const { editNode, value } = this.state;
+        const { editNode, value, description } = this.state;
         const { dispatch } = this.props;
 
-        dispatch(nodeUpdate(editNode.id, {name: value}));
+        dispatch(nodeUpdate(editNode.id, {name: value, description: description }));
 
         this.setState({editNode: null});
     }
@@ -119,9 +120,14 @@ class Nodes extends React.Component {
         dispatch(nodesSelect(related_nodes));
     }
 
-    handleNodeLabelChange(event) {
+    handleNodeChangeName(event) {
         const { editNode, value } = this.state;
         this.setState({value: event.target.value});
+    }
+
+    handleNodeChangeDescription(event) {
+        const { editNode, description } = this.state;
+        this.setState({description: event.target.value});
     }
 
     handleDeleteAllNodes() {
@@ -138,11 +144,16 @@ class Nodes extends React.Component {
                 map(node, (i_node) => {
                         return (
                             <li key={i_node.id}>
-                                {i_node.name}
+				<div>
+                                <span>{i_node.name}</span>
                                 <Icon style={{'marginRight': '60px'}}  className="glyphicon" name={ i_node.icon }></Icon>
                                 <Icon style={{'marginRight': '40px'}} onClick={(n) => this.handleEditNode(i_node)} name="ion-ios-remove-circle-outline"/>
                                 <Icon style={{'marginRight': '20px'}} onClick={(n) => this.handleDeselectNode(i_node)} name="ion-ios-remove-circle-outline"/>
                                 <Icon onClick={(n) => this.handleDeleteNode(i_node)} name="ion-ios-close-circle-outline"/>
+				</div>
+				<div>
+                                <span className='description'>{i_node.description}</span>
+				</div>
                             </li>
                         );
                 })
@@ -152,7 +163,7 @@ class Nodes extends React.Component {
 
 
     render() {
-        const { editNode, value } = this.state;
+        const { editNode, value, description } = this.state;
 
         const updateNodeDialogStyles = {
             backgroundColor: '#fff',
@@ -169,7 +180,11 @@ class Nodes extends React.Component {
 		<Icon className="glyphicon" name={ editNode.icon }></Icon>
 		<div className="form-group">
 		    <label>Name</label>
-		    <input type="text" className="form-control" value={value} onChange={ this.handleNodeLabelChange.bind(this) } placeholder='name' />
+		    <input type="text" className="form-control" value={value} onChange={ this.handleNodeChangeName.bind(this) } placeholder='name' />
+		</div>
+		<div className="form-group">
+		    <label>Description</label>
+		    <textarea className="form-control" value={description} onChange={ this.handleNodeChangeDescription.bind(this) } placeholder='description' />
 		</div>
 	    </form>;
 	}

@@ -55,7 +55,7 @@ export default class SearchBox extends Component {
         });
 
         return (
-            <nav className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation">
+            <nav id="searchbox" className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation">
                 <div className="col-xs-2">
                     <img className="logo" src="/images/logo.png" />
                 </div>

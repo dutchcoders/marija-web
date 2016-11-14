@@ -210,6 +210,7 @@ export default function entries(state = defaultState, action) {
                         queries: [action.items.query],
                         items: [d.id],
                         name: sourceValue,
+			description: '',
                         icon: source.icon,
                         fields: [source.path],
                     });
