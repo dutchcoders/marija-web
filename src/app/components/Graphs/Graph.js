@@ -311,7 +311,7 @@ class Graph extends React.Component {
                 var subject = this.simulation.find(x, y, 20);
                 if (!subject) {
                     graph.selection = {x1: x, y1: y, x2: x, y2: y};
-                    this.onNodesSelect(graph.selectedNodes);
+                    this.onNodesSelect([]);
                     return;
                 } else {
                     if (!includes(graph.selectedNodes, subject)) {
