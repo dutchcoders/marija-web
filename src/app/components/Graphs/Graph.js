@@ -231,14 +231,14 @@ class Graph extends React.Component {
                     context.strokeStyle="#cecece";
                     context.fillStyle="#fff";
 
-                    const {width} = context.measureText(graph.tooltip.node.id);
+                    const {width} = context.measureText(graph.tooltip.node.name);
                     context.rect(graph.tooltip.x,graph.tooltip.y-25,width,30);
                     context.stroke();
                     context.fill();
 
                     context.fillStyle = '#000'; //d.color[0];
                     context.font = "14px Arial";
-                    context.fillText(graph.tooltip.node.id, graph.tooltip.x + 5, graph.tooltip.y - 5);
+                    context.fillText(graph.tooltip.node.name, graph.tooltip.x + 5, graph.tooltip.y - 5);
                 }
 
                 context.restore();

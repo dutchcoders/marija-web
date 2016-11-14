@@ -1,10 +1,10 @@
-import { concat, without, reduce, remove, find, forEach, union, filter } from 'lodash';
+import { concat, without, reduce, remove, assign, find, forEach, union, filter } from 'lodash';
 
 import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
 
 import {  INDICES_RECEIVE, INDICES_REQUEST } from '../modules/indices/index';
 import {  FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index';
-import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_SELECT, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
+import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODE_SELECT, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
 import {  SEARCH_DELETE, ITEMS_RECEIVE, ITEMS_REQUEST } from '../modules/search/index';
 
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE } from '../modules/data/index';
@@ -139,6 +139,17 @@ export default function entries(state = defaultState, action) {
                 node: filter(state.node, (o) => {
                     return !find(action.nodes, o);
                 })
+            });
+        case NODE_UPDATE:
+            let nodes = concat(state.nodes, []);
+
+            let n = find(nodes, {id: action.node_id });
+            if (n) {
+                n = assign(n, action.params);
+            }
+
+            return Object.assign({}, state, {
+                nodes: nodes
             });
         case NODE_SELECT:
             return Object.assign({}, state, {

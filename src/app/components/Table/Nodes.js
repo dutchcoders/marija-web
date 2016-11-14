@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 import { map, uniq, find, differenceWith } from 'lodash';
 
 import { Icon } from '../index';
-import { clearSelection, highlightNodes, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
+import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
 import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
 import { fieldLocator } from '../../helpers/index';
 
@@ -13,7 +13,8 @@ class Nodes extends React.Component {
         super(props);
 
         this.state = {
-            editNode: null
+            editNode: null,
+            value: ""
         };
     }
 
@@ -27,8 +28,18 @@ class Nodes extends React.Component {
         this.setState({editNode: null});
     }
 
+    handleUpdateEditNode(node) {
+        const { editNode, value } = this.state;
+        const { dispatch } = this.props;
+
+        dispatch(nodeUpdate(editNode.id, {name: value}));
+
+        this.setState({editNode: null});
+    }
+
+
     handleEditNode(node) {
-        this.setState({editNode: node});
+        this.setState({editNode: node, value: node.name});
     }
 
     handleDeselectNode(node) {
@@ -105,9 +116,9 @@ class Nodes extends React.Component {
         dispatch(nodesSelect(related_nodes));
     }
 
-    handleNodeLabelChange() {
-        // this.setState({editNode: assign(node, {name: event.target.value})});
-        // dispatch(updateNode(node));
+    handleNodeLabelChange(event) {
+        const { editNode, value } = this.state;
+        this.setState({value: event.target.value});
     }
 
     handleDeleteAllNodes() {
@@ -117,7 +128,7 @@ class Nodes extends React.Component {
 
     renderSelected() {
         const { node } = this.props;
-        const { editNode } = this.state;
+        const { editNode, value } = this.state;
 
         return (
             node ?
@@ -125,15 +136,18 @@ class Nodes extends React.Component {
                     if (editNode == i_node) {
                         return (
                             <li key={i_node.id}>
+                                <form onSubmit={this.handleUpdateEditNode.bind(this)}>
                                 <Icon className="glyphicon" name={ i_node.icon }></Icon>
-                                <input type="text" value={i_node.name} onChange={(n) => this.handleNodeLabelChange(i_node) } />
+                                <input type="text" value={value} onChange={ this.handleNodeLabelChange.bind(this) } />
+                                <button type="submit" >update</button>
                                 <button onClick={(n) => this.handleCancelEditNode(n) }>cancel</button>
+                                </form>
                             </li>
                         );
                     } else {
                         return (
                             <li key={i_node.id}>
-                                {i_node.id}
+                                {i_node.name}
                                 <Icon style={{'marginRight': '60px'}}  className="glyphicon" name={ i_node.icon }></Icon>
                                 <Icon style={{'marginRight': '40px'}} onClick={(n) => this.handleEditNode(i_node)} name="ion-ios-remove-circle-outline"/>
                                 <Icon style={{'marginRight': '20px'}} onClick={(n) => this.handleDeselectNode(i_node)} name="ion-ios-remove-circle-outline"/>
