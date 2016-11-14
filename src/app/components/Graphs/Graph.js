@@ -3,7 +3,7 @@ import { connect} from 'react-redux';
 import Dimensions from 'react-dimensions';
 
 import * as d3 from 'd3';
-import { map, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign } from 'lodash';
+import { map, clone, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign } from 'lodash';
 import moment from 'moment';
 
 import { nodesSelect, highlightNodes, nodeSelect } from '../../modules/graph/index';
@@ -23,7 +23,6 @@ class Graph extends React.Component {
             start: new Date(),
             time: 0,
             n: {
-                id: 'test',
             },
             ticks: 0
         };
@@ -41,8 +40,6 @@ class Graph extends React.Component {
                 tooltip: null,
                 transform: d3.zoomIdentity
             },
-            height: containerHeight,
-            width: containerWidth,
             simulation: {},
             lines: {
                 stroke: {
@@ -64,6 +61,8 @@ class Graph extends React.Component {
                 this.graph.transform = d3.event.transform;
             },
             setup: function (el) {
+                let { clientHeight, clientWidth } = el;
+
                 this.render = this.render.bind(this);
                 this.drawNode = this.drawNode.bind(this);
                 this.drawLink = this.drawLink.bind(this);
@@ -98,9 +97,10 @@ class Graph extends React.Component {
                         return d.id;
                     }))
                     .force("charge", d3.forceManyBody().strength(-100).distanceMax(500))
-                    .force("center", d3.forceCenter(this.width / 2, this.height / 2))
+                    .force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
                     .force("vertical", d3.forceY().strength(0.018))
                     .force("horizontal", d3.forceX().strength(0.006));
+
 
                 this.render();
             },
@@ -140,7 +140,7 @@ class Graph extends React.Component {
                         return;
                     }
 
-                    let node2 = _.clone(node);
+                    let node2 = clone(node);
                     node2 = assign(node2, {force: that.forceScale(node2), r: radiusScale(node2.items.length)});
 
                     that.graph.nodes.push(node2);
@@ -186,7 +186,10 @@ class Graph extends React.Component {
                     return false;
                 }
 
-                const { context, width, height, graph, lines } = this;
+                const { canvas, context, graph, lines } = this;
+
+                // todo(nl5887): is this slow?
+                const {width, height}  = canvas;
 
                 context.save();
                 context.clearRect(0, 0, width, height);
