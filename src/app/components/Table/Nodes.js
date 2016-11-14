@@ -8,6 +8,8 @@ import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, d
 import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
 import { fieldLocator } from '../../helpers/index';
 
+import SkyLight from 'react-skylight';
+
 class Nodes extends React.Component {
     constructor(props) {
         super(props);
@@ -40,6 +42,7 @@ class Nodes extends React.Component {
 
     handleEditNode(node) {
         this.setState({editNode: node, value: node.name});
+        this.refs.customDialog.show();
     }
 
     handleDeselectNode(node) {
@@ -133,18 +136,6 @@ class Nodes extends React.Component {
         return (
             node ?
                 map(node, (i_node) => {
-                    if (editNode == i_node) {
-                        return (
-                            <li key={i_node.id}>
-                                <form onSubmit={this.handleUpdateEditNode.bind(this)}>
-                                <Icon className="glyphicon" name={ i_node.icon }></Icon>
-                                <input type="text" value={value} onChange={ this.handleNodeLabelChange.bind(this) } />
-                                <button type="submit" >update</button>
-                                <button onClick={(n) => this.handleCancelEditNode(n) }>cancel</button>
-                                </form>
-                            </li>
-                        );
-                    } else {
                         return (
                             <li key={i_node.id}>
                                 {i_node.name}
@@ -154,7 +145,6 @@ class Nodes extends React.Component {
                                 <Icon onClick={(n) => this.handleDeleteNode(i_node)} name="ion-ios-close-circle-outline"/>
                             </li>
                         );
-                    }
                 })
                 : null
         );
@@ -162,27 +152,53 @@ class Nodes extends React.Component {
 
 
     render() {
-        return (
-            <div className="form-group">
-                <span style={{cursor: 'pointer'}} onClick={() => this.handleClearSelection()}>
-                    <Icon name="ion-ios-hand-outline"/> Clear selection
-                </span>
-                <span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllNodes()}>
-                    <Icon name="ion-ios-hand-outline"/> Delete selected nodes
-                </span>
-                <span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllButSelectedNodes()}>
-                    <Icon name="ion-ios-hand-outline"/> Delete but selected nodes
-                </span>
-                <span style={{cursor: 'pointer'}} onClick={() => this.handleSelectRelatedNodes()}>
-                    <Icon name="ion-ios-hand-outline"/> Select related nodes
-                </span>
-                <span style={{cursor: 'pointer'}} onClick={() => this.handleSelectAllNodes()}>
-                    <Icon name="ion-ios-hand-outline"/> Select all nodes
-                </span>
-                <br/><br/>
-                <ul>
-                    {this.renderSelected()}
-                </ul>
+        const { editNode, value } = this.state;
+
+        const updateNodeDialogStyles = {
+            backgroundColor: '#fff',
+            color: '#000',
+            width: '400px',
+            height: '400px',
+	    marginTop: '-200px',
+	    marginLeft: '-200px',
+        };
+
+	let edit_node = null;
+	if (editNode) {
+	    edit_node = <form>
+		<Icon className="glyphicon" name={ editNode.icon }></Icon>
+		<div className="form-group">
+		    <label>Name</label>
+		    <input type="text" className="form-control" value={value} onChange={ this.handleNodeLabelChange.bind(this) } placeholder='name' />
+		</div>
+	    </form>;
+	}
+
+	return (
+	    <div className="form-group">
+		<span style={{cursor: 'pointer'}} onClick={() => this.handleClearSelection()}>
+		    <Icon name="ion-ios-hand-outline"/> Clear selection
+		</span>
+		<span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllNodes()}>
+		    <Icon name="ion-ios-hand-outline"/> Delete selected nodes
+		</span>
+		<span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllButSelectedNodes()}>
+		    <Icon name="ion-ios-hand-outline"/> Delete but selected nodes
+		</span>
+		<span style={{cursor: 'pointer'}} onClick={() => this.handleSelectRelatedNodes()}>
+		    <Icon name="ion-ios-hand-outline"/> Select related nodes
+		</span>
+		<span style={{cursor: 'pointer'}} onClick={() => this.handleSelectAllNodes()}>
+		    <Icon name="ion-ios-hand-outline"/> Select all nodes
+		</span>
+		<br/><br/>
+		<ul>
+		    {this.renderSelected()}
+		</ul>
+
+                <SkyLight dialogStyles={updateNodeDialogStyles} hideOnOverlayClicked ref="customDialog" title="Update node" afterClose={ this.handleUpdateEditNode.bind(this) }>
+                    { edit_node }
+                </SkyLight>
             </div>
         );
     }
