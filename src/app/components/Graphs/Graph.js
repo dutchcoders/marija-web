@@ -186,47 +186,59 @@ class Graph extends React.Component {
                     return false;
                 }
 
-                this.context.save();
-                this.context.clearRect(0, 0, this.width, this.height);
+                const { context, width, height, graph, lines } = this;
 
-                this.context.translate((0) + this.graph.transform.x, (0) + this.graph.transform.y);
+                context.save();
+                context.clearRect(0, 0, width, height);
 
-                this.context.scale(this.graph.transform.k, this.graph.transform.k);
+                context.translate((0) + graph.transform.x, (0) + graph.transform.y);
 
-                this.context.beginPath();
+                context.scale(graph.transform.k, graph.transform.k);
 
-                this.graph.links.forEach((d)=> {
+                context.beginPath();
+
+                graph.links.forEach((d)=> {
                     this.drawLink(d);
                 });
 
-                this.context.strokeStyle = this.lines.stroke.color;
-                this.context.lineWidth = this.lines.stroke.thickness;
-                this.context.stroke();
+                context.strokeStyle = lines.stroke.color;
+                context.lineWidth = lines.stroke.thickness;
+                context.stroke();
 
-                this.graph.nodes.forEach((d)=> {
+                graph.nodes.forEach((d)=> {
                     this.drawNode(d);
                 });
 
-                if (this.graph.selection) {
-                    this.context.beginPath();
-                    this.context.strokeStyle = '#c0c0c0';
-                    this.context.fillStyle = "rgba(224, 224, 224, 0.6)";
-                    //this.context.fillStyle = '#eee';
-                    this.context.lineWidth = 1;
-                    // this.context.setLineDash([6]);
+                if (graph.selection) {
+                    context.beginPath();
+                    context.strokeStyle = '#c0c0c0';
+                    context.fillStyle = "rgba(224, 224, 224, 0.6)";
+                    //context.fillStyle = '#eee';
+                    context.lineWidth = 1;
+                    // context.setLineDash([6]);
 
-                    this.context.rect(this.graph.selection.x1, this.graph.selection.y1, this.graph.selection.x2 - this.graph.selection.x1, this.graph.selection.y2 - this.graph.selection.y1);
-                    this.context.fill();
-                    this.context.stroke();
+                    context.rect(graph.selection.x1, graph.selection.y1, graph.selection.x2 - graph.selection.x1, graph.selection.y2 - graph.selection.y1);
+                    context.fill();
+                    context.stroke();
                 }
 
-                if (this.graph.tooltip) {
-                    this.context.fillStyle = '#000'; //d.color[0];
-                    this.context.font = "14px Arial";
-                    this.context.fillText(this.graph.tooltip.node.id, this.graph.tooltip.x + 5, this.graph.tooltip.y - 5);
+                if (graph.tooltip) {
+                    context.beginPath();
+                    context.lineWidth="1";
+                    context.strokeStyle="#cecece";
+                    context.fillStyle="#fff";
+
+                    const {width} = context.measureText(graph.tooltip.node.id);
+                    context.rect(graph.tooltip.x,graph.tooltip.y-25,width,30);
+                    context.stroke();
+                    context.fill();
+
+                    context.fillStyle = '#000'; //d.color[0];
+                    context.font = "14px Arial";
+                    context.fillText(graph.tooltip.node.id, graph.tooltip.x + 5, graph.tooltip.y - 5);
                 }
 
-                this.context.restore();
+                context.restore();
 
                 // only when simulation is running?
                 requestAnimationFrame(this.render);
@@ -361,7 +373,7 @@ class Graph extends React.Component {
                     graph.tooltip = null;
                     this.onHighlightNode([]);
                 } else if (!graph.tooltip || graph.tooltip.node !== subject) {
-                    // graph.tooltip = {node: subject, x: x, y: y};
+                    graph.tooltip = {node: subject, x: x, y: y};
                     this.onmousemove(subject);
                     this.onHighlightNode([subject]);
                 }
