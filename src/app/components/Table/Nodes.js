@@ -191,26 +191,28 @@ class Nodes extends React.Component {
 
 	return (
 	    <div className="form-group">
-		<span style={{cursor: 'pointer'}} onClick={() => this.handleClearSelection()}>
-		    <Icon name="ion-ios-hand-outline"/> Clear selection
-		</span>
-		<span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllNodes()}>
-		    <Icon name="ion-ios-hand-outline"/> Delete selected nodes
-		</span>
-		<span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllButSelectedNodes()}>
-		    <Icon name="ion-ios-hand-outline"/> Delete but selected nodes
-		</span>
-		<span style={{cursor: 'pointer'}} onClick={() => this.handleSelectRelatedNodes()}>
-		    <Icon name="ion-ios-hand-outline"/> Select related nodes
-		</span>
-		<span style={{cursor: 'pointer'}} onClick={() => this.handleSelectAllNodes()}>
-		    <Icon name="ion-ios-hand-outline"/> Select all nodes
-		</span>
-		<br/><br/>
-		<ul>
-		    {this.renderSelected()}
-		</ul>
-
+		<div className="btn-group btn-group-justified" role="group"> 
+			<div className="btn-group" role="group">
+			<button type="button" className="btn btn-default" aria-label="Clear selection" onClick={() => this.handleClearSelection()}>clear</button> 
+			</div>
+			<div className="btn-group" role="group">
+			<button type="button" className="btn btn-default" aria-label="Select related nodes" onClick={() => this.handleSelectRelatedNodes()}>related</button> 
+			</div>
+			<div className="btn-group" role="group">
+			<button type="button" className="btn btn-default" aria-label="Select all nodes" onClick={() => this.handleSelectAllNodes()}>all</button> 
+			</div>
+			<div className="btn-group" role="group">
+			<button type="button" className="btn btn-default" aria-label="Delete selected nodes" onClick={() => this.handleDeleteAllNodes()}>delete</button> 
+			</div>
+			<div className="btn-group" role="group">
+			<button type="button" className="btn btn-default" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}>inverse delete</button> 
+			</div>
+		</div> 
+		<div>
+		    <ul>
+			{this.renderSelected()}
+		    </ul>
+		</div>
                 <SkyLight dialogStyles={updateNodeDialogStyles} hideOnOverlayClicked ref="customDialog" title="Update node" afterClose={ this.handleUpdateEditNode.bind(this) }>
                     { edit_node }
                 </SkyLight>
