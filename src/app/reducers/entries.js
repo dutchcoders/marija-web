@@ -6,8 +6,7 @@ import {  INDICES_RECEIVE, INDICES_REQUEST } from '../modules/indices/index';
 import {  FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index';
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODE_SELECT, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
 import {  SEARCH_DELETE, ITEMS_RECEIVE, ITEMS_REQUEST } from '../modules/search/index';
-
-import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE } from '../modules/data/index';
+import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
 import { normalize, fieldLocator } from '../helpers/index';
 
@@ -168,7 +167,7 @@ export default function entries(state = defaultState, action) {
             });
         case ITEMS_REQUEST:
             // should check if we've already got results for this query, if then change start to items.length
-            let message = {query: action.query, index: action.index, from: action.from, size: action.size, color: action.color, host: action.index}
+            let message = {query: action.query, index: action.index, from: action.from, size: action.size, color: action.color, host: action.index};
             Socket.ws.postMessage(message);
 
             return Object.assign({}, state, {
@@ -277,13 +276,18 @@ export default function entries(state = defaultState, action) {
             return Object.assign({}, state, {
                 isFetching: true
             });
-            break;
 
         case FIELDS_RECEIVE:
             return Object.assign({}, state, {
                 isFetching: false
             });
-            break;
+
+        case INITIAL_STATE_RECEIVE:
+	    console.debug("Received initial state.", action);
+
+            return Object.assign({}, state, {
+            });
+
         default:
             return state;
     }

@@ -14,10 +14,9 @@ import { Intl }  from 'react-intl-es6';
 
 import { RootView } from './components/index';
 
-import { entries, utils, servers, indices, fields, defaultState } from './reducers/index'
-import { persistState } from './helpers/index'
-import { Socket } from './utils/index'
-import { i18n } from './config'
+import { entries, utils, servers, indices, fields, defaultState } from './reducers/index';
+import { persistState } from './helpers/index';
+import { i18n } from './config';
 
 function configureStore() {
     return createStore(
@@ -50,11 +49,12 @@ function configureStore() {
 const store = configureStore({});
 const history = syncHistoryWithStore(browserHistory, store);
 
-Socket.startWS(store.dispatch);
-
 class App extends Intl {
     constructor() {
         super(i18n.locales, i18n.messages);
+    }
+
+    componentDidMount() {
     }
 
     render() {

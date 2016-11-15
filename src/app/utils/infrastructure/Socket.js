@@ -2,6 +2,7 @@ import { FlowWS, error } from '../../utils/index';
 import { receiveItems, ITEMS_RECEIVE } from '../../modules/search/index';
 import { receiveIndices, INDICES_RECEIVE} from '../../modules/indices/index';
 import { receiveFields, FIELDS_RECEIVE} from '../../modules/fields/index';
+import { receiveInitialState, INITIAL_STATE_RECEIVE } from '../../modules/data/index';
 
 export const Socket = {
     ws: null,
@@ -18,20 +19,20 @@ export const Socket = {
 
         switch (message.type) {
             case ITEMS_RECEIVE:
-                handler = receiveItems;
+		storeDispatcher(receiveItems(message.items));
                 break;
 
             case INDICES_RECEIVE:
-                handler = receiveIndices;
+		storeDispatcher(receiveIndices(message.indices));
                 break;
 
             case FIELDS_RECEIVE:
-                handler = receiveFields;
+		storeDispatcher(receiveFields(message.fields));
                 break;
-        }
 
-        if (message.hits) {
-            storeDispatcher(handler(message.hits));
+            case INITIAL_STATE_RECEIVE:
+		storeDispatcher(receiveInitialState(message.state));
+                break;
         }
     },
     startWS: (dispatch) => {
