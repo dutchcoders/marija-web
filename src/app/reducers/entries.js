@@ -33,6 +33,8 @@ export const defaultState = {
 
 
 export default function entries(state = defaultState, action) {
+    console.debug("entries", action);
+
     switch (action.type) {
         case SELECTION_CLEAR:
             return Object.assign({}, state, {
