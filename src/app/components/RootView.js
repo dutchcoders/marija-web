@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
+import { Socket } from '../utils/index';
+
 import { Header, Record, TableView, ConfigurationView, Histogram, Graph, Pane, Icon, Nodes } from './index';
 import { Searches} from '../modules/search/index';
 import { ErrorStatus } from '../modules/status/index';
-
 
 class RootView extends Component {
     constructor(props) {
@@ -15,7 +16,9 @@ class RootView extends Component {
         };
     }
 
-    componentDidMount() {
+    componentWillMount() {
+	const { dispatch } = this.props;
+        Socket.startWS(dispatch);
     }
 
     componentWillReceiveProps(nextProps) {

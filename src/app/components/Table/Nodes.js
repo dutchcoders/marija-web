@@ -4,16 +4,20 @@ import {connect} from 'react-redux';
 import { map, uniq, find, differenceWith } from 'lodash';
 
 import { Icon } from '../index';
-import { clearSelection, highlightNodes, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
+import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
 import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
 import { fieldLocator } from '../../helpers/index';
+
+import SkyLight from 'react-skylight';
 
 class Nodes extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            editNode: null
+            editNode: null,
+            value: "",
+            description: ""
         };
     }
 
@@ -27,8 +31,19 @@ class Nodes extends React.Component {
         this.setState({editNode: null});
     }
 
+    handleUpdateEditNode(node) {
+        const { editNode, value, description } = this.state;
+        const { dispatch } = this.props;
+
+        dispatch(nodeUpdate(editNode.id, {name: value, description: description }));
+
+        this.setState({editNode: null});
+    }
+
+
     handleEditNode(node) {
-        this.setState({editNode: node});
+        this.setState({editNode: node, value: node.name});
+        this.refs.customDialog.show();
     }
 
     handleDeselectNode(node) {
@@ -105,6 +120,16 @@ class Nodes extends React.Component {
         dispatch(nodesSelect(related_nodes));
     }
 
+    handleNodeChangeName(event) {
+        const { editNode, value } = this.state;
+        this.setState({value: event.target.value});
+    }
+
+    handleNodeChangeDescription(event) {
+        const { editNode, description } = this.state;
+        this.setState({description: event.target.value});
+    }
+
     handleDeleteAllNodes() {
         const { dispatch, node } = this.props;
         dispatch(deleteNodes(node));
@@ -112,29 +137,25 @@ class Nodes extends React.Component {
 
     renderSelected() {
         const { node } = this.props;
-        const { editNode } = this.state;
+        const { editNode, value } = this.state;
 
         return (
             node ?
                 map(node, (i_node) => {
-                    if (editNode == i_node) {
                         return (
                             <li key={i_node.id}>
-                                <Icon className="glyphicon">{ i_node.icon }</Icon>
-                                <input type="text" value={i_node.id}/>
-                                <button onClick={(n) => this.handleCancelEditNode(n) }>cancel</button>
-                            </li>
-                        );
-                    } else {
-                        return (
-                            <li key={i_node.id}>
-                                {i_node.id}
-                                <Icon style={{'marginRight': '40px'}}  className="glyphicon">{ i_node.icon }</Icon>
+				<div>
+                                <span>{i_node.name}</span>
+                                <Icon style={{'marginRight': '60px'}}  className="glyphicon" name={ i_node.icon }></Icon>
+                                <Icon style={{'marginRight': '40px'}} onClick={(n) => this.handleEditNode(i_node)} name="ion-ios-remove-circle-outline"/>
                                 <Icon style={{'marginRight': '20px'}} onClick={(n) => this.handleDeselectNode(i_node)} name="ion-ios-remove-circle-outline"/>
                                 <Icon onClick={(n) => this.handleDeleteNode(i_node)} name="ion-ios-close-circle-outline"/>
+				</div>
+				<div>
+                                <span className='description'>{i_node.description}</span>
+				</div>
                             </li>
                         );
-                    }
                 })
                 : null
         );
@@ -142,27 +163,57 @@ class Nodes extends React.Component {
 
 
     render() {
-        return (
-            <div className="form-group">
-                <span style={{cursor: 'pointer'}} onClick={() => this.handleClearSelection()}>
-                    <Icon name="ion-ios-hand-outline"/> Clear selection
-                </span>
-                <span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllNodes()}>
-                    <Icon name="ion-ios-hand-outline"/> Delete all nodes
-                </span>
-                <span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllButSelectedNodes()}>
-                    <Icon name="ion-ios-hand-outline"/> Delete all but selected nodes
-                </span>
-                <span style={{cursor: 'pointer'}} onClick={() => this.handleSelectRelatedNodes()}>
-                    <Icon name="ion-ios-hand-outline"/> Select related nodes
-                </span>
-                <span style={{cursor: 'pointer'}} onClick={() => this.handleSelectAllNodes()}>
-                    <Icon name="ion-ios-hand-outline"/> Select all nodes
-                </span>
-                <br/><br/>
-                <ul>
-                    {this.renderSelected()}
-                </ul>
+        const { editNode, value, description } = this.state;
+
+        const updateNodeDialogStyles = {
+            backgroundColor: '#fff',
+            color: '#000',
+            width: '400px',
+            height: '400px',
+	    marginTop: '-200px',
+	    marginLeft: '-200px',
+        };
+
+	let edit_node = null;
+	if (editNode) {
+	    edit_node = <form>
+		<Icon className="glyphicon" name={ editNode.icon }></Icon>
+		<div className="form-group">
+		    <label>Name</label>
+		    <input type="text" className="form-control" value={value} onChange={ this.handleNodeChangeName.bind(this) } placeholder='name' />
+		</div>
+		<div className="form-group">
+		    <label>Description</label>
+		    <textarea className="form-control" value={description} onChange={ this.handleNodeChangeDescription.bind(this) } placeholder='description' />
+		</div>
+	    </form>;
+	}
+
+	return (
+	    <div className="form-group">
+		<span style={{cursor: 'pointer'}} onClick={() => this.handleClearSelection()}>
+		    <Icon name="ion-ios-hand-outline"/> Clear selection
+		</span>
+		<span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllNodes()}>
+		    <Icon name="ion-ios-hand-outline"/> Delete selected nodes
+		</span>
+		<span style={{cursor: 'pointer'}} onClick={() => this.handleDeleteAllButSelectedNodes()}>
+		    <Icon name="ion-ios-hand-outline"/> Delete but selected nodes
+		</span>
+		<span style={{cursor: 'pointer'}} onClick={() => this.handleSelectRelatedNodes()}>
+		    <Icon name="ion-ios-hand-outline"/> Select related nodes
+		</span>
+		<span style={{cursor: 'pointer'}} onClick={() => this.handleSelectAllNodes()}>
+		    <Icon name="ion-ios-hand-outline"/> Select all nodes
+		</span>
+		<br/><br/>
+		<ul>
+		    {this.renderSelected()}
+		</ul>
+
+                <SkyLight dialogStyles={updateNodeDialogStyles} hideOnOverlayClicked ref="customDialog" title="Update node" afterClose={ this.handleUpdateEditNode.bind(this) }>
+                    { edit_node }
+                </SkyLight>
             </div>
         );
     }
@@ -172,6 +223,7 @@ class Nodes extends React.Component {
 function select(state) {
     return {
         node: state.entries.node,
+        highlight_nodes: state.entries.highlight_nodes,
         nodes: state.entries.nodes,
         links: state.entries.links
     };

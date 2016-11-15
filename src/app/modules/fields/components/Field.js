@@ -10,7 +10,7 @@ export default function Field(props) {
         <li className="field">
             <FieldType field={item} />
 
-            {item.name}
+            {item.path}
 
             <Icon
                 onClick={() => handler() }

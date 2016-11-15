@@ -1,4 +1,4 @@
-import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE} from './index';
+import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from './index';
 
 export function tableColumnRemove(field) {
     return {
@@ -78,6 +78,14 @@ export function normalizationDelete(normalization) {
         type: NORMALIZATION_DELETE,
         receivedAt: Date.now(),
         normalization: normalization
+    };
+}
+
+export function receiveInitialState(initial_state) {
+    return {
+        type: INITIAL_STATE_RECEIVE,
+        receivedAt: Date.now(),
+        initial_state: initial_state
     };
 }
 

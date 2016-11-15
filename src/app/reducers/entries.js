@@ -1,13 +1,12 @@
-import { concat, without, reduce, remove, find, forEach, union, filter } from 'lodash';
+import { concat, without, reduce, remove, assign, find, forEach, union, filter } from 'lodash';
 
 import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
 
 import {  INDICES_RECEIVE, INDICES_REQUEST } from '../modules/indices/index';
 import {  FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index';
-import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_SELECT, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
+import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODE_SELECT, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
 import {  SEARCH_DELETE, ITEMS_RECEIVE, ITEMS_REQUEST } from '../modules/search/index';
-
-import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE } from '../modules/data/index';
+import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
 import { normalize, fieldLocator } from '../helpers/index';
 
@@ -34,6 +33,8 @@ export const defaultState = {
 
 
 export default function entries(state = defaultState, action) {
+    console.debug("entries", action);
+
     switch (action.type) {
         case SELECTION_CLEAR:
             return Object.assign({}, state, {
@@ -128,7 +129,7 @@ export default function entries(state = defaultState, action) {
             });
         case NODES_HIGHLIGHT:
             return Object.assign({}, state, {
-                highlight_nodes: action.nodes
+                highlight_nodes: action.highlight_nodes
             });
         case NODES_SELECT:
             return Object.assign({}, state, {
@@ -139,6 +140,17 @@ export default function entries(state = defaultState, action) {
                 node: filter(state.node, (o) => {
                     return !find(action.nodes, o);
                 })
+            });
+        case NODE_UPDATE:
+            let nodes = concat(state.nodes, []);
+
+            let n = find(nodes, {id: action.node_id });
+            if (n) {
+                n = assign(n, action.params);
+            }
+
+            return Object.assign({}, state, {
+                nodes: nodes
             });
         case NODE_SELECT:
             return Object.assign({}, state, {
@@ -156,7 +168,9 @@ export default function entries(state = defaultState, action) {
                 ...action
             });
         case ITEMS_REQUEST:
-            Socket.ws.postMessage({query: action.query, index: action.index, color: action.color, host: action.index});
+            // should check if we've already got results for this query, if then change start to items.length
+            let message = {query: action.query, index: action.index, from: action.from, size: action.size, color: action.color, host: action.index};
+            Socket.ws.postMessage(message);
 
             return Object.assign({}, state, {
                 isFetching: true,
@@ -166,25 +180,16 @@ export default function entries(state = defaultState, action) {
             var searches = concat(state.searches, {
                 q: action.items.query,
                 color: action.items.color,
-                count: action.items.results.hits.hits.length
+                count: action.items.results.length
             });
 
             const { normalizations } = state;
 
             // update nodes and links
+            var items = action.items.results;
+
             var nodes = concat(state.nodes, []);
             var links = concat(state.links, []);
-
-            var items = [];
-            forEach(action.items.results.hits.hits, (d, i) => {
-                items.push({
-                    id: d._id,
-                    q: action.items.query,
-                    color: action.items.color,
-                    fields: d._source,
-                    highlight: d.highlight || {},
-                });
-            });
 
             const fields = state.fields;
             forEach(items, (d, i) => {
@@ -198,20 +203,19 @@ export default function entries(state = defaultState, action) {
 
                     let n = find(nodes, {id: normalizedSourceValue });
                     if (n) {
-                        n.connections++;
                         n.items.push(d.id);
-                        n.queries.push(d.q);
+                        n.queries.push(action.items.query);
                         return;
                     }
 
                     nodes.push({
                         id: normalizedSourceValue,
-                        queries: [d.q],
+                        queries: [action.items.query],
                         items: [d.id],
                         name: sourceValue,
-                        colors: [d.color],
-                        connections: 1,
-                        icon: source.icon
+			description: '',
+                        icon: source.icon,
+                        fields: [source.path],
                     });
 
                     forEach(fields, (target) => {
@@ -260,9 +264,7 @@ export default function entries(state = defaultState, action) {
             });
 
         case INDICES_RECEIVE:
-            const indices = union(state.indexes, Object.keys(action.payload.results).filter((item) => {
-                return item.split('').shift() !== '.';
-            }).map((index) => {
+            const indices = union(state.indexes, action.payload.indices.map((index) => {
                 const indexName = `${action.payload.server}${index}`;
                 return indexName;
             }));
@@ -276,13 +278,18 @@ export default function entries(state = defaultState, action) {
             return Object.assign({}, state, {
                 isFetching: true
             });
-            break;
 
         case FIELDS_RECEIVE:
             return Object.assign({}, state, {
                 isFetching: false
             });
-            break;
+
+        case INITIAL_STATE_RECEIVE:
+	    console.debug("Received initial state.", action);
+
+            return Object.assign({}, state, {
+            });
+
         default:
             return state;
     }

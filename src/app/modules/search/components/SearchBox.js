@@ -33,7 +33,7 @@ export default class SearchBox extends Component {
         });
 
         return (
-            <nav className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation">
+            <nav id="searchbox" className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation">
                 <div className="logo-container">
                     <img className={`logo ${connected ? 'connected' : 'not-connected'}`} src="/images/logo.png" title={connected ? "Marija is connected to the backendservice" : "No connection to Marija backend available" } />
                 </div>

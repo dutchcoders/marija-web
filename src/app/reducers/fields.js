@@ -12,11 +12,8 @@ const defaultState = {
 export default function fields(state = defaultState, action) {
     switch (action.type) {
         case FIELDS_RECEIVE:
-            const fields = Fields.getFieldsFromResult(action.payload.fields);
-            const newAvailableFields = Fields.extractNewFields(fields, state.availableFields);
-
+            const newAvailableFields = Fields.extractNewFields(action.payload.fields, state.availableFields);
             return Object.assign({}, state, {availableFields: state.availableFields.concat(newAvailableFields)});
-
         case FIELDS_REQUEST:
             Socket.ws.postMessage(
                 {

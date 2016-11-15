@@ -2,11 +2,11 @@ input[placeholder] {
     opacity: 1;
 }
 
-.form-group {
+nav#searchbox .form-group {
     margin-bottom: 0px;
 }
 
-.form-control {
+nav#searchbox .form-control {
     color: $input-color;
     box-sizing: border-box;
     height: 42px;
@@ -86,5 +86,4 @@ i.settings {
 :-ms-input-placeholder {  
     color: #fff !important; 
 }
-
 

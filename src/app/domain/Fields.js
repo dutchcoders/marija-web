@@ -22,15 +22,8 @@ export default class Fields {
      * @returns {*}
      */
     static getFieldsFromResult(fields) {
-        return reduce(fields, (results, field) => {
-            const types = Fields.getTypes(field.mappings);
-
-            const discoveredFields = reduce(types, (perType, type) => {
-                return perType.concat(Fields.recurseFields(type, field.mappings[type], ''));
-            }, []);
-
-            return results.concat(discoveredFields);
-        }, []);
+        console.debug("fields", fields);
+        return fields;
     }
 
 
@@ -68,7 +61,7 @@ export default class Fields {
                 const combinedFields = fields.concat(innerFields, results);
                 if (typeof shouldExtract[field].type != 'undefined') {
                     combinedFields.push({
-                        name: base ? [base, field].join('.') : field,
+                        path: base ? [base, field].join('.') : field,
                         document_type: type,
                         type: shouldExtract[field].type || "nested",
                         format: shouldExtract[field].format || null
@@ -91,7 +84,7 @@ export default class Fields {
      */
     static extractNewFields(fields, currentFields) {
         return reduce(fields, (allFields, newItem) => {
-            if (typeof currentFields.find((item) => item.name === newItem.name) == 'undefined') {
+            if (typeof currentFields.find((item) => item.path === newItem.path) == 'undefined') {
                 allFields.push(newItem);
             }
 
