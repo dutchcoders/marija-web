@@ -1,14 +1,17 @@
 .pane {
     background-color: $pane-background-color;
     margin: 0;
+    box-shadow: -1px 0 0 0 rgba(0,0,0,0.15);
 
     .pane-header {
         position: relative;
         padding: 10px 0px;
         background-color: $pane-header-background-color;
-        font-size: 16px;
-        font-weight: 300;
-        letter-spacing: 0.3px;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 25px;
+        text-transform:uppercase;
+        letter-spacing: 0.4px;
 
         i {
             &.shut {
@@ -42,7 +45,7 @@
     &.configuration {
         transition: left 0.5s;
         position: absolute;
-        top: 74px;
+        top: 65px;
         left: -300px;
         bottom: 50%;
         width: 300px;
@@ -152,7 +155,7 @@
     &.nodes {
         transition: right 0.5s;
         position: absolute;
-        top: calc(74px);
+        top: calc(65px);
         right: -400px;
         bottom: 60%;
         width: 400px;
@@ -247,11 +250,11 @@
                 }
 
                 &:nth-child(even) {
-                    background-color: #56575a;
+                    background-color: rgba(255,255,255,0.05);
                 }
 
                 &:hover {
-                    background-color: #505052;
+                    background-color: rgba(0, 0, 0, 0.2);
                 }
 
                 i {
@@ -288,12 +291,13 @@
                 }
 
                 &:nth-child(even) {
-                    background-color: #56575a;
+                    background-color: rgba(255,255,255,0.05);
                 }
 
                 &:hover {
-                    background-color: #505052;
+                    background-color: rgba(0, 0, 0, 0.2);
                 }
+
 
                 i {
                     font-size: 21px;

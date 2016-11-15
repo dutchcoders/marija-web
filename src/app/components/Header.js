@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { SearchBox, requestItems } from '../modules/search/index';
-import { ConnectionStatus } from '../modules/status/index';
 import { Icon } from '../components/index';
 
 import { generateColour } from '../helpers/index';
@@ -49,10 +48,9 @@ class Header extends Component {
                     isFetching={isFetching}
                     total={total}
                     onSubmit={(q, index) => this.onSearchSubmit(q, index)}
+                    connected={connected}
                     indexes={indexes}
-                >
-                    <ConnectionStatus connected={connected}/>
-                </SearchBox>
+                />
                 { errors }
             </header>
         );
