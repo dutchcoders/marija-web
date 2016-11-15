@@ -22,31 +22,9 @@ export default class SearchBox extends Component {
         this.props.onSubmit(q, this.state.selectValue);
     }
 
-    handleChange(e) {
-        this.setState({selectValue: e.target.value});
-    }
-
-    renderIndices(indices) {
-        const options = map(indices || [], (index) => {
-            return (
-                <option key={index} value={index}>{ index }</option>
-            );
-        });
-
-        return (
-            <div>
-                <select style={{'display': 'none'}}
-                        onChange={this.handleChange.bind(this)}
-                        value={this.state.selectValue}>
-                    {options}
-                </select>
-            </div>
-        );
-    }
-
     render() {
 
-        const {children, isFetching, indexes} = this.props;
+        const { isFetching, indexes, connected } = this.props;
 
         let loader = classNames({
             'sk-search-box__loader': true,
@@ -56,22 +34,16 @@ export default class SearchBox extends Component {
 
         return (
             <nav id="searchbox" className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation">
-                <div className="col-xs-2">
-                    <img className="logo" src="/images/logo.png" />
+                <div className="logo-container">
+                    <img className={`logo ${connected ? 'connected' : 'not-connected'}`} src="/images/logo.png" title={connected ? "Marija is connected to the backendservice" : "No connection to Marija backend available" } />
                 </div>
-                <div className="col-xs-9">
+                <div className="search-container">
                     <div className="form-group">
                         <form onSubmit={this.handleSubmit.bind(this)}>
-                            <input ref="q" className="form-control" placeholder="Search" value={ this.state.q }/>
+                            <input ref="q" className="form-control" placeholder="Search something" value={ this.state.q }/>
                             <div data-qa="loader" className={loader}></div>
-                            { this.renderIndices(indexes) }
                         </form>
                     </div>
-                </div>
-                <div className="col-xs-1">
-                    <center>
-                        {children}
-                    </center>
                 </div>
             </nav>
         );

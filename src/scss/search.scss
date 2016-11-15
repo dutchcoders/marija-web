@@ -51,3 +51,39 @@ i.settings {
 
     color: $input-color-focus;
 }
+
+.search-container{
+    max-width: calc(100% - 100px);
+    width: 600px;
+    float:left;
+    margin: -15px 0px;
+    height: 72px;
+    box-sizing: border-box;
+
+    .form-group{
+        input{
+            font-size: 18px;
+            margin: 15px 0px;
+            padding-left: 50px;
+            margin-left: 25px;
+        }
+    }
+}
+
+
+::-webkit-input-placeholder {
+    color: #fff !important
+}
+
+:-moz-placeholder { /* Firefox 18- */
+    color: #fff !important;
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+    color: #fff !important;   
+}
+
+:-ms-input-placeholder {  
+    color: #fff !important; 
+}
+

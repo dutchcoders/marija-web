@@ -27,7 +27,7 @@ export function Pane(props) {
                 <div className="row pane-header">
                     <div className="col-md-12">
                         {name}
-                        <Icon onClick={() => close()} name="ion-ios-close shut"/>
+                        <Icon onClick={() => close()} name="ion-ios-remove shut"/>
                     </div>
                 </div>
                 <div className="row">
