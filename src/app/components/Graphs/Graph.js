@@ -3,11 +3,13 @@ import { connect} from 'react-redux';
 import Dimensions from 'react-dimensions';
 
 import * as d3 from 'd3';
-import { map, clone, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign } from 'lodash';
+import { map, clone, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign, isEqual } from 'lodash';
 import moment from 'moment';
 
 import { nodesSelect, highlightNodes, nodeSelect } from '../../modules/graph/index';
 import { normalize, fieldLocator } from '../../helpers/index';
+
+var Worker = require("worker-loader!./Worker");
 
 class Graph extends React.Component {
     constructor(props) {
@@ -91,19 +93,36 @@ class Graph extends React.Component {
                         .on("zoom", this.zoomed.bind(this))
                     );
 
-                this.simulation = d3.forceSimulation()
-                    .stop()
-                    .force("link", d3.forceLink().id(function (d) {
-                        return d.id;
-                    }))
-                    .force("charge", d3.forceManyBody().strength(-100).distanceMax(500))
-                    .force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
-                    .force("vertical", d3.forceY().strength(0.018))
-                    .force("horizontal", d3.forceX().strength(0.006));
+		this.simulation = d3.forceSimulation()
+		    .stop()
+		    .force("link", d3.forceLink().id(function (d) {
+			return d.id;
+		    }))
+		    .force("charge", d3.forceManyBody().strength(-100).distanceMax(500))
+		    .force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
+		    .force("vertical", d3.forceY().strength(0.018))
+		    .force("horizontal", d3.forceX().strength(0.006));
 
+		/*
+		this.worker = new Worker;
+		this.worker.onmessage = function(event) {
+		    switch (event.data.type) {
+			case "tick": return this.ticked(event.data);
+			case "end": return this.ended(event.data);
+		    }
+		}.bind(this);
+		*/
 
-                this.render();
+		requestAnimationFrame(this.render);
             },
+	    ticked: function(data) {
+		this.graph.nodes = data.nodes;
+		this.graph.links = data.links;
+	    },
+	    ended: function(data) {
+		this.graph.nodes = data.nodes;
+		this.graph.links = data.links;
+	    },
             forceScale: function (node) {
                 var scale = d3.scaleLog().domain(this.nodes.sizeRange).range(this.nodes.sizeRange.slice().reverse());
                 return node.r + scale(node.r);
@@ -115,7 +134,7 @@ class Graph extends React.Component {
                 this.graph.highlight_nodes = nodes;
             },
             updateNodes: function (graph) {
-                var countExtent = d3.extent(graph.nodes, function (d) {
+                var countExtent = d3.extent(graph.nodes, (d) => {
                         return d.items.length;
                     }),
                     radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(this.nodes.sizeRange);
@@ -131,7 +150,7 @@ class Graph extends React.Component {
                     });
                 });
 
-                each(graph.nodes, function (node) {
+                each(graph.nodes, (node) => {
                     // todo(nl5887): cleanup
                     var n = find(that.graph.nodes, {id: node.id});
                     if (n) {
@@ -148,13 +167,13 @@ class Graph extends React.Component {
                     newNodes = true;
                 });
 
-                remove(this.graph.links, (link) => {
-                    return !find(graph.links, (o) => {
-                        return (link.source.id == o.source && link.target.id == o.target);
-                    });
-                });
+		remove(this.graph.links, (link) => {
+		    return !find(graph.links, (o) => {
+			return (link.source.id == o.source && link.target.id == o.target);
+		    });
+		});
 
-                each(graph.links, function (link) {
+                each(graph.links, (link) => {
                     var n = find(that.graph.links, (o) => {
                         return o.source.id == link.source && o.target.id == link.target;
                     });
@@ -164,7 +183,6 @@ class Graph extends React.Component {
                     }
 
                     // todo(nl5887): why?
-
                     that.graph.links.push({source: link.source, target: link.target});
                 });
 
@@ -172,6 +190,17 @@ class Graph extends React.Component {
 
                 if (!newNodes)
                     {return;}
+
+                let { height, width } = this.canvas;
+
+		/*
+		this.worker.postMessage({
+		    clientWidth: width,
+		    clientHeight: height,
+		    nodes: this.graph.nodes,
+		    links: this.graph.links
+		});
+		*/
 
                 this.simulation
                     .nodes(this.graph.nodes);
@@ -212,6 +241,26 @@ class Graph extends React.Component {
                     this.drawNode(d);
                 });
 
+		// todo(nl5887): we're having graph and react nodes here, go fix.
+		if (this.graph.selectedNodes) {
+		    this.context.strokeStyle = '#993833';
+		    this.context.lineWidth = this.nodes.stroke.thickness;
+
+		    this.context.beginPath();
+		    for (const selectedNode of this.graph.selectedNodes) {
+			const d = find(this.graph.nodes, (n) => {
+			    return n.id == selectedNode.id;
+			});
+
+			if (!d) 
+			    continue;
+
+			this.context.moveTo(d.x + d.r, d.y);
+			this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
+		    }
+		    this.context.stroke();
+		}
+
                 if (graph.selection) {
                     context.beginPath();
                     context.strokeStyle = '#c0c0c0';
@@ -241,10 +290,11 @@ class Graph extends React.Component {
                     context.fillText(graph.tooltip.node.name, graph.tooltip.x + 5, graph.tooltip.y - 5);
                 }
 
+
                 context.restore();
 
-                // only when simulation is running?
-                requestAnimationFrame(this.render);
+                // only when there is activity?
+		requestAnimationFrame(this.render);
             },
             drawLink: function (d) {
                 this.context.moveTo(d.source.x, d.source.y);
@@ -254,39 +304,38 @@ class Graph extends React.Component {
                 // this.context.moveTo(d.x + d.r, d.y);
                 // for each different query, show a part. This will show that the edge
                 //  has been found in multiple queries.
+		// this can be optimized by combining all same color fills apart
                 for (var i = 0; i < d.queries.length; i++) {
                     // find color
                     this.context.beginPath();
 
+		    var j = i;
+		    for (; j < d.queries.length; j++) {
+			if (d.queries[i] !== d.queries[j]) {
+				break;
+			}
+		    }
+
                     this.context.moveTo(d.x, d.y);
-                    this.context.arc(d.x, d.y, d.r, 2 * Math.PI * (i / d.queries.length), 2 * Math.PI * ( (i + 1) / d.queries.length));
+                    this.context.arc(d.x, d.y, d.r, 2 * Math.PI * (i / d.queries.length), 2 * Math.PI * ( (j + 1) / d.queries.length));
                     this.context.lineTo(d.x, d.y);
 
-                    var color = '#000'; // d.searches[i];
+		    var color = '#000'; 
+		    const q = find(this.graph.queries, function(v) {
+			return d.queries[i] === v.q;
+		    });
 
-                    for (var j = 0; j < this.graph.queries.length; j++) {
-                        if (this.graph.queries[j].q === d.queries[i])
-                            {color = this.graph.queries[j].color;}
-                    }
+		    if (q) {
+			color = q.color;
+		    }
 
-                    this.context.fillStyle = color;
+		    this.context.fillStyle = color;
                     this.context.fill();
 
                     this.context.strokeStyle = color;
                     this.context.stroke();
 
-                }
-
-                // todo(nl5887): we're having graph and react nodes here, go fix.
-                if (find(this.graph.selectedNodes, (n) => {
-                    return n.id == d.id;
-                })) {
-                    this.context.strokeStyle = '#993833';
-                    this.context.lineWidth = this.nodes.stroke.thickness;
-
-                    this.context.beginPath();
-                    this.context.arc(d.x, d.y, d.r, 0, 2 * Math.PI);
-                    this.context.stroke();
+		    i = j;
                 }
 
                 if (d.icon) {
@@ -298,6 +347,31 @@ class Graph extends React.Component {
                     this.context.fillText(d.icon, d.x - ((width - 0.5) /2), d.y + (fontHeight + 0.5)/2);
                 }
             },
+	    find(x, y) {
+		var i = 0,
+		    n = this.graph.nodes.length,
+		    dx,
+		    dy,
+		    d2,
+		    node,
+		    closest;
+
+		let radius = 20;
+		if (radius == null) 
+		    radius = Infinity;
+		else 
+		    radius *= radius;
+
+		for (i = 0; i < n; ++i) {
+		    node = this.graph.nodes[i];
+		    dx = x - node.x;
+		    dy = y - node.y;
+		    d2 = dx * dx + dy * dy;
+		    if (d2 < (node.r * node.r)) closest = node;
+		}
+
+		return closest;
+	    },
             mousedown: function () {
                 const { graph } = this;
 
@@ -308,7 +382,7 @@ class Graph extends React.Component {
                 var x = graph.transform.invertX(d3.event.layerX),
                     y = graph.transform.invertY(d3.event.layerY);
 
-                var subject = this.simulation.find(x, y, 20);
+                var subject = this.find(x, y);
                 if (!subject) {
                     graph.selection = {x1: x, y1: y, x2: x, y2: y};
                     this.onNodesSelect([]);
@@ -371,7 +445,7 @@ class Graph extends React.Component {
                     graph.selection = assign(graph.selection, {x2: x, y2: y});
                 }
 
-                var subject = this.simulation.find(x, y, 20);
+                var subject = this.find(x, y);
                 if (subject === undefined) {
                     graph.tooltip = null;
                     this.onHighlightNode([]);
@@ -391,7 +465,14 @@ class Graph extends React.Component {
                 d3.event.subject.fx = x;
                 d3.event.subject.fy = y;
 
-                if (!d3.event.active) {this.simulation.alphaTarget(0.3).restart();}
+		if (!d3.event.active) {
+		    /*
+		    this.worker.postMessage({
+			'type': 'restart'
+		    });
+		    */
+		    this.simulation.alphaTarget(0.3).restart();
+		}
             },
             dragged: function () {
                 var x = d3.event.x,
@@ -404,13 +485,20 @@ class Graph extends React.Component {
                 d3.event.subject.fx = null;
                 d3.event.subject.fy = null;
 
-                if (!d3.event.active) {this.simulation.alphaTarget(0);}
+		if (!d3.event.active) {
+		    /*
+		    this.worker.postMessage({
+			'type': 'restart'
+		    });
+		    */
+		    this.simulation.alphaTarget(0);
+		}
             },
             dragsubject: function () {
                 const x = this.graph.transform.invertX(d3.event.x),
                     y = this.graph.transform.invertY(d3.event.y);
 
-                return this.simulation.find(x, y, 20);
+                return this.find(x, y);
             },
             mousemoved: function () {
             }
@@ -437,6 +525,10 @@ class Graph extends React.Component {
 
     onHighlightNode(nodes) {
         // todo(nl5887): dispatch actual react (this.props.nodes, not graph nodes)
+	if (isEqual(nodes, this.props.nodes)) {
+		return;
+	}
+
         const { dispatch } = this.props;
         dispatch(highlightNodes(nodes));
     }
