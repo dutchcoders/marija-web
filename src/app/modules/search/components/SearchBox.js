@@ -23,10 +23,10 @@ export default class SearchBox extends Component {
     }
 
     render() {
-
         const { isFetching, indexes, connected } = this.props;
 
         let loader = classNames({
+	    'loader': true, 
             'sk-search-box__loader': true,
             'sk-spinning-loader': true,
             'is-hidden': !isFetching
