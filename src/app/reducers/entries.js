@@ -164,21 +164,36 @@ export default function entries(state = defaultState, action) {
                 didInvalidate: false,
                 ...action
             });
-        case ITEMS_REQUEST:
-            // should check if we've already got results for this query, if then change start to items.length
-            let message = {query: action.query, index: action.index, from: action.from, size: action.size, color: action.color, host: action.index};
+        case ITEMS_REQUEST: {
+            // if we searched before, just retrieve extra results for query
+            const search = find(state.searches, (o) => o.q == action.query) || { items: [] };
+
+            let from = search.items.length || 0;
+
+            let message = {query: action.query, index: action.index, from: from, size: action.size, color: action.color, host: action.index};
             Socket.ws.postMessage(message);
 
             return Object.assign({}, state, {
                 isFetching: true,
                 didInvalidate: false
             });
-        case ITEMS_RECEIVE:
-            var searches = concat(state.searches, {
-                q: action.items.query,
-                color: action.items.color,
-                count: action.items.results.length
-            });
+        }
+        case ITEMS_RECEIVE: {
+            var searches = concat(state.searches, []);
+
+            // should we update existing search, or add new
+            let search = find(state.searches, (o) => o.q == action.items.query);
+            if (search) {
+                search.items = concat(search.items, action.items.results);
+            } else {
+                searches.push({
+                    q: action.items.query,
+                    color: action.items.color,
+                    items: action.items.results
+                });
+            }
+
+            // let search = find(searches, (o) => return o.q == action.items.query) {
 
             const { normalizations } = state;
 
@@ -245,8 +260,7 @@ export default function entries(state = defaultState, action) {
                 isFetching: false,
                 didInvalidate: false
             });
-
-            break;
+        }
         case INDICES_REQUEST:
             Socket.ws.postMessage(
                 {

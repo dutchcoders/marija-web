@@ -55,7 +55,7 @@ class Searches extends Component {
                                     />
                                     <span className="colorBall" style={{backgroundColor: search.color}}/>
 
-                                    { search.q } ({search.count})
+                                    { `${search.q} (${search.items.length})` }
 
                                     <Icon onClick={() => this.handleCancelEditSearch() }
                                           name="ion-ios-checkmark-circle"/>
@@ -66,7 +66,7 @@ class Searches extends Component {
                                 <li key={search.q}>
                                     <span className="colorBall" style={{backgroundColor: search.color}}/>
 
-                                    { search.q } ({search.count})
+                                    { `${search.q} (${search.items.length})` }
 
                                     <Icon style={{'marginRight': '15px'}}
                                           onClick={(e) => this.handleEditSearch(search, e) }
