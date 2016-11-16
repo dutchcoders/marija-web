@@ -190,7 +190,7 @@ class Nodes extends React.Component {
 	}
 
 	return (
-	    <div className="form-group">
+	    <div className="form-group toolbar">
 		<div className="btn-group btn-group-justified" role="group"> 
 			<div className="btn-group" role="group">
 			<button type="button" className="btn btn-default" aria-label="Clear selection" onClick={() => this.handleClearSelection()}>clear</button> 

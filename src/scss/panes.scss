@@ -184,6 +184,22 @@
                 opacity: 0;
             }
         }
+
+        .pane-holder {
+            padding-top: 0;
+        }
+
+        .pane-content {
+            .toolbar {
+                left: 0px;
+                right: 0px;
+                position: absolute;
+
+                .btn-group button {
+                    border-radius: 0;
+                }
+            }
+        }
     }
 
     &.histogram {
