@@ -482,9 +482,6 @@ class Graph extends React.Component {
                 d3.event.subject.fy = (y);
             },
             dragended: function () {
-                d3.event.subject.fx = null;
-                d3.event.subject.fy = null;
-
 		if (!d3.event.active) {
 		    /*
 		    this.worker.postMessage({
