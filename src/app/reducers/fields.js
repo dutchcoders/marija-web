@@ -17,7 +17,7 @@ export default function fields(state = defaultState, action) {
         case FIELDS_REQUEST:
             Socket.ws.postMessage(
                 {
-                    host: action.payload.host
+                    host: action.payload.indexes
                 },
                 FIELDS_REQUEST
             );

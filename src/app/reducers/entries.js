@@ -1,4 +1,4 @@
-import { concat, without, reduce, remove, assign, find, forEach, union, filter } from 'lodash';
+import { concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy } from 'lodash';
 
 import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
 
@@ -33,20 +33,17 @@ export const defaultState = {
 
 
 export default function entries(state = defaultState, action) {
-    console.debug("entries", action);
-
     switch (action.type) {
         case SELECTION_CLEAR:
             return Object.assign({}, state, {
                 node: [],
             });
-        case INDEX_ADD:
-            var indexes = concat(state.indexes, action.index);
-            return Object.assign({}, state, {
-                indexes: indexes,
-            });
         case INDEX_DELETE:
-            var indexes = without(state.indexes, action.index);
+            const index = find(state.indexes, (i) => {
+                return (i.id == action.index);
+            });
+
+            var indexes = without(state.indexes, index);
             return Object.assign({}, state, {
                 indexes: indexes,
             });
@@ -264,10 +261,13 @@ export default function entries(state = defaultState, action) {
             });
 
         case INDICES_RECEIVE:
-            const indices = union(state.indexes, action.payload.indices.map((index) => {
-                const indexName = `${action.payload.server}${index}`;
-                return indexName;
-            }));
+            const indices = uniqBy(union(state.indexes, action.payload.indices.map((index) => {
+                return {
+		    id: `${action.payload.server}${index}`,
+		    server: action.payload.server,
+		    name: index
+		};
+            })), (i) => i.id);
 
             return Object.assign({}, state, {
                 indexes: indices,

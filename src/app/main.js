@@ -14,20 +14,22 @@ import { Intl }  from 'react-intl-es6';
 
 import { RootView } from './components/index';
 
-import { entries, utils, servers, indices, fields, defaultState } from './reducers/index';
+import { entries, enableBatching, utils, servers, indices, fields, defaultState } from './reducers/index';
 import { persistState } from './helpers/index';
 import { i18n } from './config';
 
 function configureStore() {
     return createStore(
-        combineReducers({
+        enableBatching(
+            combineReducers({
             entries,
             utils,
             servers,
             indices,
             fields,
             routing: routerReducer
-        }), {
+            })
+        ), {
             servers: [
                 "http://127.0.0.1:9200/"
             ],

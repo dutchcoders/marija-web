@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { map, includes, slice } from 'lodash';
+import { find, map, includes, slice } from 'lodash';
 
 import { requestIndices } from '../../modules/indices/index';
 import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, normalizationAdd, normalizationDelete, indexAdd, indexDelete } from '../../modules/data/index';
 import { serverAdd, serverRemove } from '../../modules/servers/index';
 import { activateIndex, deActivateIndex } from '../../modules/indices/index';
+import { batchActions } from '../../modules/batch/index';
 import { getFields, clearAllFields, Field } from '../../modules/fields/index';
 import { Icon } from '../index';
 
@@ -85,8 +86,10 @@ class ConfigurationView extends React.Component {
             return;
         }
 
-        dispatch(indexAdd(index.value));
-        dispatch(activateIndex(index.value));
+        dispatch(batchActions(
+            indexAdd(index.value),
+            activateIndex(index.value)
+        ));
     }
 
     handleAddServer(e) {
@@ -99,7 +102,10 @@ class ConfigurationView extends React.Component {
             return;
         }
 
-        dispatch(serverAdd(server.value));
+        dispatch(batchActions(
+            serverAdd(server.value),
+            requestIndices(server.value)
+        ));
     }
 
     handleDeleteServer(server) {
@@ -122,10 +128,12 @@ class ConfigurationView extends React.Component {
         dispatch(normalizationDelete(normalization));
     }
 
-    handleDeleteIndex(field) {
+    handleDeleteIndex(index) {
         const { dispatch } = this.props;
-        dispatch(indexDelete(field));
-        dispatch(deActivateIndex(field));
+        dispatch(batchActions(
+            indexDelete(index.id),
+            deActivateIndex(index.id)
+        ));
     }
 
     handleRequestIndices(server) {
@@ -282,18 +290,19 @@ class ConfigurationView extends React.Component {
         const { dispatch,activeIndices } = this.props;
 
         const options = map(indices, (index) => {
-            const indexName = index;
+            const indexName = index.name;
+	    const active = find(activeIndices, (a) => a === index.id);
 
             return (
-                <li key={index} value={index}>
-                    <div className="index-name" title={index}>
-                        { index }
+                <li key={ index.id } value={ indexName }>
+                    <div className="index-name" title={indexName }>
+                        { indexName }
                     </div>
 
-                    {includes(activeIndices, indexName) ?
-                        <Icon onClick={() => dispatch(deActivateIndex(indexName)) } name="ion-ios-eye"/>
+                    { active ?
+                        <Icon onClick={() => dispatch(deActivateIndex(index.id)) } name="ion-ios-eye"/>
                         :
-                        <Icon onClick={() => dispatch(activateIndex(indexName)) } name="ion-ios-eye-off"/>
+                        <Icon onClick={() => dispatch(activateIndex(index.id)) } name="ion-ios-eye-off"/>
                     }
 
                     <Icon onClick={() => this.handleDeleteIndex(index)} name="ion-ios-trash-outline"/>
@@ -310,16 +319,6 @@ class ConfigurationView extends React.Component {
             <div>
                 <ul>{options}</ul>
                 { no_indices }
-                <form onSubmit={this.handleAddIndex.bind(this)}>
-                    <div className="row">
-                        <div className="col-xs-10">
-                            <input className="form-control" type="text" ref="index" placeholder="New index"/>
-                        </div>
-                        <div className="col-xs-1">
-                            <Icon onClick={this.handleAddIndex.bind(this)} name="ion-ios-add-circle-outline add"/>
-                        </div>
-                    </div>
-                </form>
             </div>
         );
     }
@@ -345,8 +344,8 @@ class ConfigurationView extends React.Component {
                 <div className="form-group">
                     <h2>
                         Fields
-                        <Icon onClick={() => {dispatch(clearAllFields()); dispatch(getFields(indexes));} }
-                              name="ion-ios-refresh" style={{float: "right", fontSize:"23px"}}/>
+                        <Icon onClick={() => { dispatch(batchActions(clearAllFields(), getFields(map(indexes, (i) => i.id)))) } } name="ion-ios-refresh" 
+                            style={{float: "right", fontSize:"23px"}}/>
                     </h2>
 
                     <p>The fields are used as node id.</p>
@@ -377,7 +376,7 @@ class ConfigurationView extends React.Component {
                 <div className="form-group">
                     <h2>
                         Date fields
-                        <Icon onClick={() => dispatch(getFields(indexes))} name="ion-ios-refresh"
+                        <Icon onClick={() => dispatch(batchActions(clearAllFields(), getFields(map(indexes, (i) => i.id)))) } name="ion-ios-refresh"
                               style={{float: "right", fontSize:"23px"}}/>
                     </h2>
                     <p>The date fields are being used for the histogram.</p>

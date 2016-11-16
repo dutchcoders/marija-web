@@ -1,10 +1,10 @@
-import { FIELDS_RECEIVE, FIELDS_REQUEST, FIELDS_CLEAR } from './index'
+import { FIELDS_RECEIVE, FIELDS_REQUEST, FIELDS_CLEAR } from './index';
 
 
 export function clearAllFields(){
     return {
         type: FIELDS_CLEAR,
-    }
+    };
 }
 
 
@@ -17,11 +17,11 @@ export function receiveFields(payload) {
     };
 }
 
-export function getFields(hosts) {
+export function getFields(indexes) {
     return {
         type: FIELDS_REQUEST,
         payload: {
-            host: hosts
+            indexes: indexes
         }
     };
 }
