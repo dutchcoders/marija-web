@@ -215,6 +215,12 @@ class Graph extends React.Component {
                     return false;
                 }
 
+                // optimizations to do:
+                // * group alike drawings, prevent switching of colors, fonts, etc
+                // * stroke and fill all at once
+                // * don't draw out of the viewing context
+                //
+
                 const { canvas, context, graph, lines } = this;
 
                 // todo(nl5887): is this slow?
@@ -227,6 +233,7 @@ class Graph extends React.Component {
 
                 context.scale(graph.transform.k, graph.transform.k);
 
+                // draw links
                 context.beginPath();
 
                 graph.links.forEach((d)=> {
@@ -237,8 +244,29 @@ class Graph extends React.Component {
                 context.lineWidth = lines.stroke.thickness;
                 context.stroke();
 
-                graph.nodes.forEach((d)=> {
-                    this.drawNode(d);
+                // draw nodes
+                for (let i = 0; i < graph.queries.length; i++) {
+                    this.context.beginPath();
+
+                    graph.nodes.forEach((d) => {
+                        this.drawNode(d, graph.queries[i]);
+                    });
+
+                    const color = graph.queries[i].color;
+
+		    this.context.fillStyle = color;
+                    this.context.fill();
+
+                    this.context.strokeStyle = color;
+                    this.context.stroke();
+                }
+
+                this.context.fillStyle = '#fff';
+
+                graph.nodes.forEach((d) => {
+                    const fontHeight = 6 + Math.floor(0.8*d.r);
+                    this.context.font=fontHeight + "px glyphicons halflings";
+                    this.context.fillText(d.icon, d.x - ((fontHeight - 0.5) /2), d.y + (fontHeight + 0.5)/2);
                 });
 
 		// todo(nl5887): we're having graph and react nodes here, go fix.
@@ -300,15 +328,12 @@ class Graph extends React.Component {
                 this.context.moveTo(d.source.x, d.source.y);
                 this.context.lineTo(d.target.x, d.target.y);
             },
-            drawNode: function (d) {
+            drawNode: function (d, q) {
                 // this.context.moveTo(d.x + d.r, d.y);
                 // for each different query, show a part. This will show that the edge
                 //  has been found in multiple queries.
 		// this can be optimized by combining all same color fills apart
                 for (var i = 0; i < d.queries.length; i++) {
-                    // find color
-                    this.context.beginPath();
-
 		    var j = i;
 		    for (; j < d.queries.length; j++) {
 			if (d.queries[i] !== d.queries[j]) {
@@ -316,35 +341,13 @@ class Graph extends React.Component {
 			}
 		    }
 
-                    this.context.moveTo(d.x, d.y);
-                    this.context.arc(d.x, d.y, d.r, 2 * Math.PI * (i / d.queries.length), 2 * Math.PI * ( (j + 1) / d.queries.length));
-                    this.context.lineTo(d.x, d.y);
-
-		    var color = '#000'; 
-		    const q = find(this.graph.queries, function(v) {
-			return d.queries[i] === v.q;
-		    });
-
-		    if (q) {
-			color = q.color;
-		    }
-
-		    this.context.fillStyle = color;
-                    this.context.fill();
-
-                    this.context.strokeStyle = color;
-                    this.context.stroke();
+                    if (q.q === d.queries[i]) {
+                        this.context.moveTo(d.x, d.y);
+                        this.context.arc(d.x, d.y, d.r, 2 * Math.PI * (i / d.queries.length), 2 * Math.PI * ( (j + 1) / d.queries.length));
+                        this.context.lineTo(d.x, d.y);
+                    }
 
 		    i = j;
-                }
-
-                if (d.icon) {
-                    let fontHeight = 6 + Math.floor(0.8*d.r);
-                    this.context.font=fontHeight + "px glyphicons halflings";
-                    this.context.fillStyle = '#fff';
-
-                    const {width} = this.context.measureText(d.icon);
-                    this.context.fillText(d.icon, d.x - ((width - 0.5) /2), d.y + (fontHeight + 0.5)/2);
                 }
             },
 	    find(x, y) {
