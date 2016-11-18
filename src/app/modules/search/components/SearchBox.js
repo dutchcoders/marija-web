@@ -19,6 +19,10 @@ export default class SearchBox extends Component {
         e.preventDefault();
 
         let q = this.refs.q.value;
+        if (!q) {
+            return;
+        }
+
         this.props.onSubmit(q, this.state.selectValue);
     }
 
