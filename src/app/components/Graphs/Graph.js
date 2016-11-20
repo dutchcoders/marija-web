@@ -584,7 +584,7 @@ class Graph extends React.Component {
 
         return (
             <canvas
-                style={{fontFamily: 'fontAwesome'}}
+                style={{fontFamily: 'glyphicons halflings'}}
                 width={containerWidth}
                 height={containerHeight}
                 ref="canvas">
