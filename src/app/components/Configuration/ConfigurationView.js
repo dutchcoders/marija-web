@@ -210,10 +210,13 @@ class ConfigurationView extends React.Component {
 
 
     renderFields(fields) {
+        const style = {'marginRight': '20px'};
+
         const options = map(fields, (field) => {
             return (
                 <li key={field.path} value={ field.path }>
                     { field.path }
+                    <i className="icon" style={ style }>{ field.icon }</i>
                     <Icon onClick={() => this.handleDeleteField(field)} name="ion-ios-trash-outline"/>
                 </li>
             );
