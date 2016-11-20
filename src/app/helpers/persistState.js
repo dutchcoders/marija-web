@@ -18,6 +18,12 @@ export default function persistState() {
 
         try {
             const normalizations = JSON.parse(localStorage.getItem("normalizations"));
+
+            // precompile regex
+            for (let normalization of normalizations) { 
+                normalization.re = new RegExp(normalization.regex, "i");
+            }
+
             initialState.entries.normalizations = merge(initialState.entries.normalizations, normalizations);
         } catch (e) {
             console.warn('failed to retrieve initialize state from localstorage:', e);

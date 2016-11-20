@@ -109,8 +109,10 @@ export default function entries(state = defaultState, action) {
                 fields: without(state.fields, action.field)
             });
         case NORMALIZATION_ADD:
+            let normalization = action.normalization;
+            normalization.re = new RegExp(normalization.regex, "i");
             return Object.assign({}, state, {
-                normalizations: concat(state.normalizations, action.normalization)
+                normalizations: concat(state.normalizations, normalization)
             });
         case NORMALIZATION_DELETE:
             return Object.assign({}, state, {
