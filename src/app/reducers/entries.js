@@ -1,4 +1,4 @@
-import { concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy } from 'lodash';
+import { slice, concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy } from 'lodash';
 
 import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
 
@@ -183,7 +183,7 @@ export default function entries(state = defaultState, action) {
         case ITEMS_RECEIVE: {
             var searches = concat(state.searches, []);
 
-            // should we update existing search, or add new
+            // should we update existing search, or add new, do we still need items?
             let search = find(state.searches, (o) => o.q == action.items.query);
             if (search) {
                 search.items = concat(search.items, action.items.results);
@@ -199,57 +199,132 @@ export default function entries(state = defaultState, action) {
 
             const { normalizations } = state;
 
+
+            // todo(nl5887): should we start a webworker here, the webworker can have its own permanent cache?
+
             // update nodes and links
             var items = action.items.results;
 
             var nodes = concat(state.nodes, []);
             var links = concat(state.links, []);
 
+            let nodeCache = {};
+            for (let node of nodes) {
+                nodeCache[node.id] = node;
+            }
+
+            let linkCache = {};
+            for (let link of links) {
+                linkCache[link.source + link.target] = link;
+            }
+
             const fields = state.fields;
             forEach(items, (d, i) => {
                 forEach(fields, (source) => {
-                    const sourceValue = fieldLocator(d.fields, source.path);
+                    let sourceValue = fieldLocator(d.fields, source.path);
                     if (!sourceValue) {
                         return;
                     }
 
-                    const normalizedSourceValue = normalize(normalizations, sourceValue);
-
-                    let n = find(nodes, {id: normalizedSourceValue });
-                    if (n) {
-                        n.items.push(d.id);
-                        n.queries.push(action.items.query);
-                        return;
+                    if (!Array.isArray(sourceValue)) {
+                        sourceValue = [sourceValue];
                     }
 
-                    nodes.push({
-                        id: normalizedSourceValue,
-                        queries: [action.items.query],
-                        items: [d.id],
-                        name: sourceValue,
-			description: '',
-                        icon: source.icon,
-                        fields: [source.path],
-                    });
+                    for (const sv of sourceValue) {
+                        const normalizedSourceValue = normalize(normalizations, sv);
 
-                    forEach(fields, (target) => {
-                        const targetValue = fieldLocator(d.fields, target.path);
-                        if (!targetValue) {
-                            return;
+                        let n = nodeCache[normalizedSourceValue];
+                        if (n) {
+                            if (n.items.indexOf(d.id) == -1){
+                                n.items.push(d.id);
+                            }
+
+                            if (n.fields.indexOf(source.path) == -1){
+                                n.fields.push(source.path);
+                            }
+
+                            n.queries.push(action.items.query);
+                        } else {
+                            let n = {
+                                id: normalizedSourceValue,
+                                queries: [action.items.query],
+                                items: [d.id],
+                                name: normalizedSourceValue,
+                                description: '',
+                                icon: source.icon,
+                                fields: [source.path],
+                            };
+
+                            nodeCache[n.id] = n;
+                            nodes.push(n);
                         }
 
-                        const normalizedTargetValue = normalize(normalizations, targetValue);
+                        forEach(fields, (target) => {
+                            let targetValue = fieldLocator(d.fields, target.path);
+                            if (!targetValue) {
+                                return;
+                            }
 
-                        if (find(links, {source: normalizedSourceValue, target: normalizedTargetValue})) {
-                            // link already exists
-                            return;
-                        }
+                            if (!Array.isArray(targetValue)) {
+                                targetValue = [targetValue];
+                            }
 
-                        links.push({
-                            source: normalizedSourceValue,
-                            target: normalizedTargetValue,
+                            // todo(nl5887): issue with normalizing is if we want to use it as name as well.
+                            // for example we don't want to have the first name only as name.
+                            //
+                            // we need to keep track of the fields the value is in as well.
+                            for (const tv of targetValue) {
+                                const normalizedTargetValue = normalize(normalizations, tv);
+
+                                let n = nodeCache[normalizedTargetValue];
+                                if (n) {
+                                    if (n.items.indexOf(d.id) == -1){
+                                        n.items.push(d.id);
+                                    }
+
+                                    if (n.fields.indexOf(target.path) == -1){
+                                        n.fields.push(target.path);
+                                    }
+
+                                    // should add counter instead of thousands same query being added
+                                    n.queries.push(action.items.query);
+                                } else {
+                                    let n = {
+                                        id: normalizedTargetValue,
+                                        queries: [action.items.query],
+                                        items: [d.id],
+                                        name: normalizedTargetValue,
+                                        description: '',
+                                        icon: [target.icon],
+                                        fields: [target.path],
+                                    };
+
+                                    nodeCache[n.id] = n;
+                                    nodes.push(n);
+                                }
+
+                                if (sourceValue.length > 1) {
+                                    // we don't want all individual arrays to be linked together
+                                    // those individual arrays being linked are (I assume) irrelevant
+                                    // otherwise this needs to be a configuration option
+                                    continue;
+                                }
+
+                                if (linkCache[normalizedSourceValue + normalizedTargetValue]) {
+                                    // link already exists
+                                    continue;
+                                }
+
+                                const link = {
+                                    source: normalizedSourceValue,
+                                    target: normalizedTargetValue
+                                };
+
+                                links.push(link);
+                                linkCache[link.source + link.target] = link;
+                            }
                         });
-                    });
+                    }
                 });
             });
 
