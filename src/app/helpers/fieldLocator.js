@@ -11,10 +11,5 @@ export default function fieldLocator(document, field) {
         return false;
     }, document);
 
-    switch (typeof value) {
-        case 'object':
-            return JSON.stringify(value);
-        default:
-            return value;
-    }
+    return (value);
 }

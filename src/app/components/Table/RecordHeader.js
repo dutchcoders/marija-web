@@ -26,6 +26,7 @@ export default class Record extends Component {
             const field_value = record.highlight[value] || fieldLocator(record.fields, value) ;
             return (
                 <td key={ 'column_' + record.id + value }>
+                    { queries }
                     <span className={'length-limiter'}
                           title={ fieldLocator(record.fields, value) } dangerouslySetInnerHTML={{ __html: value }}></span>
                 </td>

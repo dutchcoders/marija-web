@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
-import { forEach, uniqWith, reduce, findIndex, pull, concat, map } from 'lodash';
+import { forEach, uniqWith, reduce, find, findIndex, pull, concat, map } from 'lodash';
 
 import { Record, RecordDetail, Icon } from '../index';
 import { highlightNodes} from '../../modules/graph/index';
@@ -19,7 +19,7 @@ class TableView extends React.Component {
     }
 
     toggleExpand(id) {
-        if (findIndex(this.state.expandedItems, (o) => { return (o == id); }) >= 0) {
+        if (findIndex(this.state.expandedItems, (o) => o === id) >= 0) {
             // remove 
             this.setState({expandedItems: pull(this.state.expandedItems, id)});
         } else {
@@ -45,19 +45,25 @@ class TableView extends React.Component {
 
     getSelectedItems() {
         const { selectedNodes, items, fields, columns, dispatch, normalizations } = this.props;
+
+        // todo(nl5887): this can be optimized
         let selectedItems = reduce(selectedNodes, (result, node) => {
-            for (var record of items) {
-                for (var field of fields) {
-                    const value = fieldLocator(record.fields, field.path);
-                    const normalizedValue = normalize(normalizations, value);
-
-                    if (node.id !== normalizedValue) {
-                        continue;
-                    }
-
-                    result.push(record);
+            for (var itemid of node.items) {
+                const i = find(items, (i) => itemid === i.id);
+                if (!i) {
+                    console.debug("could not find ${itemid} in items?", items);
+                    continue;
                 }
-            }
+
+                // check if already exists
+                if (find(result, (i) => itemid == i.id)) {
+                    i.nodes.push(node);
+                    continue;
+                }
+
+                i.nodes = [node];
+                result.push(i);
+            };
 
             return result;
         }, []);
@@ -70,7 +76,7 @@ class TableView extends React.Component {
         this.setState({items: this.getSelectedItems()});
     }
     renderBody() {
-        const { columns, dispatch} = this.props;
+        const { columns, searches, dispatch} = this.props;
         const { items } = this.state;
 
         return map(items, (record) => {
@@ -79,6 +85,7 @@ class TableView extends React.Component {
                     <Record
                         columns={ columns }
                         record={ record }
+                        searches={ searches }
                         toggleExpand = { this.toggleExpand.bind(this) }
                         expanded = { expanded }
                     />,
@@ -131,6 +138,7 @@ function select(state) {
         selectedNodes: state.entries.node,
         normalizations: state.entries.normalizations,
         items: state.entries.items,
+        searches: state.entries.searches,
         fields: state.entries.fields,
         columns: state.entries.columns
     };
