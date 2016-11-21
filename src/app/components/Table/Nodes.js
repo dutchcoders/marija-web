@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
-import { map, uniq, find, differenceWith } from 'lodash';
+import { map, uniq, filter, concat, without, find, differenceWith } from 'lodash';
 
 import { Icon } from '../index';
 import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
@@ -17,6 +17,7 @@ class Nodes extends React.Component {
         this.state = {
             editNode: null,
             value: "",
+            find_value: "",
             description: ""
         };
     }
@@ -43,7 +44,7 @@ class Nodes extends React.Component {
 
     handleEditNode(node) {
         this.setState({editNode: node, value: node.name});
-        this.refs.customDialog.show();
+        this.refs.editDialog.show();
     }
 
     handleDeselectNode(node) {
@@ -64,6 +65,30 @@ class Nodes extends React.Component {
         });
 
         dispatch(deleteNodes(delete_nodes));
+    }
+
+    handleFindNodes() {
+        const { dispatch, node, nodes, links } = this.props;
+        this.refs.findDialog.show();
+    }
+
+    handleFindNodeChange(event) {
+        this.setState({find_value: event.target.value});
+    }
+    
+    handleFindSelectChange(n, event) {
+        const { dispatch } = this.props;
+
+        let { node } = this.props;
+        if (event.target.checked) {
+            node = concat(node, n);
+        } else {
+            node = filter(node, (o) => {
+                return (o.id !== n.id);
+            });
+        }
+
+        dispatch(nodesSelect(node));
     }
 
     handleSelectAllNodes() {
@@ -121,12 +146,10 @@ class Nodes extends React.Component {
     }
 
     handleNodeChangeName(event) {
-        const { editNode, value } = this.state;
         this.setState({value: event.target.value});
     }
 
     handleNodeChangeDescription(event) {
-        const { editNode, description } = this.state;
         this.setState({description: event.target.value});
     }
 
@@ -163,7 +186,8 @@ class Nodes extends React.Component {
 
 
     render() {
-        const { editNode, value, description } = this.state;
+        const { editNode, find_value, value, description } = this.state;
+        const { node, nodes } = this.props;
 
         const updateNodeDialogStyles = {
             backgroundColor: '#fff',
@@ -173,6 +197,12 @@ class Nodes extends React.Component {
 	    marginTop: '-200px',
 	    marginLeft: '-200px',
         };
+
+        const find_nodes = map(nodes.filter((node) => node.name.toLowerCase().indexOf(find_value) != -1), (node) => {
+            const found = find(this.props.node, (n) => n.id === node.id);
+            const checked = (typeof found !== 'undefined');
+            return <li><input type='checkbox' checked={checked}  onChange={ (e) => this.handleFindSelectChange(node, e) } /> { node.name }</li>;
+        });
 
 	let edit_node = null;
 	if (editNode) {
@@ -199,6 +229,9 @@ class Nodes extends React.Component {
 			<button type="button" className="btn btn-default" aria-label="Select related nodes" onClick={() => this.handleSelectRelatedNodes()}>related</button> 
 			</div>
 			<div className="btn-group" role="group">
+			<button type="button" className="btn btn-default" aria-label="Find nodes" onClick={() => this.handleFindNodes()}>find</button> 
+			</div>
+			<div className="btn-group" role="group">
 			<button type="button" className="btn btn-default" aria-label="Select all nodes" onClick={() => this.handleSelectAllNodes()}>all</button> 
 			</div>
 			<div className="btn-group" role="group">
@@ -213,8 +246,16 @@ class Nodes extends React.Component {
 			{this.renderSelected()}
 		    </ul>
 		</div>
-                <SkyLight dialogStyles={updateNodeDialogStyles} hideOnOverlayClicked ref="customDialog" title="Update node" afterClose={ this.handleUpdateEditNode.bind(this) }>
+                <SkyLight dialogStyles={updateNodeDialogStyles} hideOnOverlayClicked ref="editDialog" title="Update node" afterClose={ this.handleUpdateEditNode.bind(this) }>
                     { edit_node }
+                </SkyLight>
+                <SkyLight dialogStyles={updateNodeDialogStyles} hideOnOverlayClicked ref="findDialog" title="Find node">
+                    <form>
+                        <input type="text" className="form-control" value={find_value} onChange={ this.handleFindNodeChange.bind(this) } placeholder='find node' />
+                        <ul>
+                        { find_nodes }
+                        </ul>
+                    </form>
                 </SkyLight>
             </div>
         );
