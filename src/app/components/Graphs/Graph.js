@@ -474,11 +474,13 @@ class Graph extends React.Component {
                 }
             },
             dragstarted: function () {
-                this.graph.selection = null;
-                this.graph.tooltip = null;
+                const { graph, simulation } = this;
 
-                var x = d3.event.x,
-                    y = d3.event.y;
+                graph.selection = null;
+                graph.tooltip = null;
+
+                var x = d3.event.x / graph.transform.k,
+                    y = d3.event.y / graph.transform.k;
 
                 d3.event.subject.fx = x;
                 d3.event.subject.fy = y;
@@ -489,7 +491,7 @@ class Graph extends React.Component {
 			'type': 'restart'
 		    });
 		    */
-		    this.simulation.alphaTarget(0.3).restart();
+		    simulation.alphaTarget(0.3).restart();
 		}
             },
             dragged: function () {
@@ -500,8 +502,12 @@ class Graph extends React.Component {
                 d3.event.subject.fy = (y);
             },
             dragended: function () {
+                const { graph, simulation } = this;
+
                 d3.event.subject.fx = null;
                 d3.event.subject.fy = null;
+
+                d3.event.subject.fixed = true;
 
 		if (!d3.event.active) {
 		    /*
@@ -509,12 +515,14 @@ class Graph extends React.Component {
 			'type': 'restart'
 		    });
 		    */
-		    this.simulation.alphaTarget(0);
+		    simulation.alphaTarget(0);
 		}
             },
             dragsubject: function () {
-                const x = this.graph.transform.invertX(d3.event.x),
-                    y = this.graph.transform.invertY(d3.event.y);
+                const { graph, simulation } = this;
+
+                const x = graph.transform.invertX(d3.event.x),
+                    y = graph.transform.invertY(d3.event.y);
 
                 return this.find(x, y);
             },
