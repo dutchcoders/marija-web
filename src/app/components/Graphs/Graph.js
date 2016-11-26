@@ -182,11 +182,12 @@ class Graph extends React.Component {
                     });
 
                     if (n) {
+                        link.color = color;
                         return;
                     }
 
                     // todo(nl5887): why?
-                    that.graph.links.push({source: link.source, target: link.target});
+                    that.graph.links.push({source: link.source, target: link.target, color: link.color });
                 });
 
                 this.graph.queries = graph.queries;
@@ -239,12 +240,23 @@ class Graph extends React.Component {
                 // draw links
                 context.beginPath();
 
+                // group all colors
+                let color = lines.stroke.color;
+
+                context.lineWidth = lines.stroke.thickness;
+
                 graph.links.forEach((d)=> {
                     this.drawLink(d);
+
+                    if (d.color !== color) {
+                        context.strokeStyle = color;
+                        context.stroke();
+
+                        color = link.color;
+                    }
                 });
 
-                context.strokeStyle = lines.stroke.color;
-                context.lineWidth = lines.stroke.thickness;
+                context.strokeStyle = color;
                 context.stroke();
 
                 // draw nodes

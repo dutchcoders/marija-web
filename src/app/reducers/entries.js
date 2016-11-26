@@ -317,7 +317,8 @@ export default function entries(state = defaultState, action) {
 
                                 const link = {
                                     source: normalizedSourceValue,
-                                    target: normalizedTargetValue
+                                    target: normalizedTargetValue,
+                                    color: '#ccc'
                                 };
 
                                 links.push(link);
