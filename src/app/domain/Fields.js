@@ -22,7 +22,6 @@ export default class Fields {
      * @returns {*}
      */
     static getFieldsFromResult(fields) {
-        console.debug("fields", fields);
         return fields;
     }
 
@@ -84,7 +83,10 @@ export default class Fields {
      */
     static extractNewFields(fields, currentFields) {
         return reduce(fields, (allFields, newItem) => {
-            if (typeof currentFields.find((item) => item.path === newItem.path) == 'undefined') {
+            const notAllreadySavedToState = typeof currentFields.find((item) => item.path === newItem.path) == 'undefined';
+            const notCurrentlySavingToState = typeof allFields.find((item) => item.path === newItem.path) == 'undefined';
+            
+            if (notAllreadySavedToState && notCurrentlySavingToState) {
                 allFields.push(newItem);
             }
 

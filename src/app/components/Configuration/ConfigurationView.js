@@ -178,7 +178,7 @@ class ConfigurationView extends React.Component {
     renderDateFields(fields) {
         const options = map(fields, (field) => {
             return (
-                <li key={field.path} value={ field.path }>
+                <li key={'date_field_' + field.path} value={ field.path }>
                     <i className="glyphicon">{ field.icon }</i>{ field.path }
                     <Icon onClick={() => this.handleDeleteDateField(field)} name="ion-ios-trash-outline"/>
                 </li>
@@ -214,7 +214,7 @@ class ConfigurationView extends React.Component {
 
         const options = map(fields, (field) => {
             return (
-                <li key={field.path} value={ field.path }>
+                <li key={'field_' + field.path} value={ field.path }>
                     { field.path }
                     <i className="icon" style={ style }>{ field.icon }</i>
                     <Icon onClick={() => this.handleDeleteField(field)} name="ion-ios-trash-outline"/>
@@ -368,7 +368,7 @@ class ConfigurationView extends React.Component {
                         }), 0, 10).map((item) => {
                             return (
                                 <Field
-                                    key={item.path}
+                                    key={'available_fields_' + item.path}
                                     item={item} handler={() => this.handleAddField(item.path)}
                                     icon={'ion-ios-add-circle-outline'}/>
                             );
@@ -388,15 +388,12 @@ class ConfigurationView extends React.Component {
 
                     <ul>
                         {slice(availableFields.filter((item) => {
-                            if (item.type !== 'date') {
-                                return (false);
-                            }
+                            if (item.type !== 'date') return false;
+                            
 
                             const inSearch = item.path.toLowerCase().indexOf(currentDateFieldSearchValue.toLowerCase()) === 0;
                             const inCurrentFields = fields.reduce((value, field) => {
-                                if (value) {
-                                    return true;
-                                }
+                                if (value) return true;
                                 return field.path == item.path;
                             }, false);
 
@@ -404,7 +401,7 @@ class ConfigurationView extends React.Component {
                         }), 0, 10).map((item) => {
                             return (
                                 <Field
-                                    key={item.path}
+                                    key={'available_date_fields_' + item.path}
                                     item={item} handler={() => this.handleAddDateField(item.path)}
                                     icon={'ion-ios-add-circle-outline'}/>
                             )
