@@ -250,12 +250,14 @@ class Nodes extends React.Component {
                     { edit_node }
                 </SkyLight>
                 <SkyLight dialogStyles={updateNodeDialogStyles} hideOnOverlayClicked ref="findDialog" title="Find node">
-                    <form>
-                        <input type="text" className="form-control" value={find_value} onChange={ this.handleFindNodeChange.bind(this) } placeholder='find node' />
-                        <ul>
-                        { find_nodes }
-                        </ul>
-                    </form>
+                    <div>
+                        <form>
+                            <input type="text" className="form-control" value={find_value} onChange={ this.handleFindNodeChange.bind(this) } placeholder='find node' />
+                            <ul>
+                            { find_nodes }
+                            </ul>
+                        </form>
+                    </div>
                 </SkyLight>
             </div>
         );
