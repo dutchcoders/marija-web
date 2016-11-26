@@ -73,6 +73,9 @@ class Graph extends React.Component {
                 this.context = this.canvas.getContext('2d');
                 var canvas = d3.select(this.canvas);
 
+                this.graph.transform.x = clientWidth / 2;
+                this.graph.transform.y = clientHeight / 2;
+
                 canvas.on("mousedown", this.mousedown.bind(this))
                     .on("mousemove", this.mousemove.bind(this))
                     .on("mouseup", this.mouseup.bind(this))
@@ -99,7 +102,7 @@ class Graph extends React.Component {
 			return d.id;
 		    }))
 		    .force("charge", d3.forceManyBody().strength(-100).distanceMax(500))
-		    .force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
+		    .force("center", d3.forceCenter(0, 0))
 		    .force("vertical", d3.forceY().strength(0.018))
 		    .force("horizontal", d3.forceX().strength(0.006));
 
