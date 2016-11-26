@@ -12,7 +12,7 @@ import { browserHistory, Router, Route } from 'react-router';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import { Intl }  from 'react-intl-es6';
 
-import { RootView } from './components/index';
+import { RootView, StateCapturer } from './components/index';
 
 import { entries, enableBatching, utils, servers, indices, fields, defaultState } from './reducers/index';
 import { persistState } from './helpers/index';
@@ -41,8 +41,16 @@ function configureStore() {
             },
             fields: {
                 availableFields: []
+            },
+            utils: {
+                panes: [
+                    {name: 'configuration', state: false},
+                    {name: 'histogram', state: false},
+                    {name: 'table', state: false},
+                    {name: 'nodes', state: true},
+                    {name: 'queries', state: true }
+                ]
             }
-
         },
         compose(persistState())
     );
@@ -56,16 +64,18 @@ class App extends Intl {
         super(i18n.locales, i18n.messages);
     }
 
-    componentDidMount() {
-    }
+    componentDidMount() {}
 
     render() {
         return (
-            <Provider store={store}>
-                <Router history={history}>
-                    <Route path='*' component={RootView}/>
-                </Router>
-            </Provider>
+            <div>
+                <StateCapturer store={store}/>
+                <Provider store={store}>
+                    <Router history={history}>
+                        <Route path='*' component={RootView}/>
+                    </Router>
+                </Provider>
+            </div>
         );
     }
 }

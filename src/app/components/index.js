@@ -11,5 +11,6 @@ export { default as Graph } from './Graphs/Graph';
 
 export { default as Icon } from './Misc/Icon';
 export { Pane } from './Misc/Pane';
+export { default as StateCapturer } from './Misc/StateCapturer';
 
 export { default as ConfigurationView } from './Configuration/ConfigurationView';
