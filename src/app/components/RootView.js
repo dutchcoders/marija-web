@@ -7,6 +7,7 @@ import { Header, Record, TableView, ConfigurationView, Histogram, Graph, Pane, I
 import { Searches} from '../modules/search/index';
 import { ErrorStatus } from '../modules/status/index';
 
+
 class RootView extends Component {
     constructor(props) {
         super(props);
@@ -22,6 +23,7 @@ class RootView extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+
     }
 
     handleChange(e) {
@@ -39,6 +41,7 @@ class RootView extends Component {
         return (
             <div className="container-fluid">
                 <Header/>
+
                 <div className="row">
                     <div className="col-xs-12">
                         <div className="row" style={{'height': 'calc(100vh - 74px)'}}>
@@ -77,35 +80,6 @@ class RootView extends Component {
         );
     }
 }
-
-/*
- <ul>
- {this.renderSelected()}
- </ul>
- */
-
-
-/*
- <div className="col-xs-3 col-sm-3">
- <div className="row">
- <b>Records:</b> { this.props.items.length }
- </div>
- <div className="row">
- <Searches/>
- </div>
- <div className="row">
-
- </div>
- </div>
- */
-
-/*
-
- <div>
-
- </div>
- */
-
 
 const select = (state, ownProps) => {
     return {

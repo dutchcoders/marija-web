@@ -201,7 +201,7 @@ class Nodes extends React.Component {
         const find_nodes = map(nodes.filter((node) => node.name.toLowerCase().indexOf(find_value) != -1), (node) => {
             const found = find(this.props.node, (n) => n.id === node.id);
             const checked = (typeof found !== 'undefined');
-            return <li><input type='checkbox' checked={checked}  onChange={ (e) => this.handleFindSelectChange(node, e) } /> { node.name }</li>;
+            return <li key={node.id}><input type='checkbox' checked={checked}  onChange={ (e) => this.handleFindSelectChange(node, e) } /> { node.name }</li>;
         });
 
 	let edit_node = null;

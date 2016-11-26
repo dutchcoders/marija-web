@@ -377,10 +377,7 @@ export default function entries(state = defaultState, action) {
             });
 
         case INITIAL_STATE_RECEIVE:
-	    console.debug("Received initial state.", action);
-
-            return Object.assign({}, state, {
-            });
+            return Object.assign({}, state, {});
 
         default:
             return state;
