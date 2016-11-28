@@ -6,30 +6,26 @@ import { receiveInitialState, INITIAL_STATE_RECEIVE } from '../../modules/data/i
 
 export const Socket = {
     ws: null,
-    wsDispatcher: (message, storeDispatcher) => {
+    wsDispatcher: (message, dispatch) => {
         if (message.error) {
-            return storeDispatcher(error(message.error.message));
+            return dispatch(error(message.error.message));
         }
-
-        let handler = () => {
-            console.debug("unknown message type");
-        };
 
         switch (message.type) {
             case ITEMS_RECEIVE:
-		storeDispatcher(receiveItems(message.items));
+		dispatch(receiveItems(message.items));
                 break;
 
             case INDICES_RECEIVE:
-		storeDispatcher(receiveIndices(message.indices));
+		dispatch(receiveIndices(message.indices));
                 break;
 
             case FIELDS_RECEIVE:
-		storeDispatcher(receiveFields(message.fields));
+		dispatch(receiveFields(message.fields));
                 break;
 
             case INITIAL_STATE_RECEIVE:
-		storeDispatcher(receiveInitialState(message.state));
+		dispatch(receiveInitialState(message.state));
                 break;
         }
     },
@@ -38,8 +34,8 @@ export const Socket = {
             return;
         }
         
-        const l = window.location;
-        const url = ((l.protocol === "https:") ? "wss://" : "ws://") + l.host + "/ws";
+        const { location }  = window;
+        const url = ((location.protocol === "https:") ? "wss://" : "ws://") + location.host + "/ws";
 
         try {
             Socket.ws = new FlowWS(url, null, Socket.wsDispatcher, dispatch);
