@@ -3,10 +3,8 @@ import * as d3 from 'd3';
 let simulation = null;
 
 onmessage = function(event) {
-	return;
-
     if (event.data.type === "restart") {
-console.debug("restart");
+        console.debug("restart");
 
 	 simulation.alpha(0.3).restart();
 
@@ -16,6 +14,8 @@ console.debug("restart");
 	}
 
 	postMessage({type: "end", nodes: this.nodes, links: this.links});
+    } else if (event.data.type === 'stop') {
+        simulation.alpha(0);
     } else {
 	let { nodes, links, clientWidth, clientHeight } = event.data;
 

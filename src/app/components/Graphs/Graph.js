@@ -106,7 +106,6 @@ class Graph extends React.Component {
 		    .force("vertical", d3.forceY().strength(0.018))
 		    .force("horizontal", d3.forceX().strength(0.006));
 
-		/*
 		this.worker = new Worker;
 		this.worker.onmessage = function(event) {
 		    switch (event.data.type) {
@@ -114,7 +113,6 @@ class Graph extends React.Component {
 			case "end": return this.ended(event.data);
 		    }
 		}.bind(this);
-		*/
 
 		requestAnimationFrame(this.render);
             },
@@ -155,6 +153,7 @@ class Graph extends React.Component {
 
                 each(graph.nodes, (node) => {
                     // todo(nl5887): cleanup
+
                     var n = find(that.graph.nodes, {id: node.id});
                     if (n) {
                         n = assign(n, node);
@@ -197,15 +196,28 @@ class Graph extends React.Component {
 
                 let { height, width } = this.canvas;
 
-		/*
+                if (this.worker) {
+                    this.worker.terminate();
+                }
+                
+                this.worker = new Worker();
+                this.worker.onmessage = function(event) {
+                    switch (event.data.type) {
+                    case "tick":
+                        return this.ticked(event.data);
+                    case "end":
+                        return this.ended(event.data);
+                    }
+                }.bind(this);
+                
 		this.worker.postMessage({
 		    clientWidth: width,
 		    clientHeight: height,
 		    nodes: this.graph.nodes,
 		    links: this.graph.links
 		});
-		*/
 
+                /*
                 this.simulation
                     .nodes(this.graph.nodes);
 
@@ -213,6 +225,7 @@ class Graph extends React.Component {
                     .links(this.graph.links);
 
                 this.simulation.alpha(0.3).restart();
+                */
             },
             render: function () {
                 if (!this.graph) {
@@ -485,14 +498,12 @@ class Graph extends React.Component {
                 d3.event.subject.fx = x;
                 d3.event.subject.fy = y;
 
-		if (!d3.event.active) {
-		    /*
-		    this.worker.postMessage({
-			'type': 'restart'
-		    });
-		    */
-		    simulation.alphaTarget(0.3).restart();
-		}
+                this.restart();
+            },
+            restart: function() {
+                this.worker.postMessage({
+                    type: 'restart'
+                });
             },
             dragged: function () {
                 var x = d3.event.x,
@@ -509,14 +520,12 @@ class Graph extends React.Component {
 
                 d3.event.subject.fixed = true;
 
-		if (!d3.event.active) {
-		    /*
-		    this.worker.postMessage({
-			'type': 'restart'
-		    });
-		    */
-		    simulation.alphaTarget(0);
-		}
+                this.stop();
+            },
+            stop: function() {
+                this.worker.postMessage({
+                    type: 'stop'
+                });
             },
             dragsubject: function () {
                 const { graph, simulation } = this;
@@ -577,6 +586,7 @@ class Graph extends React.Component {
 
     componentWillReceiveProps(nextProps) {
     }
+
 
     componentDidUpdate(prevProps, prevState) {
         const { network } = this;
