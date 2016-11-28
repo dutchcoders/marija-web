@@ -13,7 +13,7 @@ class StateCapturer extends Component {
     }
 
     render() {
-        return <span id="im-the-state-persistor"></span>
+        return null;
     }
 }
 

@@ -40,8 +40,7 @@ export default class Record extends Component {
         const renderedColumns = (columns || []).map((value) => {
             return (
                 <td key={ 'column_' + record.id + value }>
-                    <span className={'length-limiter'}
-                          title={ fieldLocator(record.fields, value) }>{ fieldLocator(record.fields, value) }</span>
+                    <span className={'length-limiter'}>{ fieldLocator(record.fields, value) }</span>
                 </td>
             );
         });
