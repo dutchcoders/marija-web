@@ -182,7 +182,7 @@ class Graph extends React.Component {
                     });
 
                     if (n) {
-                        link.color = color;
+                        link.color = n.color;
                         return;
                     }
 
