@@ -22,19 +22,19 @@ function configureStore() {
     return createStore(
         enableBatching(
             combineReducers({
-            entries,
-            utils,
-            servers,
-            indices,
-            fields,
-            routing: routerReducer
+                entries,
+                utils,
+                servers,
+                indices,
+                fields,
+                routing: routerReducer
             })
         ), {
             servers: [
                 "http://127.0.0.1:9200/"
             ],
             entries: {
-                ...defaultState
+                    ...defaultState
             },
             indices: {
                 activeIndices: []

@@ -73,6 +73,9 @@ class Graph extends React.Component {
                 this.context = this.canvas.getContext('2d');
                 var canvas = d3.select(this.canvas);
 
+                this.graph.transform.x = clientWidth / 2;
+                this.graph.transform.y = clientHeight / 2;
+
                 canvas.on("mousedown", this.mousedown.bind(this))
                     .on("mousemove", this.mousemove.bind(this))
                     .on("mouseup", this.mouseup.bind(this))
@@ -99,7 +102,7 @@ class Graph extends React.Component {
 			return d.id;
 		    }))
 		    .force("charge", d3.forceManyBody().strength(-100).distanceMax(500))
-		    .force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
+		    .force("center", d3.forceCenter(0, 0))
 		    .force("vertical", d3.forceY().strength(0.018))
 		    .force("horizontal", d3.forceX().strength(0.006));
 
@@ -179,11 +182,12 @@ class Graph extends React.Component {
                     });
 
                     if (n) {
+                        link.color = n.color;
                         return;
                     }
 
                     // todo(nl5887): why?
-                    that.graph.links.push({source: link.source, target: link.target});
+                    that.graph.links.push({source: link.source, target: link.target, color: link.color });
                 });
 
                 this.graph.queries = graph.queries;
@@ -236,12 +240,23 @@ class Graph extends React.Component {
                 // draw links
                 context.beginPath();
 
+                // group all colors
+                let color = lines.stroke.color;
+
+                context.lineWidth = lines.stroke.thickness;
+
                 graph.links.forEach((d)=> {
                     this.drawLink(d);
+
+                    if (d.color !== color) {
+                        context.strokeStyle = color;
+                        context.stroke();
+
+                        color = link.color;
+                    }
                 });
 
-                context.strokeStyle = lines.stroke.color;
-                context.lineWidth = lines.stroke.thickness;
+                context.strokeStyle = color;
                 context.stroke();
 
                 // draw nodes
@@ -459,11 +474,13 @@ class Graph extends React.Component {
                 }
             },
             dragstarted: function () {
-                this.graph.selection = null;
-                this.graph.tooltip = null;
+                const { graph, simulation } = this;
 
-                var x = d3.event.x,
-                    y = d3.event.y;
+                graph.selection = null;
+                graph.tooltip = null;
+
+                var x = d3.event.x / graph.transform.k,
+                    y = d3.event.y / graph.transform.k;
 
                 d3.event.subject.fx = x;
                 d3.event.subject.fy = y;
@@ -474,7 +491,7 @@ class Graph extends React.Component {
 			'type': 'restart'
 		    });
 		    */
-		    this.simulation.alphaTarget(0.3).restart();
+		    simulation.alphaTarget(0.3).restart();
 		}
             },
             dragged: function () {
@@ -485,8 +502,12 @@ class Graph extends React.Component {
                 d3.event.subject.fy = (y);
             },
             dragended: function () {
+                const { graph, simulation } = this;
+
                 d3.event.subject.fx = null;
                 d3.event.subject.fy = null;
+
+                d3.event.subject.fixed = true;
 
 		if (!d3.event.active) {
 		    /*
@@ -494,12 +515,14 @@ class Graph extends React.Component {
 			'type': 'restart'
 		    });
 		    */
-		    this.simulation.alphaTarget(0);
+		    simulation.alphaTarget(0);
 		}
             },
             dragsubject: function () {
-                const x = this.graph.transform.invertX(d3.event.x),
-                    y = this.graph.transform.invertY(d3.event.y);
+                const { graph, simulation } = this;
+
+                const x = graph.transform.invertX(d3.event.x),
+                    y = graph.transform.invertY(d3.event.y);
 
                 return this.find(x, y);
             },

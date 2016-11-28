@@ -6,8 +6,6 @@ import { receiveInitialState, INITIAL_STATE_RECEIVE } from '../../modules/data/i
 
 export const Socket = {
     ws: null,
-    URL: 'ws://' + location.host + '/ws',
-
     wsDispatcher: (message, storeDispatcher) => {
         if (message.error) {
             return storeDispatcher(error(message.error.message));
@@ -39,9 +37,12 @@ export const Socket = {
         if (!!Socket.ws) {
             return;
         }
+        
+        const l = window.location;
+        const url = ((l.protocol === "https:") ? "wss://" : "ws://") + l.host + "/ws";
 
         try {
-            Socket.ws = new FlowWS(Socket.URL, null, Socket.wsDispatcher, dispatch);
+            Socket.ws = new FlowWS(url, null, Socket.wsDispatcher, dispatch);
         } catch (e) {
             dispatch(error(e));
         }
