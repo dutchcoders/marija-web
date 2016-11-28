@@ -96,23 +96,23 @@ class Graph extends React.Component {
                         .on("zoom", this.zoomed.bind(this))
                     );
 
-		this.simulation = d3.forceSimulation()
-		    .stop()
-		    .force("link", d3.forceLink().id(function (d) {
-			return d.id;
-		    }))
-		    .force("charge", d3.forceManyBody().strength(-100).distanceMax(500))
-		    .force("center", d3.forceCenter(0, 0))
-		    .force("vertical", d3.forceY().strength(0.018))
-		    .force("horizontal", d3.forceX().strength(0.006));
-
-		this.worker = new Worker;
-		this.worker.onmessage = function(event) {
-		    switch (event.data.type) {
-			case "tick": return this.ticked(event.data);
-			case "end": return this.ended(event.data);
-		    }
-		}.bind(this);
+                let { height, width } = this.canvas;
+                
+                this.worker = new Worker();
+                this.worker.onmessage = function(event) {
+                    switch (event.data.type) {
+                    case "tick":
+                        return this.ticked(event.data);
+                    case "end":
+                        return this.ended(event.data);
+                    }
+                }.bind(this);
+                
+		this.worker.postMessage({
+		    clientWidth: width,
+		    clientHeight: height,
+                    type: "init"
+		});
 
 		requestAnimationFrame(this.render);
             },
@@ -194,27 +194,10 @@ class Graph extends React.Component {
                 if (!newNodes)
                     {return;}
 
-                let { height, width } = this.canvas;
-
-                if (this.worker) {
-                    this.worker.terminate();
-                }
-                
-                this.worker = new Worker();
-                this.worker.onmessage = function(event) {
-                    switch (event.data.type) {
-                    case "tick":
-                        return this.ticked(event.data);
-                    case "end":
-                        return this.ended(event.data);
-                    }
-                }.bind(this);
-                
 		this.worker.postMessage({
-		    clientWidth: width,
-		    clientHeight: height,
 		    nodes: this.graph.nodes,
-		    links: this.graph.links
+		    links: this.graph.links,
+                    type: "update"
 		});
 
                 /*
@@ -495,15 +478,13 @@ class Graph extends React.Component {
                 var x = d3.event.x / graph.transform.k,
                     y = d3.event.y / graph.transform.k;
 
-                d3.event.subject.fx = x;
-                d3.event.subject.fy = y;
+                d3.event.subject.fx = (x);
+                d3.event.subject.fy = (y);
 
-                this.restart();
-            },
-            restart: function() {
-                this.worker.postMessage({
+		this.worker.postMessage({
+		    nodes: [d3.event.subject],
                     type: 'restart'
-                });
+		});
             },
             dragged: function () {
                 var x = d3.event.x,
@@ -511,21 +492,23 @@ class Graph extends React.Component {
 
                 d3.event.subject.fx = (x);
                 d3.event.subject.fy = (y);
+
+		this.worker.postMessage({
+		    nodes: [d3.event.subject],
+                    type: 'restart'
+		});
             },
             dragended: function () {
                 const { graph, simulation } = this;
 
                 d3.event.subject.fx = null;
                 d3.event.subject.fy = null;
-
                 d3.event.subject.fixed = true;
 
-                this.stop();
-            },
-            stop: function() {
-                this.worker.postMessage({
+		this.worker.postMessage({
+		    nodes: [d3.event.subject],
                     type: 'stop'
-                });
+		});
             },
             dragsubject: function () {
                 const { graph, simulation } = this;
