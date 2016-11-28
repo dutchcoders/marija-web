@@ -144,6 +144,8 @@ class Graph extends React.Component {
 
                 var that = this;
 
+                // this could be moved to worker as well
+                
                 // remove deleted nodes
                 remove(this.graph.nodes, (n) => {
                     return !find(graph.nodes, (o) => {
@@ -158,6 +160,8 @@ class Graph extends React.Component {
                     if (n) {
                         n = assign(n, node);
                         n = assign(n, {force: that.forceScale(n), r: radiusScale(n.items.length)});
+
+                        newNodes = true;
                         return;
                     }
 

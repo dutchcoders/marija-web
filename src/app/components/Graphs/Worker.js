@@ -4,8 +4,6 @@ let simulation = null;
 let timer = null;
 
 onmessage = function(event) {
-    console.debug(event.data.type);
-
     if (event.data.type === "restart") {
 	let { nodes } = event.data;
 
@@ -13,8 +11,6 @@ onmessage = function(event) {
             for (let n2 of nodes) {
                 if (n1.id !== n2.id)
                     continue;
-
-                console.debug('found node, updating', n1, n2);
 
                 n1.fx = n2.fx;
                 n1.fy = n2.fy;
@@ -29,8 +25,6 @@ onmessage = function(event) {
             for (let n2 of nodes) {
                 if (n1.id !== n2.id)
                     continue;
-
-                console.debug('found node, updating', n1, n2);
 
                 n1.fx = n2.fx;
                 n1.fy = n2.fy;
@@ -58,6 +52,7 @@ onmessage = function(event) {
             simulation.tick();
             postMessage({type: "tick", nodes: this.nodes, links: this.links });
         }, 20);
+    } else if (event.data.type === 'tick') {
     } else if (event.data.type === 'update') {
 	let { nodes, links } = event.data;
 
