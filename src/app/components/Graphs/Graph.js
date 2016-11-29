@@ -80,21 +80,21 @@ class Graph extends React.Component {
                     .on("mousemove", this.mousemove.bind(this))
                     .on("mouseup", this.mouseup.bind(this))
                     .call(d3.drag()
-                        .filter(() => {
-                            return d3.event.altKey;
-                        })
-                        .subject(this.dragsubject.bind(this))
-                        .on("start", this.dragstarted.bind(this))
-                        .on("drag", this.dragged.bind(this))
-                        .on("end", this.dragended.bind(this))
-                    )
+                          .filter(() => {
+                              return d3.event.altKey;
+                          })
+                          .subject(this.dragsubject.bind(this))
+                          .on("start", this.dragstarted.bind(this))
+                          .on("drag", this.dragged.bind(this))
+                          .on("end", this.dragended.bind(this))
+                         )
                     .call(d3.zoom()
-                        .filter(() => {
-                            return d3.event.altKey;
-                        })
-                        .scaleExtent([1 / 2, 8])
-                        .on("zoom", this.zoomed.bind(this))
-                    );
+                          .filter(() => {
+                              return d3.event.altKey;
+                          })
+                          .scaleExtent([1 / 2, 8])
+                          .on("zoom", this.zoomed.bind(this))
+                         );
 
                 let { height, width } = this.canvas;
                 
@@ -108,22 +108,18 @@ class Graph extends React.Component {
                     }
                 }.bind(this);
                 
-		this.worker.postMessage({
-		    clientWidth: width,
-		    clientHeight: height,
+                this.worker.postMessage({
+                    clientWidth: width,
+                    clientHeight: height,
                     type: "init"
-		});
+                });
 
-		requestAnimationFrame(this.render);
+                requestAnimationFrame(this.render);
             },
-	    ticked: function(data) {
-		this.graph.nodes = data.nodes;
-		this.graph.links = data.links;
-	    },
-	    ended: function(data) {
-		this.graph.nodes = data.nodes;
-		this.graph.links = data.links;
-	    },
+            ticked: function(data) {
+                this.graph.nodes = data.nodes;
+                this.graph.links = data.links;
+	          },
             forceScale: function (node) {
                 var scale = d3.scaleLog().domain(this.nodes.sizeRange).range(this.nodes.sizeRange.slice().reverse());
                 return node.r + scale(node.r);
@@ -173,11 +169,11 @@ class Graph extends React.Component {
                     newNodes = true;
                 });
 
-		remove(this.graph.links, (link) => {
-		    return !find(graph.links, (o) => {
-			return (link.source.id == o.source && link.target.id == o.target);
-		    });
-		});
+                remove(this.graph.links, (link) => {
+                    return !find(graph.links, (o) => {
+                        return (link.source.id == o.source && link.target.id == o.target);
+                    });
+                });
 
                 each(graph.links, (link) => {
                     var n = find(that.graph.links, (o) => {
@@ -195,14 +191,15 @@ class Graph extends React.Component {
 
                 this.graph.queries = graph.queries;
 
-                if (!newNodes)
-                    {return;}
+                if (!newNodes) {
+                    return;
+                }
 
-		this.worker.postMessage({
-		    nodes: this.graph.nodes,
-		    links: this.graph.links,
+                this.worker.postMessage({
+                    nodes: this.graph.nodes,
+		                links: this.graph.links,
                     type: "update"
-		});
+		            });
 
                 /*
                 this.simulation
