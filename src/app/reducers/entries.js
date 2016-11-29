@@ -365,10 +365,10 @@ export default function entries(state = defaultState, action) {
         case INDICES_RECEIVE:
             const indices = uniqBy(union(state.indexes, action.payload.indices.map((index) => {
                 return {
-		    id: `${action.payload.server}${index}`,
-		    server: action.payload.server,
-		    name: index
-		};
+                    id: `${action.payload.server}${index}`,
+                    server: action.payload.server,
+                    name: index
+                };
             })), (i) => i.id);
 
             return Object.assign({}, state, {
