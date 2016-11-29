@@ -219,6 +219,9 @@ class Graph extends React.Component {
                     return false;
                 }
 
+                // only when there is activity?
+		requestAnimationFrame(this.render);
+
                 // optimizations to do:
                 // * group alike drawings, prevent switching of colors, fonts, etc
                 // * stroke and fill all at once
@@ -245,16 +248,16 @@ class Graph extends React.Component {
 
                 context.lineWidth = lines.stroke.thickness;
 
-                graph.links.forEach((d)=> {
-                    this.drawLink(d);
+                for (const link of graph.links) {
+                    this.drawLink(link);
 
-                    if (d.color !== color) {
+                    if (link.color !== color) {
                         context.strokeStyle = color;
                         context.stroke();
 
                         color = link.color;
                     }
-                });
+                };
 
                 context.strokeStyle = color;
                 context.stroke();
@@ -335,9 +338,6 @@ class Graph extends React.Component {
 
 
                 context.restore();
-
-                // only when there is activity?
-		requestAnimationFrame(this.render);
             },
             drawLink: function (d) {
                 this.context.moveTo(d.source.x, d.source.y);
