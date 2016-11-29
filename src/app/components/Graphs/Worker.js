@@ -1,11 +1,14 @@
 import * as d3 from 'd3';
+import { map, clone, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign, isEqual } from 'lodash';
 
 let simulation = null;
 let timer = null;
+let nodes = [];
+let links = [];
 
 onmessage = function(event) {
     if (event.data.type === "restart") {
-	let { nodes } = event.data;
+        let { nodes } = event.data;
 
         for (let n1 of this.nodes) {
             for (let n2 of nodes) {
@@ -17,9 +20,9 @@ onmessage = function(event) {
             }
         }
         
-	 simulation.alpha(0.3).restart();
+        simulation.alpha(0.3).restart();
     } else if (event.data.type === 'stop') {
-	let { nodes } = event.data;
+        let { nodes } = event.data;
 
         for (let n1 of this.nodes) {
             for (let n2 of nodes) {
@@ -33,7 +36,7 @@ onmessage = function(event) {
         
         // simulation.alpha(0);
     } else if (event.data.type === 'init') {
-	let { clientWidth, clientHeight } = event.data;
+        let { clientWidth, clientHeight } = event.data;
 
         simulation = d3.forceSimulation()
             .stop()
@@ -54,16 +57,81 @@ onmessage = function(event) {
         }, 20);
     } else if (event.data.type === 'tick') {
     } else if (event.data.type === 'update') {
-	let { nodes, links } = event.data;
+        let { nodes, links } = event.data;
 
-	this.nodes = nodes;
-	this.links = links;
+        const sizeRange = [15, 30];
 
-	simulation
-	    .nodes(this.nodes);
+        let forceScale = function (node) {
+            var scale = d3.scaleLog().domain(sizeRange).range(sizeRange.slice().reverse());
+            return node.r + scale(node.r);
+        };
 
-	simulation.force("link")
-	    .links(this.links);
+        var countExtent = d3.extent(nodes, (n) => {
+            return n.items.length;
+        }),
+            radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(sizeRange);
+
+        var newNodes = false;
+
+        var that = this;
+
+        // remove deleted nodes
+        remove(this.nodes, (n) => {
+            return !find(nodes, (o) => {
+                return (o.id==n.id);
+            });
+        });
+
+        each(nodes, (node) => {
+            // todo(nl5887): cleanup
+
+            var n = find(that.nodes, {id: node.id});
+            if (n) {
+                n = assign(n, node);
+                n = assign(n, {force: forceScale(n), r: radiusScale(n.items.length)});
+
+                newNodes = true;
+                return;
+            }
+
+            let node2 = clone(node);
+            node2 = assign(node2, {force: forceScale(node2), r: radiusScale(node2.items.length)});
+
+            that.nodes.push(node2);
+
+            newNodes = true;
+        });
+
+        remove(this.links, (link) => {
+            return !find(links, (o) => {
+                return (link.source.id == o.source && link.target.id == o.target);
+            });
+        });
+
+        each(links, (link) => {
+            var n = find(that.links, (o) => {
+                return o.source.id == link.source && o.target.id == link.target;
+            });
+            
+
+            if (n) {
+                link.color = n.color;
+                return;
+            }
+            
+            // todo(nl5887): why?
+            that.links.push({source: link.source, target: link.target, color: link.color });
+        });
+
+        if (!newNodes) {
+            return;
+        }
+
+        simulation
+            .nodes(this.nodes);
+
+        simulation.force("link")
+            .links(this.links);
 
         simulation.alpha(0.3).restart();
     }
