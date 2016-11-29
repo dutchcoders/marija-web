@@ -502,9 +502,6 @@ class Graph extends React.Component {
             dragended: function () {
                 const { graph, simulation } = this;
 
-                d3.event.subject.fx = null;
-                d3.event.subject.fy = null;
-                d3.event.subject.fixed = true;
 
 		this.worker.postMessage({
 		    nodes: [d3.event.subject],
