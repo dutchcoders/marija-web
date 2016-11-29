@@ -222,7 +222,7 @@ export default function entries(state = defaultState, action) {
             forEach(items, (d, i) => {
                 forEach(fields, (source) => {
                     let sourceValue = fieldLocator(d.fields, source.path);
-                    if (!sourceValue) {
+                    if (sourceValue === null) {
                         return;
                     }
 
@@ -230,7 +230,12 @@ export default function entries(state = defaultState, action) {
                         sourceValue = [sourceValue];
                     }
 
-                    for (const sv of sourceValue) {
+                    for (let sv of sourceValue) {
+                        switch (typeof sv) {
+                        case "boolean":
+                            sv = (sv?"true":"false");
+                        }
+
                         const normalizedSourceValue = normalize(normalizations, sv);
 
                         let n = nodeCache[normalizedSourceValue];
@@ -261,7 +266,7 @@ export default function entries(state = defaultState, action) {
 
                         forEach(fields, (target) => {
                             let targetValue = fieldLocator(d.fields, target.path);
-                            if (!targetValue) {
+                            if (targetValue === null) {
                                 return;
                             }
 
@@ -273,7 +278,12 @@ export default function entries(state = defaultState, action) {
                             // for example we don't want to have the first name only as name.
                             //
                             // we need to keep track of the fields the value is in as well.
-                            for (const tv of targetValue) {
+                            for (let tv of targetValue) {
+                                switch (typeof tv) {
+                                case "boolean":
+                                    tv = (tv?"true":"false");
+                                }
+
                                 const normalizedTargetValue = normalize(normalizations, tv);
 
                                 let n = nodeCache[normalizedTargetValue];
