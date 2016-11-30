@@ -5,15 +5,14 @@ let cache = {
 };
 
 // get store
-export default function normalize(normalizations, v, normalization) {
-    if (cache[p]) {
-        return (cache[p]);
+export default function normalize(normalizations, v) {
+    if (cache[v]) {
+        return (cache[v]);
     }
 
     let p = v;
-
-    if (typeof p == 'string') {
-        return reduce(normalizations, (currentValue, normalization) => {
+    if (typeof p === 'string') {
+        p = reduce(normalizations, (currentValue, normalization) => {
             return currentValue.replace(normalization.re, normalization.replaceWith);
         }, p);
     }
