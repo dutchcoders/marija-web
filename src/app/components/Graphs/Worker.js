@@ -46,15 +46,13 @@ onmessage = function(event) {
             .force("charge", d3.forceManyBody().strength(-100).distanceMax(500))
             .force("center", d3.forceCenter(0, 0))
             .force("vertical", d3.forceY().strength(0.018))
-            .force("horizontal", d3.forceX().strength(0.006));
+            .force("horizontal", d3.forceX().strength(0.006))
+            .on("tick", () => {
+                postMessage({type: "tick", nodes: this.nodes, links: this.links });
+            });
 
         this.nodes = [];
         this.links = [];
-        
-        timer = setInterval(function() {
-            simulation.tick();
-            postMessage({type: "tick", nodes: this.nodes, links: this.links });
-        }, 20);
     } else if (event.data.type === 'tick') {
     } else if (event.data.type === 'update') {
         let { nodes, links } = event.data;
