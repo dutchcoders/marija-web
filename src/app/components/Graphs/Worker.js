@@ -80,7 +80,8 @@ onmessage = function(event) {
             });
         });
 
-        each(nodes, (node) => {
+        for (let i=0; i < nodes.length; i++) {
+            let node = nodes[i];
             // todo(nl5887): cleanup
 
             var n = find(that.nodes, {id: node.id});
@@ -89,7 +90,7 @@ onmessage = function(event) {
                 n = assign(n, {force: forceScale(n), r: radiusScale(n.items.length)});
 
                 newNodes = true;
-                return;
+                continue;
             }
 
             let node2 = clone(node);
@@ -98,7 +99,7 @@ onmessage = function(event) {
             that.nodes.push(node2);
 
             newNodes = true;
-        });
+        }
 
         remove(this.links, (link) => {
             return !find(links, (o) => {
@@ -106,20 +107,21 @@ onmessage = function(event) {
             });
         });
 
-        each(links, (link) => {
+        for (let i=0; i < links.length; i++) {
+            let link = links[i];
+
             var n = find(that.links, (o) => {
                 return o.source.id == link.source && o.target.id == link.target;
             });
             
-
             if (n) {
                 link.color = n.color;
-                return;
+                continue;
             }
             
             // todo(nl5887): why?
             that.links.push({source: link.source, target: link.target, color: link.color });
-        });
+        }
 
         if (!newNodes) {
             return;
