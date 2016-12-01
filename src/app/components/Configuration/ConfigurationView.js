@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { find, map, includes, slice } from 'lodash';
+import { find, sortBy, map, includes, slice } from 'lodash';
 
 import { requestIndices } from '../../modules/indices/index';
 import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, normalizationAdd, normalizationDelete, indexAdd, indexDelete } from '../../modules/data/index';
@@ -292,7 +292,7 @@ class ConfigurationView extends React.Component {
     renderIndices(indices) {
         const { dispatch,activeIndices } = this.props;
 
-        const options = map(indices, (index) => {
+        const options = map(sortBy(indices, ["name"]), (index) => {
             const indexName = index.name;
             const active = find(activeIndices, (a) => a === index.id);
 
