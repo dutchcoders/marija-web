@@ -75,7 +75,7 @@ class Nodes extends React.Component {
     handleFindNodeChange(event) {
         this.setState({find_value: event.target.value});
     }
-    
+
     handleFindSelectChange(n, event) {
         const { dispatch } = this.props;
 
@@ -120,7 +120,7 @@ class Nodes extends React.Component {
                     });
 
                     x(target_node);
-                } 
+                }
 
                 if (link.target === n.id) {
                     if (find(related_nodes, (o) => {
@@ -134,7 +134,7 @@ class Nodes extends React.Component {
                     });
 
                     x(source_node);
-                } 
+                }
             }
         };
 
@@ -194,8 +194,8 @@ class Nodes extends React.Component {
             color: '#000',
             width: '400px',
             height: '400px',
-	    marginTop: '-200px',
-	    marginLeft: '-200px',
+            marginTop: '-200px',
+            marginLeft: '-200px',
         };
 
         const find_nodes = map(nodes.filter((node) => node.name.toLowerCase().indexOf(find_value) != -1), (node) => {
@@ -204,48 +204,48 @@ class Nodes extends React.Component {
             return <li key={node.id}><input type='checkbox' checked={checked}  onChange={ (e) => this.handleFindSelectChange(node, e) } /> { node.name }</li>;
         });
 
-	let edit_node = null;
-	if (editNode) {
-	    edit_node = <form>
-		<Icon className="glyphicon" name={ editNode.icon }></Icon>
-		<div className="form-group">
-		    <label>Name</label>
-		    <input type="text" className="form-control" value={value} onChange={ this.handleNodeChangeName.bind(this) } placeholder='name' />
-		</div>
-		<div className="form-group">
-		    <label>Description</label>
-		    <textarea className="form-control" value={description} onChange={ this.handleNodeChangeDescription.bind(this) } placeholder='description' />
-		</div>
-	    </form>;
-	}
+        let edit_node = null;
+        if (editNode) {
+            edit_node = <form>
+                                <Icon className="glyphicon" name={ editNode.icon }></Icon>
+                                <div className="form-group">
+                                    <label>Name</label>
+                                    <input type="text" className="form-control" value={value} onChange={ this.handleNodeChangeName.bind(this) } placeholder='name' />
+                                </div>
+                                <div className="form-group">
+                                    <label>Description</label>
+		                                <textarea className="form-control" value={description} onChange={ this.handleNodeChangeDescription.bind(this) } placeholder='description' />
+		                            </div>
+	          </form>;
+	      }
 
-	return (
-	    <div className="form-group toolbar">
-		<div className="btn-group btn-group-justified" role="group"> 
-			<div className="btn-group" role="group">
-			<button type="button" className="btn btn-default" aria-label="Clear selection" onClick={() => this.handleClearSelection()}>clear</button> 
-			</div>
-			<div className="btn-group" role="group">
-			<button type="button" className="btn btn-default" aria-label="Select related nodes" onClick={() => this.handleSelectRelatedNodes()}>related</button> 
-			</div>
-			<div className="btn-group" role="group">
-			<button type="button" className="btn btn-default" aria-label="Find nodes" onClick={() => this.handleFindNodes()}>find</button> 
-			</div>
-			<div className="btn-group" role="group">
-			<button type="button" className="btn btn-default" aria-label="Select all nodes" onClick={() => this.handleSelectAllNodes()}>all</button> 
-			</div>
-			<div className="btn-group" role="group">
-			<button type="button" className="btn btn-default" aria-label="Delete selected nodes" onClick={() => this.handleDeleteAllNodes()}>delete</button> 
-			</div>
-			<div className="btn-group" role="group">
-			<button type="button" className="btn btn-default" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}>inverse delete</button> 
-			</div>
-		</div> 
-		<div>
-		    <ul>
-			{this.renderSelected()}
-		    </ul>
-		</div>
+        return (
+            <div className="form-group toolbar">
+                <div className="btn-group btn-group-justified" role="group"> 
+                    <div className="btn-group" role="group">
+                        <button type="button" className="btn btn-default" aria-label="Clear selection" onClick={() => this.handleClearSelection()}>clear</button> 
+                    </div>
+                    <div className="btn-group" role="group">
+                        <button type="button" className="btn btn-default" aria-label="Select related nodes" onClick={() => this.handleSelectRelatedNodes()}>related</button> 
+                    </div>
+                    <div className="btn-group" role="group">
+                        <button type="button" className="btn btn-default" aria-label="Find nodes" onClick={() => this.handleFindNodes()}>find</button> 
+                    </div>
+                    <div className="btn-group" role="group">
+                        <button type="button" className="btn btn-default" aria-label="Select all nodes" onClick={() => this.handleSelectAllNodes()}>all</button> 
+                    </div>
+                    <div className="btn-group" role="group">
+                        <button type="button" className="btn btn-default" aria-label="Delete selected nodes" onClick={() => this.handleDeleteAllNodes()}>delete</button> 
+                    </div>
+                    <div className="btn-group" role="group">
+                        <button type="button" className="btn btn-default" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}>inverse delete</button> 
+                    </div>
+                </div> 
+                <div>
+                    <ul>
+                        {this.renderSelected()}
+                    </ul>
+                </div>
                 <SkyLight dialogStyles={updateNodeDialogStyles} hideOnOverlayClicked ref="editDialog" title="Update node" afterClose={ this.handleUpdateEditNode.bind(this) }>
                     { edit_node }
                 </SkyLight>
@@ -254,7 +254,7 @@ class Nodes extends React.Component {
                         <form>
                             <input type="text" className="form-control" value={find_value} onChange={ this.handleFindNodeChange.bind(this) } placeholder='find node' />
                             <ul>
-                            { find_nodes }
+                                { find_nodes }
                             </ul>
                         </form>
                     </div>
