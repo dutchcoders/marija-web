@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
-import { map, uniq, filter, concat, without, find, differenceWith } from 'lodash';
+import { map, uniq, filter, concat, without, find, differenceWith, sortBy } from 'lodash';
 
 import { Icon } from '../index';
 import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
@@ -164,7 +164,7 @@ class Nodes extends React.Component {
 
         return (
             node ?
-                map(node, (i_node) => {
+                map(sortBy(node, ['name']), (i_node) => {
                         return (
                             <li key={i_node.id}>
 				<div>
