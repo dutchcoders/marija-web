@@ -294,7 +294,7 @@ class ConfigurationView extends React.Component {
 
         const options = map(indices, (index) => {
             const indexName = index.name;
-	    const active = find(activeIndices, (a) => a === index.id);
+            const active = find(activeIndices, (a) => a === index.id);
 
             return (
                 <li key={ index.id } value={ indexName }>
@@ -388,12 +388,17 @@ class ConfigurationView extends React.Component {
 
                     <ul>
                         {slice(availableFields.filter((item) => {
-                            if (item.type !== 'date') return false;
+                            if (item.type !== 'date') {
+                                return false;
+                            }
                             
 
                             const inSearch = item.path.toLowerCase().indexOf(currentDateFieldSearchValue.toLowerCase()) === 0;
                             const inCurrentFields = fields.reduce((value, field) => {
-                                if (value) return true;
+                                if (value) {
+                                    return true;
+                                }
+
                                 return field.path == item.path;
                             }, false);
 
@@ -404,7 +409,7 @@ class ConfigurationView extends React.Component {
                                     key={'available_date_fields_' + item.path}
                                     item={item} handler={() => this.handleAddDateField(item.path)}
                                     icon={'ion-ios-add-circle-outline'}/>
-                            )
+                            );
                         })}
                     </ul>
                 </div>
