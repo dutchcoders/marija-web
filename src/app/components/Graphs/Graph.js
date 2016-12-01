@@ -106,6 +106,7 @@ class Graph extends React.Component {
                     case "end":
                         return this.ended(event.data);
                     }
+                    return false;
                 }.bind(this);
                 
                 this.worker.postMessage({
@@ -138,7 +139,7 @@ class Graph extends React.Component {
             },
             render: function () {
                 if (!this.graph) {
-                    return false;
+                    return;
                 }
 
                 // only when there is activity?
@@ -506,7 +507,7 @@ class Graph extends React.Component {
             network.updateNodes({
                 nodes: this.props.nodes,
                 links: this.props.links,
-                queries: this.props.queries,
+                queries: this.props.queries
             });
         }
 
@@ -545,7 +546,7 @@ const select = (state, ownProps) => {
         queries: state.entries.searches,
         fields: state.entries.fields,
         items: state.entries.items,
-        highlight_nodes: state.entries.highlight_nodes,
+        highlight_nodes: state.entries.highlight_nodes
     };
 };
 
