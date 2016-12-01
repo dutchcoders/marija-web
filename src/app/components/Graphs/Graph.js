@@ -479,8 +479,8 @@ class Graph extends React.Component {
                 graph.selection = null;
                 graph.tooltip = null;
 
-                var x = d3.event.x / graph.transform.k,
-                    y = d3.event.y / graph.transform.k;
+                var x = graph.transform.invertX(d3.event.sourceEvent.layerX),
+                    y = graph.transform.invertY(d3.event.sourceEvent.layerY);
 
                 d3.event.subject.fx = x;
                 d3.event.subject.fy = y;
@@ -495,8 +495,10 @@ class Graph extends React.Component {
 		}
             },
             dragged: function () {
-                var x = d3.event.x,
-                    y = d3.event.y;
+                const { graph, simulation } = this;
+
+                var x = graph.transform.invertX(d3.event.sourceEvent.layerX),
+                    y = graph.transform.invertY(d3.event.sourceEvent.layerY);
 
                 d3.event.subject.fx = (x);
                 d3.event.subject.fy = (y);
