@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { Header, Record, TableView, ConfigurationView, Histogram, Graph, Pane, Icon, Nodes } from './index';
-import { Searches} from '../modules/search/index';
+import { Header, Record, TableView, ConfigurationView, Histogram, Queries, Graph, Pane, Icon, Nodes } from './index';
 import { ErrorStatus } from '../modules/status/index';
 
 
@@ -38,16 +37,13 @@ class RootView extends Component {
                                 className="graph"
                                 handleMouseOver={ () => this.handleMouseOver() }
                             />
+                            <Queries />
                         </div>
                     </div>
                 </div>
 
                 <Pane name="Configuration" handle="configuration" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-forward">
                     <ConfigurationView ref="configurationView"/>
-                </Pane>
-
-                <Pane name={`Queries (${items.length})`} handle="queries" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-forward">
-                    <Searches/>
                 </Pane>
 
                 <Pane name={`Nodes (${node.length})`} handle="nodes" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-back">

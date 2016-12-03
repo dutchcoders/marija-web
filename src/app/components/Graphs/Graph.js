@@ -527,12 +527,12 @@ class Graph extends React.Component {
 
         return (
                 <canvas
-            style={{fontFamily: 'glyphicons halflings'}}
-            width={containerWidth}
-            height={containerHeight}
-            ref="canvas">
-                histogram
-            </canvas>
+                    style={{fontFamily: 'glyphicons halflings'}}
+                    width={containerWidth}
+                    height={containerHeight}
+                    ref="canvas">
+                        histogram
+                </canvas>
         );
     }
 }
