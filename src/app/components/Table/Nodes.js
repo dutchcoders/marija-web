@@ -163,24 +163,24 @@ class Nodes extends React.Component {
         const { editNode, value } = this.state;
 
         return (
-            node ?
+            node.length > 0?
                 map(sortBy(node, ['name']), (i_node) => {
                         return (
                             <li key={i_node.id}>
-				<div>
-                                <span>{i_node.name}</span>
-                                <Icon style={{'marginRight': '60px'}}  className="glyphicon" name={ i_node.icon }></Icon>
-                                <Icon style={{'marginRight': '40px'}} onClick={(n) => this.handleEditNode(i_node)} name="ion-ios-remove-circle-outline"/>
-                                <Icon style={{'marginRight': '20px'}} onClick={(n) => this.handleDeselectNode(i_node)} name="ion-ios-remove-circle-outline"/>
-                                <Icon onClick={(n) => this.handleDeleteNode(i_node)} name="ion-ios-close-circle-outline"/>
-				</div>
-				<div>
-                                <span className='description'>{i_node.description}</span>
-				</div>
+                                <div>
+                                    <span>{i_node.name}</span>
+                                    <Icon style={{'marginRight': '60px'}}  className="glyphicon" name={ i_node.icon[0] }></Icon>
+                                    <Icon style={{'marginRight': '40px'}} onClick={(n) => this.handleEditNode(i_node)} name="ion-ios-remove-circle-outline"/>
+                                    <Icon style={{'marginRight': '20px'}} onClick={(n) => this.handleDeselectNode(i_node)} name="ion-ios-remove-circle-outline"/>
+                                    <Icon onClick={(n) => this.handleDeleteNode(i_node)} name="ion-ios-close-circle-outline"/>
+                                </div>
+                                <div>
+                                    <span className='description'>{i_node.description}</span>
+                                </div>
                             </li>
                         );
                 })
-                : null
+            : <li>no node selected</li>
         );
     }
 
