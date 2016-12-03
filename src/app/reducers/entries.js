@@ -191,6 +191,7 @@ export default function entries(state = defaultState, action) {
                 searches.push({
                     q: action.items.query,
                     color: action.items.color,
+                    total: action.items.total,
                     items: action.items.results
                 });
             }

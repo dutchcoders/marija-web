@@ -19,14 +19,16 @@ class Header extends Component {
     }
 
     onSearchSubmit(q, index) {
-        const { dispatch, activeIndices } = this.props;
+        const { dispatch, activeIndices, queries } = this.props;
+
+        const colors = ['#de79f2', '#917ef2', '#6d83f2', '#499df2', '#49d6f2', '#00ccaa', '#fac04b', '#bf8757', '#ff884d', '#ff7373', '#ff5252', '#6b8fb3'];
 
         dispatch(requestItems({
             query: q,
             from: 0, 
             size: 500,
             index: activeIndices,
-            color: this.getColour(q)
+            color: colors[queries.length % colors.length]
         }));
     }
 
@@ -67,6 +69,7 @@ function select(state) {
         errors: state.entries.errors,
         indexes: state.entries.indexes,
         activeIndices: state.indices.activeIndices,
+        queries: state.entries.searches,
         total: state.entries.total
     };
 }
