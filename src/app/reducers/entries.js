@@ -238,6 +238,9 @@ export default function entries(state = defaultState, action) {
                         }
 
                         const normalizedSourceValue = normalize(normalizations, sv);
+                        if (normalizedSourceValue === "") {
+                            continue;
+                        }
 
                         let n = nodeCache[normalizedSourceValue];
                         if (n) {
@@ -286,6 +289,9 @@ export default function entries(state = defaultState, action) {
                                 }
 
                                 const normalizedTargetValue = normalize(normalizations, tv);
+                                if (normalizedTargetValue === "") {
+                                    continue;
+                                }
 
                                 let n = nodeCache[normalizedTargetValue];
                                 if (n) {
