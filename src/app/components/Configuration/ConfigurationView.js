@@ -141,40 +141,6 @@ class ConfigurationView extends React.Component {
         dispatch(requestIndices(server));
     }
 
-    renderServers(servers) {
-        const options = map(servers || [], (server) => {
-            return (
-                <li key={server} value={ server }>
-                    { server }
-                    <Icon onClick={() => this.handleRequestIndices(server) } name="ion-ios-cloud-download-outline"/>
-                    <Icon onClick={() => this.handleDeleteServer(server)} name="ion-ios-trash-outline"/>
-                </li>
-            );
-        });
-
-        let no_servers;
-        if (servers.length == 0) {
-            no_servers = <div className='text-warning'>No servers configured.</div>;
-        }
-
-        return (
-            <div>
-                <ul>{ options }</ul>
-                { no_servers }
-                <form onSubmit={this.handleAddServer.bind(this)}>
-                    <div className="row">
-                        <div className="col-xs-10">
-                            <input className="form-control" type="text" ref="server" placeholder="New server"/>
-                        </div>
-                        <div className="col-xs-1">
-                            <Icon onClick={this.handleAddServer.bind(this)} name="ion-ios-add-circle-outline add"/>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        );
-    }
-
     renderDateFields(fields) {
         const options = map(fields, (field) => {
             return (
@@ -289,65 +255,60 @@ class ConfigurationView extends React.Component {
         );
     }
 
-    renderIndices(indices) {
+    renderDatasources(datasources) {
         const { dispatch,activeIndices } = this.props;
 
-        const options = map(sortBy(indices, ["name"]), (index) => {
-            const indexName = index.name;
-            const active = find(activeIndices, (a) => a === index.id);
+        const options = map(sortBy(datasources, ["name"]), (datasource) => {
+            const indexName = datasource.name;
+            const active = find(activeIndices, (a) => a === datasource.id);
 
             return (
-                <li key={ index.id } value={ indexName }>
+                <li key={ datasource.id } value={ indexName }>
                     <div className="index-name" title={indexName }>
                         { indexName }
                     </div>
 
                     { active ?
-                        <Icon onClick={() => dispatch(deActivateIndex(index.id)) } name="ion-ios-eye"/>
+                        <Icon onClick={() => dispatch(deActivateIndex(datasource.id)) } name="ion-ios-eye"/>
                         :
-                        <Icon onClick={() => dispatch(activateIndex(index.id)) } name="ion-ios-eye-off"/>
+                        <Icon onClick={() => dispatch(activateIndex(datasource.id)) } name="ion-ios-eye-off"/>
                     }
 
-                    <Icon onClick={() => this.handleDeleteIndex(index)} name="ion-ios-trash-outline"/>
+                    <Icon onClick={() => this.handleDeleteIndex(datasource)} name="ion-ios-trash-outline"/>
                 </li>
             );
         });
 
-        let no_indices = null;
-        if (indices.length == 0) {
-            no_indices = <div className='text-warning'>No indices configured.</div>;
+        let no_datasources = null;
+        if (datasources.length == 0) {
+            no_datasources = <div className='text-warning'>No datasources configured.</div>;
         }
 
         return (
             <div>
                 <ul>{options}</ul>
-                { no_indices }
+                { no_datasources }
             </div>
         );
     }
 
     render() {
-        const { fields, date_fields, normalizations, indexes, servers, availableFields, dispatch } = this.props;
+        const { fields, date_fields, normalizations, datasources, availableFields, dispatch } = this.props;
         const { currentFieldSearchValue, currentDateFieldSearchValue } = this.state;
+
 
         return (
             <div>
                 <div className="form-group">
-                    <h2>Servers</h2>
-                    <p>Add the elasticsearch servers you want to discover here.</p>
-                    { this.renderServers(servers) }
-                </div>
-
-                <div className="form-group">
-                    <h2>Indices</h2>
-                    <p>Select and add the indices to query.</p>
-                    { this.renderIndices(indexes) }
+                    <h2>Datasources</h2>
+                    <p>Select and add the datasources to query.</p>
+                    { this.renderDatasources(datasources) }
                 </div>
 
                 <div className="form-group">
                     <h2>
                         Fields
-                        <Icon onClick={() => { dispatch(batchActions(clearAllFields(), getFields(map(indexes, (i) => i.id)))) } } name="ion-ios-refresh" 
+                        <Icon onClick={() => { dispatch(batchActions(clearAllFields(), getFields(map(datasources, (i) => i.id)))) } } name="ion-ios-refresh" 
                             style={{float: "right", fontSize:"23px"}}/>
                     </h2>
 
@@ -379,7 +340,7 @@ class ConfigurationView extends React.Component {
                 <div className="form-group">
                     <h2>
                         Date fields
-                        <Icon onClick={() => dispatch(batchActions(clearAllFields(), getFields(map(indexes, (i) => i.id)))) } name="ion-ios-refresh"
+                        <Icon onClick={() => dispatch(batchActions(clearAllFields(), getFields(map(datasources, (i) => i.id)))) } name="ion-ios-refresh"
                               style={{float: "right", fontSize:"23px"}}/>
                     </h2>
                     <p>The date fields are being used for the histogram.</p>
@@ -431,10 +392,9 @@ function select(state) {
         fields: state.entries.fields,
         availableFields: state.fields.availableFields,
         date_fields: state.entries.date_fields,
-        indexes: state.entries.indexes,
         normalizations: state.entries.normalizations,
         activeIndices: state.indices.activeIndices,
-        servers: state.servers
+        datasources: state.entries.datasources
     };
 }
 

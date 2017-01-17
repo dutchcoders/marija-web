@@ -27,7 +27,7 @@ class Header extends Component {
             query: q,
             from: 0, 
             size: 500,
-            index: activeIndices,
+            datasources: activeIndices,
             color: colors[queries.length % colors.length]
         }));
     }

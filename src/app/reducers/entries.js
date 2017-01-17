@@ -18,6 +18,7 @@ export const defaultState = {
     connected: false,
     total: 0,
     node: [],
+    datasources: [],
     highlight_nodes: [],
     columns: [],
     fields: [],
@@ -172,7 +173,7 @@ export default function entries(state = defaultState, action) {
 
             let from = search.items.length || 0;
 
-            let message = {query: action.query, index: action.index, from: from, size: action.size, color: action.color, host: action.index};
+            let message = {datasources: action.datasources, query: action.query, from: from, size: action.size, color: action.color};
             Socket.ws.postMessage(message);
 
             return Object.assign({}, state, {
@@ -394,7 +395,9 @@ export default function entries(state = defaultState, action) {
             });
 
         case INITIAL_STATE_RECEIVE:
-            return Object.assign({}, state, {});
+        return Object.assign({}, state, {
+            datasources: action.initial_state.datasources,
+        });
 
         default:
             return state;

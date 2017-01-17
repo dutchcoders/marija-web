@@ -26,6 +26,7 @@ function select(state, ownProps) {
         entries_fields: state.entries.fields,
         date_fields: state.entries.date_fields,
         indexes: state.entries.indexes,
+        datasources: state.entries.datasources,
         normalizations: state.entries.normalizations,
 
         indices: state.indices,
