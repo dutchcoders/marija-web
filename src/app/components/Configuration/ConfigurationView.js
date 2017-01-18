@@ -256,7 +256,7 @@ class ConfigurationView extends React.Component {
     }
 
     renderDatasources(datasources) {
-        const { dispatch,activeIndices } = this.props;
+        const { dispatch, activeIndices } = this.props;
 
         const options = map(sortBy(datasources, ["name"]), (datasource) => {
             const indexName = datasource.name;
@@ -273,8 +273,6 @@ class ConfigurationView extends React.Component {
                         :
                         <Icon onClick={() => dispatch(activateIndex(datasource.id)) } name="ion-ios-eye-off"/>
                     }
-
-                    <Icon onClick={() => this.handleDeleteIndex(datasource)} name="ion-ios-trash-outline"/>
                 </li>
             );
         });
@@ -293,7 +291,7 @@ class ConfigurationView extends React.Component {
     }
 
     render() {
-        const { fields, date_fields, normalizations, datasources, availableFields, dispatch } = this.props;
+        const { fields, date_fields, normalizations, datasources, availableFields, activeIndices, dispatch } = this.props;
         const { currentFieldSearchValue, currentDateFieldSearchValue } = this.state;
 
 
@@ -308,7 +306,7 @@ class ConfigurationView extends React.Component {
                 <div className="form-group">
                     <h2>
                         Fields
-                        <Icon onClick={() => { dispatch(batchActions(clearAllFields(), getFields(map(datasources, (i) => i.id)))) } } name="ion-ios-refresh" 
+                        <Icon onClick={() => { dispatch(batchActions(clearAllFields(), getFields(activeIndices))); } } name="ion-ios-refresh" 
                             style={{float: "right", fontSize:"23px"}}/>
                     </h2>
 
@@ -340,7 +338,7 @@ class ConfigurationView extends React.Component {
                 <div className="form-group">
                     <h2>
                         Date fields
-                        <Icon onClick={() => dispatch(batchActions(clearAllFields(), getFields(map(datasources, (i) => i.id)))) } name="ion-ios-refresh"
+                        <Icon onClick={() => { dispatch(batchActions(clearAllFields(), getFields(activeIndices))); } } name="ion-ios-refresh"
                               style={{float: "right", fontSize:"23px"}}/>
                     </h2>
                     <p>The date fields are being used for the histogram.</p>
