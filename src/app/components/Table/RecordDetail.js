@@ -39,8 +39,9 @@ export default class Record extends Component {
             }
 
             const useKey = keyParts.join('.');
-
-            if (typeof value.map == 'function') {
+            if (value === null ) {
+               return []; 
+            } else if (typeof value.map == 'function') {
                 return [useKey];
             } else if (typeof value == 'object') {
                 return [].concat(this.extractAllFields(value, useKey));
