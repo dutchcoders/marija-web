@@ -3,6 +3,7 @@ import { map, mapValues, reduce } from 'lodash';
 import { fieldLocator } from '../../helpers/index';
 import { highlightNodes } from '../../modules/graph/index';
 import { Icon } from '../../components/index';
+import DOMPurify from 'dompurify';
 
 export default class Record extends Component {
     constructor(props) {
@@ -62,6 +63,7 @@ export default class Record extends Component {
             const highlight =  (record.highlight || {});
             const field_value = highlight[value] || fieldLocator(record.fields, value) ;
 
+            const clean = DOMPurify.sanitize(field_value, { ALLOWED_TAGS: ['p', 'br', 'em']});
             return (
                 <tr key={ 'field_' + value }>
                     <td width="110">{value}
@@ -69,7 +71,7 @@ export default class Record extends Component {
                             name="ion-ios-add-circle"
                             style={{marginLeft: '8px', lineHeight: '20px', fontSize: '12px'}}/>
                     </td>
-                    <td colSpan="3" dangerouslySetInnerHTML={{ __html: field_value }}></td>
+                    <td colSpan="3" dangerouslySetInnerHTML={{ __html: clean }}></td>
                 </tr>
             );
         });
