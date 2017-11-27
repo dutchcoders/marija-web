@@ -1,10 +1,6 @@
-var webpack = require('webpack');
-var path = require('path');
-
-var buildPath = path.resolve(__dirname, 'dist');
-var mainPath = path.resolve(__dirname, 'src', 'app', 'main.js');
-
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+const webpack = require('webpack');
+const path = require('path');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
     entry: './src/app/main.js',
@@ -19,20 +15,11 @@ module.exports = {
         })
     ],
     resolve: {
-        modulesDirectories: ['node_modules', 'src'],
-        extension: ['', '.js', '.scss']
-    },
-    output: {
-        path: [__dirname, 'dist'].join(path.sep),
-        filename: 'bundle.js'
+        modules: ['node_modules', 'src'],
+        extensions: ['.js', '.scss']
     },
     module: {
         loaders: [
-            /*{
-                test: /\.js$/,
-                loaders: ["babel-loader", "eslint-loader"],
-                exclude: /node_modules/
-            },*/
             {
                 test: /.js?$/,
                 loader: 'babel-loader',
@@ -43,21 +30,25 @@ module.exports = {
             },
             {
                 test: /\.scss$/,
-                loader: ExtractTextPlugin.extract('style-loader', 'css-loader?sourceMap!sass-loader?outputStyle=expanded&sourceMap=true&sourceMapContents=true')
+                loaders: ['style-loader','css-loader','sass-loader']
             },
             {
                 test: /\.(html)$/i,
-                loader: "file-loader?name=/[name].[ext]"
+                loader: 'file-loader?name=/[name].[ext]'
             },
             {
                 test: /\.(eot|svg|ttf|woff|woff2)([\?]?.*)$/,
-                loader: 'file?name=fonts/[name].[ext]'
+                loader: 'file-loader?name=fonts/[name].[ext]'
             },
             {
                 test: /\.(png|jpg|jpeg)$/,
-                loader: 'file?name=images/[name].[ext]'
+                loader: 'file-loader?name=images/[name].[ext]'
             }
         ]
-    }
+    },
+    node: {
+        fs: 'empty',
+        child_process: 'empty'
+    },
 };
 
