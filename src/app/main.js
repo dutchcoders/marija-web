@@ -11,9 +11,7 @@ import { connect } from 'react-redux';
 import { browserHistory, Router, Route } from 'react-router';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import { Intl }  from 'react-intl-es6';
-
 import { RootView, StateCapturer, Websocket } from './components/index';
-
 import { entries, enableBatching, utils, servers, indices, fields, defaultState } from './reducers/index';
 import { persistState } from './helpers/index';
 import { i18n } from './config';

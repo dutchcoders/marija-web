@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --progress --colors --config webpack-build.config.js",
-    "start": "webpack-dev-server --watch --progress --colors --open --config webpack.config.js"
+    "start": "webpack-dev-server --watch --progress --colors --config webpack.config.js"
   },
   "author": "",
   "license": "ISC",
@@ -56,6 +56,7 @@
     "classnames": "^2.2.3",
     "d3": "^4.3.0",
     "dompurify": "^0.8.5",
+    "dotenv": "^4.0.0",
     "ipaddr.js": "^1.1.0",
     "lodash": "^4.17.2",
     "moment": "^2.15.1",
