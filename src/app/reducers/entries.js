@@ -102,6 +102,13 @@ export default function entries(state = defaultState, action) {
                 columns: without(state.columns, action.field)
             });
         case FIELD_ADD:
+            const existing = state.fields.find(field => field.path === action.field.path);
+
+            if (existing) {
+                // Field was already in store, don't add duplicates
+                return state;
+            }
+
             return Object.assign({}, state, {
                 fields: concat(state.fields, action.field)
             });

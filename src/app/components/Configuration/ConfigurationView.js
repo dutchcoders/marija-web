@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import { find, sortBy, map, includes, slice } from 'lodash';
-
 import { requestIndices } from '../../modules/indices/index';
 import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, normalizationAdd, normalizationDelete, indexAdd, indexDelete } from '../../modules/data/index';
 import { serverAdd, serverRemove } from '../../modules/servers/index';
@@ -9,6 +9,7 @@ import { activateIndex, deActivateIndex } from '../../modules/indices/index';
 import { batchActions } from '../../modules/batch/index';
 import { getFields, clearAllFields, Field } from '../../modules/fields/index';
 import { Icon } from '../index';
+import {addQueryParam, removeQueryParam} from "../../helpers/index";
 
 class ConfigurationView extends React.Component {
     constructor(props) {
@@ -18,16 +19,37 @@ class ConfigurationView extends React.Component {
         this.state = {
             normalization_error: '',
             currentFieldSearchValue: '',
-            currentDateFieldSearchValue: ''
+            currentDateFieldSearchValue: '',
+            queryString: ''
         };
     }
 
+    componentDidMount() {
+        const { history } = this.props;
+
+        // Always keep an up to date reference to the query string
+        history.listen(location => {
+            if (location) {
+                this.setState({queryString: location.search});
+            }
+        });
+    }
+
+    updateQueryString(newQueryString) {
+        const { history } = this.props;
+
+        history.push(history.location.pathname + newQueryString);
+    }
+
     handleAddField(path) {
-        const { dispatch } = this.props;
+        const { dispatch, history } = this.props;
+        const { queryString } = this.state;
 
         const icons = ["\u20ac", "\ue136", "\ue137", "\ue138", "\ue139", "\ue140", "\ue141", "\ue142", "\ue143"];
-
         const icon = icons[Math.floor((Math.random() * icons.length))];
+        const newQueryString = addQueryParam(queryString, 'fields', path);
+
+        this.updateQueryString(newQueryString);
 
         dispatch(fieldAdd({
             icon: icon,
@@ -115,6 +137,12 @@ class ConfigurationView extends React.Component {
 
     handleDeleteField(field) {
         const { dispatch } = this.props;
+        const { queryString } = this.state;
+
+        const newQueryString = removeQueryParam(queryString, 'fields', field.path);
+
+        this.updateQueryString(newQueryString);
+
         dispatch(fieldDelete(field));
     }
 
@@ -397,4 +425,4 @@ function select(state) {
 }
 
 
-export default connect(select)(ConfigurationView);
+export default connect(select)(withRouter(ConfigurationView));

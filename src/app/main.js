@@ -1,3 +1,5 @@
+import ResumeSession from "./components/Misc/ResumeSession";
+
 require('../index.html');
 require('../scss/app.scss');
 require('../images/logo.png');
@@ -8,7 +10,8 @@ import { render } from 'react-dom';
 import { dispatch, compose, createStore, combineReducers, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import { connect } from 'react-redux';
-import { browserHistory, Router, Route } from 'react-router';
+import { Router, Route } from 'react-router';
+import { createBrowserHistory } from 'history';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import { Intl }  from 'react-intl-es6';
 import { RootView, StateCapturer, Websocket } from './components/index';
@@ -56,7 +59,7 @@ function configureStore() {
 }
 
 const store = configureStore();
-const history = syncHistoryWithStore(browserHistory, store);
+const history = syncHistoryWithStore(createBrowserHistory(), store);
 
 class App extends Intl {
     constructor() {
@@ -72,7 +75,10 @@ class App extends Intl {
                 <StateCapturer store={store}/>
                 <Provider store={store}>
                     <Router history={history}>
-                        <Route path='*' component={RootView}/>
+                        <div>
+                            <Route path='*' component={RootView} />
+                            <Route path='*' component={ResumeSession} />
+                        </div>
                     </Router>
                 </Provider>
             </div>
