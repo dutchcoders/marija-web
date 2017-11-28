@@ -283,6 +283,26 @@ class ConfigurationView extends React.Component {
         );
     }
 
+    activateDatasource(id) {
+        const { dispatch } = this.props;
+        const { queryString } = this.state;
+
+        dispatch(activateIndex(id));
+
+        const newQueryString = addQueryParam(queryString, 'datasources', id);
+        this.updateQueryString(newQueryString);
+    }
+
+    deactivateDatasource(id) {
+        const { dispatch } = this.props;
+        const { queryString } = this.state;
+
+        dispatch(deActivateIndex(id));
+
+        const newQueryString = removeQueryParam(queryString, 'datasources', id);
+        this.updateQueryString(newQueryString);
+    }
+
     renderDatasources(datasources) {
         const { dispatch, activeIndices } = this.props;
 
@@ -297,9 +317,9 @@ class ConfigurationView extends React.Component {
                     </div>
 
                     { active ?
-                        <Icon onClick={() => dispatch(deActivateIndex(datasource.id)) } name="ion-ios-eye"/>
+                        <Icon onClick={() => this.deactivateDatasource(datasource.id) } name="ion-ios-eye"/>
                         :
-                        <Icon onClick={() => dispatch(activateIndex(datasource.id)) } name="ion-ios-eye-off"/>
+                        <Icon onClick={() => this.activateDatasource(datasource.id) } name="ion-ios-eye-off"/>
                     }
                 </li>
             );

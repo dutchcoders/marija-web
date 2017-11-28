@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import queryString from 'query-string';
 import {fieldAdd} from "../../modules/data/actions";
+import {activateIndex} from "../../modules/indices/actions";
 
 class ResumeSession extends Component {
     componentDidMount() {
@@ -11,6 +12,10 @@ class ResumeSession extends Component {
 
         if (parsed.fields) {
             this.addFields(parsed.fields.split(','));
+        }
+
+        if (parsed.datasources) {
+            this.addDatasources(parsed.datasources.split(','));
         }
     }
 
@@ -24,6 +29,16 @@ class ResumeSession extends Component {
                 icon: 'A',
                 path: field
             }));
+        });
+    }
+
+    addDatasources(ids) {
+        const { dispatch } = this.props;
+
+        console.log('found data sources from url');
+
+        ids.forEach(id => {
+            dispatch(activateIndex(id));
         });
     }
 

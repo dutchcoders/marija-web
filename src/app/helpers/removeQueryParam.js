@@ -10,7 +10,11 @@ export default function removeQueryParam (currentQueryString, name, value) {
         // Remove from the array
         items = items.filter(item => item !== value);
 
-        queryParams[name] = items.join(',');
+        if (items.length > 0) {
+            queryParams[name] = items.join(',');
+        } else {
+            delete queryParams[name];
+        }
     }
 
     return '?' + queryString.stringify(queryParams);
