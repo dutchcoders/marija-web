@@ -15,6 +15,7 @@ import { RootView, StateCapturer, Websocket } from './components/index';
 import { entries, enableBatching, utils, servers, indices, fields, defaultState } from './reducers/index';
 import { persistState } from './helpers/index';
 import { i18n } from './config';
+import { composeWithDevTools } from 'redux-devtools-extension';
 
 function configureStore() {
     return createStore(
@@ -50,11 +51,11 @@ function configureStore() {
                 ]
             }
         },
-        compose(persistState())
+        composeWithDevTools(persistState())
     );
 }
 
-const store = configureStore({});
+const store = configureStore();
 const history = syncHistoryWithStore(browserHistory, store);
 
 class App extends Intl {
