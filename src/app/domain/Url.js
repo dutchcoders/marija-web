@@ -35,7 +35,7 @@ export default class Url {
     }
 
     /**
-     * Updates the query string
+     * Pushes the new query string on to the history object
      *
      * @param newQueryString
      */

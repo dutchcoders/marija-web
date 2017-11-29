@@ -13,6 +13,7 @@ import { normalize, fieldLocator } from '../../helpers/index';
 
 import { Icon } from '../../components/index';
 import { deleteSearch } from '../../modules/search/index';
+import Url from "../../domain/Url";
 
 
 class Queries extends React.Component {
@@ -39,7 +40,9 @@ class Queries extends React.Component {
 
     handleDeleteQuery(query) {
         const { dispatch } = this.props;
+
         dispatch(deleteSearch({search: query}));
+        Url.removeQueryParam('search', query.q);
     }
 
     handleChangeQueryColorComplete(color) {

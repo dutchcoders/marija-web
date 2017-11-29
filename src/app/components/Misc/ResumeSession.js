@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import queryString from 'query-string';
 import {fieldAdd} from "../../modules/data/actions";
 import {activateIndex} from "../../modules/indices/actions";
+import {requestItems} from "../../modules/search/actions";
 
 class ResumeSession extends Component {
     componentDidMount() {
@@ -16,6 +17,10 @@ class ResumeSession extends Component {
 
         if (parsed.datasources) {
             this.addDatasources(parsed.datasources.split(','));
+        }
+
+        if (parsed.search) {
+            this.search(parsed.search.split(','));
         }
     }
 
@@ -39,6 +44,23 @@ class ResumeSession extends Component {
 
         ids.forEach(id => {
             dispatch(activateIndex(id));
+        });
+    }
+
+    search(terms) {
+        const { dispatch } = this.props;
+
+        console.log('found search sources from url', terms);
+
+
+        terms.forEach(term => {
+            dispatch(requestItems({
+                query: term,
+                from: 0,
+                size: 500,
+                datasources: ['spamtrap'],
+                color: '#de79f2'
+            }));
         });
     }
 
