@@ -50,17 +50,20 @@ class ResumeSession extends Component {
     search(terms) {
         const { dispatch } = this.props;
 
-        console.log('found search sources from url', terms);
+        dispatch((dispatch, getState) => {
+            // Get the updated state, because it might have changed by
+            // adding datasources from the url
+            const datasources = getState().indices.activeIndices;
 
-
-        terms.forEach(term => {
-            dispatch(requestItems({
-                query: term,
-                from: 0,
-                size: 500,
-                datasources: ['spamtrap'],
-                color: '#de79f2'
-            }));
+            terms.forEach(term => {
+                dispatch(requestItems({
+                    query: term,
+                    datasources: datasources,
+                    from: 0,
+                    size: 500,
+                    color: '#de79f2'
+                }));
+            });
         });
     }
 

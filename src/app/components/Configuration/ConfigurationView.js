@@ -155,7 +155,7 @@ class ConfigurationView extends React.Component {
         const { dispatch } = this.props;
 
         dispatch(deActivateIndex(id));
-        Url.addQueryParam('datasources', id);
+        Url.removeQueryParam('datasources', id);
     }
 
     renderDateFields(fields) {

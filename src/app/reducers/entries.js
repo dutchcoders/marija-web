@@ -181,7 +181,13 @@ export default function entries(state = defaultState, action) {
 
             let from = search.items.length || 0;
 
-            let message = {datasources: action.datasources, query: action.query, from: from, size: action.size, color: action.color};
+            let message = {
+                datasources: action.datasources,
+                query: action.query,
+                from: from,
+                size: action.size,
+                color: action.color
+            };
             Socket.ws.postMessage(message);
 
             return Object.assign({}, state, {

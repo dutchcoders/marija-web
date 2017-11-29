@@ -19,6 +19,7 @@ import { entries, enableBatching, utils, servers, indices, fields, defaultState 
 import { persistState } from './helpers/index';
 import { i18n } from './config';
 import { composeWithDevTools } from 'redux-devtools-extension';
+import thunk from 'redux-thunk';
 
 function configureStore() {
     return createStore(
@@ -54,7 +55,10 @@ function configureStore() {
                 ]
             }
         },
-        composeWithDevTools(persistState())
+        composeWithDevTools(
+            persistState(),
+            applyMiddleware(thunk)
+        )
     );
 }
 
