@@ -47,7 +47,7 @@ function configureStore() {
             },
             utils: {
                 panes: [
-                    {name: 'configuration', state: false},
+                    {name: 'configuration', state: true},
                     {name: 'histogram', state: false},
                     {name: 'table', state: false},
                     {name: 'nodes', state: true},
