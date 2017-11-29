@@ -209,7 +209,7 @@ class Graph extends React.Component {
                 for (let j = 0; j < graph.nodes.length; j++) {
                     const d = graph.nodes[j];
                     const fontHeight = 6 + Math.floor(0.8*d.r);
-                    this.context.font=fontHeight + "px glyphicons halflings";
+                    this.context.font= "italic " + fontHeight + "px Roboto, Helvetica, Arial";
                     this.context.fillText(d.icon, d.x - ((fontHeight - 0.5) /2), d.y + (fontHeight + 0.5)/2);
                 }
 
