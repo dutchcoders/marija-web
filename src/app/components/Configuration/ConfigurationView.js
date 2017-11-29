@@ -335,7 +335,7 @@ class ConfigurationView extends React.Component {
                                 <Field
                                     key={'available_fields_' + item.path}
                                     item={item} handler={() => this.handleAddField(item.path)}
-                                    icon={'ion-ios-add-circle-outline'}/>
+                                    icon={'ion-ios-plus'}/>
                             );
                         })}
                     </ul>
@@ -374,7 +374,7 @@ class ConfigurationView extends React.Component {
                                 <Field
                                     key={'available_date_fields_' + item.path}
                                     item={item} handler={() => this.handleAddDateField(item.path)}
-                                    icon={'ion-ios-add-circle-outline'}/>
+                                    icon={'ion-ios-plus'}/>
                             );
                         })}
                     </ul>

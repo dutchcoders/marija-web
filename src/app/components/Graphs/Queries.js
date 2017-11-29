@@ -87,9 +87,9 @@ class Queries extends React.Component {
                                 <li key={query.q} style={{backgroundColor: query.color}}>
                                 { `${query.q}` }&nbsp;<span className="count">{ `${query.items.length}`}<b>{`(${query.total})` }</b></span>
                                 <Icon onClick={(e) => this.handleEditQuery(query, e) }
-                                    name="ion-ios-brush"/>
+                                    name="ion-ios-gear"/>
                                 <Icon onClick={(e) => this.handleDeleteQuery(query) }
-                                    name="ion-ios-close-circle"/>
+                                    name="ion-ios-close"/>
                                 </li>
                         );
                     })}

@@ -9,6 +9,7 @@ import moment from 'moment';
 import { nodesSelect, highlightNodes, nodeSelect } from '../../modules/graph/index';
 import { normalize, fieldLocator } from '../../helpers/index';
 import Loader from "../Misc/Loader";
+import {Icon} from "../index";
 
 var Worker = require("worker-loader!./Worker");
 
@@ -523,6 +524,20 @@ class Graph extends React.Component {
         return true;
     }
 
+    zoomIn() {
+        const prevTransform = Object.assign({}, this.network.graph.transform);
+        prevTransform.k = prevTransform.k * 1.1;
+
+        this.network.graph.transform = prevTransform;
+    }
+
+    zoomOut() {
+        const prevTransform = Object.assign({}, this.network.graph.transform);
+        prevTransform.k = prevTransform.k * 0.9;
+
+        this.network.graph.transform = prevTransform;
+    }
+
     render() {
         const { containerHeight, containerWidth, itemsFetching } = this.props;
 
@@ -535,6 +550,10 @@ class Graph extends React.Component {
                     ref="canvas">
                         histogram
                 </canvas>
+                <ul className="mapControls">
+                    <li><Icon name="ion-ios-minus" onClick={this.zoomOut.bind(this)}/></li>
+                    <li><Icon name="ion-ios-plus" onClick={this.zoomIn.bind(this)}/></li>
+                </ul>
                 <Loader show={itemsFetching} classes={['graphLoader']}/>
             </div>
         );
