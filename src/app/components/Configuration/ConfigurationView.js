@@ -140,18 +140,16 @@ class ConfigurationView extends React.Component {
         dispatch(requestIndices(server));
     }
 
-    handleActivateDatasource(id) {
+    handleDatasourceChange(event, id) {
         const { dispatch } = this.props;
 
-        dispatch(activateIndex(id));
-        Url.addQueryParam('datasources', id);
-    }
-
-    handleDeactivateDatasource(id) {
-        const { dispatch } = this.props;
-
-        dispatch(deActivateIndex(id));
-        Url.removeQueryParam('datasources', id);
+        if (event.target.checked) {
+            dispatch(activateIndex(id));
+            Url.addQueryParam('datasources', id);
+        } else {
+            dispatch(deActivateIndex(id));
+            Url.removeQueryParam('datasources', id);
+        }
     }
 
     renderDateFields(fields) {
@@ -279,11 +277,8 @@ class ConfigurationView extends React.Component {
                         { indexName }
                     </div>
 
-                    { active ?
-                        <Icon onClick={() => this.handleDeactivateDatasource(datasource.id) } name="ion-ios-eye"/>
-                        :
-                        <Icon onClick={() => this.handleActivateDatasource(datasource.id) } name="ion-ios-eye-off"/>
-                    }
+                    <input type="checkbox" defaultChecked={active} onChange={(event) => this.handleDatasourceChange(event, datasource.id)} />
+
                 </li>
             );
         });

@@ -306,6 +306,13 @@
                     text-align: center;
                     line-height: 20px;
                 }
+
+                input[type="checkbox"] {
+                    position: absolute;
+                    top: -2px;
+                    right: 1px;
+                    zoom: 1.5;
+                }
             }
         }
 
