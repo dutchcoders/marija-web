@@ -39,7 +39,7 @@ export default class SearchBox extends Component {
                     <div className="form-group">
                         <form onSubmit={this.handleSubmit.bind(this)}>
                             <input ref="q" className="form-control" placeholder="Search something" value={ this.state.q }/>
-                            <Loader show={itemsFetching}/>
+                            <Loader show={itemsFetching} classes={['sk-search-box__loader']}/>
                         </form>
                     </div>
                 </div>

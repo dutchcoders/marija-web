@@ -241,6 +241,13 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: 300;
+
+            .loader {
+                float: right;
+                width: 18px;
+                height: 18px;
+                margin-top: 0;
+            }
         }
 
         .index-name{

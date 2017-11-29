@@ -10,7 +10,6 @@ export default class Loader extends Component {
 
         const defaultClasses = [
             'loader',
-            'sk-search-box__loader',
             'sk-spinning-loader'
         ];
 
