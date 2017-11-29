@@ -525,17 +525,11 @@ class Graph extends React.Component {
     }
 
     zoomIn() {
-        const prevTransform = Object.assign({}, this.network.graph.transform);
-        prevTransform.k = prevTransform.k * 1.1;
-
-        this.network.graph.transform = prevTransform;
+        this.network.graph.transform.k = this.network.graph.transform.k * 1.1;
     }
 
     zoomOut() {
-        const prevTransform = Object.assign({}, this.network.graph.transform);
-        prevTransform.k = prevTransform.k * 0.9;
-
-        this.network.graph.transform = prevTransform;
+        this.network.graph.transform.k = this.network.graph.transform.k * 0.9;
     }
 
     render() {
