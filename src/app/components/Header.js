@@ -15,9 +15,7 @@ class Header extends Component {
     }
 
     onSearchSubmit(q, index) {
-        const { dispatch, activeIndices, queries } = this.props;
-
-        const colors = ['#de79f2', '#917ef2', '#6d83f2', '#499df2', '#49d6f2', '#00ccaa', '#fac04b', '#bf8757', '#ff884d', '#ff7373', '#ff5252', '#6b8fb3'];
+        const { dispatch, activeIndices } = this.props;
 
         Url.addQueryParam('search', q);
 
@@ -25,8 +23,7 @@ class Header extends Component {
             query: q,
             from: 0, 
             size: 500,
-            datasources: activeIndices,
-            color: colors[queries.length % colors.length]
+            datasources: activeIndices
         }));
     }
 
