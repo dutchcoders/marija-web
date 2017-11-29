@@ -80,17 +80,16 @@ class Queries extends React.Component {
         }
 
         return (
-                <div className="queries">
-                    <ul>
+            <div className="queries">
+                <ul>
                     {map(queries, (query) => {
                         return (
                                 <li key={query.q} style={{backgroundColor: query.color}}>
                                 { `${query.q}` }&nbsp;<span className="count">{ `${query.items.length}`}<b>{`(${query.total})` }</b></span>
-                                <Icon style={{'marginRight': '10px'}}
-                                    onClick={(e) => this.handleEditQuery(query, e) }
+                                <Icon onClick={(e) => this.handleEditQuery(query, e) }
                                     name="ion-ios-brush"/>
-                                <Icon style={{'marginRight': '10px'}} onClick={(e) => this.handleDeleteQuery(query) }
-                                    name="ion-ios-trash-outline"/>
+                                <Icon onClick={(e) => this.handleDeleteQuery(query) }
+                                    name="ion-ios-close-circle"/>
                                 </li>
                         );
                     })}

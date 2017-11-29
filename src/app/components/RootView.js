@@ -37,7 +37,6 @@ class RootView extends Component {
                                 className="graph"
                                 handleMouseOver={ () => this.handleMouseOver() }
                             />
-                            <Queries />
                         </div>
                     </div>
                 </div>

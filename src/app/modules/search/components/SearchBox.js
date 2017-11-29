@@ -3,6 +3,7 @@ import classNames from 'classnames/bind';
 
 import { map } from 'lodash';
 import Loader from "../../../components/Misc/Loader";
+import {Queries} from "../../../components/index";
 
 export default class SearchBox extends Component {
     constructor(props) {
@@ -34,6 +35,9 @@ export default class SearchBox extends Component {
             <nav id="searchbox" className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation">
                 <div className="logo-container">
                     <img className={`logo ${connected ? 'connected' : 'not-connected'}`} src="/images/logo.png" title={connected ? "Marija is connected to the backendservice" : "No connection to Marija backend available" } />
+                </div>
+                <div className="queries-container">
+                    <Queries />
                 </div>
                 <div className="search-container">
                     <div className="form-group">
