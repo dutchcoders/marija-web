@@ -30,10 +30,7 @@ class ResumeSession extends Component {
         console.log('found fields from url', fields);
 
         fields.forEach(field => {
-            dispatch(fieldAdd({
-                icon: 'A',
-                path: field
-            }));
+            dispatch(fieldAdd(field));
         });
     }
 

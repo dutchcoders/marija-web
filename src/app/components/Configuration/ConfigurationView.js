@@ -26,14 +26,9 @@ class ConfigurationView extends React.Component {
     handleAddField(path) {
         const { dispatch } = this.props;
 
-        const icons = ["\u20ac", "\ue136", "\ue137", "\ue138", "\ue139", "\ue140", "\ue141", "\ue142", "\ue143"];
-        const icon = icons[Math.floor((Math.random() * icons.length))];
         Url.addQueryParam('fields', path);
 
-        dispatch(fieldAdd({
-            icon: icon,
-            path: path
-        }));
+        dispatch(fieldAdd(path));
     }
 
     handleFieldSearchChange(event) {

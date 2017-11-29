@@ -103,15 +103,32 @@ export default function entries(state = defaultState, action) {
                 columns: without(state.columns, action.field)
             });
         case FIELD_ADD:
-            const existing = state.fields.find(field => field.path === action.field.path);
+            const existing = state.fields.find(field => field.path === action.path);
 
             if (existing) {
                 // Field was already in store, don't add duplicates
                 return state;
             }
 
+            const firstChar = action.path.charAt(0).toUpperCase();
+            const fieldsWithSameChar = state.fields.filter(field => field.icon.indexOf(firstChar) === 0);
+            let icon;
+
+            if (fieldsWithSameChar.length === 0) {
+                icon = firstChar;
+            } else {
+                // Append a number to the icon if multiple fields share the same
+                // first character
+                icon = firstChar + (fieldsWithSameChar.length + 1);
+            }
+
+            let newField = {
+                path: action.path,
+                icon: icon
+            };
+
             return Object.assign({}, state, {
-                fields: concat(state.fields, action.field)
+                fields: concat(state.fields, newField)
             });
         case FIELD_DELETE:
             return Object.assign({}, state, {
