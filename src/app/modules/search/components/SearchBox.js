@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames/bind';
 
 import { map } from 'lodash';
+import Loader from "../../../components/Misc/Loader";
 
 export default class SearchBox extends Component {
     constructor(props) {
@@ -27,14 +28,7 @@ export default class SearchBox extends Component {
     }
 
     render() {
-        const { isFetching, indexes, connected } = this.props;
-
-        let loader = classNames({
-	    'loader': true, 
-            'sk-search-box__loader': true,
-            'sk-spinning-loader': true,
-            'is-hidden': !isFetching
-        });
+        const { itemsFetching, indexes, connected } = this.props;
 
         return (
             <nav id="searchbox" className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation">
@@ -45,7 +39,7 @@ export default class SearchBox extends Component {
                     <div className="form-group">
                         <form onSubmit={this.handleSubmit.bind(this)}>
                             <input ref="q" className="form-control" placeholder="Search something" value={ this.state.q }/>
-                            <div data-qa="loader" className={loader}></div>
+                            <Loader show={itemsFetching}/>
                         </form>
                     </div>
                 </div>

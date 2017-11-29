@@ -8,6 +8,7 @@ import moment from 'moment';
 
 import { nodesSelect, highlightNodes, nodeSelect } from '../../modules/graph/index';
 import { normalize, fieldLocator } from '../../helpers/index';
+import Loader from "../Misc/Loader";
 
 var Worker = require("worker-loader!./Worker");
 
@@ -523,9 +524,10 @@ class Graph extends React.Component {
     }
 
     render() {
-        const { containerHeight, containerWidth } = this.props;
+        const { containerHeight, containerWidth, itemsFetching } = this.props;
 
         return (
+            <div>
                 <canvas
                     style={{fontFamily: 'glyphicons halflings'}}
                     width={containerWidth}
@@ -533,6 +535,8 @@ class Graph extends React.Component {
                     ref="canvas">
                         histogram
                 </canvas>
+                <Loader show={itemsFetching} classes={['graphLoader']}/>
+            </div>
         );
     }
 }
@@ -546,7 +550,8 @@ const select = (state, ownProps) => {
         queries: state.entries.searches,
         fields: state.entries.fields,
         items: state.entries.items,
-        highlight_nodes: state.entries.highlight_nodes
+        highlight_nodes: state.entries.highlight_nodes,
+        itemsFetching: state.entries.itemsFetching,
     };
 };
 

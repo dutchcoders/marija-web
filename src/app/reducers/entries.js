@@ -13,6 +13,7 @@ import { normalize, fieldLocator } from '../helpers/index';
 
 export const defaultState = {
     isFetching: false,
+    itemsFetching: false,
     noMoreHits: false,
     didInvalidate: false,
     connected: false,
@@ -185,6 +186,7 @@ export default function entries(state = defaultState, action) {
 
             return Object.assign({}, state, {
                 isFetching: true,
+                itemsFetching: true,
                 didInvalidate: false
             });
         }
@@ -361,6 +363,7 @@ export default function entries(state = defaultState, action) {
                 items: concat(state.items, items),
                 searches: searches,
                 isFetching: false,
+                itemsFetching: false,
                 didInvalidate: false
             });
         }
