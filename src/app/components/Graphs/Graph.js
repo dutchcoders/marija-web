@@ -28,12 +28,18 @@ class Graph extends React.Component {
             time: 0,
             n: {
             },
-            ticks: 0
+            ticks: 0,
+            selecting: false,
+            moving: true
         };
 
         const { containerHeight, containerWidth } = props;
 
+        document.addEventListener('keydown', this.handleKeyDown.bind(this));
+
         this.network = {
+            selecting: this.state.selecting,
+            moving: this.state.moving,
             graph: {
                 nodes: [],
                 links: [],
@@ -83,7 +89,7 @@ class Graph extends React.Component {
                     .on("mouseup", this.mouseup.bind(this))
                     .call(d3.drag()
                           .filter(() => {
-                              return d3.event.altKey;
+                              return this.moving;
                           })
                           .subject(this.dragsubject.bind(this))
                           .on("start", this.dragstarted.bind(this))
@@ -92,7 +98,7 @@ class Graph extends React.Component {
                          )
                     .call(d3.zoom()
                           .filter(() => {
-                              return d3.event.altKey;
+                              return this.moving;
                           })
                           .scaleExtent([1 / 2, 8])
                           .on("zoom", this.zoomed.bind(this))
@@ -320,7 +326,7 @@ class Graph extends React.Component {
             mousedown: function () {
                 const { graph } = this;
 
-                if (d3.event.altKey) {
+                if (!this.selecting) {
                     return;
                 }
 
@@ -345,7 +351,7 @@ class Graph extends React.Component {
             mouseup: function () {
                 const { graph } = this;
 
-                if (d3.event.altKey) {
+                if (!this.selecting) {
                     return;
                 }
 
@@ -379,7 +385,7 @@ class Graph extends React.Component {
             mousemove: function (n) {
                 const { graph } = this;
 
-                if (d3.event.altKey) {
+                if (!this.selecting) {
                     return;
                 }
 
@@ -532,19 +538,56 @@ class Graph extends React.Component {
         this.network.graph.transform.k = this.network.graph.transform.k * 0.9;
     }
 
+    enableSelect() {
+        this.setState({
+            selecting: true,
+            moving: false
+        });
+
+        this.network.selecting = true;
+        this.network.moving = false;
+    }
+
+    enableMove() {
+        this.setState({
+            selecting: false,
+            moving: true
+        });
+
+        this.network.selecting = false;
+        this.network.moving = true;
+    }
+
+    handleKeyDown(event) {
+        const { selecting } = this.state;
+        const altKey = 18;
+
+        if (event.keyCode === altKey) {
+            if (selecting) {
+                this.enableMove();
+            } else {
+                this.enableSelect();
+            }
+        }
+    }
+
     render() {
         const { containerHeight, containerWidth, itemsFetching } = this.props;
+        const { selecting, moving } = this.state;
 
         return (
             <div>
                 <canvas
                     style={{fontFamily: 'glyphicons halflings'}}
+                    className={'graph ' + (selecting ? 'selecting' : 'moving')}
                     width={containerWidth}
                     height={containerHeight}
                     ref="canvas">
                         histogram
                 </canvas>
                 <ul className="mapControls">
+                    <li className={moving ? 'active': ''}><Icon name="ion-arrow-move" onClick={this.enableMove.bind(this)}/></li>
+                    <li className={selecting ? 'active': ''}><Icon name="ion-ios-crop" onClick={this.enableSelect.bind(this)}/></li>
                     <li><Icon name="ion-ios-minus" onClick={this.zoomOut.bind(this)}/></li>
                     <li><Icon name="ion-ios-plus" onClick={this.zoomIn.bind(this)}/></li>
                 </ul>

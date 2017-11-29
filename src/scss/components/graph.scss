@@ -1,3 +1,13 @@
+canvas.graph {
+  &.selecting {
+    cursor: crosshair;
+  }
+
+  &.moving {
+    cursor: move;
+  }
+}
+
 .mapControls {
   position: absolute;
   top: 10px;
@@ -11,6 +21,10 @@
   li {
     list-style: none;
     margin: 0 5px;
+
+    &.active {
+      color: #5CA1E6;
+    }
   }
 
   i {
