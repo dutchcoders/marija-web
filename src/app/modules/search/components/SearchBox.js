@@ -25,6 +25,7 @@ export default class SearchBox extends Component {
             return;
         }
 
+        this.setState({q: ''});
         this.props.onSubmit(q, this.state.selectValue);
     }
 
