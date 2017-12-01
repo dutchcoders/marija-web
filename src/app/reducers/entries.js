@@ -153,8 +153,29 @@ export default function entries(state = defaultState, action) {
                 date_fields: without(state.date_fields, action.field)
             });
         case NODES_HIGHLIGHT:
+            const highlightItems = [];
+
+            action.highlight_nodes.forEach(node => {
+                const highlightItem = Object.assign({}, state.items.find(item => item.id === node.items[0]));
+
+                // Only keep the fields that the user configured for brevity
+                _.forEach(highlightItem.fields, (value, path) => {
+                    const fieldActive = typeof state.fields.find(field => field.path === path) !== 'undefined';
+
+                    if (!fieldActive) {
+                        delete highlightItem.fields[path];
+                    }
+                });
+
+                highlightItem.x = node.x;
+                highlightItem.y = node.y;
+                highlightItem.matchFields = node.fields;
+
+                highlightItems.push(highlightItem);
+            });
+
             return Object.assign({}, state, {
-                highlight_nodes: action.highlight_nodes
+                highlight_nodes: highlightItems
             });
         case NODES_SELECT:
             return Object.assign({}, state, {

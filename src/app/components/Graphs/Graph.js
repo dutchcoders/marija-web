@@ -38,6 +38,7 @@ class Graph extends React.Component {
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
 
         this.network = {
+            fields: [],
             selecting: this.state.selecting,
             moving: this.state.moving,
             graph: {
@@ -159,7 +160,7 @@ class Graph extends React.Component {
                 // * don't draw out of the viewing context
                 //
 
-                const { canvas, context, graph, lines } = this;
+                const { canvas, context, graph, lines, fields } = this;
 
                 // todo(nl5887): is this slow?
                 const {width, height}  = canvas;
@@ -255,20 +256,49 @@ class Graph extends React.Component {
                     context.stroke();
                 }
 
-                if (graph.tooltip) {
+                // Display tooltip
+                if (graph.highlight_nodes && graph.highlight_nodes.length > 0) {
+                    const tooltip = graph.highlight_nodes[0];
+
+                    const lineHeight = 18;
+                    const lines = Object.keys(tooltip.fields).length + 1;
+                    const rectHeight = lineHeight * lines + 10;
+                    const widths = [];
+
+                    forEach(tooltip.fields, (value, path) => {
+                        const {width} = context.measureText(value);
+                        widths.push(width);
+                    });
+
+                    const longestLine = widths.reduce((a, b) => Math.max(a, b)) + 10;
+
                     context.beginPath();
                     context.lineWidth="1";
                     context.strokeStyle="#cecece";
                     context.fillStyle="#fff";
 
-                    const {width} = context.measureText(graph.tooltip.node.name);
-                    context.rect(graph.tooltip.x,graph.tooltip.y-25,width,30);
+                    context.rect(tooltip.x + 15, tooltip.y - 25, longestLine, rectHeight);
                     context.stroke();
                     context.fill();
 
                     context.fillStyle = '#000'; //d.color[0];
+                    context.font = "bold 14px Arial";
+
+                    let textY = tooltip.y - 5;
+                    const textX = tooltip.x + 20;
+                    const fieldsText = 'Match fields: ' + tooltip.matchFields.join(', ');
+
+                    context.fillText(fieldsText, textX, textY);
+                    textY += lineHeight;
+
                     context.font = "14px Arial";
-                    context.fillText(graph.tooltip.node.name, graph.tooltip.x + 5, graph.tooltip.y - 5);
+
+                    forEach(tooltip.fields, (value, path) => {
+                        const text = path + ': ' + (value === null ? '' : value);
+
+                        context.fillText(text, textX, textY);
+                        textY += lineHeight;
+                    });
                 }
 
 
@@ -387,10 +417,6 @@ class Graph extends React.Component {
             mousemove: function (n) {
                 const { graph } = this;
 
-                if (!this.selecting) {
-                    return;
-                }
-
                 var x = graph.transform.invertX(d3.event.layerX),
                     y = graph.transform.invertY(d3.event.layerY);
 
@@ -480,7 +506,7 @@ class Graph extends React.Component {
 
     onHighlightNode(nodes) {
         // todo(nl5887): dispatch actual react (this.props.nodes, not graph nodes)
-        if (isEqual(nodes, this.props.nodes)) {
+        if (isEqual(nodes, this.props.highlight_nodes)) {
             return;
         }
 
