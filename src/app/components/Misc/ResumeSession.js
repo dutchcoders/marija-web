@@ -4,6 +4,7 @@ import queryString from 'query-string';
 import {fieldAdd} from "../../modules/data/actions";
 import {activateIndex} from "../../modules/indices/actions";
 import {requestItems} from "../../modules/search/actions";
+import Url from "../../domain/Url";
 
 class ResumeSession extends Component {
     componentDidMount() {
@@ -52,6 +53,18 @@ class ResumeSession extends Component {
             // adding datasources from the url
             const datasources = getState().indices.activeIndices;
 
+            if (datasources.length === 0) {
+                this.cancelSearch();
+                return;
+            }
+
+            const fields = getState().entries.fields;
+
+            if (fields.length === 0) {
+                this.cancelSearch();
+                return;
+            }
+
             terms.forEach(term => {
                 dispatch(requestItems({
                     query: term,
@@ -62,6 +75,15 @@ class ResumeSession extends Component {
                 }));
             });
         });
+    }
+
+    /**
+     * Tried to perform search, but couldnt continue. Remove the search queries
+     * from the url
+     */
+    cancelSearch() {
+        console.log('cancel');
+        Url.removeAllQueryParams('search');
     }
 
     render() {

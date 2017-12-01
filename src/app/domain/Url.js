@@ -34,6 +34,12 @@ export default class Url {
         this.updateQueryString(newQueryString);
     }
 
+    static removeAllQueryParams(name) {
+        const newQueryString = this.removeAllFromQueryString(currentLocation.search, name);
+
+        this.updateQueryString(newQueryString);
+    }
+
     /**
      * Pushes the new query string on to the history object
      *
@@ -95,6 +101,14 @@ export default class Url {
                 delete queryParams[name];
             }
         }
+
+        return '?' + queryString.stringify(queryParams);
+    }
+
+    static removeAllFromQueryString(currentQueryString, name) {
+        const queryParams = queryString.parse(currentQueryString);
+
+        delete queryParams[name];
 
         return '?' + queryString.stringify(queryParams);
     }

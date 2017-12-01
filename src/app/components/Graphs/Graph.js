@@ -3,7 +3,7 @@ import { connect} from 'react-redux';
 import Dimensions from 'react-dimensions';
 
 import * as d3 from 'd3';
-import { map, clone, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign, isEqual } from 'lodash';
+import { map, clone, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign, isEqual, isEmpty } from 'lodash';
 import moment from 'moment';
 
 import { nodesSelect, highlightNodes, nodeSelect } from '../../modules/graph/index';
@@ -257,7 +257,7 @@ class Graph extends React.Component {
                 }
 
                 // Display tooltip
-                if (graph.highlight_nodes && graph.highlight_nodes.length > 0) {
+                if (graph.highlight_nodes && graph.highlight_nodes.length > 0 && !isEmpty(graph.highlight_nodes[0].fields)) {
                     const tooltip = graph.highlight_nodes[0];
 
                     const lineHeight = 18;
