@@ -33,7 +33,7 @@ class Header extends Component {
     }
 
     render() {
-        const { connected, itemsFetching, total, indexes } = this.props;
+        const { connected, itemsFetching, total, indexes, fields, activeIndices } = this.props;
 
         let errors = null;
 
@@ -49,6 +49,7 @@ class Header extends Component {
                     onSubmit={(q, index) => this.onSearchSubmit(q, index)}
                     connected={connected}
                     indexes={indexes}
+                    enabled={fields.length > 0 && activeIndices.length > 0}
                 />
                 { errors }
             </header>
@@ -65,7 +66,8 @@ function select(state) {
         indexes: state.entries.indexes,
         activeIndices: state.indices.activeIndices,
         queries: state.entries.searches,
-        total: state.entries.total
+        total: state.entries.total,
+        fields: state.entries.fields
     };
 }
 

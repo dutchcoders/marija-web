@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import classNames from 'classnames/bind';
-
-import { map } from 'lodash';
+import Tooltip from 'rc-tooltip';
 import Loader from "../../../components/Misc/Loader";
 import {Queries} from "../../../components/index";
 
@@ -12,25 +10,34 @@ export default class SearchBox extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
 
         this.state = {
-            q: props.q,
+            query: '',
             selectValue: this.props.indexes[0]
         };
     }
 
     handleSubmit(e) {
-        e.preventDefault();
+        const { query } = this.state;
 
-        let q = this.refs.q.value;
-        if (!q) {
+        if (query === '') {
             return;
         }
 
-        this.setState({q: ''});
-        this.props.onSubmit(q, this.state.selectValue);
+        this.setState({query: ''});
+        this.props.onSubmit(query, this.state.selectValue);
+    }
+
+    handleQueryChange(e) {
+        this.setState({query: e.target.value});
     }
 
     render() {
-        const { itemsFetching, indexes, connected } = this.props;
+        const { itemsFetching, query, connected, enabled } = this.props;
+
+        let tooltipStyles = {};
+
+        if (enabled) {
+            tooltipStyles.visibility = 'hidden';
+        }
 
         return (
             <nav id="searchbox" className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation">
@@ -43,7 +50,21 @@ export default class SearchBox extends Component {
                 <div className="search-container">
                     <div className="form-group">
                         <form onSubmit={this.handleSubmit.bind(this)}>
-                            <input ref="q" className="form-control" placeholder="Search something" value={ this.state.q }/>
+                            <Tooltip
+                                overlay="Select at least one datasource and one field"
+                                placement="bottomLeft"
+                                overlayStyle={tooltipStyles}
+                                arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+
+                                <input
+                                    className="form-control"
+                                    placeholder="Search something"
+                                    value={ query }
+                                    onChange={this.handleQueryChange.bind(this)}
+                                    disabled={ !enabled }
+                                />
+
+                            </Tooltip>
                             <Loader show={itemsFetching} classes={['sk-search-box__loader']}/>
                         </form>
                     </div>

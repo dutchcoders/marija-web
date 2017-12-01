@@ -1,4 +1,6 @@
 .rc-tooltip {
+  opacity: 1;
+
   .rc-tooltip-inner {
     padding: 8px 10px;
     color: #fff;
@@ -7,7 +9,7 @@
     background-color: $pane-header-background-color;
     border-radius: 4px;
     min-height: 0;
-    box-shadow: none;
+    box-shadow: 0 0 5px 0 rgba(0,0,0,0.76);
     height: auto;
   }
 }
@@ -16,4 +18,8 @@
 .rc-tooltip-placement-rightTop .rc-tooltip-arrow,
 .rc-tooltip-placement-rightBottom .rc-tooltip-arrow {
   border-right-color: $pane-header-background-color;
+}
+
+.rc-tooltip-placement-bottomLeft .rc-tooltip-arrow {
+  border-bottom-color: $pane-header-background-color;
 }

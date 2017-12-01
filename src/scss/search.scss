@@ -9,12 +9,13 @@ nav#searchbox .form-group {
 nav#searchbox .form-control {
     color: $input-color;
     box-sizing: border-box;
-    height: 42px;
+    height: 32px;
     background-color: $input-background-color;
     border-radius: 0px;
     box-shadow: none;
     outline: none;
     border-color: $input-border-color;
+    margin: 20px 15px 0;
 
     &:focus {
         color: $input-color-focus;
