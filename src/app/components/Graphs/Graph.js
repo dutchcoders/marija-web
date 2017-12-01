@@ -217,7 +217,9 @@ class Graph extends React.Component {
                     const d = graph.nodes[j];
                     const fontHeight = 6 + Math.floor(0.8*d.r);
                     this.context.font= "italic " + fontHeight + "px Roboto, Helvetica, Arial";
-                    this.context.fillText(d.icon, d.x - ((fontHeight - 0.5) /2), d.y + (fontHeight + 0.5)/2);
+                    this.context.textAlign = 'center';
+                    this.context.fillText(d.icon, d.x, d.y + (fontHeight + 0.5)/2);
+                    this.context.textAlign = 'left';
                 }
 
                 // todo(nl5887): we're having graph and react nodes here, go fix.
