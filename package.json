@@ -63,6 +63,7 @@
     "moment": "^2.15.1",
     "node-sass": "^3.10.1",
     "query-string": "^5.0.1",
+    "rc-tooltip": "^3.7.0",
     "react": "^15.3.2",
     "react-addons-create-fragment": "^15.3.2",
     "react-color": "^2.3.3",

@@ -10,6 +10,8 @@ import { getFields, clearAllFields, Field } from '../../modules/fields/index';
 import { Icon } from '../index';
 import Url from "../../domain/Url";
 import Loader from "../Misc/Loader";
+import Tooltip from 'rc-tooltip';
+import 'rc-tooltip/assets/bootstrap.css';
 
 class ConfigurationView extends React.Component {
     constructor(props) {
@@ -305,7 +307,13 @@ class ConfigurationView extends React.Component {
                 <div className="form-group">
                     <h2>Datasources</h2>
                     <p>Select and add the datasources to query.</p>
+                    <Tooltip
+                        overlay="Select at least one datasource"
+                        placement="right"
+                        visible={activeIndices.length === 0}
+                        arrowContent={<div className="rc-tooltip-arrow-inner"></div>}>
                     { this.renderDatasources(datasources) }
+                    </Tooltip>
                 </div>
 
                 <div className="form-group">
@@ -319,26 +327,32 @@ class ConfigurationView extends React.Component {
                     <p>The fields are used as node id.</p>
                     { this.renderFields(fields) }
 
-                    <ul>
-                        {slice(availableFields.filter((item) => {
-                            const inSearch = item.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) === 0;
-                            const inCurrentFields = fields.reduce((value, field) => {
-                                if (value) {
-                                    return true;
-                                }
-                                return field.path == item.path;
-                            }, false);
+                    <Tooltip
+                        overlay="Select at least one field"
+                        placement="right"
+                        visible={activeIndices.length > 0 && fields.length === 0}
+                        arrowContent={<div className="rc-tooltip-arrow-inner"></div>}>
+                        <ul>
+                            {slice(availableFields.filter((item) => {
+                                const inSearch = item.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) === 0;
+                                const inCurrentFields = fields.reduce((value, field) => {
+                                    if (value) {
+                                        return true;
+                                    }
+                                    return field.path == item.path;
+                                }, false);
 
-                            return inSearch && !inCurrentFields;
-                        }), 0, 10).map((item) => {
-                            return (
-                                <Field
-                                    key={'available_fields_' + item.path}
-                                    item={item} handler={() => this.handleAddField(item.path)}
-                                    icon={'ion-ios-plus'}/>
-                            );
-                        })}
-                    </ul>
+                                return inSearch && !inCurrentFields;
+                            }), 0, 10).map((item) => {
+                                return (
+                                    <Field
+                                        key={'available_fields_' + item.path}
+                                        item={item} handler={() => this.handleAddField(item.path)}
+                                        icon={'ion-ios-plus'}/>
+                                );
+                            })}
+                        </ul>
+                    </Tooltip>
                 </div>
 
                 <div className="form-group">
