@@ -16,6 +16,8 @@ export default class SearchBox extends Component {
     }
 
     handleSubmit(e) {
+        e.preventDefault();
+
         const { query } = this.state;
 
         if (query === '') {
