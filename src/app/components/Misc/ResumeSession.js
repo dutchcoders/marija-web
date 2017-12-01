@@ -28,8 +28,6 @@ class ResumeSession extends Component {
     addFields(fields) {
         const { dispatch } = this.props;
 
-        console.log('found fields from url', fields);
-
         fields.forEach(field => {
             dispatch(fieldAdd(field));
         });
@@ -37,8 +35,6 @@ class ResumeSession extends Component {
 
     addDatasources(ids) {
         const { dispatch } = this.props;
-
-        console.log('found data sources from url');
 
         ids.forEach(id => {
             dispatch(activateIndex(id));
@@ -49,16 +45,18 @@ class ResumeSession extends Component {
         const { dispatch } = this.props;
 
         dispatch((dispatch, getState) => {
+            const state = getState();
+
             // Get the updated state, because it might have changed by
             // adding datasources from the url
-            const datasources = getState().indices.activeIndices;
+            const datasources = state.indices.activeIndices;
 
             if (datasources.length === 0) {
                 this.cancelSearch();
                 return;
             }
 
-            const fields = getState().entries.fields;
+            const fields = state.entries.fields;
 
             if (fields.length === 0) {
                 this.cancelSearch();
@@ -70,8 +68,7 @@ class ResumeSession extends Component {
                     query: term,
                     datasources: datasources,
                     from: 0,
-                    size: 500,
-                    color: '#de79f2'
+                    size: 500
                 }));
             });
         });
@@ -82,7 +79,6 @@ class ResumeSession extends Component {
      * from the url
      */
     cancelSearch() {
-        console.log('cancel');
         Url.removeAllQueryParams('search');
     }
 
