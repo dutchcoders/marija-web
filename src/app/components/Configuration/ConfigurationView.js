@@ -310,7 +310,6 @@ class ConfigurationView extends React.Component {
                     <Tooltip
                         overlay="Select at least one datasource"
                         placement="right"
-                        visible={activeIndices.length === 0}
                         arrowContent={<div className="rc-tooltip-arrow-inner"></div>}>
                     { this.renderDatasources(datasources) }
                     </Tooltip>
@@ -330,7 +329,6 @@ class ConfigurationView extends React.Component {
                     <Tooltip
                         overlay="Select at least one field"
                         placement="right"
-                        visible={activeIndices.length > 0 && fields.length === 0}
                         arrowContent={<div className="rc-tooltip-arrow-inner"></div>}>
                         <ul>
                             {slice(availableFields.filter((item) => {
