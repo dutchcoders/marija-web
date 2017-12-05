@@ -33,7 +33,8 @@ export default class SearchBox extends Component {
     }
 
     render() {
-        const { itemsFetching, query, connected, enabled } = this.props;
+        const { itemsFetching, connected, enabled } = this.props;
+        const { query } = this.state;
 
         let tooltipStyles = {};
 
