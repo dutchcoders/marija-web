@@ -124,7 +124,12 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                             continue;
                         }
 
-                        if (linkCache[normalizedSourceValue + normalizedTargetValue]) {
+                        if (normalizedSourceValue === normalizedTargetValue) {
+                            continue;
+                        }
+
+                        if (linkCache[normalizedSourceValue + normalizedTargetValue]
+                         || linkCache[normalizedTargetValue + normalizedSourceValue]) {
                             // link already exists
                             continue;
                         }
