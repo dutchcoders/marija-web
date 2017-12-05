@@ -77,9 +77,9 @@ export default class Record extends Component {
         });
 
         return ([
-            <td>
+            <td key={1}>
             </td>,
-            <td colSpan={columns.length ? columns.length : 1 }>
+            <td colSpan={columns.length ? columns.length : 1 } key={2}>
                 <table className="details">
                     <tbody>{ expandedFields }</tbody>
                 </table>
