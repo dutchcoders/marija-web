@@ -123,10 +123,6 @@ onmessage = function(event) {
             that.links.push({source: link.source, target: link.target, color: link.color });
         }
 
-        if (!newNodes) {
-            return;
-        }
-
         simulation
             .nodes(this.nodes);
 

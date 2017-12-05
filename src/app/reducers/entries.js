@@ -95,7 +95,10 @@ export default function entries(state = defaultState, action) {
                 searches: searches,
                 items: items,
                 nodes: result.nodes,
-                links: result.links
+                links: result.links,
+                selectedNodes: [],
+                highlight_nodes: [],
+                node: []
             });
         case TABLE_COLUMN_ADD:
             return Object.assign({}, state, {
