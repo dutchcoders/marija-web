@@ -10,6 +10,7 @@ import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_
 
 import { normalize, fieldLocator } from '../helpers/index';
 import getNodesAndLinks from "../helpers/getNodesAndLinks";
+import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
 
 
 export const defaultState = {
@@ -88,10 +89,13 @@ export default function entries(state = defaultState, action) {
             items = items.filter(item => item.query !== action.search.q);
 
             // todo(nl5887): remove related nodes and links
+            const result = removeNodesAndLinks(state.nodes, state.links, action.search.q);
 
             return Object.assign({}, state, {
                 searches: searches,
-                items: items
+                items: items,
+                nodes: result.nodes,
+                links: result.links
             });
         case TABLE_COLUMN_ADD:
             return Object.assign({}, state, {
@@ -257,6 +261,11 @@ export default function entries(state = defaultState, action) {
 
                 searches.push(search);
             }
+
+            // Save per item for which query we received it (so we can keep track of where data came from)
+            items.forEach(item => {
+                item.query = search.q;
+            });
 
             // todo(nl5887): should we start a webworker here, the webworker can have its own permanent cache?
 

@@ -150,8 +150,6 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                 });
             }
         });
-
-        d.query = query.q;
     });
 
     return {
