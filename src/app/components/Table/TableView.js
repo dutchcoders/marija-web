@@ -78,7 +78,7 @@ class TableView extends React.Component {
             this.setState({items: this.getSelectedItems()});
         }
     }
-    
+
     renderBody() {
         const { columns, searches, dispatch} = this.props;
         const { items } = this.state;

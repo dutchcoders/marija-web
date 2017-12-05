@@ -184,8 +184,17 @@ export default function entries(state = defaultState, action) {
                 highlight_nodes: highlightItems
             });
         case NODES_SELECT:
+            const newNodes = [];
+
+            action.nodes.forEach(node => {
+                // First check if it's already selected, don't add duplicates
+                if (state.node.indexOf(node) === -1) {
+                    newNodes.push(node);
+                }
+            });
+
             return Object.assign({}, state, {
-                node: concat(action.nodes)
+                node: concat(state.node, newNodes)
             });
         case NODES_DESELECT:
             return Object.assign({}, state, {
