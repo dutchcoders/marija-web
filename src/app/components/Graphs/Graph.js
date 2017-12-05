@@ -511,6 +511,7 @@ class Graph extends React.Component {
         }
 
         const { dispatch } = this.props;
+
         dispatch(highlightNodes(nodes));
     }
 
