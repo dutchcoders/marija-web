@@ -49,7 +49,9 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                         n.fields.push(source.path);
                     }
 
-                    n.queries.push(query);
+                    if (n.queries.indexOf(query) === -1) {
+                        n.queries.push(query);
+                    }
                 } else {
                     let n = {
                         id: normalizedSourceValue,
@@ -100,8 +102,9 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                                 n.fields.push(target.path);
                             }
 
-                            // should add counter instead of thousands same query being added
-                            n.queries.push(query);
+                            if (n.queries.indexOf(query) === -1) {
+                                n.queries.push(query);
+                            }
                         } else {
                             let n = {
                                 id: normalizedTargetValue,
@@ -124,6 +127,7 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                             continue;
                         }
 
+                        // Dont create links from a node to itself
                         if (normalizedSourceValue === normalizedTargetValue) {
                             continue;
                         }
