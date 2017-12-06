@@ -1,15 +1,18 @@
 import {fieldLocator} from './index';
 import {forEach} from 'lodash';
 
-export default function getHighlightItem (highlightItem, node, fields) {
+export default function getHighlightItem (item, node, fields) {
+    const highlightItem = {
+        id: item.id,
+        fields: {}
+    };
+
     // Only keep the fields that the user configured for brevity
-    forEach(highlightItem.fields, (value, path) => {
-        let myValue = fieldLocator(highlightItem.fields, path);
+    forEach(fields, (field) => {
+        const value = fieldLocator(item.fields, field.path);
 
-        const fieldActive = typeof fields.find(field => field.path === path) !== 'undefined';
-
-        if (!fieldActive) {
-            delete highlightItem.fields[path];
+        if (value !== null) {
+            highlightItem.fields[field.path] = value;
         }
     });
 

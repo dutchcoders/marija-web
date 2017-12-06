@@ -80,3 +80,36 @@ test('should delete fields that are not configured', () => {
         text: 'yolo'
     });
 });
+
+test('should not contain fields that were not in the item', () => {
+    const fields = generateFields(['text', 'unconfiguredField']);
+
+    const {item, node} = generateItemAndNode({
+        text: 'yolo',
+        user: 'thomas'
+    });
+
+    const highlighItem = getHighlightItem(item, node, fields);
+
+    expect(highlighItem.fields).toEqual({
+        text: 'yolo'
+    });
+});
+
+test('should keep fields in nested objects, like user.name', () => {
+    const fields = generateFields(['text', 'user.name']);
+
+    const {item, node} = generateItemAndNode({
+        text: 'yolo',
+        user: {
+            name: 'thomas'
+        }
+    });
+
+    const highlighItem = getHighlightItem(item, node, fields);
+
+    expect(highlighItem.fields).toEqual({
+        'text': 'yolo',
+        'user.name': 'thomas'
+    });
+});
