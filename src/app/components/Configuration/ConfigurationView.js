@@ -432,7 +432,7 @@ class ConfigurationView extends React.Component {
                     { this.renderNormalizations(normalizations) }
                 </div>
 
-                <button className="btn" onClick={this.resetConfig.bind(this)}>Reset config</button>
+                <button className="btn btn-primary" onClick={this.resetConfig.bind(this)}>Reset config</button>
             </div>
         );
     }
