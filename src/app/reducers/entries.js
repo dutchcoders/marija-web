@@ -248,7 +248,19 @@ export default function entries(state = defaultState, action) {
             if (search) {
                 search.items = concat(search.items, action.items.results);
             } else {
-                const colors = ['#de79f2', '#917ef2', '#6d83f2', '#499df2', '#49d6f2', '#00ccaa', '#fac04b', '#bf8757', '#ff884d', '#ff7373', '#ff5252', '#6b8fb3'];
+                const colors = [
+                    '#de79f2',
+                    '#917ef2',
+                    '#499df2',
+                    '#49d6f2',
+                    '#00ccaa',
+                    '#fac04b',
+                    '#bf8757',
+                    '#ff884d',
+                    '#ff7373',
+                    '#ff5252',
+                    '#6b8fb3'
+                ];
                 // Sequentially uses the available colors, and starts again from the start when we exceed the amount of colors
                 const colorIndex = (state.searches.length % colors.length + colors.length) % colors.length;
                 const color = colors[colorIndex];
