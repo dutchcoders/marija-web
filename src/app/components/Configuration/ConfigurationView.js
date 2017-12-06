@@ -44,6 +44,8 @@ class ConfigurationView extends React.Component {
         const { date_field } = this.refs;
         const { dispatch } = this.props;
 
+        Url.addQueryParam('date-fields', path);
+
         dispatch(dateFieldAdd({
             path: path
         }));
@@ -120,6 +122,9 @@ class ConfigurationView extends React.Component {
 
     handleDeleteDateField(field) {
         const { dispatch } = this.props;
+
+        Url.removeQueryParam('date-fields', field.path);
+
         dispatch(dateFieldDelete(field));
     }
 

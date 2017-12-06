@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import queryString from 'query-string';
-import {fieldAdd} from "../../modules/data/actions";
+import {dateFieldAdd, fieldAdd} from "../../modules/data/actions";
 import {activateIndex} from "../../modules/indices/actions";
 import {requestItems} from "../../modules/search/actions";
 import Url from "../../domain/Url";
@@ -14,6 +14,10 @@ class ResumeSession extends Component {
 
         if (parsed.fields) {
             this.addFields(parsed.fields.split(','));
+        }
+
+        if (parsed['date-fields']) {
+            this.addDateFields(parsed['date-fields'].split(','));
         }
 
         if (parsed.datasources) {
@@ -30,6 +34,14 @@ class ResumeSession extends Component {
 
         fields.forEach(field => {
             dispatch(fieldAdd(field));
+        });
+    }
+
+    addDateFields(fields) {
+        const { dispatch } = this.props;
+
+        fields.forEach(field => {
+            dispatch(dateFieldAdd(field));
         });
     }
 
