@@ -253,13 +253,12 @@
             }
 
             .heading-alert {
-                position: absolute;
-                right: -2px;
                 padding: 2px 5px;
                 border-radius: 2px;
                 display: inline-block;
                 background: rgb(222, 121, 242);
                 text-transform: none;
+                margin-left: 5px;
             }
         }
 
