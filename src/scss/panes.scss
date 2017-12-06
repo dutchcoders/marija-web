@@ -55,6 +55,13 @@
         }
     }
 
+    .btn {
+        background-color: $pane-header-background-color;
+        border-radius: 3px;
+        border: none;
+        color: white;
+        padding: 3px 10px;
+    }
 
     &.configuration{
         .open-tag {

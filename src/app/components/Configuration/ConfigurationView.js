@@ -11,6 +11,7 @@ import { Icon } from '../index';
 import Url from "../../domain/Url";
 import Loader from "../Misc/Loader";
 import 'rc-tooltip/assets/bootstrap.css';
+import {Workspaces} from "../../domain/index";
 
 class ConfigurationView extends React.Component {
     constructor(props) {
@@ -379,6 +380,15 @@ class ConfigurationView extends React.Component {
         );
     }
 
+    resetConfig() {
+        Workspaces.deleteWorkspace();
+        // Remove all data from url and refresh the page for simplicity
+        // ideally this whole reset button is removed in the future
+        // it was now mainly added to deal with erroneous data in either local
+        // storage or the url
+        window.location = '/';
+    }
+
     render() {
         const { fields, date_fields, normalizations, datasources, availableFields, activeIndices, dispatch, fieldsFetching } = this.props;
         const { currentDateFieldSearchValue } = this.state;
@@ -421,6 +431,8 @@ class ConfigurationView extends React.Component {
                         fields.</p>
                     { this.renderNormalizations(normalizations) }
                 </div>
+
+                <button className="btn" onClick={this.resetConfig.bind(this)}>Reset config</button>
             </div>
         );
     }
