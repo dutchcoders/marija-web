@@ -13,6 +13,7 @@ import Loader from "../Misc/Loader";
 import 'rc-tooltip/assets/bootstrap.css';
 import {Workspaces} from "../../domain/index";
 import {saveAs} from 'file-saver';
+import {importData} from "../../modules/import/actions";
 
 class ConfigurationView extends React.Component {
     constructor(props) {
@@ -402,7 +403,7 @@ class ConfigurationView extends React.Component {
 
         const now = new Date();
         const dateString = now.getFullYear() + '-' + now.getMonth() + '-' + now.getDate();
-        const filename = 'marija-export-' + dateString;
+        const filename = 'marija-export-' + dateString + '.json';
 
         saveAs(blob, filename);
     }
@@ -412,19 +413,21 @@ class ConfigurationView extends React.Component {
     }
 
     importJson(event) {
-        var input = event.target;
+        const { dispatch } = this.props;
 
-        var reader = new FileReader();
+        const reader = new FileReader();
+
         reader.onload = function(){
-            var text = reader.result;
-            console.log(JSON.parse(text));
+            const store = JSON.parse(reader.result);
+
+            dispatch(importData(store));
         };
-        reader.readAsText(input.files[0]);
+
+        reader.readAsText(event.target.files[0]);
     }
 
     render() {
         const { fields, date_fields, normalizations, datasources, availableFields, activeIndices, dispatch, fieldsFetching } = this.props;
-        const { currentDateFieldSearchValue } = this.state;
 
         return (
             <div>

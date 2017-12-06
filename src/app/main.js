@@ -15,7 +15,7 @@ import { createBrowserHistory } from 'history';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import { Intl }  from 'react-intl-es6';
 import { RootView, StateCapturer, Websocket } from './components/index';
-import { entries, enableBatching, utils, servers, indices, fields, defaultState } from './reducers/index';
+import { entries, enableBatching, utils, servers, indices, fields, defaultState, root } from './reducers/index';
 import { persistState } from './helpers/index';
 import { i18n } from './config';
 import { composeWithDevTools } from 'redux-devtools-extension';
@@ -23,16 +23,7 @@ import thunk from 'redux-thunk';
 
 function configureStore() {
     return createStore(
-        enableBatching(
-            combineReducers({
-                entries,
-                utils,
-                servers,
-                indices,
-                fields,
-                routing: routerReducer
-            })
-        ), {
+        root, {
             servers: [
                 "http://127.0.0.1:9200/"
             ],
