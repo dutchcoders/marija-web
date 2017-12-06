@@ -243,7 +243,6 @@ export default function entries(state = defaultState, action) {
             const searches = concat(state.searches, []);
             const items = action.items.results === null ? [] : action.items.results;
 
-
             // should we update existing search, or add new, do we still need items?
             let search = find(state.searches, (o) => o.q == action.items.query);
             if (search) {

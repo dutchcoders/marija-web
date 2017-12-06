@@ -286,7 +286,7 @@ class Graph extends React.Component {
 
                     let textY = tooltip.y - 5;
                     const textX = tooltip.x + 20;
-                    const fieldsText = 'Match fields: ' + tooltip.matchFields.join(', ');
+                    const fieldsText = 'Type: ' + tooltip.matchFields.join(', ');
 
                     context.fillText(fieldsText, textX, textY);
                     textY += lineHeight;

@@ -177,19 +177,21 @@ class ConfigurationView extends React.Component {
             no_date_fields = <div className='text-warning'>No date fields configured.</div>;
         }
 
+        const availableDateFields = availableFields.filter(field => field.type === 'date');
+
         const search = (
             <form>
                 <div className="row">
                     <div className="col-xs-12">
                         <input className="form-control" value={this.state.currentDateFieldSearchValue}
                                onChange={this.handleDateFieldSearchChange.bind(this)} type="text" ref="date_field"
-                               placeholder="Search date fields"/>
+                               placeholder={'Search ' + availableDateFields.length + ' date fields'} />
                     </div>
                 </div>
             </form>
         );
 
-        const availableDateFields = availableFields.filter(field => field.type === 'date');
+
 
         const available = (
             <ul>
@@ -252,7 +254,7 @@ class ConfigurationView extends React.Component {
                     <div className="col-xs-12">
                         <input className="form-control" value={this.state.currentFieldSearchValue}
                                onChange={this.handleFieldSearchChange.bind(this)} type="text" ref="field"
-                               placeholder="Search fields"/>
+                               placeholder={'Search ' + availableFields.length + ' fields'} />
                     </div>
                 </div>
             </form>
