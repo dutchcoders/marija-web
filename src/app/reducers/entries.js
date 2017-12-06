@@ -11,6 +11,7 @@ import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_
 import { normalize, fieldLocator } from '../helpers/index';
 import getNodesAndLinks from "../helpers/getNodesAndLinks";
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
+import getHighlightItem from "../helpers/getHighlightItem";
 
 
 export const defaultState = {
@@ -162,20 +163,8 @@ export default function entries(state = defaultState, action) {
             const highlightItems = [];
 
             action.highlight_nodes.forEach(node => {
-                const highlightItem = Object.assign({}, state.items.find(item => item.id === node.items[0]));
-
-                // Only keep the fields that the user configured for brevity
-                _.forEach(highlightItem.fields, (value, path) => {
-                    const fieldActive = typeof state.fields.find(field => field.path === path) !== 'undefined';
-
-                    if (!fieldActive) {
-                        delete highlightItem.fields[path];
-                    }
-                });
-
-                highlightItem.x = node.x;
-                highlightItem.y = node.y;
-                highlightItem.matchFields = node.fields;
+                const item = Object.assign({}, state.items.find(item => item.id === node.items[0]));
+                const highlightItem = getHighlightItem(item, node, state.fields);
 
                 highlightItems.push(highlightItem);
             });
