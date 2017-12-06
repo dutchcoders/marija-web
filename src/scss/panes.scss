@@ -203,6 +203,15 @@
                 }
             }
         }
+
+        .nodes-btn-group {
+            display: flex;
+
+            .btn {
+                flex-grow: 1;
+                border-radius: 0;
+            }
+        }
     }
 
     &.histogram {
