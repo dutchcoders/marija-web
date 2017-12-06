@@ -153,7 +153,9 @@ class ConfigurationView extends React.Component {
         }
     }
 
-    renderDateFields(fields) {
+    renderDateFields(fields, availableFields) {
+        const { currentDateFieldSearchValue } = this.state;
+
         const options = map(fields, (field) => {
             return (
                 <li key={'date_field_' + field.path} value={ field.path }>
@@ -165,29 +167,69 @@ class ConfigurationView extends React.Component {
 
         let no_date_fields = null;
 
-        if (fields.length == 0) {
+        if (fields.length === 0) {
             no_date_fields = <div className='text-warning'>No date fields configured.</div>;
+        }
+
+        const search = (
+            <form>
+                <div className="row">
+                    <div className="col-xs-12">
+                        <input className="form-control" value={this.state.currentDateFieldSearchValue}
+                               onChange={this.handleDateFieldSearchChange.bind(this)} type="text" ref="date_field"
+                               placeholder="Search date fields"/>
+                    </div>
+                </div>
+            </form>
+        );
+
+        const availableDateFields = availableFields.filter(field => field.type === 'date');
+
+        const available = (
+            <ul>
+                {slice(availableDateFields.filter((item) => {
+                    const inSearch = item.path.toLowerCase().indexOf(currentDateFieldSearchValue.toLowerCase()) === 0;
+                    const inCurrentFields = fields.reduce((value, field) => {
+                        if (value) {
+                            return true;
+                        }
+
+                        return field.path === item.path;
+                    }, false);
+
+                    return inSearch && !inCurrentFields;
+                }), 0, 10).map((item) => {
+                    return (
+                        <Field
+                            key={'available_date_fields_' + item.path}
+                            item={item} handler={() => this.handleAddDateField(item.path)}
+                            icon={'ion-ios-plus'}/>
+                    );
+                })}
+            </ul>
+        );
+
+        let noAvailableDateFields = null;
+
+        if (availableDateFields.length === 0) {
+            noAvailableDateFields = <p>The selected datasources don't have any date fields.</p>;
         }
 
         return (
             <div>
                 <ul>{ options }</ul>
-                { no_date_fields }
-                <form>
-                    <div className="row">
-                        <div className="col-xs-12">
-                            <input className="form-control" value={this.state.currentDateFieldSearchValue}
-                                   onChange={this.handleDateFieldSearchChange.bind(this)} type="text" ref="date_field"
-                                   placeholder="Search date fields"/>
-                        </div>
-                    </div>
-                </form>
+                { noAvailableDateFields === null ? no_date_fields : null }
+                { noAvailableDateFields }
+                { availableDateFields.length > 0 ? search : null }
+                { available }
             </div>
         );
     }
 
 
-    renderFields(fields) {
+    renderFields(fields, availableFields) {
+        const { currentFieldSearchValue } = this.state;
+
         const options = map(fields, (field) => {
             return (
                 <li key={'field_' + field.path} value={ field.path }>
@@ -198,29 +240,56 @@ class ConfigurationView extends React.Component {
             );
         });
 
-        let no_fields = null;
+        const search = (
+            <form>
+                <div className="row">
+                    <div className="col-xs-12">
+                        <input className="form-control" value={this.state.currentFieldSearchValue}
+                               onChange={this.handleFieldSearchChange.bind(this)} type="text" ref="field"
+                               placeholder="Search fields"/>
+                    </div>
+                </div>
+            </form>
+        );
 
-        if (fields.length == 0) {
-            no_fields = <div className='text-warning'>No fields configured.</div>;
+        const available = (
+            <ul>
+                {slice(availableFields.filter((item) => {
+                    const inSearch = item.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) === 0;
+                    const inCurrentFields = fields.reduce((value, field) => {
+                        if (value) {
+                            return true;
+                        }
+                        return field.path == item.path;
+                    }, false);
+
+                    return inSearch && !inCurrentFields;
+                }), 0, 10).map((item) => {
+                    return (
+                        <Field
+                            key={'available_fields_' + item.path}
+                            item={item} handler={() => this.handleAddField(item.path)}
+                            icon={'ion-ios-plus'}/>
+                    );
+                })}
+            </ul>
+        );
+
+        let selectDatasourceMessage = null;
+
+        if (availableFields.length === 0 && fields.length === 0) {
+            selectDatasourceMessage = <p>First select a datasource.</p>;
         }
 
         return (
             <div>
                 <ul>{ options }</ul>
-                { no_fields }
-                <form>
-                    <div className="row">
-                        <div className="col-xs-12">
-                            <input className="form-control" value={this.state.currentFieldSearchValue}
-                                   onChange={this.handleFieldSearchChange.bind(this)} type="text" ref="field"
-                                   placeholder="Search fields"/>
-                        </div>
-                    </div>
-                </form>
+                { availableFields.length > 0 ? search : null }
+                { available }
+                { selectDatasourceMessage }
             </div>
         );
     }
-
 
     renderNormalizations(normalizations) {
         const { normalization_error } = this.state;
@@ -307,7 +376,7 @@ class ConfigurationView extends React.Component {
 
     render() {
         const { fields, date_fields, normalizations, datasources, availableFields, activeIndices, dispatch, fieldsFetching } = this.props;
-        const { currentFieldSearchValue, currentDateFieldSearchValue } = this.state;
+        const { currentDateFieldSearchValue } = this.state;
 
         return (
             <div>
@@ -326,67 +395,19 @@ class ConfigurationView extends React.Component {
                         {activeIndices.length > 0 && fields.length === 0 ? this.getAtLeastOneAlert() : null}
                     </h2>
 
-                    { this.renderFields(fields) }
+                    { this.renderFields(fields, availableFields) }
 
-                    <ul>
-                        {slice(availableFields.filter((item) => {
-                            const inSearch = item.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) === 0;
-                            const inCurrentFields = fields.reduce((value, field) => {
-                                if (value) {
-                                    return true;
-                                }
-                                return field.path == item.path;
-                            }, false);
 
-                            return inSearch && !inCurrentFields;
-                        }), 0, 10).map((item) => {
-                            return (
-                                <Field
-                                    key={'available_fields_' + item.path}
-                                    item={item} handler={() => this.handleAddField(item.path)}
-                                    icon={'ion-ios-plus'}/>
-                            );
-                        })}
-                    </ul>
                 </div>
 
                 <div className="form-group">
                     <h2>
                         Date fields
                         <Loader show={fieldsFetching} />
-                        {/*<Icon onClick={() => { dispatch(batchActions(clearAllFields(), getFields(activeIndices))); } } name="ion-ios-refresh"*/}
-                              {/*style={{float: "right", fontSize:"23px"}}/>*/}
                     </h2>
                     <p>The date fields are being used for the histogram.</p>
 
-                    { this.renderDateFields(date_fields) }
-
-                    <ul>
-                        {slice(availableFields.filter((item) => {
-                            if (item.type !== 'date') {
-                                return false;
-                            }
-                            
-
-                            const inSearch = item.path.toLowerCase().indexOf(currentDateFieldSearchValue.toLowerCase()) === 0;
-                            const inCurrentFields = fields.reduce((value, field) => {
-                                if (value) {
-                                    return true;
-                                }
-
-                                return field.path == item.path;
-                            }, false);
-
-                            return inSearch && !inCurrentFields;
-                        }), 0, 10).map((item) => {
-                            return (
-                                <Field
-                                    key={'available_date_fields_' + item.path}
-                                    item={item} handler={() => this.handleAddDateField(item.path)}
-                                    icon={'ion-ios-plus'}/>
-                            );
-                        })}
-                    </ul>
+                    { this.renderDateFields(date_fields, availableFields) }
                 </div>
 
                 <div className="form-group">

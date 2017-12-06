@@ -241,7 +241,7 @@ export default function entries(state = defaultState, action) {
         }
         case ITEMS_RECEIVE: {
             const searches = concat(state.searches, []);
-            const items = action.items.results;
+            const items = action.items.results === null ? [] : action.items.results;
 
 
             // should we update existing search, or add new, do we still need items?
@@ -258,7 +258,7 @@ export default function entries(state = defaultState, action) {
                     q: action.items.query,
                     color: color,
                     total: action.items.total,
-                    items: action.items.results
+                    items: items
                 };
 
                 searches.push(search);
