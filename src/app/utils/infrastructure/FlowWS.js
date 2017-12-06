@@ -62,8 +62,6 @@ export default class FlowWS {
     }
 
     postMessage(data, type = ITEMS_REQUEST) {
-        console.log('send', type, data);
-
         this.opened.then(() => {
             this.websocket.send(
                 JSON.stringify({
