@@ -10,7 +10,6 @@ import { getFields, clearAllFields, Field } from '../../modules/fields/index';
 import { Icon } from '../index';
 import Url from "../../domain/Url";
 import Loader from "../Misc/Loader";
-import Tooltip from 'rc-tooltip';
 import 'rc-tooltip/assets/bootstrap.css';
 
 class ConfigurationView extends React.Component {
@@ -298,6 +297,14 @@ class ConfigurationView extends React.Component {
         );
     }
 
+    getAtLeastOneAlert() {
+        return (
+            <span className="heading-alert">
+                Select at least one
+            </span>
+        );
+    }
+
     render() {
         const { fields, date_fields, normalizations, datasources, availableFields, activeIndices, dispatch, fieldsFetching } = this.props;
         const { currentFieldSearchValue, currentDateFieldSearchValue } = this.state;
@@ -305,52 +312,42 @@ class ConfigurationView extends React.Component {
         return (
             <div>
                 <div className="form-group">
-                    <h2>Datasources</h2>
-                    <p>Select and add the datasources to query.</p>
-                    <Tooltip
-                        overlay="Select at least one datasource"
-                        placement="right"
-                        arrowContent={<div className="rc-tooltip-arrow-inner"></div>}>
+                    <h2>
+                        Datasources
+                        {activeIndices.length === 0 ? this.getAtLeastOneAlert() : null}
+                    </h2>
                     { this.renderDatasources(datasources) }
-                    </Tooltip>
                 </div>
 
                 <div className="form-group">
                     <h2>
                         Fields
                         <Loader show={fieldsFetching} />
-                        {/*<Icon onClick={() => { dispatch(batchActions(clearAllFields(), getFields(activeIndices))); } } name="ion-ios-refresh" */}
-                            {/*style={{float: "right", fontSize:"23px"}}/>*/}
+                        {activeIndices.length > 0 && fields.length === 0 ? this.getAtLeastOneAlert() : null}
                     </h2>
 
-                    <p>The fields are used as node id.</p>
                     { this.renderFields(fields) }
 
-                    <Tooltip
-                        overlay="Select at least one field"
-                        placement="right"
-                        arrowContent={<div className="rc-tooltip-arrow-inner"></div>}>
-                        <ul>
-                            {slice(availableFields.filter((item) => {
-                                const inSearch = item.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) === 0;
-                                const inCurrentFields = fields.reduce((value, field) => {
-                                    if (value) {
-                                        return true;
-                                    }
-                                    return field.path == item.path;
-                                }, false);
+                    <ul>
+                        {slice(availableFields.filter((item) => {
+                            const inSearch = item.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) === 0;
+                            const inCurrentFields = fields.reduce((value, field) => {
+                                if (value) {
+                                    return true;
+                                }
+                                return field.path == item.path;
+                            }, false);
 
-                                return inSearch && !inCurrentFields;
-                            }), 0, 10).map((item) => {
-                                return (
-                                    <Field
-                                        key={'available_fields_' + item.path}
-                                        item={item} handler={() => this.handleAddField(item.path)}
-                                        icon={'ion-ios-plus'}/>
-                                );
-                            })}
-                        </ul>
-                    </Tooltip>
+                            return inSearch && !inCurrentFields;
+                        }), 0, 10).map((item) => {
+                            return (
+                                <Field
+                                    key={'available_fields_' + item.path}
+                                    item={item} handler={() => this.handleAddField(item.path)}
+                                    icon={'ion-ios-plus'}/>
+                            );
+                        })}
+                    </ul>
                 </div>
 
                 <div className="form-group">

@@ -47,7 +47,7 @@
         position: absolute;
         top: 65px;
         left: -300px;
-        bottom: 50%;
+        bottom: 0;
         width: 300px;
 
         &.open {
@@ -236,17 +236,31 @@
     }
 
     .form-group {
+        margin-bottom: 30px;
+
         h2 {
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: 300;
+            margin-top: 0;
+            position: relative;
 
             .loader {
                 float: right;
                 width: 18px;
                 height: 18px;
                 margin-top: 0;
+            }
+
+            .heading-alert {
+                position: absolute;
+                right: -2px;
+                padding: 2px 5px;
+                border-radius: 2px;
+                display: inline-block;
+                background: rgb(222, 121, 242);
+                text-transform: none;
             }
         }
 
