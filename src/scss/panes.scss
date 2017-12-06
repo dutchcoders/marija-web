@@ -80,6 +80,10 @@
                 opacity: 0;
             }
         }
+
+        .importFile {
+            display: none;
+        }
     }
 
     &.queries {

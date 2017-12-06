@@ -12,6 +12,7 @@ import Url from "../../domain/Url";
 import Loader from "../Misc/Loader";
 import 'rc-tooltip/assets/bootstrap.css';
 import {Workspaces} from "../../domain/index";
+import {saveAs} from 'file-saver';
 
 class ConfigurationView extends React.Component {
     constructor(props) {
@@ -391,6 +392,36 @@ class ConfigurationView extends React.Component {
         window.location = '/';
     }
 
+    exportJson() {
+        const { entireState } = this.props;
+
+        const blob = new Blob(
+            [JSON.stringify(entireState)],
+            {type: "text/json;charset=utf-8"}
+        );
+
+        const now = new Date();
+        const dateString = now.getFullYear() + '-' + now.getMonth() + '-' + now.getDate();
+        const filename = 'marija-export-' + dateString;
+
+        saveAs(blob, filename);
+    }
+
+    chooseImportFile() {
+        this.refs.importFile.click();
+    }
+
+    importJson(event) {
+        var input = event.target;
+
+        var reader = new FileReader();
+        reader.onload = function(){
+            var text = reader.result;
+            console.log(JSON.parse(text));
+        };
+        reader.readAsText(input.files[0]);
+    }
+
     render() {
         const { fields, date_fields, normalizations, datasources, availableFields, activeIndices, dispatch, fieldsFetching } = this.props;
         const { currentDateFieldSearchValue } = this.state;
@@ -434,7 +465,15 @@ class ConfigurationView extends React.Component {
                     { this.renderNormalizations(normalizations) }
                 </div>
 
-                <button className="btn btn-primary" onClick={this.resetConfig.bind(this)}>Reset config</button>
+                <div className="form-group">
+                    <button className="btn btn-primary" onClick={this.exportJson.bind(this)}>Export</button>
+                    <input type="file" ref="importFile" className="importFile" onChange={this.importJson.bind(this)} />
+                    <button className="btn btn-primary" onClick={this.chooseImportFile.bind(this)}>Import</button>
+                </div>
+
+                <div className="form-group">
+                    <button className="btn btn-primary" onClick={this.resetConfig.bind(this)}>Reset config</button>
+                </div>
             </div>
         );
     }
@@ -449,7 +488,10 @@ function select(state) {
         normalizations: state.entries.normalizations,
         activeIndices: state.indices.activeIndices,
         datasources: state.entries.datasources,
-        fieldsFetching: state.fields.fieldsFetching
+        fieldsFetching: state.fields.fieldsFetching,
+
+        // For the export to JSON feature
+        entireState: state
     };
 }
 
