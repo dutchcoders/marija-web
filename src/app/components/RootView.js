@@ -24,7 +24,7 @@ class RootView extends Component {
 
 
     render() {
-        const { items, panes, dispatch, node } = this.props;
+        const { items, panes, dispatch, node, nodes } = this.props;
 
         return (
             <div className="container-fluid">
@@ -45,7 +45,7 @@ class RootView extends Component {
                     <ConfigurationView ref="configurationView"/>
                 </Pane>
 
-                <Pane name={`Nodes (${node.length})`} handle="nodes" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-back">
+                <Pane name={`Nodes (${node.length}/${nodes.length})`} handle="nodes" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-back">
                     <Nodes />
                 </Pane>
 
