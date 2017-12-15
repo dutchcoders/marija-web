@@ -6,7 +6,7 @@ import * as d3 from 'd3';
 import { map, clone, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign, isEqual, isEmpty } from 'lodash';
 import moment from 'moment';
 
-import { nodesSelect, highlightNodes, nodeSelect } from '../../modules/graph/index';
+import { nodesSelect, highlightNodes, nodeSelect, deselectNodes } from '../../modules/graph/index';
 import { normalize, fieldLocator } from '../../helpers/index';
 import Loader from "../Misc/Loader";
 import {Icon} from "../index";
@@ -30,17 +30,20 @@ class Graph extends React.Component {
             },
             ticks: 0,
             selecting: false,
-            moving: true
+            moving: true,
+            shift: false
         };
 
         const { containerHeight, containerWidth } = props;
 
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
+        document.addEventListener('keyup', this.handleKeyUp.bind(this));
 
         this.network = {
             fields: [],
             selecting: this.state.selecting,
             moving: this.state.moving,
+            shift: this.state.shift,
             graph: {
                 nodes: [],
                 links: [],
@@ -362,6 +365,10 @@ class Graph extends React.Component {
                     return;
                 }
 
+                if (!this.shift) {
+                    this.dispatch(deselectNodes(graph.selectedNodes));
+                }
+
                 var x = graph.transform.invertX(d3.event.layerX),
                     y = graph.transform.invertY(d3.event.layerY);
 
@@ -590,6 +597,7 @@ class Graph extends React.Component {
     handleKeyDown(event) {
         const { selecting } = this.state;
         const altKey = 18;
+        const shiftKey = 16;
 
         if (event.keyCode === altKey) {
             if (selecting) {
@@ -597,6 +605,18 @@ class Graph extends React.Component {
             } else {
                 this.enableSelect();
             }
+        } else if (event.keyCode === shiftKey) {
+            this.setState({shift: true});
+            this.network.shift = true;
+        }
+    }
+
+    handleKeyUp(event) {
+        const shiftKey = 16;
+
+        if (event.keyCode === shiftKey) {
+            this.setState({shift: false});
+            this.network.shift = false;
         }
     }
 
