@@ -265,11 +265,13 @@ class Graph extends React.Component {
 
                     const lineHeight = 18;
                     const lines = Object.keys(tooltip.fields).length + 1;
-                    const rectHeight = lineHeight * lines + 10;
+                    const rectHeight = lineHeight * lines + 15;
                     const widths = [];
 
+                    context.font = 'bold 14px Arial';
+
                     forEach(tooltip.fields, (value, path) => {
-                        const {width} = context.measureText(path + value);
+                        const {width} = context.measureText(path + ': ' + value);
                         widths.push(width);
                     });
 
@@ -280,7 +282,7 @@ class Graph extends React.Component {
                     context.strokeStyle = '#cecece';
                     context.fillStyle = '#fff';
 
-                    context.rect(tooltip.x + 15, tooltip.y - 25, longestLine, rectHeight);
+                    context.rect(tooltip.x + 15, tooltip.y - 25, longestLine + 10, rectHeight);
                     context.stroke();
                     context.fill();
 
@@ -288,11 +290,16 @@ class Graph extends React.Component {
                     let textY = tooltip.y - 5;
                     const textX = tooltip.x + 20;
 
-                    context.font = 'bold 14px Arial';
-                    context.fillText('Query: ' + tooltip.query, textX, textY);
                     context.font = '14px Arial';
 
-                    textY += lineHeight;
+                    context.fillText(tooltip.query, textX, textY);
+
+                    context.beginPath();
+                    context.moveTo(textX, textY + 7);
+                    context.lineTo(textX + longestLine, textY + 7);
+                    context.stroke();
+
+                    textY += lineHeight + 5;
 
                     forEach(tooltip.fields, (value, path) => {
                         if (tooltip.matchFields.indexOf(path) !== -1) {
