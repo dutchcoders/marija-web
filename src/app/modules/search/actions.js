@@ -3,9 +3,10 @@ import { ITEMS_RECEIVE, ITEMS_REQUEST, SEARCH_DELETE } from './index';
 const defaultOpts = {
     from: 0,
     size: 500,
-    index: "",
-    query: "",
-    color: ""
+    index: '',
+    query: '',
+    color: '',
+    fields: []
 };
 
 export function requestItems(opts = defaultOpts) {

@@ -223,13 +223,17 @@ export default function entries(state = defaultState, action) {
 
             let from = search.items.length || 0;
 
+            const fieldPaths = [];
+            action.fields.forEach(field => fieldPaths.push(field.path));
+
             let message = {
                 datasources: action.datasources,
                 query: action.query,
                 from: from,
                 size: action.size,
                 // todo: remove this, but requires a backend change. now the server wont respond if we dont send a color
-                color: '#de79f2'
+                color: '#de79f2',
+                fields: fieldPaths
             };
             Socket.ws.postMessage(message);
 

@@ -80,7 +80,8 @@ class ResumeSession extends Component {
                     query: term,
                     datasources: datasources,
                     from: 0,
-                    size: 500
+                    size: 500,
+                    fields: fields
                 }));
             });
         });

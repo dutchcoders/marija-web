@@ -15,7 +15,7 @@ class Header extends Component {
     }
 
     onSearchSubmit(q, index) {
-        const { dispatch, activeIndices } = this.props;
+        const { dispatch, activeIndices, fields } = this.props;
 
         Url.addQueryParam('search', q);
 
@@ -23,7 +23,8 @@ class Header extends Component {
             query: q,
             from: 0, 
             size: 500,
-            datasources: activeIndices
+            datasources: activeIndices,
+            fields: fields
         }));
     }
 
