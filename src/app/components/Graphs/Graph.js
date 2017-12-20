@@ -269,41 +269,44 @@ class Graph extends React.Component {
                     const widths = [];
 
                     forEach(tooltip.fields, (value, path) => {
-                        const {width} = context.measureText(value);
+                        const {width} = context.measureText(path + value);
                         widths.push(width);
                     });
 
-                    const longestLine = widths.reduce((a, b) => Math.max(a, b)) + 10;
+                    const longestLine = widths.reduce((a, b) => Math.max(a, b));
 
                     context.beginPath();
-                    context.lineWidth="1";
-                    context.strokeStyle="#cecece";
-                    context.fillStyle="#fff";
+                    context.lineWidth = '1';
+                    context.strokeStyle = '#cecece';
+                    context.fillStyle = '#fff';
 
                     context.rect(tooltip.x + 15, tooltip.y - 25, longestLine, rectHeight);
                     context.stroke();
                     context.fill();
 
-                    context.fillStyle = '#000'; //d.color[0];
-                    context.font = "bold 14px Arial";
-
+                    context.fillStyle = '#000';
                     let textY = tooltip.y - 5;
                     const textX = tooltip.x + 20;
-                    const fieldsText = 'Type: ' + tooltip.matchFields.join(', ');
 
-                    context.fillText(fieldsText, textX, textY);
+                    context.font = 'bold 14px Arial';
+                    context.fillText('Query: ' + tooltip.query, textX, textY);
+                    context.font = '14px Arial';
+
                     textY += lineHeight;
 
-                    context.font = "14px Arial";
-
                     forEach(tooltip.fields, (value, path) => {
+                        if (tooltip.matchFields.indexOf(path) !== -1) {
+                            context.font = 'bold 14px Arial';
+                        }
+
                         const text = path + ': ' + (value === null ? '' : value);
 
                         context.fillText(text, textX, textY);
                         textY += lineHeight;
+
+                        context.font = '14px Arial';
                     });
                 }
-
 
                 context.restore();
             },
