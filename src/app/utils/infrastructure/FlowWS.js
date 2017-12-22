@@ -55,6 +55,7 @@ export default class FlowWS {
             // the close event contains more feedback
         };
         websocket.onmessage = function (event) {
+            console.log(JSON.parse(event.data));
             dispatcher(JSON.parse(event.data), storeDispatcher);
         };
 

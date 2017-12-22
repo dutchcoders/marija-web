@@ -32,6 +32,12 @@ const generateQuery = (items) => {
     };
 };
 
+// test if a link exists between a source and a target
+const expectLink = (links, source, target) => {
+    const link = links.find(link => link.source === source && link.target === target);
+    expect(link).toBeDefined();
+};
+
 test('should output nodes', () => {
     const previousNodes = [];
     const previousLinks = [];
@@ -100,11 +106,6 @@ test('should output links between related nodes', () => {
     expect(links.length).toBe(1);
 });
 
-// test if a link exists between a source and a target
-const expectLink = (links, source, target) => {
-    const link = links.find(link => link.source === source && link.target === target);
-    expect(link).toBeDefined();
-};
 
 test('when nodes have exactly the same fields they should not be duplicated', () => {
     const previousNodes = [];
@@ -126,75 +127,100 @@ test('when nodes have exactly the same fields they should not be duplicated', ()
     expect(nodes.length).toBe(1);
 });
 
-test('should do via stuff', () => {
+test('should output links with labels when via info is specified', () => {
     const previousNodes = [];
     const previousLinks = [];
     const normalizations = [];
 
     const items = [
-        generateItem({
-            'src-ip': 1,
-            'dst-net': null,
-            'src-ip_dst-net_port': '1_2_80'
-        }),
-        generateItem({
-            'src-ip': null,
-            'dst-net': 2,
-            'src-ip_dst-net_port': '1_2_80'
-        })
+        {
+            id: uniqueId(),
+            fields: {
+                'port': 80,
+                'source': 1,
+                'target': 2
+            }
+        },
+        {
+            id: uniqueId(),
+            fields: {
+                'port': 80,
+                'source': 2,
+                'target': 4
+            }
+        }
     ];
 
     const fields = [
-        generateField('src-ip'),
-        generateField('dst-net'),
-        generateField('src-ip_dst-net_port')
+        generateField('source'),
+        generateField('target')
     ];
 
     const query = generateQuery(items);
-    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations);
+
+    const via = [
+        {
+            endpoints: ['source', 'target'],
+            label: 'port'
+        }
+    ];
+
+    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations, via);
+
+    expect(nodes.length).toBe(3);
 
     expect(links).toBeDefined();
     expect(links.length).toBe(2);
 
-    console.log(links);
+    expectLink(links, 1, 2);
+    expectLink(links, 2, 4);
 
-    expectLink(links, 1, '1_2_80');
-    expectLink(links, 2, '1_2_80');
+    links.forEach(link => {
+        expect(link.label).toBe(80);
+    });
 });
 
-test('should do via stuff 2', () => {
+test('should be able to draw multiple labeled lines between 2 nodes', () => {
     const previousNodes = [];
     const previousLinks = [];
     const normalizations = [];
 
     const items = [
-        generateItem({
-            'src-ip': 1,
-            'dst-net': null,
-            'source_dest_port': '1_2_80'
-        }),
-        generateItem({
-            'src-ip': null,
-            'dst-net': 2,
-            'source_dest_port': '1_2_80'
-        })
+        {
+            id: uniqueId(),
+            fields: {
+                'port': 80,
+                'source': 1,
+                'target': 2
+            }
+        },
+        {
+            id: uniqueId(),
+            fields: {
+                'port': 1337,
+                'source': 1,
+                'target': 2
+            }
+        }
     ];
 
     const fields = [
-        generateField('src-ip'),
-        generateField('dst-net'),
-        generateField('source_dest_port')
+        generateField('source'),
+        generateField('target')
     ];
 
     const query = generateQuery(items);
-    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations);
 
+    const via = [{
+        endpoints: ['source', 'target'],
+        label: 'port'
+    }];
+
+    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations, via);
+
+    expect(nodes.length).toBe(2);
     expect(links).toBeDefined();
     expect(links.length).toBe(2);
-
-    console.log(nodes);
-    console.log(links);
-
-    expectLink(links, 1, '1_2_80');
-    expectLink(links, 2, '1_2_80');
+    expect(links.find(link => link.label === 80)).toBeDefined();
+    expect(links.find(link => link.label === 1337)).toBeDefined();
 });

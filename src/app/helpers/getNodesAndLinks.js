@@ -1,7 +1,7 @@
 import { slice, concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy } from 'lodash';
 import {fieldLocator, normalize} from "./index";
 
-export default function getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations) {
+export default function getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations, via = []) {
     let nodes = concat(previousNodes, []);
     let links = concat(previousLinks, []);
 
@@ -15,12 +15,22 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
         linkCache[link.source + link.target] = link;
     }
 
+    const viaLabels = [];
+    via.forEach(viaItem => viaLabels.push(viaItem.label));
+
+    let viaEndpoints = [];
+    via.forEach(viaItem => viaEndpoints = concat(viaEndpoints, viaItem.endpoints));
+
     query = query.q;
 
     forEach(items, (d, i) => {
         forEach(fields, (source) => {
             let sourceValue = fieldLocator(d.fields, source.path);
             if (sourceValue === null) {
+                return;
+            }
+
+            if (viaLabels.indexOf(source.path) !== -1) {
                 return;
             }
 
@@ -75,6 +85,10 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
 
                     if (!Array.isArray(targetValue)) {
                         targetValue = [targetValue];
+                    }
+
+                    if (viaLabels.indexOf(target.path) !== -1) {
+                        return;
                     }
 
                     // todo(nl5887): issue with normalizing is if we want to use it as name as well.
@@ -132,9 +146,23 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                             continue;
                         }
 
-                        if (linkCache[normalizedSourceValue + normalizedTargetValue]
-                         || linkCache[normalizedTargetValue + normalizedSourceValue]) {
-                            // link already exists
+                        let linkCacheRef = normalizedSourceValue + normalizedTargetValue;
+                        let oppositeLinkCacheRef = normalizedTargetValue + normalizedSourceValue;
+
+                        const isLabeledLink = viaEndpoints.indexOf(source.path) !== -1 && viaEndpoints.indexOf(target.path) !== -1;
+                        let labelField;
+                        let labelValue;
+
+                        if (isLabeledLink) {
+                            labelField = via.find(viaItem => viaItem.endpoints.indexOf(source.path) !== -1).label;
+                            labelValue = d.fields[labelField];
+                            linkCacheRef += labelValue;
+                            oppositeLinkCacheRef += labelValue;
+                        }
+
+                        // check if link already exists
+                        if ((linkCache[linkCacheRef]
+                         || linkCache[oppositeLinkCacheRef])) {
                             continue;
                         }
 
@@ -144,8 +172,12 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                             color: '#ccc'
                         };
 
+                        if (isLabeledLink) {
+                            link.label = labelValue;
+                        }
+
                         links.push(link);
-                        linkCache[link.source + link.target] = link;
+                        linkCache[linkCacheRef] = link;
                     }
                 });
             }
