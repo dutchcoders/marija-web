@@ -120,7 +120,12 @@ onmessage = function(event) {
             }
             
             // todo(nl5887): why?
-            that.links.push({source: link.source, target: link.target, color: link.color });
+            that.links.push({
+                source: link.source,
+                target: link.target,
+                color: link.color,
+                label: link.label
+            });
         }
 
         simulation
