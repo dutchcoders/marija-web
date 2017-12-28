@@ -155,7 +155,7 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
 
                         if (isLabeledLink) {
                             labelField = via.find(viaItem => viaItem.endpoints.indexOf(source.path) !== -1).label;
-                            labelValue = d.fields[labelField];
+                            labelValue = fieldLocator(d.fields, labelField);
                             linkCacheRef += labelValue;
                             oppositeLinkCacheRef += labelValue;
                         }

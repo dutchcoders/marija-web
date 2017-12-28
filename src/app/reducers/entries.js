@@ -12,6 +12,7 @@ import { normalize, fieldLocator } from '../helpers/index';
 import getNodesAndLinks from "../helpers/getNodesAndLinks";
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
 import getHighlightItem from "../helpers/getHighlightItem";
+import {VIA_ADD, VIA_DELETE} from "../modules/data/constants";
 
 
 export const defaultState = {
@@ -33,7 +34,8 @@ export const defaultState = {
     searches: [],
     nodes: [], // all nodes
     links: [], // relations between nodes
-    errors: null
+    errors: null,
+    via: []
 };
 
 
@@ -150,6 +152,14 @@ export default function entries(state = defaultState, action) {
         case NORMALIZATION_DELETE:
             return Object.assign({}, state, {
                 normalizations: without(state.normalizations, action.normalization)
+            });
+        case VIA_ADD:
+            return Object.assign({}, state, {
+                via: concat(state.via, action.via)
+            });
+        case VIA_DELETE:
+            return Object.assign({}, state, {
+                via: without(state.via, action.via)
             });
         case DATE_FIELD_ADD:
             return Object.assign({}, state, {
@@ -293,7 +303,8 @@ export default function entries(state = defaultState, action) {
                 items,
                 state.fields,
                 search,
-                state.normalizations
+                state.normalizations,
+                state.via
             );
 
             return Object.assign({}, state, {

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { find, sortBy, map, slice } from 'lodash';
+import { find, sortBy, map, slice, uniq } from 'lodash';
 import { requestIndices } from '../../modules/indices/index';
-import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, normalizationAdd, normalizationDelete, indexAdd, indexDelete } from '../../modules/data/index';
+import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, normalizationAdd, normalizationDelete, indexAdd, indexDelete, viaDelete, viaAdd } from '../../modules/data/index';
 import { serverAdd, serverRemove } from '../../modules/servers/index';
 import { activateIndex, deActivateIndex } from '../../modules/indices/index';
 import { batchActions } from '../../modules/batch/index';
@@ -23,8 +23,29 @@ class ConfigurationView extends React.Component {
         this.state = {
             normalization_error: '',
             currentFieldSearchValue: '',
-            currentDateFieldSearchValue: ''
+            currentDateFieldSearchValue: '',
+            selectedFrom: '',
+            selectedVia: '',
+            selectedTo: '',
+            viaError: null
         };
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const { selectedFrom, selectedVia, selectedTo } = this.state;
+        const firstFieldPath = nextProps.fields[0] ? nextProps.fields[0].path : false;
+
+        if (selectedFrom === '' && firstFieldPath) {
+            this.setState({selectedFrom: firstFieldPath});
+        }
+
+        if (selectedVia === '' && firstFieldPath) {
+            this.setState({selectedVia: firstFieldPath});
+        }
+
+        if (selectedTo === '' && firstFieldPath) {
+            this.setState({selectedTo: firstFieldPath});
+        }
     }
 
     handleAddField(path) {
@@ -77,6 +98,36 @@ class ConfigurationView extends React.Component {
             regex: regex.value,
             replaceWith: replaceWith.value
         }));
+    }
+
+    checkViaData(via) {
+        const allFields = via.endpoints.concat([via.label]);
+
+        // Check if the user selected 3 unique fields
+        return allFields.length === uniq(allFields).length;
+    }
+
+    handleAddVia() {
+        const { selectedFrom, selectedVia, selectedTo } = this.state;
+        const { dispatch } = this.props;
+
+        const viaData = {
+            endpoints: [selectedFrom, selectedTo],
+            label: selectedVia
+        };
+
+        if (!this.checkViaData(viaData)) {
+            this.setState({viaError: 'Select 3 unique fields'});
+            return;
+        }
+
+        dispatch(viaAdd(viaData));
+    }
+
+    handleDeleteVia(viaData) {
+        const { dispatch } = this.props;
+
+        dispatch(viaDelete(viaData));
     }
 
     handleAddIndex(e) {
@@ -332,11 +383,15 @@ class ConfigurationView extends React.Component {
                     <div className="row">
                         <div className="col-xs-10">
                             <input className="form-control" type="text" ref="regex" placeholder="regex"/>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-xs-10">
                             <input className="form-control" type="text" ref="replaceWith" placeholder="replace value"/>
                         </div>
-                        <div className="col-xs-1">
+                        <div className="col-xs-2">
                             <Icon onClick={this.handleAddNormalization.bind(this)}
-                                  name="ion-ios-add-circle-outline add"/>
+                                  name="ion-ios-plus add"/>
                         </div>
                     </div>
                 </form>
@@ -376,6 +431,108 @@ class ConfigurationView extends React.Component {
         );
     }
 
+    handleFromChange(event) {
+        this.setState({selectedFrom: event.target.value});
+    }
+
+    handleViaChange(event) {
+        this.setState({selectedVia: event.target.value});
+    }
+
+    handleToChange(event) {
+        this.setState({selectedTo: event.target.value});
+    }
+
+    renderFieldSelector(fields, changeHandler, value) {
+        const options = map(fields, field => {
+            return (
+                <option key={field.path} value={field.path}>
+                    {field.path}
+                </option>
+            );
+        });
+
+        return (
+            <select className="form-control" onChange={(event) => changeHandler(event)} value={value}>
+                {options}
+            </select>
+        );
+    }
+
+    renderVia() {
+        const { fields, via } = this.props;
+        const { selectedFrom, selectedVia, selectedTo, viaError } = this.state;
+
+        let error;
+
+        if (viaError) {
+            error = (
+                <div className="alert alert-danger">{viaError}</div>
+            );
+        }
+
+        let existing;
+
+        if (via.length > 0) {
+            const viaItems = map(via, viaItem => {
+                return (
+                    <li key={JSON.stringify(viaItem)}>
+                        <ol>
+                            <li>{viaItem.endpoints[0]}</li>
+                            <li>{viaItem.label}</li>
+                            <li>{viaItem.endpoints[1]}</li>
+                        </ol>
+                        <Icon onClick={() => this.handleDeleteVia(viaItem)} name="ion-ios-trash-outline"/>
+                    </li>
+                );
+            });
+
+            existing = (
+                <ul>
+                    {viaItems}
+                </ul>
+            );
+        }
+
+        const addNew = (
+            <div>
+                <div className="form-group row via-row">
+                    <label className="col-sm-2 col-form-label">From</label>
+                    <div className="col-sm-8">
+                        { this.renderFieldSelector(fields, this.handleFromChange.bind(this), selectedFrom)}
+                    </div>
+                </div>
+                <div className="form-group row via-row">
+                    <label className="col-sm-2 col-form-label">Via</label>
+                    <div className="col-sm-8">
+                        { this.renderFieldSelector(fields, this.handleViaChange.bind(this), selectedVia)}
+                    </div>
+                </div>
+                <div className="form-group row via-row">
+                    <label className="col-sm-2 col-form-label">To</label>
+                    <div className="col-sm-8">
+                        { this.renderFieldSelector(fields, this.handleToChange.bind(this), selectedTo)}
+                    </div>
+                    <div className="col-sm-2">
+                        <Icon onClick={this.handleAddVia.bind(this)}
+                              name="ion-ios-plus add"/>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const addNewAllowed = fields.length >= 3;
+        const selectFieldsMessage = <p>First select at least 3 fields.</p>;
+
+        return (
+            <div>
+                {error}
+                {existing}
+                {addNewAllowed ? addNew : selectFieldsMessage}
+            </div>
+        );
+    }
+
     getAtLeastOneAlert() {
         return (
             <span className="heading-alert">
@@ -387,9 +544,6 @@ class ConfigurationView extends React.Component {
     resetConfig() {
         Workspaces.deleteWorkspace();
         // Remove all data from url and refresh the page for simplicity
-        // ideally this whole reset button is removed in the future
-        // it was now mainly added to deal with erroneous data in either local
-        // storage or the url
         window.location = '/';
     }
 
@@ -469,6 +623,11 @@ class ConfigurationView extends React.Component {
                 </div>
 
                 <div className="form-group">
+                    <h2>Via</h2>
+                    { this.renderVia() }
+                </div>
+
+                <div className="form-group">
                     <button className="btn btn-primary" onClick={this.exportJson.bind(this)}>Export</button>
                     <input type="file" ref="importFile" className="importFile" onChange={this.importJson.bind(this)} />
                     <button className="btn btn-primary" onClick={this.chooseImportFile.bind(this)}>Import</button>
@@ -489,6 +648,7 @@ function select(state) {
         availableFields: state.fields.availableFields,
         date_fields: state.entries.date_fields,
         normalizations: state.entries.normalizations,
+        via: state.entries.via,
         activeIndices: state.indices.activeIndices,
         datasources: state.entries.datasources,
         fieldsFetching: state.fields.fieldsFetching,
