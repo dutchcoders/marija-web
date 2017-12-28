@@ -365,11 +365,48 @@ class Graph extends React.Component {
                     link.label
                 );
             },
-            drawLink: function(d) {
-                this.context.moveTo(d.source.x, d.source.y);
-                this.context.lineTo(d.target.x, d.target.y);
+            drawLink: function(link) {
+                this.context.moveTo(link.source.x, link.source.y);
+                this.context.lineTo(link.target.x, link.target.y);
+
+                if (link.label) {
+                    this.context.fillStyle = link.color;
+
+                    this.drawTextAlongLine(
+                        link.label,
+                        link.source.x,
+                        link.source.y,
+                        link.target.x,
+                        link.target.y
+                    );
+                }
+            },
+            drawTextAlongLine: function (string, x1, y1, x2, y2) {
+                const averageX = (x1 + x2) / 2;
+                const averageY = (y1 + y2) / 2;
+                const deltaX = x1 - x2;
+                const deltaY = y1 - y2;
+                const angle = Math.atan2(deltaY, deltaX);
+                const upsideDown = angle < -1.6 || angle > 1.6;
+
+                this.context.save();
+                this.context.translate(averageX, averageY);
+                this.context.rotate(angle);
+
+                if (upsideDown) {
+                    this.context.rotate(Math.PI);
+                }
+
+                this.context.textAlign = 'center';
+                this.context.fillText(string, 0, -2);
+                this.context.restore();
             },
             drawTextAlongArc: function (string, centerX, centerY, radius, angle, distanceFromArc) {
+                if (typeof string !== 'string') {
+                    // typecast to string
+                    string += '';
+                }
+
                 this.context.save();
                 this.context.translate(centerX, centerY);
 
@@ -514,7 +551,9 @@ class Graph extends React.Component {
 
                 const averageAngle = (aa1 + aa2) / 2;
 
-                this.drawTextAlongArc(label, cx, cy, radius, averageAngle, 2);
+                if (label) {
+                    this.drawTextAlongArc(label, cx, cy, radius, averageAngle, 2);
+                }
 
                 ctx.beginPath();
 
