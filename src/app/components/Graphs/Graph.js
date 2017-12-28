@@ -347,8 +347,7 @@ class Graph extends React.Component {
                 this.context.strokeStyle = link.color;
 
                 if (linksBetweenNodes === 1) {
-                    // When there's only 1 link between 2 nodes, we can draw a
-                    // straight line
+                    // When there's only 1 link between 2 nodes, we can draw a straight line
 
                     this.drawStraightLine(
                         link.source.x,
@@ -367,8 +366,7 @@ class Graph extends React.Component {
                         );
                     }
                 } else {
-                    // When there are multiple links between 2 nodes, we need to
-                    // draw arcs
+                    // When there are multiple links between 2 nodes, we need to draw arcs
 
                     // Bend only increases per 2 new links, and is proportional to the total number of links
                     let bend = (nthLink + (nthLink % 2)) / (linksBetweenNodes * 10);
