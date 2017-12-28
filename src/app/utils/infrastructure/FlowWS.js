@@ -1,29 +1,13 @@
 import {authConnected, error} from '../index';
 import Websocket from 'reconnecting-websocket';
 
-import { ITEMS_REQUEST } from '../../modules/search/index';
-
-class MockWebsocket {
-    constructor() {
-        setTimeout(() => this.onopen(), 100);
-        setTimeout(() => this.onmessage({
-            data: JSON.stringify({
-                type: 'ITEMS_RECEIVE',
-                items: []
-            })
-        }), 200);
-    }
-
-    send() {
-
-    }
-}
+import { ITEMS_REQUEST } from '../../modules/search/index'
 
 export default class FlowWS {
     constructor(url, token, dispatcher, storeDispatcher) {
         this.url = url;
 
-        const websocket = new MockWebsocket(url);
+        const websocket = new Websocket(url);
 
         this.opened = new Promise(resolve => {
             websocket.onopen = function (event) {

@@ -245,56 +245,7 @@ export default function entries(state = defaultState, action) {
         }
         case ITEMS_RECEIVE: {
             const searches = concat(state.searches, []);
-            // const items = action.items.results === null ? [] : action.items.results;
-
-
-            const items = [
-                {
-                    fields: {
-                        user: {
-                            name: 'tony'
-                        },
-                        text: 'yolo',
-                        port: 'testtest supertest'
-                    }
-                },
-                // {
-                //     fields: {
-                //         user: {
-                //             name: 'tony'
-                //         },
-                //         text: 'yolo',
-                //         port: 1
-                //     }
-                // },
-                // {
-                //     fields: {
-                //         user: {
-                //             name: 'tony'
-                //         },
-                //         text: 'yolo',
-                //         port: 3
-                //     }
-                // },
-                // {
-                //     fields: {
-                //         user: {
-                //             name: 'tony'
-                //         },
-                //         text: 'yolo',
-                //         port: 5
-                //     }
-                // },
-                // {
-                //     fields: {
-                //         user: {
-                //             name: 'tony'
-                //         },
-                //         text: 'bapapap',
-                //         port: 1337
-                //     }
-                // }
-            ];
+            const items = action.items.results === null ? [] : action.items.results;
 
             // should we update existing search, or add new, do we still need items?
             let search = find(state.searches, (o) => o.q == action.items.query);
@@ -335,11 +286,6 @@ export default function entries(state = defaultState, action) {
 
             // todo(nl5887): should we start a webworker here, the webworker can have its own permanent cache?
 
-            const via = [{
-                endpoints: ['user.name', 'text'],
-                label: 'port'
-            }];
-
             // update nodes and links
             const {nodes, links} = getNodesAndLinks(
                 state.nodes,
@@ -347,11 +293,8 @@ export default function entries(state = defaultState, action) {
                 items,
                 state.fields,
                 search,
-                state.normalizations,
-                via
+                state.normalizations
             );
-
-            console.log(links);
 
             return Object.assign({}, state, {
                 errors: null,
