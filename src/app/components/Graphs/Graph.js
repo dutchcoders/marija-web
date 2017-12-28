@@ -7,7 +7,7 @@ import { map, clone, groupBy, reduce, forEach, difference, find, uniq, remove, e
 import moment from 'moment';
 
 import { nodesSelect, highlightNodes, nodeSelect, deselectNodes } from '../../modules/graph/index';
-import { normalize, fieldLocator } from '../../helpers/index';
+import {normalize, fieldLocator, getArcParams} from '../../helpers/index';
 import Loader from "../Misc/Loader";
 import {Icon} from "../index";
 
@@ -193,15 +193,17 @@ class Graph extends React.Component {
                         color = link.color;
                     }
 
-                    const totalLinksBetweenNodes = graph.links
+                    // When drawing a link, we need to know how many links there are between these 2 nodes
+                    const linksBetweenNodes = graph.links
                         .filter(loopLink =>
                             loopLink.source === link.source && loopLink.target === link.target ||
                             loopLink.target === link.source && loopLink.source === link.target
                         )
                         .length;
 
-                    // When there are more than 1 links between 2 nodes, we need to draw curved links
-                    if (totalLinksBetweenNodes > 1) {
+                    let nthLink = 1;
+
+                    if (linksBetweenNodes > 1) {
                         const linkCounterKey = link.source + link.target;
 
                         if (linkCounter[linkCounterKey]) {
@@ -210,10 +212,10 @@ class Graph extends React.Component {
                             linkCounter[linkCounterKey] = 1;
                         }
 
-                        this.drawCurvedLink(link, linkCounter[linkCounterKey], totalLinksBetweenNodes);
-                    } else {
-                        this.drawLink(link);
+                        nthLink = linkCounter[linkCounterKey];
                     }
+
+                    this.drawLink(link, nthLink, linksBetweenNodes);
                 }
 
                 context.strokeStyle = color;
@@ -339,49 +341,70 @@ class Graph extends React.Component {
 
                 context.restore();
             },
-            drawCurvedLink: function (link, linkCounter, totalLinks) {
-                // Bend only increases per 2 new links, and is proportional to the total number of links
-                let bend = (linkCounter + (linkCounter % 2)) / (totalLinks * 10);
 
-                // Every second link will be drawn on the bottom instead of the top
-                if (linkCounter % 2 === 0) {
-                    bend = bend * -1;
-                }
-
+            drawLink: function(link, nthLink, linksBetweenNodes) {
                 this.context.fillStyle = link.color;
+                this.context.strokeStyle = link.color;
 
-                this.drawBend(
-                    link.source.x,
-                    link.source.y,
-                    link.target.x,
-                    link.target.y,
-                    bend,
-                    10,
-                    10,
-                    false,
-                    false,
-                    1,
-                    1,
-                    link.label
-                );
-            },
-            drawLink: function(link) {
-                this.context.moveTo(link.source.x, link.source.y);
-                this.context.lineTo(link.target.x, link.target.y);
+                if (linksBetweenNodes === 1) {
+                    // When there's only 1 link between 2 nodes, we can draw a
+                    // straight line
 
-                if (link.label) {
-                    this.context.fillStyle = link.color;
-
-                    this.drawTextAlongLine(
-                        link.label,
+                    this.drawStraightLine(
                         link.source.x,
                         link.source.y,
                         link.target.x,
                         link.target.y
                     );
+
+                    if (link.label) {
+                        this.drawTextAlongStraightLine(
+                            link.label,
+                            link.source.x,
+                            link.source.y,
+                            link.target.x,
+                            link.target.y
+                        );
+                    }
+                } else {
+                    // When there are multiple links between 2 nodes, we need to
+                    // draw arcs
+
+                    // Bend only increases per 2 new links, and is proportional to the total number of links
+                    let bend = (nthLink + (nthLink % 2)) / (linksBetweenNodes * 10);
+
+                    // Every second link will be drawn on the bottom instead of the top
+                    if (nthLink % 2 === 0) {
+                        bend = bend * -1;
+                    }
+
+                    const {centerX, centerY, radius, startAngle, endAngle} =
+                        getArcParams(
+                            link.source.x,
+                            link.source.y,
+                            link.target.x,
+                            link.target.y,
+                            bend
+                        );
+
+                    this.drawArc(centerX, centerY, radius, startAngle, endAngle, bend < 0);
+
+                    if (link.label) {
+                        const averageAngle = (startAngle + endAngle) / 2;
+                        this.drawTextAlongArc(link.label, centerX, centerY, radius, averageAngle, 2);
+                    }
                 }
             },
-            drawTextAlongLine: function (string, x1, y1, x2, y2) {
+            drawStraightLine: function (x1, y1, x2, y2) {
+                this.context.moveTo(x1, y1);
+                this.context.lineTo(x2, y2);
+            },
+            drawArc: function (centerX, centerY, radius, startAngle, endAngle, antiClockwise) {
+                this.context.beginPath();
+                this.context.arc(centerX, centerY, radius, startAngle, endAngle, antiClockwise);
+                this.context.stroke();
+            },
+            drawTextAlongStraightLine: function (string, x1, y1, x2, y2) {
                 const averageX = (x1 + x2) / 2;
                 const averageY = (y1 + y2) / 2;
                 const deltaX = x1 - x2;
@@ -452,147 +475,6 @@ class Graph extends React.Component {
 
                 this.context.restore();
             },
-
-            drawBend: function (x1, y1, x2, y2, bend, aLen, aWidth, sArrow, eArrow, startRadius, endRadius, label) {
-                const ctx = this.context;
-                this.context.strokeStyle = 'grey';
-
-                var mx, my, dist, nx, ny, x3, y3, cx, cy, radius, vx, vy, a1, a2;
-                var arrowAng,aa1,aa2,b1;
-                // find mid point
-                mx = (x1 + x2) / 2;
-                my = (y1 + y2) / 2;
-
-                // get vector from start to end
-                nx = x2 - x1;
-                ny = y2 - y1;
-
-                // find dist
-                dist = Math.sqrt(nx * nx + ny * ny);
-
-                // normalise vector
-                nx /= dist;
-                ny /= dist;
-
-                // The next section has some optional behaviours
-                // that set the dist from the line mid point to the arc mid point
-                // You should only use one of the following sets
-
-                //-- Uncomment for behaviour of arcs
-                // This make the lines flatten at distance
-                b1 =  (bend * 300) / Math.pow(dist,1/16);
-
-                //-- Uncomment for behaviour of arcs
-                // Arc bending amount close to constant
-                // b1 =  bend * dist * 0.5
-
-                // b1 = bend * dist
-
-                // Arc amount bend more at dist
-                x3 = mx + ny * b1;
-                y3 = my - nx * b1;
-
-                // get the radius
-                radius = (0.5 * ((x1-x3) * (x1-x3) + (y1-y3) * (y1-y3)) / (b1));
-
-                // use radius to get arc center
-                cx = x3 - ny * radius;
-                cy = y3 + nx * radius;
-
-                // radius needs to be positive for the rest of the code
-                radius = Math.abs(radius);
-
-
-
-
-                // find angle from center to start and end
-                a1 = Math.atan2(y1 - cy, x1 - cx);
-                a2 = Math.atan2(y2 - cy, x2 - cx);
-
-                // normalise angles
-                a1 = (a1 + Math.PI * 2) % (Math.PI * 2);
-                a2 = (a2 + Math.PI * 2) % (Math.PI * 2);
-                // ensure angles are in correct directions
-                if (bend < 0) {
-                    if (a1 < a2) { a1 += Math.PI * 2 }
-                } else {
-                    if (a2 < a1) { a2 += Math.PI * 2 }
-                }
-
-                // convert arrow length to angular len
-                arrowAng = aLen / radius  * Math.sign(bend);
-                // get angular length of start and end circles and move arc start and ends
-
-                a1 += startRadius / radius * Math.sign(bend);
-                a2 -= endRadius / radius * Math.sign(bend);
-                aa1 = a1;
-                aa2 = a2;
-
-                // check for too close and no room for arc
-                if ((bend < 0 && a1 < a2) || (bend > 0 && a2 < a1)) {
-                    return;
-                }
-                // is there a start arrow
-                if (sArrow) { aa1 += arrowAng } // move arc start to inside arrow
-                // is there an end arrow
-                if (eArrow) { aa2 -= arrowAng } // move arc end to inside arrow
-
-                // check for too close and remove arrows if so
-                if ((bend < 0 && aa1 < aa2) || (bend > 0 && aa2 < aa1)) {
-                    sArrow = false;
-                    eArrow = false;
-                    aa1 = a1;
-                    aa2 = a2;
-                }
-                // draw arc
-                ctx.beginPath();
-                ctx.arc(cx, cy, radius, aa1, aa2, bend < 0);
-                ctx.stroke();
-
-                const averageAngle = (aa1 + aa2) / 2;
-
-                if (label) {
-                    this.drawTextAlongArc(label, cx, cy, radius, averageAngle, 2);
-                }
-
-                ctx.beginPath();
-
-                // draw start arrow if needed
-                if(sArrow){
-                    ctx.moveTo(
-                        Math.cos(a1) * radius + cx,
-                        Math.sin(a1) * radius + cy
-                    );
-                    ctx.lineTo(
-                        Math.cos(aa1) * (radius + aWidth / 2) + cx,
-                        Math.sin(aa1) * (radius + aWidth / 2) + cy
-                    );
-                    ctx.lineTo(
-                        Math.cos(aa1) * (radius - aWidth / 2) + cx,
-                        Math.sin(aa1) * (radius - aWidth / 2) + cy
-                    );
-                    ctx.closePath();
-                }
-
-                // draw end arrow if needed
-                if(eArrow){
-                    ctx.moveTo(
-                        Math.cos(a2) * radius + cx,
-                        Math.sin(a2) * radius + cy
-                    );
-                    ctx.lineTo(
-                        Math.cos(aa2) * (radius - aWidth / 2) + cx,
-                        Math.sin(aa2) * (radius - aWidth / 2) + cy
-                    );
-                    ctx.lineTo(
-                        Math.cos(aa2) * (radius + aWidth / 2) + cx,
-                        Math.sin(aa2) * (radius + aWidth / 2) + cy
-                    );
-                    ctx.closePath();
-                }
-                ctx.fill();
-            },
-
             drawNode: function (d, q) {
                 // this.context.moveTo(d.x + d.r, d.y);
                 // for each different query, show a part. This will show that the edge
