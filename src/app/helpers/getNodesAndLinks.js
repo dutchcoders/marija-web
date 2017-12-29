@@ -18,9 +18,6 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
     const viaLabels = [];
     via.forEach(viaItem => viaLabels.push(viaItem.label));
 
-    let viaEndpoints = [];
-    via.forEach(viaItem => viaEndpoints = concat(viaEndpoints, viaItem.endpoints));
-
     query = query.q;
 
     forEach(items, (d, i) => {
@@ -149,13 +146,16 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                         let linkCacheRef = normalizedSourceValue + normalizedTargetValue;
                         let oppositeLinkCacheRef = normalizedTargetValue + normalizedSourceValue;
 
-                        const isLabeledLink = viaEndpoints.indexOf(source.path) !== -1 && viaEndpoints.indexOf(target.path) !== -1;
-                        let labelField;
+                        const viaItem = via.find(viaItem =>
+                            viaItem.endpoints.indexOf(source.path) !== -1
+                            && viaItem.endpoints.indexOf(target.path) !== -1
+                        );
+                        const isLabeledLink = typeof viaItem !== 'undefined';
+
                         let labelValue;
 
                         if (isLabeledLink) {
-                            labelField = via.find(viaItem => viaItem.endpoints.indexOf(source.path) !== -1).label;
-                            labelValue = fieldLocator(d.fields, labelField);
+                            labelValue = fieldLocator(d.fields, viaItem.label);
                             linkCacheRef += labelValue;
                             oppositeLinkCacheRef += labelValue;
                         }

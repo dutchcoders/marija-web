@@ -196,15 +196,18 @@ class Graph extends React.Component {
                     // When drawing a link, we need to know how many links there are between these 2 nodes
                     const linksBetweenNodes = graph.links
                         .filter(loopLink =>
-                            loopLink.source === link.source && loopLink.target === link.target ||
-                            loopLink.target === link.source && loopLink.source === link.target
+                            (
+                                loopLink.source.id === link.source.id && loopLink.target.id === link.target.id
+                                || loopLink.target.id === link.source.id && loopLink.source.id === link.target.id
+                            )
+                            && typeof loopLink.label !== 'undefined'
                         )
                         .length;
 
                     let nthLink = 1;
 
-                    if (linksBetweenNodes > 1) {
-                        const linkCounterKey = link.source + link.target;
+                    if (linksBetweenNodes > 1 && typeof link.label !== 'undefined') {
+                        const linkCounterKey = link.source.id + link.target.id;
 
                         if (linkCounter[linkCounterKey]) {
                             linkCounter[linkCounterKey] += 1;
@@ -346,7 +349,7 @@ class Graph extends React.Component {
                 this.context.fillStyle = link.color;
                 this.context.strokeStyle = link.color;
 
-                if (linksBetweenNodes === 1) {
+                if (linksBetweenNodes <= 1) {
                     // When there's only 1 link between 2 nodes, we can draw a straight line
 
                     this.drawStraightLine(
@@ -368,8 +371,8 @@ class Graph extends React.Component {
                 } else {
                     // When there are multiple links between 2 nodes, we need to draw arcs
 
-                    // Bend only increases per 2 new links, and is proportional to the total number of links
-                    let bend = (nthLink + (nthLink % 2)) / (linksBetweenNodes * 10);
+                    // Bend only increases per 2 new links
+                    let bend = (nthLink + (nthLink % 2)) / 15;
 
                     // Every second link will be drawn on the bottom instead of the top
                     if (nthLink % 2 === 0) {
@@ -389,13 +392,17 @@ class Graph extends React.Component {
 
                     if (link.label) {
                         const averageAngle = (startAngle + endAngle) / 2;
-                        this.drawTextAlongArc(link.label, centerX, centerY, radius, averageAngle, 2);
+
+                        const text = link.label + (Math.round(bend * 10) / 10) + ' / ' + nthLink + ' / ' + linksBetweenNodes;
+
+                        this.drawTextAlongArc(text, centerX, centerY, radius, averageAngle, 2);
                     }
                 }
             },
             drawStraightLine: function (x1, y1, x2, y2) {
                 this.context.moveTo(x1, y1);
                 this.context.lineTo(x2, y2);
+                this.context.stroke();
             },
             drawArc: function (centerX, centerY, radius, startAngle, endAngle, antiClockwise) {
                 this.context.beginPath();
