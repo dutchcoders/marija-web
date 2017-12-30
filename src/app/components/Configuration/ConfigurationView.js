@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { find, sortBy, map, slice, uniq } from 'lodash';
+import { find, sortBy, map, slice, uniq, concat, isEqual } from 'lodash';
 import { requestIndices } from '../../modules/indices/index';
 import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, normalizationAdd, normalizationDelete, indexAdd, indexDelete, viaDelete, viaAdd } from '../../modules/data/index';
 import { serverAdd, serverRemove } from '../../modules/servers/index';
@@ -100,11 +100,43 @@ class ConfigurationView extends React.Component {
         }));
     }
 
-    checkViaData(via) {
+    /**
+     * Check if the user selected 3 unique fields
+     *
+     * @param via
+     * @returns {boolean}
+     */
+    checkViaUniqueFields(via) {
         const allFields = via.endpoints.concat([via.label]);
 
-        // Check if the user selected 3 unique fields
         return allFields.length === uniq(allFields).length;
+    }
+
+    /**
+     * Check if we're not trying to configure a from/to field which is already
+     * used as a label. Returns an array of invalid fields, or an empty array
+     * when everything is okay.
+     *
+     * @param viaData
+     * @returns {string[]}
+     */
+    getInvalidViaFields(viaData) {
+        const { via } = this.props;
+
+        const allLabels = via.map(viaItem => viaItem.label);
+
+        return  viaData.endpoints.filter(endpoint => allLabels.indexOf(endpoint) !== -1);
+    }
+
+    checkViaExists(viaData) {
+        const { via } = this.props;
+
+        const existingVia = via.find(viaItem =>
+            viaItem.label === viaData.label
+            && isEqual(concat([], viaItem.endpoints).sort(), concat([], viaData.endpoints).sort())
+        );
+
+        return typeof existingVia !== 'undefined';
     }
 
     handleAddVia() {
@@ -116,8 +148,20 @@ class ConfigurationView extends React.Component {
             label: selectedVia
         };
 
-        if (!this.checkViaData(viaData)) {
+        if (!this.checkViaUniqueFields(viaData)) {
             this.setState({viaError: 'Select 3 unique fields'});
+            return;
+        }
+
+        const invalidViaFields = this.getInvalidViaFields(viaData);
+
+        if (invalidViaFields.length > 0) {
+            this.setState({viaError: 'The field ' + invalidViaFields.join(', ') + ' is already used as a label'});
+            return;
+        }
+
+        if (this.checkViaExists(viaData)) {
+            this.setState({viaError: 'This via configuration already exists'});
             return;
         }
 
@@ -467,7 +511,12 @@ class ConfigurationView extends React.Component {
 
         if (viaError) {
             error = (
-                <div className="alert alert-danger">{viaError}</div>
+                <div className="alert alert-danger">
+                    {viaError}
+                    <button className="close" onClick={() => this.setState({viaError: null})}>
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
             );
         }
 
@@ -497,23 +546,23 @@ class ConfigurationView extends React.Component {
         const addNew = (
             <div>
                 <div className="form-group row via-row">
-                    <label className="col-sm-2 col-form-label">From</label>
-                    <div className="col-sm-8">
+                    <label className="col-xs-2 col-form-label">From</label>
+                    <div className="col-xs-8">
                         { this.renderFieldSelector(fields, this.handleFromChange.bind(this), selectedFrom)}
                     </div>
                 </div>
                 <div className="form-group row via-row">
-                    <label className="col-sm-2 col-form-label">Via</label>
-                    <div className="col-sm-8">
+                    <label className="col-xs-2 col-form-label">Via</label>
+                    <div className="col-xs-8">
                         { this.renderFieldSelector(fields, this.handleViaChange.bind(this), selectedVia)}
                     </div>
                 </div>
                 <div className="form-group row via-row">
-                    <label className="col-sm-2 col-form-label">To</label>
-                    <div className="col-sm-8">
+                    <label className="col-xs-2 col-form-label">To</label>
+                    <div className="col-xs-8">
                         { this.renderFieldSelector(fields, this.handleToChange.bind(this), selectedTo)}
                     </div>
-                    <div className="col-sm-2">
+                    <div className="col-xs-2">
                         <Icon onClick={this.handleAddVia.bind(this)}
                               name="ion-ios-plus add"/>
                     </div>
