@@ -1,6 +1,20 @@
 import { slice, concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy } from 'lodash';
 import {fieldLocator, normalize} from "./index";
 
+function getLinkLabel(label) {
+    label += '';
+
+    const maxLength = 20;
+
+    if (label.length <= maxLength) {
+        return label;
+    }
+
+    const shortened = label.substring(0, maxLength - 1);
+
+    return shortened + '...';
+}
+
 export default function getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations, via = []) {
     let nodes = concat(previousNodes, []);
     let links = concat(previousLinks, []);
@@ -172,8 +186,8 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                             color: '#ccc'
                         };
 
-                        if (isLabeledLink) {
-                            link.label = labelValue;
+                        if (isLabeledLink && labelValue !== null) {
+                            link.label = getLinkLabel(labelValue);
                         }
 
                         links.push(link);

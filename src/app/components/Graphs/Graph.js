@@ -187,8 +187,10 @@ class Graph extends React.Component {
 
                 for (const link of graph.links) {
                     if (link.color !== color) {
-                        context.strokeStyle = color;
-                        context.stroke();
+                        // todo: used to be an optimization here to start coloring after all lines had been drawn
+                        // maybe redundant when we switch to pixi js
+                        // context.strokeStyle = color;
+                        // context.stroke();
 
                         color = link.color;
                     }
@@ -220,9 +222,6 @@ class Graph extends React.Component {
 
                     this.drawLink(link, nthLink, linksBetweenNodes);
                 }
-
-                context.strokeStyle = color;
-                context.stroke();
 
                 // draw nodes
                 for (let i = 0; i < graph.queries.length; i++) {
@@ -393,13 +392,12 @@ class Graph extends React.Component {
                     if (link.label) {
                         const averageAngle = (startAngle + endAngle) / 2;
 
-                        const text = link.label + (Math.round(bend * 10) / 10) + ' / ' + nthLink + ' / ' + linksBetweenNodes;
-
-                        this.drawTextAlongArc(text, centerX, centerY, radius, averageAngle, 2);
+                        this.drawTextAlongArc(link.label, centerX, centerY, radius, averageAngle, 2);
                     }
                 }
             },
             drawStraightLine: function (x1, y1, x2, y2) {
+                this.context.beginPath();
                 this.context.moveTo(x1, y1);
                 this.context.lineTo(x2, y2);
                 this.context.stroke();

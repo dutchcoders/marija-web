@@ -42,7 +42,7 @@ onmessage = function(event) {
             .stop()
             .force("link", d3.forceLink().distance(link => {
                 if (!link.label) {
-                    return 50;
+                    return 80;
                 }
 
                 let label = link.label;
