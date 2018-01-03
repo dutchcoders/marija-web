@@ -3,18 +3,16 @@ import { connect} from 'react-redux';
 import Dimensions from 'react-dimensions';
 import SkyLight from 'react-skylight';
 import SketchPicker from 'react-color';
-
 import * as d3 from 'd3';
 import { map, clone, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign, isEqual } from 'lodash';
 import moment from 'moment';
-
 import { nodesSelect, highlightNodes, nodeSelect } from '../../modules/graph/index';
 import { normalize, fieldLocator } from '../../helpers/index';
-
 import { Icon } from '../../components/index';
 import { deleteSearch } from '../../modules/search/index';
 import Url from "../../domain/Url";
-
+import {requestItems} from "../../modules/search/actions";
+import Tooltip from 'rc-tooltip';
 
 class Queries extends React.Component {
     constructor(props) {
@@ -45,6 +43,17 @@ class Queries extends React.Component {
         Url.removeQueryParam('search', query.q);
     }
 
+    handleSearchMore(query) {
+        const { dispatch, fields, activeIndices } = this.props;
+
+        dispatch(requestItems({
+            query: query.q,
+            fields: fields,
+            datasources: activeIndices,
+            size: 500
+        }));
+    }
+
     handleChangeQueryColorComplete(color) {
         const search = this.state.editSearchValue;
 
@@ -72,7 +81,7 @@ class Queries extends React.Component {
             edit_query = <form>
                 <SketchPicker
                     color={ editSearchValue.color }
-                    onChangeComplete={(color) => this.handleChangeSearchColorComplete(color) }
+                    onChangeComplete={(color) => this.handleChangeQueryColorComplete(color) }
                 />
                     <span className="colorBall" style={{backgroundColor: editSearchValue.color}}/>
                     { `${editSearchValue.q} (${editSearchValue.items.length})` }
@@ -86,10 +95,31 @@ class Queries extends React.Component {
                         return (
                                 <li key={query.q} style={{backgroundColor: query.color}}>
                                 { `${query.q}` }&nbsp;<span className="count">{ `${query.items.length}`}<b>{`(${query.total})` }</b></span>
-                                <Icon onClick={(e) => this.handleEditQuery(query, e) }
-                                    name="ion-ios-gear"/>
-                                <Icon onClick={(e) => this.handleDeleteQuery(query) }
-                                    name="ion-ios-close"/>
+
+                                    <Tooltip
+                                        overlay="Get more results"
+                                        placement="bottom"
+                                        arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                                        <Icon
+                                            onClick={(e) => this.handleSearchMore(query, e) }
+                                            name="ion-ios-plus"/>
+                                    </Tooltip>
+
+                                    <Tooltip
+                                        overlay="Change color"
+                                        placement="bottom"
+                                        arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                                        <Icon onClick={(e) => this.handleEditQuery(query, e) }
+                                            name="ion-ios-gear"/>
+                                    </Tooltip>
+
+                                    <Tooltip
+                                        overlay="Delete"
+                                        placement="bottom"
+                                        arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                                        <Icon onClick={(e) => this.handleDeleteQuery(query) }
+                                            name="ion-ios-close"/>
+                                    </Tooltip>
                                 </li>
                         );
                     })}
@@ -106,6 +136,8 @@ const select = (state, ownProps) => {
     return {
         ...ownProps,
         queries: state.entries.searches,
+        fields: state.entries.fields,
+        activeIndices: state.indices.activeIndices
     };
 };
 
