@@ -24,7 +24,6 @@ class GraphPixi extends React.Component {
 
         this.state = {
             nodesFromWorker: [],
-            renderedNodes: {},
             nodeTextures: {},
             renderedNodesContainer: undefined,
             linksFromWorker: [],
@@ -96,34 +95,6 @@ class GraphPixi extends React.Component {
         });
     }
 
-    updateNodesExistence() {
-        const { renderedNodes } = this.state;
-        const { nodes } = this.props;
-
-        const createNodes = nodes.filter(node => {
-            const found = renderedNodes[node.hash];
-            return typeof found === 'undefined';
-        });
-
-        const deleteNodes = {};
-
-        forEach(renderedNodes, (node, hash) => {
-            const found = nodes.find(search => search.hash == hash);
-
-            if (typeof found === 'undefined') {
-                deleteNodes[hash] = node;
-            }
-        });
-
-        const queryColors = this.getQueryColors();
-
-        this.setState({ queryColors: queryColors }, () => {
-            createNodes.forEach(node => this.createRenderedNode(node));
-        });
-
-        forEach(deleteNodes, (node, hash) => this.deleteRenderedNode(hash, node));
-    }
-
     getQueryColors() {
         const { queries } = this.props;
 
@@ -139,7 +110,7 @@ class GraphPixi extends React.Component {
 
     getNodeTexture(node) {
         const { nodeTextures, renderer, queryColors } = this.state;
-        const key = node.queries.join(';') + node.icon;
+        const key = node.queries.join(';') + node.icon + node.r;
         let texture = nodeTextures[key];
 
         if (typeof texture !== 'undefined') {
@@ -157,7 +128,7 @@ class GraphPixi extends React.Component {
             const color = queryColors[query];
 
             graphics.beginFill(color);
-            graphics.arc(10, 10, 10, currentAngle, currentAngle + anglePerQuery);
+            graphics.arc(node.r, node.r, node.r, currentAngle, currentAngle + anglePerQuery);
             renderedNode.addChild(graphics);
 
             currentAngle += anglePerQuery;
@@ -170,12 +141,15 @@ class GraphPixi extends React.Component {
             lineHeight: 10
         });
 
-        icon.x = 5;
-        icon.y = 2;
+        icon.anchor.x = .5;
+        icon.anchor.y = .5;
+        icon.x = node.r;
+        icon.y = node.r;
 
         renderedNode.addChild(icon);
 
-        texture = PIXI.RenderTexture.create(20, 20);
+        const size = node.r * 2;
+        texture = PIXI.RenderTexture.create(size, size);
         renderer.render(renderedNode, texture);
 
         this.setState(prevState => ({
@@ -188,53 +162,22 @@ class GraphPixi extends React.Component {
         return texture;
     }
 
-    createRenderedNode(node) {
-        const { renderedNodesContainer, queryColors } = this.state;
+    renderNodes() {
+        const { renderedNodesContainer, nodesFromWorker } = this.state;
 
-        const texture = this.getNodeTexture(node);
-        const renderedNode = new PIXI.Sprite(texture);
-        renderedNode.anchor.x = 0.5;
-        renderedNode.anchor.y = 0.5;
+        renderedNodesContainer.removeChildren();
 
-        renderedNodesContainer.addChild(renderedNode);
+        nodesFromWorker.forEach(node => {
+            const texture = this.getNodeTexture(node);
+            const renderedNode = new PIXI.Sprite(texture);
 
-        this.setState(prevState => ({
-            renderedNodes: {
-                ...prevState.renderedNodes,
-                [node.hash]: renderedNode
-            }
-        }));
-    }
-
-    getRenderedNode(node) {
-        const { renderedNodes } = this.state;
-
-        return renderedNodes[node.hash];
-    }
-
-    updateRenderedNode(node) {
-        const renderedNode = this.getRenderedNode(node);
-
-        if (renderedNode) {
+            renderedNode.anchor.x = 0.5;
+            renderedNode.anchor.y = 0.5;
             renderedNode.x = node.x;
             renderedNode.y = node.y;
-        }
-    }
 
-    deleteRenderedNode(hash, renderedNode) {
-        const { renderedNodesContainer } = this.state;
-
-        renderedNodesContainer.removeChild(renderedNode);
-
-        this.setState(prevState => ({
-            renderedNodes: omit(prevState.renderedNodes, hash)
-        }));
-    }
-
-    updateNodesPosition() {
-        const { nodesFromWorker } = this.state;
-
-        nodesFromWorker.forEach(node => this.updateRenderedNode(node));
+            renderedNodesContainer.addChild(renderedNode);
+        });
     }
 
     renderLinks() {
@@ -432,7 +375,9 @@ class GraphPixi extends React.Component {
                 nodesToPost.push({
                     id: node.id,
                     numItems: node.numItems,
-                    hash: node.hash
+                    hash: node.hash,
+                    queries: node.queries,
+                    icon: node.icon
                 });
             });
 
@@ -446,13 +391,19 @@ class GraphPixi extends React.Component {
                 });
             });
 
-            this.postWorkerMessage({
-                type: 'update',
-                nodes: nodesToPost,
-                links: linksToPost
-            });
+            const queryColors = this.getQueryColors();
 
-            this.updateNodesExistence();
+            this.setState({ queryColors: queryColors }, () => {
+                // The nodes can only be posted to the worker once the colors
+                // are updated, otherwise we might run into a race condition
+                // due to undefined colors while rendering
+
+                this.postWorkerMessage({
+                    type: 'update',
+                    nodes: nodesToPost,
+                    links: linksToPost
+                });
+            });
         }
 
         if (!isEqual(prevProps.highlight_nodes, highlight_nodes)) {
@@ -575,7 +526,7 @@ class GraphPixi extends React.Component {
         const stateUpdates = {};
 
         if (!renderedSinceLastTick || !renderedSinceLastZoom) {
-            this.updateNodesPosition();
+            this.renderNodes();
             this.renderLinks();
 
             stateUpdates.renderedSinceLastTick = true;
