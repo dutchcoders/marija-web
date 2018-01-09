@@ -25,6 +25,7 @@ class GraphPixi extends React.Component {
         this.state = {
             nodesFromWorker: [],
             renderedNodes: {},
+            nodeTextures: {},
             renderedNodesContainer: undefined,
             linksFromWorker: [],
             renderedLinks: undefined,
@@ -136,8 +137,16 @@ class GraphPixi extends React.Component {
         return queryColors;
     }
 
-    createRenderedNode(node) {
-        const { renderedNodesContainer, queryColors } = this.state;
+    getNodeTexture(node) {
+        const { nodeTextures, renderer, queryColors } = this.state;
+        const key = node.queries.join(';') + node.icon;
+        let texture = nodeTextures[key];
+
+        if (typeof texture !== 'undefined') {
+            console.log('found texture');
+            return texture;
+        }
+
         const renderedNode = new PIXI.Container();
 
         const fractionPerQuery = 1 / node.queries.length;
@@ -149,7 +158,7 @@ class GraphPixi extends React.Component {
             const color = queryColors[query];
 
             graphics.beginFill(color);
-            graphics.arc(0, 0, 10, currentAngle, currentAngle + anglePerQuery);
+            graphics.arc(10, 10, 10, currentAngle, currentAngle + anglePerQuery);
             renderedNode.addChild(graphics);
 
             currentAngle += anglePerQuery;
@@ -162,10 +171,30 @@ class GraphPixi extends React.Component {
             lineHeight: 10
         });
 
-        icon.x = -5;
-        icon.y = -7;
+        icon.x = 5;
+        icon.y = 2;
 
         renderedNode.addChild(icon);
+
+        texture = new PIXI.RenderTexture(renderer, 20, 20);
+        renderer.render(renderedNode, texture);
+
+        this.setState(prevState => ({
+            nodeTextures: {
+                ...prevState.nodeTextures,
+                [key]: texture
+            }
+        }));
+
+        return texture;
+    }
+
+    createRenderedNode(node) {
+        const { renderedNodesContainer, queryColors } = this.state;
+
+        const texture = this.getNodeTexture(node);
+        const renderedNode = new PIXI.Sprite(texture);
+
         renderedNodesContainer.addChild(renderedNode);
 
         this.setState(prevState => ({
@@ -186,8 +215,8 @@ class GraphPixi extends React.Component {
         const renderedNode = this.getRenderedNode(node);
 
         if (renderedNode) {
-            renderedNode.x = node.x;
-            renderedNode.y = node.y;
+            renderedNode.x = node.x - renderedNode.width / 2;
+            renderedNode.y = node.y - renderedNode.height / 2;
         }
     }
 
