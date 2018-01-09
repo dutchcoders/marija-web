@@ -121,6 +121,10 @@ class ConfigurationView extends React.Component {
     getInvalidViaFields(viaData) {
         const { via } = this.props;
 
+        if (!via) {
+            return;
+        }
+
         const allLabels = via.map(viaItem => viaItem.label);
 
         return  viaData.endpoints.filter(endpoint => allLabels.indexOf(endpoint) !== -1);
