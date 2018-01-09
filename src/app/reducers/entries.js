@@ -354,9 +354,9 @@ export default function entries(state = defaultState, action) {
             });
 
         case INITIAL_STATE_RECEIVE:
-        return Object.assign({}, state, {
-            datasources: action.initial_state.datasources,
-        });
+            return Object.assign({}, state, {
+                datasources: action.initial_state.datasources,
+            });
 
         default:
             return state;
