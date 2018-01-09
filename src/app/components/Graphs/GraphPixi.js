@@ -143,7 +143,6 @@ class GraphPixi extends React.Component {
         let texture = nodeTextures[key];
 
         if (typeof texture !== 'undefined') {
-            console.log('found texture');
             return texture;
         }
 
@@ -176,7 +175,7 @@ class GraphPixi extends React.Component {
 
         renderedNode.addChild(icon);
 
-        texture = new PIXI.RenderTexture(renderer, 20, 20);
+        texture = PIXI.RenderTexture.create(20, 20);
         renderer.render(renderedNode, texture);
 
         this.setState(prevState => ({
@@ -194,6 +193,8 @@ class GraphPixi extends React.Component {
 
         const texture = this.getNodeTexture(node);
         const renderedNode = new PIXI.Sprite(texture);
+        renderedNode.anchor.x = 0.5;
+        renderedNode.anchor.y = 0.5;
 
         renderedNodesContainer.addChild(renderedNode);
 
@@ -215,8 +216,8 @@ class GraphPixi extends React.Component {
         const renderedNode = this.getRenderedNode(node);
 
         if (renderedNode) {
-            renderedNode.x = node.x - renderedNode.width / 2;
-            renderedNode.y = node.y - renderedNode.height / 2;
+            renderedNode.x = node.x;
+            renderedNode.y = node.y;
         }
     }
 
