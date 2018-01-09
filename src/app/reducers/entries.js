@@ -5,7 +5,7 @@ import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, 
 import {  INDICES_RECEIVE, INDICES_REQUEST } from '../modules/indices/index';
 import {  FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index';
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODE_SELECT, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
-import {  SEARCH_DELETE, ITEMS_RECEIVE, ITEMS_REQUEST } from '../modules/search/index';
+import {  SEARCH_DELETE, SEARCH_RECEIVE, SEARCH_REQUEST } from '../modules/search/index';
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
 import { normalize, fieldLocator } from '../helpers/index';
@@ -225,7 +225,7 @@ export default function entries(state = defaultState, action) {
                 didInvalidate: false,
                 ...action
             });
-        case ITEMS_REQUEST: {
+        case SEARCH_REQUEST: {
             // if we searched before, just retrieve extra results for query
             const search = find(state.searches, (o) => o.q == action.query) || { items: [] };
 
@@ -251,7 +251,7 @@ export default function entries(state = defaultState, action) {
                 didInvalidate: false
             });
         }
-        case ITEMS_RECEIVE: {
+        case SEARCH_RECEIVE: {
             const searches = concat(state.searches, []);
             const items = action.items.results === null ? [] : action.items.results;
 

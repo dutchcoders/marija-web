@@ -101,15 +101,13 @@ class ConfigurationView extends React.Component {
     }
 
     /**
-     * Check if the user selected 3 unique fields
+     * Check if the label isn't also one of the endpoints, that wouldnt work.
      *
      * @param via
      * @returns {boolean}
      */
     checkViaUniqueFields(via) {
-        const allFields = via.endpoints.concat([via.label]);
-
-        return allFields.length === uniq(allFields).length;
+        return via.endpoints.indexOf(via.label) === -1;
     }
 
     /**

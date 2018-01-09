@@ -1,7 +1,7 @@
 import {authConnected, error} from '../index';
 import Websocket from 'reconnecting-websocket';
 
-import { ITEMS_REQUEST } from '../../modules/search/index'
+import { SEARCH_REQUEST } from '../../modules/search/index'
 
 export default class FlowWS {
     constructor(url, token, dispatcher, storeDispatcher) {
@@ -62,7 +62,7 @@ export default class FlowWS {
         this.websocket = websocket;
     }
 
-    postMessage(data, type = ITEMS_REQUEST) {
+    postMessage(data, type = SEARCH_REQUEST) {
         console.log(type, data);
 
         this.opened.then(() => {
