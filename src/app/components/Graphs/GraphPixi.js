@@ -446,13 +446,17 @@ class GraphPixi extends React.Component {
         renderedSelection.clear();
 
         if (selection) {
-            const width = selection.x2 - selection.x1;
-            const height = selection.y2 - selection.y1;
+            const x1 = transform.applyX(selection.x1);
+            const x2 = transform.applyX(selection.x2);
+            const y1 = transform.applyY(selection.y1);
+            const y2 = transform.applyY(selection.y2);
+            const width = x2 - x1;
+            const height = y2 - y1;
 
             renderedSelection.beginFill(0xFFFFFF, .1);
             renderedSelection.drawRect(
-                transform.applyX(selection.x1),
-                transform.applyY(selection.y1),
+                x1,
+                y1,
                 width,
                 height
             );
