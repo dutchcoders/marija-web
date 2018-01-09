@@ -144,6 +144,7 @@ class GraphPixi extends React.Component {
             const color = queryColors[query];
 
             graphics.beginFill(color);
+            graphics.moveTo(node.r, node.r);
             graphics.arc(node.r, node.r, node.r, currentAngle, currentAngle + anglePerQuery);
             renderedNode.addChild(graphics);
 
