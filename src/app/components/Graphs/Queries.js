@@ -94,7 +94,7 @@ class Queries extends React.Component {
                     {map(queries, (query) => {
                         return (
                                 <li key={query.q} style={{backgroundColor: query.color}}>
-                                { `${query.q}` }&nbsp;<span className="count">{ `${query.items.length}`}<b>{`(${query.total})` }</b></span>
+                                {query.q}&nbsp;<span className="count">{query.items.length}</span>
 
                                     <Tooltip
                                         overlay="Get more results"

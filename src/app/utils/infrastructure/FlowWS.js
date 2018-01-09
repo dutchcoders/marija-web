@@ -55,15 +55,16 @@ export default class FlowWS {
             // the close event contains more feedback
         };
         websocket.onmessage = function (event) {
-            console.log(JSON.parse(event.data));
-            dispatcher(JSON.parse(event.data), storeDispatcher);
+            const parsed = JSON.parse(event.data);
+            console.log('receive', parsed.type);
+            dispatcher(parsed, storeDispatcher);
         };
 
         this.websocket = websocket;
     }
 
     postMessage(data, type = SEARCH_REQUEST) {
-        console.log(type, data);
+        console.log('send ' + type);
 
         this.opened.then(() => {
             this.websocket.send(

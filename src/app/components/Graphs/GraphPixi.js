@@ -98,7 +98,6 @@ class GraphPixi extends React.Component {
     updateNodesExistence() {
         const { renderedNodes } = this.state;
         const { nodes } = this.props;
-        console.log('update nodes existence', nodes);
 
         const createNodes = nodes.filter(node => {
             const found = renderedNodes[node.hash];
@@ -394,9 +393,7 @@ class GraphPixi extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        const { nodes, links, highlight_nodes, queries } = this.props;
-
-        console.log('component did update');
+        const { nodes, links, highlight_nodes } = this.props;
 
         if (prevProps.nodes !== nodes) {
             const nodesToPost = [];

@@ -173,9 +173,14 @@ export default function entries(state = defaultState, action) {
             const highlightItems = {};
 
             forEach(action.highlight_nodes, node => {
+                console.log(node.items[0]);
+                console.log(state.items);
+
                 const item = Object.assign({}, state.items.find(item => item.id === node.items[0]));
                 highlightItems[node.hash] = getHighlightItem(item, node, state.fields, 50);
             });
+
+            console.log(highlightItems);
 
             return Object.assign({}, state, {
                 highlight_nodes: highlightItems
