@@ -81,9 +81,9 @@ class GraphPixi extends React.Component {
     }
 
     zoom(fraction, newX, newY) {
-        const { renderedNodesContainer, renderedLinks, renderedSelectedNodes } = this.state;
+        const { renderedNodesContainer, renderedLinks, renderedSelectedNodes, renderedLinkLabels } = this.state;
 
-        [renderedNodesContainer, renderedLinks, renderedSelectedNodes].forEach(zoomable => {
+        [renderedNodesContainer, renderedLinks, renderedSelectedNodes, renderedLinkLabels].forEach(zoomable => {
             zoomable.scale.x = fraction;
             zoomable.scale.y = fraction;
 
