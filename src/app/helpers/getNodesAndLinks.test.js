@@ -176,7 +176,7 @@ test('should output links with labels when via info is specified', () => {
     expectLink(links, 2, 4);
 
     links.forEach(link => {
-        expect(link.label).toBe(80);
+        expect(link.label).toBe('80');
     });
 });
 
@@ -221,8 +221,8 @@ test('should be able to draw multiple labeled lines between 2 nodes', () => {
     expect(nodes.length).toBe(2);
     expect(links).toBeDefined();
     expect(links.length).toBe(2);
-    expect(links.find(link => link.label === 80)).toBeDefined();
-    expect(links.find(link => link.label === 1337)).toBeDefined();
+    expect(links.find(link => link.label === '80')).toBeDefined();
+    expect(links.find(link => link.label === '1337')).toBeDefined();
 });
 
 test('should not mess up when multiple via configs are present', () => {

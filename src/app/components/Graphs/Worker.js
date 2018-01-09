@@ -77,7 +77,7 @@ onmessage = function(event) {
         };
 
         var countExtent = d3.extent(nodes, (n) => {
-            return n.items.length;
+            return n.numItems;
         }),
             radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(sizeRange);
 
@@ -99,14 +99,14 @@ onmessage = function(event) {
             var n = find(that.nodes, {id: node.id});
             if (n) {
                 n = assign(n, node);
-                n = assign(n, {force: forceScale(n), r: radiusScale(n.items.length)});
+                n = assign(n, {force: forceScale(n), r: radiusScale(n.numItems)});
 
                 newNodes = true;
                 continue;
             }
 
             let node2 = clone(node);
-            node2 = assign(node2, {force: forceScale(node2), r: radiusScale(node2.items.length)});
+            node2 = assign(node2, {force: forceScale(node2), r: radiusScale(node2.numItems)});
 
             that.nodes.push(node2);
 

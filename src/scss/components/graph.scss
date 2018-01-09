@@ -32,3 +32,8 @@ canvas.graph {
     cursor: pointer;
   }
 }
+
+.graphComponent,
+.graphContainer {
+  height: 100%;
+}

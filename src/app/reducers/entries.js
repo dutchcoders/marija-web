@@ -24,7 +24,7 @@ export const defaultState = {
     total: 0,
     node: [],
     datasources: [],
-    highlight_nodes: [],
+    highlight_nodes: {},
     columns: [],
     fields: [],
     date_fields: [],
@@ -100,7 +100,7 @@ export default function entries(state = defaultState, action) {
                 nodes: result.nodes,
                 links: result.links,
                 selectedNodes: [],
-                highlight_nodes: [],
+                highlight_nodes: {},
                 node: []
             });
         case TABLE_COLUMN_ADD:
@@ -170,13 +170,11 @@ export default function entries(state = defaultState, action) {
                 date_fields: without(state.date_fields, action.field)
             });
         case NODES_HIGHLIGHT:
-            const highlightItems = [];
+            const highlightItems = {};
 
-            action.highlight_nodes.forEach(node => {
+            forEach(action.highlight_nodes, node => {
                 const item = Object.assign({}, state.items.find(item => item.id === node.items[0]));
-                const highlightItem = getHighlightItem(item, node, state.fields, 50);
-
-                highlightItems.push(highlightItem);
+                highlightItems[node.hash] = getHighlightItem(item, node, state.fields, 50);
             });
 
             return Object.assign({}, state, {

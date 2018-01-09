@@ -15,6 +15,21 @@ function getLinkLabel(label) {
     return shortened + '...';
 }
 
+function getHash(string) {
+    let hash = 0, i, chr;
+
+    if (string.length === 0) {
+        return hash;
+    }
+
+    for (i = 0; i < string.length; i++) {
+        chr   = string.charCodeAt(i);
+        hash  = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+}
+
 export default function getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations, via = []) {
     let nodes = concat(previousNodes, []);
     let links = concat(previousLinks, []);
@@ -64,6 +79,7 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                 if (n) {
                     if (n.items.indexOf(d.id) === -1){
                         n.items.push(d.id);
+                        n.numItems ++;
                     }
 
                     if (n.fields.indexOf(source.path) === -1){
@@ -78,10 +94,12 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                         id: normalizedSourceValue,
                         queries: [query],
                         items: [d.id],
+                        numItems: 1,
                         name: normalizedSourceValue,
                         description: '',
                         icon: source.icon,
                         fields: [source.path],
+                        hash: getHash(normalizedSourceValue),
                     };
 
                     nodeCache[n.id] = n;
@@ -121,6 +139,7 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                         if (n) {
                             if (n.items.indexOf(d.id) === -1){
                                 n.items.push(d.id);
+                                n.numItems ++;
                             }
 
                             if (n.fields.indexOf(target.path) === -1){
@@ -135,10 +154,12 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                                 id: normalizedTargetValue,
                                 queries: [query],
                                 items: [d.id],
+                                numItems: 1,
                                 name: normalizedTargetValue,
                                 description: '',
                                 icon: [target.icon],
                                 fields: [target.path],
+                                hash: getHash(normalizedTargetValue)
                             };
 
                             nodeCache[n.id] = n;

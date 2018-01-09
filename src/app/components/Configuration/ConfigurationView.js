@@ -522,7 +522,7 @@ class ConfigurationView extends React.Component {
 
         let existing;
 
-        if (via.length > 0) {
+        if (via && via.length > 0) {
             const viaItems = map(via, viaItem => {
                 return (
                     <li key={JSON.stringify(viaItem)}>
