@@ -79,7 +79,6 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                 if (n) {
                     if (n.items.indexOf(d.id) === -1){
                         n.items.push(d.id);
-                        n.numItems ++;
                     }
 
                     if (n.fields.indexOf(source.path) === -1){
@@ -94,7 +93,7 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                         id: normalizedSourceValue,
                         queries: [query],
                         items: [d.id],
-                        numItems: 1,
+                        count: d.count,
                         name: normalizedSourceValue,
                         description: '',
                         icon: source.icon,
@@ -139,7 +138,6 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                         if (n) {
                             if (n.items.indexOf(d.id) === -1){
                                 n.items.push(d.id);
-                                n.numItems ++;
                             }
 
                             if (n.fields.indexOf(target.path) === -1){
@@ -154,7 +152,7 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                                 id: normalizedTargetValue,
                                 queries: [query],
                                 items: [d.id],
-                                numItems: 1,
+                                count: d.count,
                                 name: normalizedTargetValue,
                                 description: '',
                                 icon: [target.icon],

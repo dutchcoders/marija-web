@@ -80,18 +80,34 @@ class GraphPixi extends React.Component {
         });
     }
 
+    zoom(fraction, newX, newY) {
+        const { renderedNodesContainer, renderedLinks, renderedSelectedNodes } = this.state;
+
+        [renderedNodesContainer, renderedLinks, renderedSelectedNodes].forEach(zoomable => {
+            zoomable.scale.x = fraction;
+            zoomable.scale.y = fraction;
+
+            if (typeof newX !== 'undefined') {
+                zoomable.position.x = newX;
+            }
+
+            if (typeof newY !== 'undefined') {
+                zoomable.position.y = newY;
+            }
+        });
+
+        this.setState({
+            renderedSinceLastZoom: false
+        });
+    }
+
     zoomed() {
-        const { stage } = this.state;
         const transform = d3.event.transform;
 
-        stage.scale.x = transform.k;
-        stage.scale.y = transform.k;
-        stage.position.x = transform.x;
-        stage.position.y = transform.y;
+        this.zoom(transform.k, transform.x, transform.y);
 
         this.setState({
             transform: transform,
-            renderedSinceLastZoom: false
         });
     }
 
@@ -374,7 +390,7 @@ class GraphPixi extends React.Component {
             nodes.forEach(node => {
                 nodesToPost.push({
                     id: node.id,
-                    numItems: node.numItems,
+                    count: node.count,
                     hash: node.hash,
                     queries: node.queries,
                     icon: node.icon
@@ -425,7 +441,7 @@ class GraphPixi extends React.Component {
     }
 
     renderSelection() {
-        const { selection, renderedSelection } = this.state;
+        const { selection, renderedSelection, transform } = this.state;
 
         renderedSelection.clear();
 
@@ -434,7 +450,12 @@ class GraphPixi extends React.Component {
             const height = selection.y2 - selection.y1;
 
             renderedSelection.beginFill(0xFFFFFF, .1);
-            renderedSelection.drawRect(selection.x1, selection.y1, width, height);
+            renderedSelection.drawRect(
+                transform.applyX(selection.x1),
+                transform.applyY(selection.y1),
+                width,
+                height
+            );
             renderedSelection.endFill();
         }
     }
@@ -721,7 +742,7 @@ class GraphPixi extends React.Component {
 
     highlightNode(node) {
         const { highlight_nodes, dispatch } = this.props;
-        const { nodesFromWorker } = this.state;
+        const { nodesFromWorker, transform } = this.state;
 
         if ((typeof node === 'undefined' && isEmpty(highlight_nodes))
             || (typeof node !== 'undefined' && typeof highlight_nodes[node.hash] !== 'undefined')) {
@@ -737,8 +758,8 @@ class GraphPixi extends React.Component {
             newHighlightNodes = {
                 [node.hash]: {
                     ...node,
-                    x: nodeFromWorker.x,
-                    y: nodeFromWorker.y
+                    x: transform.applyX(nodeFromWorker.x),
+                    y: transform.applyY(nodeFromWorker.y)
                 }
             };
         }
@@ -783,8 +804,6 @@ class GraphPixi extends React.Component {
             } else {
                 remove(selectedNodesCopy, node);
             }
-
-            console.log(selectedNodesCopy);
 
             this.selectNodes(selectedNodesCopy);
         } else {
@@ -882,25 +901,11 @@ class GraphPixi extends React.Component {
     }
 
     zoomIn() {
-        const { stage } = this.state;
-
-        stage.scale.x *= 1.1;
-        stage.scale.y *= 1.1;
-
-        this.setState({
-            renderedSinceLastZoom: false
-        });
+        this.zoom(1.1);
     }
 
     zoomOut() {
-        const { stage } = this.state;
-
-        stage.scale.x *= .9;
-        stage.scale.y *= .9;
-
-        this.setState({
-            renderedSinceLastZoom: false
-        });
+        this.zoom(.9);
     }
 
     render() {
