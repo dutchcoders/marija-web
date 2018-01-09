@@ -50,8 +50,6 @@ function getValue(value, query, maxValueLength) {
 }
 
 export default function getHighlightItem (item, node, fields, maxValueLength) {
-    console.log(item, node, fields);
-
     const highlightItem = {
         id: item.id,
         fields: {}
