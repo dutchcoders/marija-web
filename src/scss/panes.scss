@@ -439,9 +439,18 @@
             align-items: center;
 
             i {
-                font-size: 16px;
+                font-size: 18px;
                 padding-left: 5px;
                 cursor: pointer;
+
+                &.disabled {
+                    opacity: .5;
+                }
+            }
+
+            .count {
+                display: inline-block;
+                width: 60px;
             }
         }
     }

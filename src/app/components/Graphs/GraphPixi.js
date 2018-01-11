@@ -386,12 +386,12 @@ class GraphPixi extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        const { nodes, links, highlight_nodes } = this.props;
+        const { nodesForDisplay, linksForDisplay, highlight_nodes, queries } = this.props;
 
-        if (prevProps.nodes !== nodes) {
+        if (!isEqual(prevProps.nodesForDisplay, nodesForDisplay)) {
             const nodesToPost = [];
 
-            nodes.forEach(node => {
+            nodesForDisplay.forEach(node => {
                 nodesToPost.push({
                     id: node.id,
                     count: node.count,
@@ -403,7 +403,7 @@ class GraphPixi extends React.Component {
 
             const linksToPost = [];
 
-            links.forEach(link => {
+            linksForDisplay.forEach(link => {
                 linksToPost.push({
                     source: link.source,
                     target: link.target,
@@ -438,10 +438,10 @@ class GraphPixi extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const { nodes, itemsFetching, highlight_nodes, queries } = this.props;
+        const { nodesForDisplay, itemsFetching, highlight_nodes, queries } = this.props;
         const { selecting, lastDisplayedFps } = this.state;
 
-        return nextProps.nodes !== nodes
+        return nextProps.nodesForDisplay !== nodesForDisplay
             || nextProps.itemsFetching !== itemsFetching
             || nextState.selecting !== selecting
             || !isEqual(nextProps.highlight_nodes, highlight_nodes)
@@ -758,9 +758,9 @@ class GraphPixi extends React.Component {
             return;
         }
 
-        const { nodes } = this.props;
+        const { nodesForDisplay } = this.props;
 
-        return nodes.find(node => node.hash === nodeFromWorker.hash);
+        return nodesForDisplay.find(node => node.hash === nodeFromWorker.hash);
     }
 
     highlightNode(node) {
@@ -804,7 +804,7 @@ class GraphPixi extends React.Component {
      */
     onMouseDown(event) {
         const { selecting, shift, transform } = this.state;
-        const { dispatch, selectedNodes, nodes } = this.props;
+        const { dispatch, selectedNodes, nodesForDisplay } = this.props;
 
         if (!selecting) {
             return;
@@ -819,7 +819,7 @@ class GraphPixi extends React.Component {
         const nodeFromWorker = this.findNodeFromWorker(x, y);
 
         if (nodeFromWorker) {
-            const node = nodes.find(search => search.hash === nodeFromWorker.hash);
+            const node = nodesForDisplay.find(search => search.hash === nodeFromWorker.hash);
             const selectedNodesCopy = concat(selectedNodes, []);
 
             if (!includes(selectedNodes, node)) {
@@ -860,7 +860,7 @@ class GraphPixi extends React.Component {
 
     onMouseUp() {
         const { selection, nodesFromWorker } = this.state;
-        const { nodes, selectedNodes } = this.props;
+        const { nodesForDisplay, selectedNodes } = this.props;
 
         if (!selection) {
             return;
@@ -871,7 +871,7 @@ class GraphPixi extends React.Component {
         nodesFromWorker.forEach(nodeFromWorker => {
             if ((nodeFromWorker.x > selection.x1 && nodeFromWorker.x < selection.x2) &&
                 (nodeFromWorker.y > selection.y1 && nodeFromWorker.y < selection.y2)) {
-                const node = nodes.find(search => search.hash === nodeFromWorker.hash);
+                const node = nodesForDisplay.find(search => search.hash === nodeFromWorker.hash);
 
                 if (!includes(selectedNodes, node)) {
                     newSelectedNodes.push(node);
@@ -880,7 +880,7 @@ class GraphPixi extends React.Component {
 
             if ((nodeFromWorker.x > selection.x2 && nodeFromWorker.x < selection.x1) &&
                 (nodeFromWorker.y > selection.y2 && nodeFromWorker.y < selection.y1)) {
-                const node = nodes.find(search => search.hash === nodeFromWorker.hash);
+                const node = nodesForDisplay.find(search => search.hash === nodeFromWorker.hash);
 
                 if (!includes(selectedNodes, node)) {
                     newSelectedNodes.push(node);
@@ -956,8 +956,8 @@ const select = (state, ownProps) => {
     return {
         ...ownProps,
         selectedNodes: state.entries.node,
-        nodes: state.entries.nodes,
-        links: state.entries.links,
+        nodesForDisplay: state.entries.nodesForDisplay,
+        linksForDisplay: state.entries.linksForDisplay,
         queries: state.entries.searches,
         fields: state.entries.fields,
         items: state.entries.items,

@@ -9,9 +9,8 @@ import moment from 'moment';
 import { nodesSelect, highlightNodes, nodeSelect } from '../../modules/graph/index';
 import { normalize, fieldLocator } from '../../helpers/index';
 import { Icon } from '../../components/index';
-import { deleteSearch } from '../../modules/search/index';
+import { deleteSearch, setDisplayNodes, searchRequest } from '../../modules/search/index';
 import Url from "../../domain/Url";
-import {searchRequest} from "../../modules/search/actions";
 import Tooltip from 'rc-tooltip';
 
 class Queries extends React.Component {
@@ -54,6 +53,18 @@ class Queries extends React.Component {
         }));
     }
 
+    handleDisplayMore(query) {
+        const { dispatch } = this.props;
+
+        dispatch(setDisplayNodes(query.q, query.displayNodes + 100));
+    }
+
+    handleDisplayLess(query) {
+        const { dispatch } = this.props;
+
+        dispatch(setDisplayNodes(query.q, query.displayNodes - 100));
+    }
+
     handleChangeQueryColorComplete(color) {
         const search = this.state.editSearchValue;
 
@@ -62,6 +73,17 @@ class Queries extends React.Component {
         this.setState({editSearchValue: search});
     }
 
+    countNodesForQuery(query) {
+        const { nodes } = this.props;
+
+        return nodes.filter(node => node.queries.indexOf(query) !== -1).length;
+    }
+
+    countDisplayNodesForQuery(query) {
+        const { nodesForDisplay } = this.props;
+
+        return nodesForDisplay.filter(node => node.queries.indexOf(query) !== -1).length;
+    }
 
     render() {
         const { queries } = this.props;
@@ -92,17 +114,39 @@ class Queries extends React.Component {
             <div className="queries">
                 <ul>
                     {map(queries, (query) => {
+                        const displayNodes = this.countDisplayNodesForQuery(query.q);
+                        const nodes = this.countNodesForQuery(query.q);
+                        const lessClass = 'ion ion-ios-minus ' + (displayNodes <= 0 ? 'disabled' : '');
+                        const moreClass = 'ion ion-ios-plus ' + (displayNodes === nodes ? 'disabled' : '');
+
                         return (
                                 <li key={query.q} style={{backgroundColor: query.color}}>
-                                {query.q}&nbsp;<span className="count">{query.items.length}</span>
+                                {query.q}&nbsp;
+                                    <span className="count">
+                                        {displayNodes}/
+                                        {nodes}
+                                    </span>
 
                                     <Tooltip
-                                        overlay="Get more results"
+                                        overlay="Show less results"
                                         placement="bottom"
                                         arrowContent={<div className="rc-tooltip-arrow-inner" />}>
                                         <Icon
-                                            onClick={(e) => this.handleSearchMore(query, e) }
-                                            name="ion-ios-plus"/>
+                                            onClick={() => this.handleDisplayLess(query) }
+                                            name="ion-ios-minus"
+                                            className={lessClass}
+                                        />
+                                    </Tooltip>
+
+                                    <Tooltip
+                                        overlay="Show more results"
+                                        placement="bottom"
+                                        arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                                        <Icon
+                                            onClick={() => this.handleDisplayMore(query) }
+                                            name="ion-ios-plus"
+                                            className={moreClass}
+                                        />
                                     </Tooltip>
 
                                     <Tooltip
@@ -136,6 +180,8 @@ const select = (state, ownProps) => {
     return {
         ...ownProps,
         queries: state.entries.searches,
+        nodesForDisplay: state.entries.nodesForDisplay,
+        nodes: state.entries.nodes,
         fields: state.entries.fields,
         activeIndices: state.indices.activeIndices
     };

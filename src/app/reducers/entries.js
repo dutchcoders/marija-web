@@ -8,11 +8,15 @@ import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODE_SELECT, NODES_SELECT,
 import {  SEARCH_DELETE, SEARCH_RECEIVE, SEARCH_REQUEST } from '../modules/search/index';
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
-import { normalize, fieldLocator } from '../helpers/index';
+import {
+    normalize, fieldLocator, getNodesForDisplay,
+    removeDeadLinks
+} from '../helpers/index';
 import getNodesAndLinks from "../helpers/getNodesAndLinks";
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
 import getHighlightItem from "../helpers/getHighlightItem";
 import {VIA_ADD, VIA_DELETE} from "../modules/data/constants";
+import {SET_DISPLAY_NODES} from "../modules/search/constants";
 
 
 export const defaultState = {
@@ -34,6 +38,8 @@ export const defaultState = {
     searches: [],
     nodes: [], // all nodes
     links: [], // relations between nodes
+    nodesForDisplay: [], // nodes that will be rendered
+    linksForDisplay: [], // links that will be rendered
     errors: null,
     via: []
 };
@@ -93,12 +99,16 @@ export default function entries(state = defaultState, action) {
 
             // todo(nl5887): remove related nodes and links
             const result = removeNodesAndLinks(state.nodes, state.links, action.search.q);
+            const nodesForDisplay = getNodesForDisplay(result.nodes, state.searches);
+            const linksForDisplay = removeDeadLinks(nodesForDisplay, result.links);
 
             return Object.assign({}, state, {
                 searches: searches,
                 items: items,
                 nodes: result.nodes,
                 links: result.links,
+                nodesForDisplay: nodesForDisplay,
+                linksForDisplay: linksForDisplay,
                 selectedNodes: [],
                 highlight_nodes: {},
                 node: []
@@ -227,7 +237,39 @@ export default function entries(state = defaultState, action) {
             });
         case SEARCH_REQUEST: {
             // if we searched before, just retrieve extra results for query
-            const search = find(state.searches, (o) => o.q == action.query) || { items: [] };
+            // const search = find(state.searches, (o) => o.q == action.query) || { items: [] };
+            const searches = concat(state.searches, []);
+
+            let search = find(state.searches, (o) => o.q === action.query);
+
+            if (!search) {
+                const colors = [
+                    '#de79f2',
+                    '#917ef2',
+                    '#499df2',
+                    '#49d6f2',
+                    '#00ccaa',
+                    '#fac04b',
+                    '#bf8757',
+                    '#ff884d',
+                    '#ff7373',
+                    '#ff5252',
+                    '#6b8fb3'
+                ];
+                // Sequentially uses the available colors, and starts again from the start when we exceed the amount of colors
+                const colorIndex = (state.searches.length % colors.length + colors.length) % colors.length;
+                const color = colors[colorIndex];
+
+                search = {
+                    q: action.query,
+                    color: color,
+                    total: 0,
+                    displayNodes: action.displayNodes,
+                    items: []
+                };
+
+                searches.push(search);
+            }
 
             let from = search.items.length || 0;
 
@@ -248,7 +290,8 @@ export default function entries(state = defaultState, action) {
             return Object.assign({}, state, {
                 isFetching: true,
                 itemsFetching: true,
-                didInvalidate: false
+                didInvalidate: false,
+                searches: searches
             });
         }
         case SEARCH_RECEIVE: {
@@ -260,31 +303,7 @@ export default function entries(state = defaultState, action) {
             if (search) {
                 search.items = concat(search.items, action.items.results);
             } else {
-                const colors = [
-                    '#de79f2',
-                    '#917ef2',
-                    '#499df2',
-                    '#49d6f2',
-                    '#00ccaa',
-                    '#fac04b',
-                    '#bf8757',
-                    '#ff884d',
-                    '#ff7373',
-                    '#ff5252',
-                    '#6b8fb3'
-                ];
-                // Sequentially uses the available colors, and starts again from the start when we exceed the amount of colors
-                const colorIndex = (state.searches.length % colors.length + colors.length) % colors.length;
-                const color = colors[colorIndex];
-
-                search = {
-                    q: action.items.query,
-                    color: color,
-                    total: action.items.total,
-                    items: items
-                };
-
-                searches.push(search);
+                console.error('received items for a query we were not searching for');
             }
 
             // Save per item for which query we received it (so we can keep track of where data came from)
@@ -295,7 +314,7 @@ export default function entries(state = defaultState, action) {
             // todo(nl5887): should we start a webworker here, the webworker can have its own permanent cache?
 
             // update nodes and links
-            const {nodes, links} = getNodesAndLinks(
+            let {nodes, links} = getNodesAndLinks(
                 state.nodes,
                 state.links,
                 items,
@@ -305,15 +324,40 @@ export default function entries(state = defaultState, action) {
                 state.via
             );
 
+            const nodesForDisplay = getNodesForDisplay(nodes, state.searches || []);
+            const linksForDisplay = removeDeadLinks(nodesForDisplay, links);
+
             return Object.assign({}, state, {
                 errors: null,
                 nodes: nodes,
                 links: links,
+                nodesForDisplay: nodesForDisplay,
+                linksForDisplay: linksForDisplay,
                 items: concat(state.items, items),
                 searches: searches,
                 isFetching: false,
                 itemsFetching: false,
                 didInvalidate: false
+            });
+        }
+        case SET_DISPLAY_NODES: {
+            const searches = concat([], state.searches);
+
+            const search = state.searches.find(search => search.q === action.query);
+            const newSearch = Object.assign({}, search, {
+                displayNodes: action.newAmount
+            });
+
+            const index = searches.indexOf(search);
+            searches[index] = newSearch;
+
+            const nodesForDisplay = getNodesForDisplay(state.nodes, searches);
+            const linksForDisplay = removeDeadLinks(nodesForDisplay, state.links);
+
+            return Object.assign({}, state, {
+                searches: searches,
+                nodesForDisplay: nodesForDisplay,
+                linksForDisplay: linksForDisplay
             });
         }
         case INDICES_REQUEST:
