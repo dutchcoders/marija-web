@@ -56,7 +56,6 @@ export default class FlowWS {
         };
         websocket.onmessage = function (event) {
             const parsed = JSON.parse(event.data);
-            console.log('receive', parsed.type);
             dispatcher(parsed, storeDispatcher);
         };
 

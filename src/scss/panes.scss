@@ -437,6 +437,8 @@
             margin: 0 0 0 10px;
             display: flex;
             align-items: center;
+            overflow: hidden;
+            position: relative;
 
             i {
                 font-size: 18px;
@@ -452,6 +454,33 @@
                 display: inline-block;
                 width: 60px;
             }
+
+            &.loading:before {
+                content: '';
+                display: block;
+                position: absolute;
+                height: 100%;
+                width: 30px;
+                background: white;
+                left: 0;
+                top: 0;
+                animation: move 2s linear infinite;
+            }
         }
+    }
+}
+
+@keyframes move {
+    0% {
+        transform: translateX(0) skew(-45deg);
+        opacity: 0;
+    }
+    50% {
+        transform: translateX(100px) skew(-45deg);
+        opacity: .2;
+    }
+    100% {
+        transform: translateX(200px) skew(-45deg);
+        opacity: 0;
     }
 }

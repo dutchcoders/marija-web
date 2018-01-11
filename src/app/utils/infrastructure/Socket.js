@@ -1,5 +1,5 @@
 import {FlowWS, error} from '../../utils/index';
-import {searchReceive, SEARCH_RECEIVE} from '../../modules/search/index';
+import {searchReceive, SEARCH_RECEIVE, SEARCH_COMPLETE} from '../../modules/search/index';
 import {receiveIndices, INDICES_RECEIVE} from '../../modules/indices/index';
 import {receiveFields, FIELDS_RECEIVE} from '../../modules/fields/index';
 import {
@@ -35,6 +35,9 @@ export const Socket = {
                     datasources: message.datasources
                 }));
                 break;
+
+            // case SEARCH_COMPLETE:
+                // dispatch
         }
     },
     startWS: (dispatch) => {

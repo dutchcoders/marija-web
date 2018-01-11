@@ -340,6 +340,7 @@ export default function entries(state = defaultState, action) {
                 didInvalidate: false
             });
         }
+
         case SET_DISPLAY_NODES: {
             const searches = concat([], state.searches);
 

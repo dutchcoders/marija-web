@@ -7,7 +7,8 @@ const defaultOpts = {
     index: '',
     query: '',
     color: '',
-    fields: []
+    fields: [],
+    completed: false
 };
 
 export function searchRequest(opts) {
@@ -26,6 +27,10 @@ export function searchReceive(items, opts = {from: 0}) {
         items: items,
         receivedAt: Date.now()
     };
+}
+
+export function searchComplete() {
+
 }
 
 export function deleteSearch(opts) {

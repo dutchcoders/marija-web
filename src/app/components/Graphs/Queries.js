@@ -118,9 +118,10 @@ class Queries extends React.Component {
                         const nodes = this.countNodesForQuery(query.q);
                         const lessClass = 'ion ion-ios-minus ' + (displayNodes <= 0 ? 'disabled' : '');
                         const moreClass = 'ion ion-ios-plus ' + (displayNodes === nodes ? 'disabled' : '');
+                        const itemClass = query.completed ? '' : 'loading';
 
                         return (
-                                <li key={query.q} style={{backgroundColor: query.color}}>
+                                <li key={query.q} style={{backgroundColor: query.color}} className={itemClass}>
                                 {query.q}&nbsp;
                                     <span className="count">
                                         {displayNodes}/
