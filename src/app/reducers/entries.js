@@ -10,7 +10,7 @@ import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_
 
 import {
     normalize, fieldLocator, getNodesForDisplay,
-    removeDeadLinks
+    removeDeadLinks, applyVia
 } from '../helpers/index';
 import getNodesAndLinks from "../helpers/getNodesAndLinks";
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
@@ -314,16 +314,15 @@ export default function entries(state = defaultState, action) {
             // todo(nl5887): should we start a webworker here, the webworker can have its own permanent cache?
 
             // update nodes and links
-            let {nodes, links} = getNodesAndLinks(
+            const result = getNodesAndLinks(
                 state.nodes,
                 state.links,
                 items,
                 state.fields,
                 search,
-                state.normalizations,
-                state.via
+                state.normalizations
             );
-
+            const { nodes, links } = applyVia(result.nodes, result.links, state.via);
             const nodesForDisplay = getNodesForDisplay(nodes, state.searches || []);
             const linksForDisplay = removeDeadLinks(nodesForDisplay, links);
 

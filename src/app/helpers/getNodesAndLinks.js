@@ -1,5 +1,5 @@
 import { slice, concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy } from 'lodash';
-import {fieldLocator, normalize} from "./index";
+import {applyVia, fieldLocator, normalize} from "./index";
 
 function getLinkLabel(label) {
     label += '';
@@ -30,7 +30,7 @@ function getHash(string) {
     return hash;
 }
 
-export default function getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations, via = []) {
+export default function getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations) {
     let nodes = concat(previousNodes, []);
     let links = concat(previousLinks, []);
 
@@ -44,19 +44,12 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
         linkCache[link.source + link.target] = link;
     }
 
-    const viaLabels = [];
-    via.forEach(viaItem => viaLabels.push(viaItem.label));
-
     query = query.q;
 
     forEach(items, (d, i) => {
         forEach(fields, (source) => {
             let sourceValue = fieldLocator(d.fields, source.path);
             if (sourceValue === null) {
-                return;
-            }
-
-            if (viaLabels.indexOf(source.path) !== -1) {
                 return;
             }
 
@@ -113,10 +106,6 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
 
                     if (!Array.isArray(targetValue)) {
                         targetValue = [targetValue];
-                    }
-
-                    if (viaLabels.indexOf(target.path) !== -1) {
-                        return;
                     }
 
                     // todo(nl5887): issue with normalizing is if we want to use it as name as well.
@@ -179,20 +168,6 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                         let linkCacheRef = normalizedSourceValue + normalizedTargetValue;
                         let oppositeLinkCacheRef = normalizedTargetValue + normalizedSourceValue;
 
-                        const viaItem = via.find(viaItem =>
-                            viaItem.endpoints.indexOf(source.path) !== -1
-                            && viaItem.endpoints.indexOf(target.path) !== -1
-                        );
-                        const isLabeledLink = typeof viaItem !== 'undefined';
-
-                        let labelValue;
-
-                        if (isLabeledLink) {
-                            labelValue = fieldLocator(d.fields, viaItem.label);
-                            linkCacheRef += labelValue;
-                            oppositeLinkCacheRef += labelValue;
-                        }
-
                         // check if link already exists
                         if ((linkCache[linkCacheRef]
                          || linkCache[oppositeLinkCacheRef])) {
@@ -204,10 +179,6 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                             target: normalizedTargetValue,
                             color: '#ccc'
                         };
-
-                        if (isLabeledLink && labelValue !== null) {
-                            link.label = getLinkLabel(labelValue);
-                        }
 
                         links.push(link);
                         linkCache[linkCacheRef] = link;
