@@ -444,6 +444,8 @@
                 font-size: 18px;
                 padding-left: 5px;
                 cursor: pointer;
+                position: relative;
+                z-index: 1;
 
                 &.disabled {
                     opacity: .5;
@@ -465,6 +467,7 @@
                 left: 0;
                 top: 0;
                 animation: move 2s linear infinite;
+                z-index: 0;
             }
         }
     }
