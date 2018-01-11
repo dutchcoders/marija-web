@@ -43,7 +43,10 @@ class GraphPixi extends React.Component {
             renderedSinceLastSelectedNodes: false,
             transform: d3.zoomIdentity,
             shift: false,
-            selecting: false
+            selecting: false,
+            lastLoopTimestamp: new Date(),
+            frameTime: 0,
+            lastDisplayedFps: new Date()
         };
 
         worker.onmessage = (event) => this.onWorkerMessage(event);
@@ -428,17 +431,22 @@ class GraphPixi extends React.Component {
                 renderedSinceLastTooltip: false
             });
         }
+
+        this.setState({
+            lastDisplayedFps: new Date()
+        });
     }
 
     shouldComponentUpdate(nextProps, nextState) {
         const { nodes, itemsFetching, highlight_nodes, queries } = this.props;
-        const { selecting } = this.state;
+        const { selecting, lastDisplayedFps } = this.state;
 
         return nextProps.nodes !== nodes
             || nextProps.itemsFetching !== itemsFetching
             || nextState.selecting !== selecting
             || !isEqual(nextProps.highlight_nodes, highlight_nodes)
-            || !isEqual(nextProps.queries, queries);
+            || !isEqual(nextProps.queries, queries)
+            || new Date() - lastDisplayedFps > 1000;
     }
 
     renderSelection() {
@@ -586,7 +594,23 @@ class GraphPixi extends React.Component {
             this.setState(stateUpdates);
         }
 
+        this.measureFps();
+
         requestAnimationFrame(() => this.renderGraph());
+    }
+
+    measureFps() {
+        const { lastLoopTimestamp, frameTime } = this.state;
+
+        const filterStrength = 20;
+        const thisLoopTimestamp = new Date();
+        const thisFrameTime = thisLoopTimestamp - lastLoopTimestamp;
+        const newFrameTime = frameTime + (thisFrameTime - frameTime) / filterStrength;
+
+        this.setState({
+            lastLoopTimestamp: thisLoopTimestamp,
+            frameTime: newFrameTime
+        });
     }
 
     initGraph(width, height) {
@@ -916,8 +940,8 @@ class GraphPixi extends React.Component {
     render() {
         console.log('render');
 
-        const { containerHeight, containerWidth, itemsFetching, nodes } = this.props;
-        const { selecting } = this.state;
+        const { itemsFetching } = this.props;
+        const { selecting, frameTime } = this.state;
 
         return (
             <div className="graphComponent">
@@ -930,6 +954,7 @@ class GraphPixi extends React.Component {
                     <li><Icon name="ion-ios-plus" onClick={this.zoomIn.bind(this)}/></li>
                 </ul>
                 <Loader show={itemsFetching} classes={['graphLoader']}/>
+                <p className="fps">{(1000/frameTime).toFixed(1)} FPS</p>
             </div>
         );
     }
