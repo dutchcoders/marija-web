@@ -3,4 +3,4 @@ export { default as Searches } from './components/Searches';
 
 export { SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_DELETE } from './constants';
 
-export { receiveItems, requestItems, deleteSearch } from './actions';
+export { searchReceive, searchRequest, deleteSearch } from './actions';

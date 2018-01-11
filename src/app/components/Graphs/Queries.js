@@ -11,7 +11,7 @@ import { normalize, fieldLocator } from '../../helpers/index';
 import { Icon } from '../../components/index';
 import { deleteSearch } from '../../modules/search/index';
 import Url from "../../domain/Url";
-import {requestItems} from "../../modules/search/actions";
+import {searchRequest} from "../../modules/search/actions";
 import Tooltip from 'rc-tooltip';
 
 class Queries extends React.Component {
@@ -46,7 +46,7 @@ class Queries extends React.Component {
     handleSearchMore(query) {
         const { dispatch, fields, activeIndices } = this.props;
 
-        dispatch(requestItems({
+        dispatch(searchRequest({
             query: query.q,
             fields: fields,
             datasources: activeIndices,

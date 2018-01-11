@@ -1,5 +1,5 @@
 import {FlowWS, error} from '../../utils/index';
-import {receiveItems, SEARCH_RECEIVE} from '../../modules/search/index';
+import {searchReceive, SEARCH_RECEIVE} from '../../modules/search/index';
 import {receiveIndices, INDICES_RECEIVE} from '../../modules/indices/index';
 import {receiveFields, FIELDS_RECEIVE} from '../../modules/fields/index';
 import {
@@ -16,7 +16,7 @@ export const Socket = {
 
         switch (message.type) {
             case SEARCH_RECEIVE:
-                dispatch(receiveItems({
+                dispatch(searchReceive({
                     results: message.results,
                     query: message.query,
                 }));

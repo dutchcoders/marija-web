@@ -9,7 +9,7 @@ const defaultOpts = {
     fields: []
 };
 
-export function requestItems(opts = defaultOpts) {
+export function searchRequest(opts = defaultOpts) {
     return {
         type: SEARCH_REQUEST,
         receivedAt: Date.now(),
@@ -17,7 +17,7 @@ export function requestItems(opts = defaultOpts) {
     };
 }
 
-export function receiveItems(items, opts = {from: 0}) {
+export function searchReceive(items, opts = {from: 0}) {
     return {
         type: SEARCH_RECEIVE,
         items: items,
