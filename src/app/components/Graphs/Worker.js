@@ -56,7 +56,7 @@ onmessage = function(event) {
                 return d.id;
             }))
             .force("charge", d3.forceManyBody().strength(-100).distanceMax(500))
-            .force("center", d3.forceCenter(0, 0))
+            .force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
             .force("vertical", d3.forceY().strength(0.018))
             .force("horizontal", d3.forceX().strength(0.006))
             .on("tick", () => {
