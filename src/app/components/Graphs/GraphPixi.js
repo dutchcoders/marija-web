@@ -543,23 +543,24 @@ class GraphPixi extends React.Component {
 
             renderedSelectedNodes.drawCircle(nodeFromWorker.x, nodeFromWorker.y, nodeFromWorker.r);
         });
-
     }
 
-    renderGraph() {
-        const {
-            renderedSinceLastTick,
-            renderedSinceLastZoom,
-            renderedSinceLastTooltip,
-            renderedSinceLastSelectedNodes,
-            renderer,
-            stage,
-            renderedSinceLastSelection
-        } = this.state;
+    renderGraph(prevStateUpdates = {}) {
+        const { renderer, stage } = this.state;
+
+        if (!isEmpty(prevStateUpdates)) {
+            renderer.render(stage);
+            this.setState(prevStateUpdates);
+        }
+
+        const shouldRender = (key) => {
+            return !this.state[key] && !prevStateUpdates[key];
+        };
 
         const stateUpdates = {};
 
-        if (!renderedSinceLastTick || !renderedSinceLastZoom) {
+        if (shouldRender('renderedSinceLastTick')
+            || shouldRender('renderedSinceLastZoom')) {
             this.renderNodes();
             this.renderLinks();
 
@@ -567,36 +568,29 @@ class GraphPixi extends React.Component {
             stateUpdates.renderedSinceLastZoom = true;
         }
 
-        if (!renderedSinceLastSelection) {
+        if (shouldRender('renderedSinceLastSelection')) {
             this.renderSelection();
 
             stateUpdates.renderedSinceLastSelection = true;
         }
 
-        if (!renderedSinceLastTooltip) {
+        if (shouldRender('renderedSinceLastTooltip')) {
             this.renderTooltip();
 
             stateUpdates.renderedSinceLastTooltip = true;
         }
 
-        if (!renderedSinceLastSelectedNodes || !renderedSinceLastTick || !renderedSinceLastZoom) {
+        if (shouldRender('renderedSinceLastSelectedNodes')
+            || shouldRender('renderedSinceLastTick')
+            || shouldRender('renderedSinceLastZoom')) {
             this.renderSelectedNodes();
 
             stateUpdates.renderedSinceLastSelectedNodes = true;
         }
 
-        if (!renderedSinceLastTooltip
-            || !renderedSinceLastZoom
-            || !renderedSinceLastTick
-            || !renderedSinceLastSelection
-            || !renderedSinceLastSelectedNodes) {
-            renderer.render(stage);
-            this.setState(stateUpdates);
-        }
-
         this.measureFps();
 
-        requestAnimationFrame(() => this.renderGraph());
+        requestAnimationFrame(() => this.renderGraph(stateUpdates));
     }
 
     measureFps() {
@@ -938,8 +932,6 @@ class GraphPixi extends React.Component {
     }
 
     render() {
-        console.log('render');
-
         const { itemsFetching } = this.props;
         const { selecting, frameTime } = this.state;
 
