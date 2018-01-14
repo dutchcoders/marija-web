@@ -301,11 +301,12 @@ export default function entries(state = defaultState, action) {
             const items = action.items.results === null ? [] : action.items.results;
 
             // should we update existing search, or add new, do we still need items?
-            let search = find(state.searches, (o) => o.q == action.items.query);
+            let search = find(state.searches, (o) => o.q === action.items.query);
             if (search) {
                 search.items = concat(search.items, action.items.results);
             } else {
-                console.error('received items for a query we were not searching for');
+                console.error('received items for a query we were not searching for: ' + action.items.query);
+                return state;
             }
 
             // Save per item for which query we received it (so we can keep track of where data came from)

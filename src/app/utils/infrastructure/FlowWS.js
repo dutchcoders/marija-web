@@ -57,6 +57,11 @@ export default class FlowWS {
         websocket.onmessage = function (event) {
             const parsed = JSON.parse(event.data);
             console.log('receive', parsed.type);
+
+            if (parsed.type === 'ERROR') {
+                console.error('received error over socket: ', parsed);
+            }
+
             dispatcher(parsed, storeDispatcher);
         };
 

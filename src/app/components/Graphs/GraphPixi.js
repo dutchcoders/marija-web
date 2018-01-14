@@ -706,6 +706,9 @@ class GraphPixi extends React.Component {
             nodes: [d3.event.subject],
             type: 'restart'
         });
+
+        // Remove the tooltip
+        this.highlightNode();
     }
 
     dragged() {
