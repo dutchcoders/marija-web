@@ -13,12 +13,11 @@ import Loader from "../Misc/Loader";
 import 'rc-tooltip/assets/bootstrap.css';
 import {Workspaces} from "../../domain/index";
 import {saveAs} from 'file-saver';
-import {importData} from "../../modules/import/actions";
+import {exportData, importData} from "../../modules/import/actions";
 
 class ConfigurationView extends React.Component {
     constructor(props) {
         super(props);
-
 
         this.state = {
             normalization_error: '',
@@ -599,18 +598,9 @@ class ConfigurationView extends React.Component {
     }
 
     exportJson() {
-        const { entireState } = this.props;
+        const { dispatch } = this.props;
 
-        const blob = new Blob(
-            [JSON.stringify(entireState)],
-            {type: "text/json;charset=utf-8"}
-        );
-
-        const now = new Date();
-        const dateString = now.getFullYear() + '-' + now.getMonth() + '-' + now.getDate();
-        const filename = 'marija-export-' + dateString + '.json';
-
-        saveAs(blob, filename);
+        dispatch(exportData());
     }
 
     chooseImportFile() {
@@ -703,9 +693,6 @@ function select(state) {
         activeIndices: state.indices.activeIndices,
         datasources: state.entries.datasources,
         fieldsFetching: state.fields.fieldsFetching,
-
-        // For the export to JSON feature
-        entireState: state
     };
 }
 
