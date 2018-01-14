@@ -312,7 +312,14 @@ export default function entries(state = defaultState, action) {
             );
             const { nodes, links } = applyVia(result.nodes, result.links, state.via);
             const nodesForDisplay = getNodesForDisplay(nodes, state.searches || []);
-            const linksForDisplay = removeDeadLinks(nodesForDisplay, links);
+            
+            let linksForDisplay;
+
+            if (nodesForDisplay.length < nodes.length) {
+                linksForDisplay = removeDeadLinks(nodesForDisplay, links);
+            } else {
+                linksForDisplay = links;
+            }
 
             return Object.assign({}, state, {
                 errors: null,
