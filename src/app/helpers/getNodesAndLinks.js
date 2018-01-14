@@ -1,19 +1,5 @@
 import { slice, concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy } from 'lodash';
-import {applyVia, fieldLocator, normalize} from "./index";
-
-function getLinkLabel(label) {
-    label += '';
-
-    const maxLength = 20;
-
-    if (label.length <= maxLength) {
-        return label;
-    }
-
-    const shortened = label.substring(0, maxLength - 1);
-
-    return shortened + '...';
-}
+import {fieldLocator, normalize} from "./index";
 
 function getHash(string) {
     let hash = 0, i, chr;

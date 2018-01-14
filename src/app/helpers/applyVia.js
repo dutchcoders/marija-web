@@ -14,6 +14,20 @@ function getConnectedNodes(node, nodes, links) {
     return connected;
 }
 
+function getLinkLabel(label) {
+    label += '';
+
+    const maxLength = 20;
+
+    if (label.length <= maxLength) {
+        return label;
+    }
+
+    const shortened = label.substring(0, maxLength - 1);
+
+    return shortened + '...';
+}
+
 export default function applyVia(nodes, links, via) {
     links = concat([], links);
     nodes = concat([], nodes);
@@ -77,7 +91,7 @@ export default function applyVia(nodes, links, via) {
                         newLinks.push({
                             source: step1Node.id,
                             target: step3Node.id,
-                            label: step2Node.name + ''
+                            label: getLinkLabel(step2Node.name)
                         });
                     }
 
