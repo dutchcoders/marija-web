@@ -545,16 +545,15 @@ class GraphPixi extends React.Component {
         });
     }
 
-    renderGraph(prevStateUpdates = {}) {
+    renderGraph(renderStage) {
         const { renderer, stage } = this.state;
 
-        if (!isEmpty(prevStateUpdates)) {
+        if (renderStage) {
             renderer.render(stage);
-            this.setState(prevStateUpdates);
         }
 
         const shouldRender = (key) => {
-            return !this.state[key] && !prevStateUpdates[key];
+            return !this.state[key];
         };
 
         const stateUpdates = {};
@@ -588,9 +587,10 @@ class GraphPixi extends React.Component {
             stateUpdates.renderedSinceLastSelectedNodes = true;
         }
 
+        this.setState(stateUpdates);
         this.measureFps();
 
-        requestAnimationFrame(() => this.renderGraph(stateUpdates));
+        requestAnimationFrame(() => this.renderGraph(!isEmpty(stateUpdates)));
     }
 
     measureFps() {
