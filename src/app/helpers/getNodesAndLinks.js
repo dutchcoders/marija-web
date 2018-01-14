@@ -163,7 +163,9 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                         const link = {
                             source: normalizedSourceValue,
                             target: normalizedTargetValue,
-                            color: '#ccc'
+                            color: '#ccc',
+                            total: 1,
+                            current: 1
                         };
 
                         links.push(link);

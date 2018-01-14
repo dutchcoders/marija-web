@@ -70,7 +70,6 @@ export default function applyVia(nodes, links, via) {
             );
 
             step2Nodes.forEach(step2Node => {
-                // console.log('step 2 :', step2Node.id);
                 const connected = getConnectedNodes(step2Node, nodes, links);
 
                 const step3Nodes = connected.filter(search =>
@@ -107,7 +106,22 @@ export default function applyVia(nodes, links, via) {
 
     nodesToRemove.forEach(node => removeNode(node));
     linksToRemove.forEach(data => removeUnlabeledLinks(data.from, data.to));
-    newLinks.forEach(link => links.push(link));
+
+    const counter = {};
+
+    newLinks.forEach(link => {
+        const key = link.source + link.target;
+        const current = counter[key] ? counter[key] + 1 : 1;
+
+        link.current = current;
+        counter[key] = current;
+
+        links.push(link);
+    });
+
+    newLinks.forEach(link => {
+        link.total = counter[link.source + link.target];
+    });
 
     return {
         nodes,

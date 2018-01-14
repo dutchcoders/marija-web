@@ -312,7 +312,7 @@ export default function entries(state = defaultState, action) {
             );
             const { nodes, links } = applyVia(result.nodes, result.links, state.via);
             const nodesForDisplay = getNodesForDisplay(nodes, state.searches || []);
-            
+
             let linksForDisplay;
 
             if (nodesForDisplay.length < nodes.length) {

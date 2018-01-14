@@ -216,35 +216,8 @@ class GraphPixi extends React.Component {
         renderedLinkLabels.removeChildren();
         renderedLinks.lineStyle(1, 0xFFFFFF);
 
-        const linkCounter = {};
-
         linksFromWorker.forEach(link => {
-            // When drawing a link, we need to know how many links there are between these 2 nodes
-            const linksBetweenNodes = linksFromWorker
-                .filter(loopLink =>
-                    (
-                        loopLink.source.id === link.source.id && loopLink.target.id === link.target.id
-                        || loopLink.target.id === link.source.id && loopLink.source.id === link.target.id
-                    )
-                    && typeof loopLink.label !== 'undefined'
-                )
-                .length;
-
-            let nthLink = 1;
-
-            if (linksBetweenNodes > 1 && typeof link.label !== 'undefined') {
-                const linkCounterKey = link.source.id + link.target.id;
-
-                if (linkCounter[linkCounterKey]) {
-                    linkCounter[linkCounterKey] += 1;
-                } else {
-                    linkCounter[linkCounterKey] = 1;
-                }
-
-                nthLink = linkCounter[linkCounterKey];
-            }
-
-            this.renderLink(link, nthLink, linksBetweenNodes);
+            this.renderLink(link, link.current, link.total);
         });
     }
 
@@ -444,7 +417,9 @@ class GraphPixi extends React.Component {
             linksToPost.push({
                 source: link.source,
                 target: link.target,
-                label: link.label
+                label: link.label,
+                total: link.total,
+                current: link.current
             });
         });
 

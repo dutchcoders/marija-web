@@ -136,7 +136,9 @@ onmessage = function(event) {
                 source: link.source,
                 target: link.target,
                 color: link.color,
-                label: link.label
+                label: link.label,
+                total: link.total,
+                current: link.current
             });
         }
 
