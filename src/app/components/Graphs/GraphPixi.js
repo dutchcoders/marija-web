@@ -46,7 +46,8 @@ class GraphPixi extends React.Component {
             selecting: false,
             lastLoopTimestamp: new Date(),
             frameTime: 0,
-            lastDisplayedFps: new Date()
+            lastDisplayedFps: new Date(),
+            labelTextures: {}
         };
 
         worker.onmessage = (event) => this.onWorkerMessage(event);
@@ -284,7 +285,7 @@ class GraphPixi extends React.Component {
             if (link.label) {
                 const averageAngle = (startAngle + endAngle) / 2;
 
-                this.renderTextAlongArc(link.label, centerX, centerY, radius, averageAngle, 2);
+                this.renderTextAlongArc(link.label, centerX, centerY, radius, averageAngle, 7);
             }
         }
     }
@@ -299,26 +300,24 @@ class GraphPixi extends React.Component {
     renderArc(centerX, centerY, radius, startAngle, endAngle, antiClockwise) {
         const { renderedLinks } = this.state;
 
+        const xStart = centerX + radius * Math.cos(startAngle);
+        const yStart = centerY + radius * Math.sin(startAngle);
+
+        renderedLinks.moveTo(xStart, yStart);
         renderedLinks.arc(centerX, centerY, radius, startAngle, endAngle, antiClockwise);
     }
 
     renderTextAlongStraightLine(string, x1, y1, x2, y2) {
         const { renderedLinkLabels } = this.state;
 
+        const texture = this.getLabelTexture(string);
+        const text = new PIXI.Sprite(texture);
         const averageX = (x1 + x2) / 2;
         const averageY = (y1 + y2) / 2;
         const deltaX = x1 - x2;
         const deltaY = y1 - y2;
         let angle = Math.atan2(deltaY, deltaX);
         const upsideDown = angle < -1.6 || angle > 1.6;
-
-        // this.context.translate(averageX, averageY);
-
-        const text = new PIXI.Text(string, {
-            align: 'left',
-            fontSize: 12,
-            fill: '#ffffff'
-        });
 
         text.anchor.set(0.5, 1);
 
@@ -331,99 +330,78 @@ class GraphPixi extends React.Component {
         renderedLinkLabels.addChild(text);
     }
 
+    getLabelTexture(label) {
+        const { labelTextures, renderer } = this.state;
+        let texture = labelTextures[label];
+
+        if (typeof texture !== 'undefined') {
+            return texture;
+        }
+
+        const style = new PIXI.TextStyle({
+            fontSize: 14,
+            fill: 0xffffff
+        });
+
+        const text = new PIXI.Text(label, style);
+        const metrics = new PIXI.TextMetrics.measureText(label, style);
+
+        texture = PIXI.RenderTexture.create(metrics.width, metrics.height);
+        renderer.render(text, texture);
+
+        this.setState(state => ({
+            labelTextures: {
+                ...labelTextures,
+                [label]: texture
+            }
+        }));
+
+        return texture;
+    }
+
+    getRopeCoordinates(startAngle, endAngle, radius) {
+        const num = 10;
+        const perIteration = (endAngle - startAngle) / num;
+        let currentAngle = startAngle;
+        const coordinates = [];
+
+        while ((currentAngle - .0001) < endAngle) {
+            const x = radius * Math.cos(currentAngle);
+            const y = radius * Math.sin(currentAngle);
+
+            coordinates.push(new PIXI.Point(x, y));
+
+            currentAngle += perIteration;
+        }
+
+        return coordinates;
+    }
+
     renderTextAlongArc(string, centerX, centerY, radius, angle, distanceFromArc) {
+        const { renderedLinkLabels } = this.state;
+        radius += distanceFromArc;
+
         if (typeof string !== 'string') {
             // typecast to string
             string += '';
         }
 
-        return;
+        const texture = this.getLabelTexture(string);
+        const totalAngle = texture.width / radius;
+        const coordinates = this.getRopeCoordinates(angle - totalAngle / 2, angle + totalAngle / 2, radius);
+        const rope = new PIXI.mesh.Rope(texture, coordinates);
 
-        this.context.save();
-        this.context.translate(centerX, centerY);
+        rope.x = centerX;
+        rope.y = centerY;
 
-        const characters = string.length;
-        const stringWidth = this.context.measureText(string).width;
-        const stringAngle = stringWidth / radius;
-        const startAngle = angle + (Math.PI / 2) - (stringAngle / 2);
-        const upsideDown = angle < Math.PI;
-
-        this.context.rotate(startAngle);
-
-        if (upsideDown) {
-            string = string.split('').reverse().join('');
-        }
-
-        for (let i = 0; i < characters; i ++) {
-            this.context.save();
-
-            const character = string[i];
-            const characterWidth = this.context.measureText(character).width;
-            const characterAngle = characterWidth / stringWidth * stringAngle;
-
-            let textY = -1 * radius;
-
-            if (upsideDown) {
-                textY += distanceFromArc;
-            } else {
-                textY -= distanceFromArc;
-            }
-
-            this.context.translate(0, textY);
-
-            if (upsideDown) {
-                this.context.translate(characterWidth / 2, 0);
-                this.context.rotate(-1 * Math.PI);
-                this.context.textAlign = 'center';
-            }
-
-            this.context.fillText(character, 0, 0, 10);
-            this.context.restore();
-            this.context.rotate(characterAngle);
-        }
-
-        this.context.restore();
+        renderedLinkLabels.addChild(rope);
     }
 
     componentDidUpdate(prevProps) {
-        const { nodesForDisplay, linksForDisplay, highlight_nodes, queries } = this.props;
+        const { nodesForDisplay, highlight_nodes } = this.props;
 
         if (!isEqual(prevProps.nodesForDisplay, nodesForDisplay)) {
-            const nodesToPost = [];
-
-            nodesForDisplay.forEach(node => {
-                nodesToPost.push({
-                    id: node.id,
-                    count: node.count,
-                    hash: node.hash,
-                    queries: node.queries,
-                    icon: node.icon
-                });
-            });
-
-            const linksToPost = [];
-
-            linksForDisplay.forEach(link => {
-                linksToPost.push({
-                    source: link.source,
-                    target: link.target,
-                    label: link.label
-                });
-            });
-
-            const queryColors = this.getQueryColors();
-
-            this.setState({ queryColors: queryColors }, () => {
-                // The nodes can only be posted to the worker once the colors
-                // are updated, otherwise we might run into a race condition
-                // due to undefined colors while rendering
-
-                this.postWorkerMessage({
-                    type: 'update',
-                    nodes: nodesToPost,
-                    links: linksToPost
-                });
-            });
+            this.postNodesAndLinksToWorker();
         }
 
         if (!isEqual(prevProps.highlight_nodes, highlight_nodes)) {
@@ -434,6 +412,45 @@ class GraphPixi extends React.Component {
 
         this.setState({
             lastDisplayedFps: new Date()
+        });
+    }
+
+    postNodesAndLinksToWorker() {
+        const { nodesForDisplay, linksForDisplay } = this.props;
+        const nodesToPost = [];
+
+        nodesForDisplay.forEach(node => {
+            nodesToPost.push({
+                id: node.id,
+                count: node.count,
+                hash: node.hash,
+                queries: node.queries,
+                icon: node.icon
+            });
+        });
+
+        const linksToPost = [];
+
+        linksForDisplay.forEach(link => {
+            linksToPost.push({
+                source: link.source,
+                target: link.target,
+                label: link.label
+            });
+        });
+
+        const queryColors = this.getQueryColors();
+
+        this.setState({ queryColors: queryColors }, () => {
+            // The nodes can only be posted to the worker once the colors
+            // are updated, otherwise we might run into a race condition
+            // due to undefined colors while rendering
+
+            this.postWorkerMessage({
+                type: 'update',
+                nodes: nodesToPost,
+                links: linksToPost
+            });
         });
     }
 
@@ -683,6 +700,8 @@ class GraphPixi extends React.Component {
             clientWidth: width,
             clientHeight: height
         });
+
+        this.postNodesAndLinksToWorker();
 
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
         document.addEventListener('keyup', this.handleKeyUp.bind(this));
