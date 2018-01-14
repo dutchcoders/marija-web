@@ -1,11 +1,12 @@
 import {FlowWS, error} from '../../utils/index';
-import {searchReceive, SEARCH_RECEIVE, SEARCH_COMPLETE} from '../../modules/search/index';
+import {searchReceive, SEARCH_RECEIVE, SEARCH_COMPLETED} from '../../modules/search/index';
 import {receiveIndices, INDICES_RECEIVE} from '../../modules/indices/index';
 import {receiveFields, FIELDS_RECEIVE} from '../../modules/fields/index';
 import {
     receiveInitialState,
     INITIAL_STATE_RECEIVE
 } from '../../modules/data/index';
+import {searchCompleted} from "../../modules/search/actions";
 
 export const Socket = {
     ws: null,
@@ -36,8 +37,8 @@ export const Socket = {
                 }));
                 break;
 
-            // case SEARCH_COMPLETE:
-                // dispatch
+            case SEARCH_COMPLETED:
+                dispatch(searchCompleted(message['request-id']));
         }
     },
     startWS: (dispatch) => {

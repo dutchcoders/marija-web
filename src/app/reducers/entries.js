@@ -1,11 +1,11 @@
-import { slice, concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy } from 'lodash';
+import { slice, concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy, uniqueId } from 'lodash';
 
 import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
 
 import {  INDICES_RECEIVE, INDICES_REQUEST } from '../modules/indices/index';
 import {  FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index';
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODE_SELECT, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
-import {  SEARCH_DELETE, SEARCH_RECEIVE, SEARCH_REQUEST } from '../modules/search/index';
+import {  SEARCH_DELETE, SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_COMPLETED, SET_DISPLAY_NODES } from '../modules/search/index';
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
 import {
@@ -16,7 +16,6 @@ import getNodesAndLinks from "../helpers/getNodesAndLinks";
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
 import getHighlightItem from "../helpers/getHighlightItem";
 import {VIA_ADD, VIA_DELETE} from "../modules/data/constants";
-import {SET_DISPLAY_NODES} from "../modules/search/constants";
 
 
 export const defaultState = {
@@ -265,7 +264,9 @@ export default function entries(state = defaultState, action) {
                     color: color,
                     total: 0,
                     displayNodes: action.displayNodes,
-                    items: []
+                    items: [],
+                    requestId: uniqueId(),
+                    completed: false
                 };
 
                 searches.push(search);
@@ -283,7 +284,8 @@ export default function entries(state = defaultState, action) {
                 size: action.size,
                 // todo: remove this, but requires a backend change. now the server wont respond if we dont send a color
                 color: '#de79f2',
-                fields: fieldPaths
+                fields: fieldPaths,
+                'request-id': search.requestId
             };
             Socket.ws.postMessage(message);
 
@@ -339,7 +341,24 @@ export default function entries(state = defaultState, action) {
                 didInvalidate: false
             });
         }
+        case SEARCH_COMPLETED: {
+            const index = state.searches.findIndex(search => search['request-id'] === action['request-id']);
 
+            if (index === -1) {
+                // Could not find out which search was completed
+                return state;
+            }
+
+            const search = state.searches[index];
+            const newSearch = Object.assign(search, { completed: true });
+            const newSearches = concat([], state.searches);
+
+            newSearches[index] = newSearch;
+
+            return Object.assign({}, state, {
+                searches: newSearches
+            });
+        }
         case SET_DISPLAY_NODES: {
             const searches = concat([], state.searches);
 

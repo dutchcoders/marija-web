@@ -1,4 +1,4 @@
-import { SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_DELETE, DISPLAY_LESS, SET_DISPLAY_NODES } from './index';
+import { SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_DELETE, DISPLAY_LESS, SET_DISPLAY_NODES, SEARCH_COMPLETED } from './index';
 
 const defaultOpts = {
     from: 0,
@@ -29,8 +29,11 @@ export function searchReceive(items, opts = {from: 0}) {
     };
 }
 
-export function searchComplete() {
-
+export function searchCompleted(requestId) {
+    return {
+        type: SEARCH_COMPLETED,
+        requestId: requestId
+    };
 }
 
 export function deleteSearch(opts) {
