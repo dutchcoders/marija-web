@@ -10,7 +10,7 @@ import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_
 
 import {
     normalize, fieldLocator, getNodesForDisplay,
-    removeDeadLinks, applyVia
+    removeDeadLinks, applyVia, getQueryColor
 } from '../helpers/index';
 import getNodesAndLinks from "../helpers/getNodesAndLinks";
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
@@ -242,22 +242,7 @@ export default function entries(state = defaultState, action) {
             let search = find(state.searches, (o) => o.q === action.query);
 
             if (!search) {
-                const colors = [
-                    '#de79f2',
-                    '#917ef2',
-                    '#499df2',
-                    '#49d6f2',
-                    '#00ccaa',
-                    '#fac04b',
-                    '#bf8757',
-                    '#ff884d',
-                    '#ff7373',
-                    '#ff5252',
-                    '#6b8fb3'
-                ];
-                // Sequentially uses the available colors, and starts again from the start when we exceed the amount of colors
-                const colorIndex = (state.searches.length % colors.length + colors.length) % colors.length;
-                const color = colors[colorIndex];
+                const color = getQueryColor(state.searches);
 
                 search = {
                     q: action.query,

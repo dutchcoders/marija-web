@@ -8,3 +8,4 @@ export { default as getArcParams } from './getArcParams';
 export { default as getNodesForDisplay } from './getNodesForDisplay';
 export { default as removeDeadLinks } from './removeDeadLinks';
 export { default as applyVia } from './applyVia';
+export { default as getQueryColor } from './getQueryColor';

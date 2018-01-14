@@ -128,10 +128,18 @@ class GraphPixi extends React.Component {
         return queryColors;
     }
 
+    getNodeTextureKey(node) {
+        const { queryColors } = this.state;
+
+        return node.queries.join(';')
+            + node.icon + node.r
+            + node.queries.map(query => queryColors[query]).join('');
+    }
+
     getNodeTexture(node) {
         const { nodeTextures, renderer, queryColors } = this.state;
-        const key = node.queries.join(';') + node.icon + node.r;
-        let texture = nodeTextures[key];
+
+        let texture = nodeTextures[node.textureKey];
 
         if (typeof texture !== 'undefined') {
             return texture;
@@ -176,7 +184,7 @@ class GraphPixi extends React.Component {
         this.setState(prevState => ({
             nodeTextures: {
                 ...prevState.nodeTextures,
-                [key]: texture
+                [node.textureKey]: texture
             }
         }));
 
@@ -425,7 +433,8 @@ class GraphPixi extends React.Component {
                 count: node.count,
                 hash: node.hash,
                 queries: node.queries,
-                icon: node.icon
+                icon: node.icon,
+                textureKey: this.getNodeTextureKey(node)
             });
         });
 
