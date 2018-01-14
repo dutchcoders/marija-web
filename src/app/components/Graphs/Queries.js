@@ -55,14 +55,30 @@ class Queries extends React.Component {
 
     handleDisplayMore(query) {
         const { dispatch } = this.props;
+        const nodes = this.countNodesForQuery(query.q);
+        const newNumber = query.displayNodes + 100;
 
-        dispatch(setDisplayNodes(query.q, query.displayNodes + 100));
+        if (newNumber > Math.ceil(nodes / 100) * 100) {
+            return;
+        }
+
+        dispatch(setDisplayNodes(query.q, newNumber));
     }
 
     handleDisplayLess(query) {
         const { dispatch } = this.props;
+        const displayNodes = this.countDisplayNodesForQuery(query.q);
+        let newNumber = query.displayNodes - 100;
 
-        dispatch(setDisplayNodes(query.q, query.displayNodes - 100));
+        if (displayNodes < newNumber) {
+            newNumber = Math.floor(displayNodes/ 100) * 100;
+        }
+
+        if (newNumber < 0) {
+            return;
+        }
+
+        dispatch(setDisplayNodes(query.q, newNumber));
     }
 
     handleChangeQueryColorComplete(color) {
