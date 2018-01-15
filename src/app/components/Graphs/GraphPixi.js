@@ -929,7 +929,7 @@ class GraphPixi extends React.Component {
     }
 
     render() {
-        const { itemsFetching } = this.props;
+        const { itemsFetching, version } = this.props;
         const { selecting, frameTime } = this.state;
 
         return (
@@ -943,7 +943,10 @@ class GraphPixi extends React.Component {
                     <li><Icon name="ion-ios-plus" onClick={this.zoomIn.bind(this)}/></li>
                 </ul>
                 <Loader show={itemsFetching} classes={['graphLoader']}/>
-                <p className="fps">{(1000/frameTime).toFixed(1)} FPS</p>
+                <p className="stats">
+                    {(1000/frameTime).toFixed(1)} FPS<br />
+                    VERSION: {version}
+                </p>
             </div>
         );
     }
@@ -960,6 +963,7 @@ const select = (state, ownProps) => {
         items: state.entries.items,
         highlight_nodes: state.entries.highlight_nodes,
         itemsFetching: state.entries.itemsFetching,
+        version: state.entries.version
     };
 };
 

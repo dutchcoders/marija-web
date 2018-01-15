@@ -40,7 +40,8 @@ export const defaultState = {
     nodesForDisplay: [], // nodes that will be rendered
     linksForDisplay: [], // links that will be rendered
     errors: null,
-    via: []
+    via: [],
+    version: ''
 };
 
 
@@ -412,6 +413,7 @@ export default function entries(state = defaultState, action) {
         case INITIAL_STATE_RECEIVE:
             return Object.assign({}, state, {
                 datasources: action.initial_state.datasources,
+                version: action.initial_state.version
             });
 
         default:

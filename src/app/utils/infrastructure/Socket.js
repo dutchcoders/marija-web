@@ -33,7 +33,8 @@ export const Socket = {
 
             case INITIAL_STATE_RECEIVE:
                 dispatch(receiveInitialState({
-                    datasources: message.datasources
+                    datasources: message.datasources,
+                    version: message.version
                 }));
                 break;
 

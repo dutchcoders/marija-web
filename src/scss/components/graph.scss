@@ -38,8 +38,10 @@ canvas.graph {
   height: 100%;
 }
 
-.fps {
+.stats {
   position: absolute;
   right: 10px;
-  bottom: 10px;
+  bottom: -10px;
+  text-align: right;
+  font-size: .9em;
 }
