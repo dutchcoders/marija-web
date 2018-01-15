@@ -643,7 +643,7 @@ class GraphPixi extends React.Component {
 
         const zooming = d3.zoom()
             .filter(() => this.isMoving())
-            .scaleExtent([1 / 2, 8])
+            .scaleExtent([.3, 3])
             .on("zoom", this.zoomed.bind(this));
 
         d3.select(renderer.view)
@@ -921,11 +921,29 @@ class GraphPixi extends React.Component {
     }
 
     zoomIn() {
-        this.zoom(1.1);
+        const { transform } = this.state;
+        const newK = transform.k * 1.3;
+
+        if (newK > 3) {
+            return;
+        }
+
+        transform.k = newK;
+
+        this.zoom(transform.k);
     }
 
     zoomOut() {
-        this.zoom(.9);
+        const { transform } = this.state;
+        const newK = transform.k * .7;
+
+        if (newK < .3) {
+            return;
+        }
+
+        transform.k = newK;
+
+        this.zoom(transform.k);
     }
 
     render() {
