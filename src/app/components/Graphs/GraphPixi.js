@@ -77,6 +77,10 @@ class GraphPixi extends React.Component {
     }
 
     onWorkerTick(data) {
+        data.nodes.forEach(node => {
+            node.textureKey = this.getNodeTextureKey(node);
+        });
+
         this.setState({
             nodesFromWorker: data.nodes,
             linksFromWorker: data.links,
@@ -121,8 +125,7 @@ class GraphPixi extends React.Component {
         const queryColors = {};
 
         queries.forEach(query => {
-            const hex = parseInt(query.color.replace('#', ''), 16);
-            queryColors[query.q] = hex;
+            queryColors[query.q] = query.color;
         });
 
         return queryColors;
@@ -131,13 +134,13 @@ class GraphPixi extends React.Component {
     getNodeTextureKey(node) {
         const { queryColors } = this.state;
 
-        return node.queries.join(';')
-            + node.icon + node.r
+        return node.icon
+            + node.r
             + node.queries.map(query => queryColors[query]).join('');
     }
 
     getNodeTexture(node) {
-        const { nodeTextures, renderer, queryColors } = this.state;
+        const { nodeTextures, queryColors } = this.state;
 
         let texture = nodeTextures[node.textureKey];
 
@@ -145,41 +148,30 @@ class GraphPixi extends React.Component {
             return texture;
         }
 
-        const renderedNode = new PIXI.Container();
+        const canvas = document.createElement('canvas');
+        canvas.width = node.r * 2;
+        canvas.height = node.r * 2;
+        const ctx = canvas.getContext('2d');
 
         const fractionPerQuery = 1 / node.queries.length;
         const anglePerQuery = 2 * Math.PI * fractionPerQuery;
         let currentAngle = .5 * Math.PI;
 
         node.queries.forEach((query, i) => {
-            const graphics = new PIXI.Graphics();
-            const color = queryColors[query];
-
-            graphics.beginFill(color);
-            graphics.moveTo(node.r, node.r);
-            graphics.arc(node.r, node.r, node.r, currentAngle, currentAngle + anglePerQuery);
-            renderedNode.addChild(graphics);
+            ctx.beginPath();
+            ctx.fillStyle = queryColors[query];
+            ctx.arc(node.r, node.r, node.r, currentAngle, currentAngle + anglePerQuery);
+            ctx.fill();
 
             currentAngle += anglePerQuery;
         });
 
-        const icon = new PIXI.Text(node.icon, {
-            fontSize: 14,
-            fill: 0xffffff,
-            textAlign: 'center',
-            lineHeight: 10
-        });
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'italic 12px Roboto, Helvetica, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(node.icon, node.r - 1, node.r + 5);
 
-        icon.anchor.x = .5;
-        icon.anchor.y = .5;
-        icon.x = node.r;
-        icon.y = node.r;
-
-        renderedNode.addChild(icon);
-
-        const size = node.r * 2;
-        texture = PIXI.RenderTexture.create(size, size);
-        renderer.render(renderedNode, texture);
+        texture = PIXI.Texture.fromCanvas(canvas);
 
         this.setState(prevState => ({
             nodeTextures: {
@@ -406,8 +398,7 @@ class GraphPixi extends React.Component {
                 count: node.count,
                 hash: node.hash,
                 queries: node.queries,
-                icon: node.icon,
-                textureKey: this.getNodeTextureKey(node)
+                icon: node.icon
             });
         });
 
