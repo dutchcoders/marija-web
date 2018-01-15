@@ -95,6 +95,16 @@ export default function entries(state = defaultState, action) {
             const searches = without(state.searches, action.search);
             var items = concat(state.items);
 
+            if (!action.search.completed) {
+                // Tell the server it can stop sending results for this query
+                Socket.ws.postMessage(
+                    {
+                        'request-id': action.search['request-id']
+                    },
+                    INDICES_REQUEST
+                );
+            }
+
             items = items.filter(item => item.query !== action.search.q);
 
             // todo(nl5887): remove related nodes and links

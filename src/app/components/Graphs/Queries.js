@@ -12,6 +12,7 @@ import { Icon } from '../../components/index';
 import { deleteSearch, setDisplayNodes, searchRequest } from '../../modules/search/index';
 import Url from "../../domain/Url";
 import Tooltip from 'rc-tooltip';
+import {cancelRequest} from "../../utils/actions";
 
 class Queries extends React.Component {
     constructor(props) {
@@ -38,19 +39,12 @@ class Queries extends React.Component {
     handleDeleteQuery(query) {
         const { dispatch } = this.props;
 
+        if (!query.completed) {
+            dispatch(cancelRequest(query.requestId));
+        }
+
         dispatch(deleteSearch({search: query}));
         Url.removeQueryParam('search', query.q);
-    }
-
-    handleSearchMore(query) {
-        const { dispatch, fields, activeIndices } = this.props;
-
-        dispatch(searchRequest({
-            query: query.q,
-            fields: fields,
-            datasources: activeIndices,
-            size: 500
-        }));
     }
 
     handleDisplayMore(query) {

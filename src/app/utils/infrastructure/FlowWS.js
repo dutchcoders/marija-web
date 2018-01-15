@@ -69,7 +69,7 @@ export default class FlowWS {
     }
 
     postMessage(data, type = SEARCH_REQUEST) {
-        console.log('send ' + type);
+        console.log('send ' + type, data);
 
         this.opened.then(() => {
             this.websocket.send(
