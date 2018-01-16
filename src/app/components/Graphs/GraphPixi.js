@@ -540,7 +540,9 @@ class GraphPixi extends React.Component {
         selectedNodes.forEach(selected => {
             const nodeFromWorker = nodesFromWorker.find(search => search.hash === selected.hash);
 
-            renderedSelectedNodes.drawCircle(nodeFromWorker.x, nodeFromWorker.y, nodeFromWorker.r);
+            if (typeof nodeFromWorker !== 'undefined') {
+                renderedSelectedNodes.drawCircle(nodeFromWorker.x, nodeFromWorker.y, nodeFromWorker.r);
+            }
         });
     }
 
@@ -638,7 +640,6 @@ class GraphPixi extends React.Component {
 
         const renderedTooltip = new PIXI.Container();
         stage.addChild(renderedTooltip);
-
 
         const dragging = d3.drag()
             .filter(() => this.isMoving())
