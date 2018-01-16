@@ -187,10 +187,17 @@ export default function entries(state = defaultState, action) {
             return Object.assign({}, state, {
                 via: without(state.via, action.via)
             });
-        case DATE_FIELD_ADD:
+        case DATE_FIELD_ADD: {
+            const existing = state.date_fields.find(search => search.path === action.field.path);
+
+            if (typeof existing !== 'undefined') {
+                return state;
+            }
+
             return Object.assign({}, state, {
                 date_fields: concat(state.date_fields, action.field)
             });
+        }
         case DATE_FIELD_DELETE:
             return Object.assign({}, state, {
                 date_fields: without(state.date_fields, action.field)

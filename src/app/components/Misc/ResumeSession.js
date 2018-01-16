@@ -41,7 +41,9 @@ class ResumeSession extends Component {
         const { dispatch } = this.props;
 
         fields.forEach(field => {
-            dispatch(dateFieldAdd(field));
+            dispatch(dateFieldAdd({
+                path: field
+            }));
         });
     }
 
