@@ -11,6 +11,8 @@ import {forEach} from 'lodash';
  * @returns string
  */
 function getValue(value, query, maxValueLength) {
+    value += '';
+
     if (value.length <= maxValueLength) {
         return value;
     }
