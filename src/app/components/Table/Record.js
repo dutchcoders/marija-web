@@ -33,7 +33,7 @@ export default class Record extends Component {
                     return (null);
                 }
 
-                if (find(search.items, (i) => i.id == record.id)) {
+                if (find(search.items, (i) => i !== null && i.id === record.id)) {
                     return (<Icon name='ion-ios-lightbulb' style={{ color: search.color }} alt={ search.q } />);
                 }
 
