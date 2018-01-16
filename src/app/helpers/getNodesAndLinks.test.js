@@ -35,7 +35,10 @@ const generateQuery = (items) => {
 
 // test if a link exists between a source and a target
 const expectLink = (links, source, target) => {
-    const link = links.find(link => link.source === source && link.target === target);
+    const link = links.find(link =>
+        (link.source === source && link.target === target)
+        || (link.target === source && link.source === target)
+    );
     expect(link).toBeDefined();
 };
 
@@ -273,7 +276,7 @@ test('should not mess up when multiple via configs are present', () => {
 
     expect(nodes.length).toBe(4);
     expect(links).toBeDefined();
-    expect(links.length).toBe(3);
+    expect(links.length).toBe(7);
 });
 
 test('should generate labeled links between endpoints of the same type', () => {
@@ -323,3 +326,49 @@ test('should generate labeled links between endpoints of the same type', () => {
     expect(links[0].label).toBe('80');
 });
 
+test('should not remove too many links when via info is specified', () => {
+    const previousNodes = [];
+    const previousLinks = [];
+    const normalizations = [];
+
+    const items = [
+        {
+            id: uniqueId(),
+            fields: {
+                'port': 80,
+                'client': 1,
+                'server': 2,
+                'country': 'nl'
+            }
+        }
+    ];
+
+    const fields = [
+        generateField('client'),
+        generateField('server'),
+        generateField('port'),
+        generateField('country'),
+    ];
+
+    const query = generateQuery(items);
+
+    const via = [
+        {
+            endpoints: ['client', 'server'],
+            label: 'port'
+        }
+    ];
+
+    const result = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations);
+
+    const { nodes, links } = applyVia(result.nodes, result.links, via);
+
+    expect(nodes.length).toBe(3);
+
+    expect(links).toBeDefined();
+    expect(links.length).toBe(3);
+
+    expectLink(links, 1, 2);
+    expectLink(links, 'nl', 1);
+    expectLink(links, 'nl', 2);
+});

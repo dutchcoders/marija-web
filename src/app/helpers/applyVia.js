@@ -39,16 +39,14 @@ export default function applyVia(nodes, links, via) {
         nodes = nodes.filter(search => search.id !== node.id);
     };
 
-    const removeUnlabeledLinks = (from, to) => {
-        links = links.filter(link =>
-            (link.source !== from.id && link.target !== to.id)
-            || typeof link.label !== 'undefined'
-        );
+    const removeUnlabeledLinks = (sourceId, targetId) => {
+        links = links.filter(link => {
+            const remove =
+                (link.source === sourceId && link.target === targetId)
+                || (link.source === targetId && link.target === sourceId);
 
-        links = links.filter(link =>
-            (link.target !== from.id && link.source !== to.id)
-            || typeof link.label !== 'undefined'
-        );
+            return !remove;
+        });
     };
 
     const nodesToRemove = [];
@@ -105,7 +103,9 @@ export default function applyVia(nodes, links, via) {
     });
 
     nodesToRemove.forEach(node => removeNode(node));
-    linksToRemove.forEach(data => removeUnlabeledLinks(data.from, data.to));
+    linksToRemove.forEach(data => {
+        removeUnlabeledLinks(data.from.id, data.to.id);
+    });
 
     const counter = {};
 

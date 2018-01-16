@@ -534,8 +534,6 @@ class GraphPixi extends React.Component {
         const { selectedNodes } = this.props;
         const { nodesFromWorker, renderedSelectedNodes } = this.state;
 
-        console.log(selectedNodes);
-
         renderedSelectedNodes.clear();
         renderedSelectedNodes.lineStyle(3, 0xFFFFFF);
 
