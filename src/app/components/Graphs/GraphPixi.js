@@ -371,16 +371,22 @@ class GraphPixi extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        const { nodesForDisplay, highlight_nodes } = this.props;
+        const { nodesForDisplay, highlight_nodes, selectedNodes } = this.props;
 
-        if (!isEqual(prevProps.nodesForDisplay, nodesForDisplay)) {
-            this.postNodesAndLinksToWorker();
+        if (!isEqual(prevProps.selectedNodes, selectedNodes)) {
+            this.setState({
+                renderedSinceLastSelectedNodes: false
+            });
         }
 
         if (!isEqual(prevProps.highlight_nodes, highlight_nodes)) {
             this.setState({
                 renderedSinceLastTooltip: false
             });
+        }
+
+        if (!isEqual(prevProps.nodesForDisplay, nodesForDisplay)) {
+            this.postNodesAndLinksToWorker();
         }
 
         this.setState({
@@ -430,7 +436,7 @@ class GraphPixi extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const { nodesForDisplay, itemsFetching, highlight_nodes, queries } = this.props;
+        const { nodesForDisplay, itemsFetching, highlight_nodes, queries, selectedNodes } = this.props;
         const { selecting, lastDisplayedFps } = this.state;
 
         return nextProps.nodesForDisplay !== nodesForDisplay
@@ -438,6 +444,7 @@ class GraphPixi extends React.Component {
             || nextState.selecting !== selecting
             || !isEqual(nextProps.highlight_nodes, highlight_nodes)
             || !isEqual(nextProps.queries, queries)
+            || !isEqual(nextProps.selectedNodes, selectedNodes)
             || new Date() - lastDisplayedFps > 1000;
     }
 
@@ -527,8 +534,10 @@ class GraphPixi extends React.Component {
         const { selectedNodes } = this.props;
         const { nodesFromWorker, renderedSelectedNodes } = this.state;
 
+        console.log(selectedNodes);
+
         renderedSelectedNodes.clear();
-        renderedSelectedNodes.lineStyle(1, 0xFFFFFF);
+        renderedSelectedNodes.lineStyle(3, 0xFFFFFF);
 
         selectedNodes.forEach(selected => {
             const nodeFromWorker = nodesFromWorker.find(search => search.hash === selected.hash);

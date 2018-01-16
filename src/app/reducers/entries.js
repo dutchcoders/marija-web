@@ -60,11 +60,11 @@ export default function entries(state = defaultState, action) {
             return Object.assign({}, state, {
                 indexes: indexes,
             });
-        case NODES_DELETE:
-            var items = concat(state.items);
-            var node = concat(state.node);
-            var nodes = concat(state.nodes);
-            var links = concat(state.links);
+        case NODES_DELETE: {
+            const items = concat([], state.items);
+            const node = concat([], state.node);
+            const nodes = concat([], state.nodes);
+            const links = concat([], state.links);
 
             // remove from selection as well
             remove(node, (p) => {
@@ -85,12 +85,18 @@ export default function entries(state = defaultState, action) {
                 });
             });
 
+            const nodesForDisplay = getNodesForDisplay(nodes, state.searches);
+            const linksForDisplay = removeDeadLinks(nodesForDisplay, links);
+
             return Object.assign({}, state, {
                 items: items,
                 node: node,
                 nodes: nodes,
-                links: links
+                links: links,
+                nodesForDisplay: nodesForDisplay,
+                linksForDisplay: linksForDisplay
             });
+        }
         case SEARCH_DELETE:
             const searches = without(state.searches, action.search);
             var items = concat(state.items);
