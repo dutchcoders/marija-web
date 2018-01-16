@@ -3,9 +3,7 @@ import { connect} from 'react-redux';
 import Dimensions from 'react-dimensions';
 
 import * as d3 from 'd3';
-import { map, concat, without, clone, omit, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign, isEqual, isEqualWith, isEmpty } from 'lodash';
-import moment from 'moment';
-
+import { concat, debounce, forEach, remove, includes, assign, isEqual, isEmpty } from 'lodash';
 import { nodesSelect, highlightNodes, nodeSelect, deselectNodes } from '../../modules/graph/index';
 import {normalize, fieldLocator, getArcParams} from '../../helpers/index';
 import Loader from "../Misc/Loader";
@@ -608,7 +606,11 @@ class GraphPixi extends React.Component {
         });
     }
 
-    initGraph(width, height) {
+    initGraph() {
+        const { width, height } = this.pixiContainer.getBoundingClientRect();
+
+        console.log('init', width, height);
+
         const renderer = PIXI.autoDetectRenderer({
             antialias: true,
             transparent: false,
@@ -661,6 +663,14 @@ class GraphPixi extends React.Component {
             .on('mousemove', this.onMouseMove.bind(this))
             .on('mouseup', this.onMouseUp.bind(this));
 
+        this.postWorkerMessage({
+            type: 'init',
+            clientWidth: width,
+            clientHeight: height
+        });
+
+        this.postNodesAndLinksToWorker();
+
         this.setState({
             renderedNodesContainer: renderedNodesContainer,
             renderedLinks: renderedLinks,
@@ -674,26 +684,29 @@ class GraphPixi extends React.Component {
     }
 
     componentDidMount() {
-        const { width, height } = this.pixiContainer.getBoundingClientRect();
-
-        this.initGraph(width, height);
-
-        this.postWorkerMessage({
-            type: 'init',
-            clientWidth: width,
-            clientHeight: height
-        });
-
-        this.postNodesAndLinksToWorker();
+        this.initGraph();
 
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
         document.addEventListener('keyup', this.handleKeyUp.bind(this));
+        window.addEventListener('resize', this.handleWindowResize.bind(this));
     }
 
     componentWillUnmount() {
         document.removeEventListener('keydown', this.handleKeyDown.bind(this));
         document.removeEventListener('keyup', this.handleKeyUp.bind(this));
+        window.removeEventListener('resize', this.handleWindowResize.bind(this));
     }
+
+    handleWindowResize = debounce(() => {
+        const { renderer } = this.state;
+        const { width, height } = this.pixiContainer.getBoundingClientRect();
+
+        renderer.resize(width, height);
+
+        this.setState({
+            renderedSinceLastZoom: false
+        });
+    }, 500);
 
     dragstarted() {
         const { transform } = this.state;
