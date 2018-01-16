@@ -289,8 +289,6 @@ class ConfigurationView extends React.Component {
             </form>
         );
 
-
-
         const available = (
             <ul>
                 {slice(availableDateFields.filter((item) => {

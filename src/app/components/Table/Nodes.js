@@ -6,7 +6,7 @@ import { map, uniq, filter, concat, without, find, differenceWith, sortBy } from
 import { Icon } from '../index';
 import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
 import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
-import { fieldLocator } from '../../helpers/index';
+import { fieldLocator, getRelatedNodes } from '../../helpers/index';
 
 import SkyLight from 'react-skylight';
 
@@ -100,49 +100,8 @@ class Nodes extends React.Component {
     handleSelectRelatedNodes() {
         const { dispatch, node, nodes, links } = this.props;
 
-        const related_nodes = [];
-
-
-        let x = (n) => {
-            related_nodes.push(n);
-
-            for (let link of links) {
-                if (link.source === n.id) {
-                    // check if already visited
-                    if (find(related_nodes, (o) => {
-                        return (link.target === o.id);
-                    })) {
-                        continue;
-                    }
-
-                    const target_node = find(nodes, (n2) => {
-                        return (link.target == n2.id);
-                    });
-
-                    x(target_node);
-                }
-
-                if (link.target === n.id) {
-                    if (find(related_nodes, (o) => {
-                        return (link.source === o.id);
-                    })) {
-                        continue;
-                    }
-
-                    const source_node = find(nodes, (n2) => {
-                        return (link.source == n2.id);
-                    });
-
-                    x(source_node);
-                }
-            }
-        };
-
-        for (let n of node) {
-            x(n);
-        }
-
-        dispatch(nodesSelect(related_nodes));
+        const relatedNodes = getRelatedNodes(node, nodes, links);
+        dispatch(nodesSelect(relatedNodes));
     }
 
     handleNodeChangeName(event) {

@@ -5,7 +5,10 @@ import Dimensions from 'react-dimensions';
 import * as d3 from 'd3';
 import { concat, debounce, forEach, remove, includes, assign, isEqual, isEmpty } from 'lodash';
 import { nodesSelect, highlightNodes, nodeSelect, deselectNodes } from '../../modules/graph/index';
-import {normalize, fieldLocator, getArcParams} from '../../helpers/index';
+import {
+    normalize, fieldLocator, getArcParams,
+    getRelatedNodes
+} from '../../helpers/index';
 import Loader from "../Misc/Loader";
 import {Icon} from "../index";
 import * as PIXI from 'pixi.js';
@@ -480,49 +483,59 @@ class GraphPixi extends React.Component {
             return;
         }
 
-        const tooltip = highlight_nodes[Object.keys(highlight_nodes)[0]];
-        let text = '<heading>' + tooltip.query + "</heading>\n";
+        highlight_nodes.forEach(tooltip => {
+            // const tooltip = highlightNode
+            // let text = '<heading>' + tooltip.query + "</heading>\n";
 
-        forEach(tooltip.fields, (value, path) => {
-            const isMain = tooltip.matchFields.indexOf(path) !== -1;
+            let text = '';
 
-            if (isMain) {
-                text += '<bold>';
-            }
+            forEach(tooltip.fields, (value, path) => {
+                const isMain = tooltip.matchFields.indexOf(path) !== -1;
 
-            text += path + ': ' + (value === null ? '' : value);
+                if (!isMain) {
+                    return;
+                }
 
-            if (isMain) {
-                text += '</bold>';
-            }
+                if (isMain) {
+                    text += '<bold>';
+                }
 
-            text += "\n";
+                text += path + ': ' + (value === null ? '' : value);
+
+                if (isMain) {
+                    text += '</bold>';
+                }
+
+                text += "\n";
+            });
+
+            const styled = new MultiStyleText(text, {
+                default: {
+                    fontFamily: 'Arial',
+                    fontSize: '14px',
+                    fill: '#ffffff',
+                    align: 'left'
+                },
+                bold: {
+                    // fontStyle: 'bold',
+                },
+                heading: {
+                    fontSize: '18px',
+                }
+            });
+
+            styled.x = tooltip.x + 10;
+            styled.y = tooltip.y + 8;
+
+            const background = new PIXI.Graphics();
+            background.beginFill(0x35394d, 1);
+            background.lineStyle(1, 0x323447, 1);
+            console.log(styled.height);
+            background.drawRoundedRect(tooltip.x, tooltip.y, styled.width + 20, styled.height, 18);
+
+            renderedTooltip.addChild(background);
+            renderedTooltip.addChild(styled);
         });
-
-        const styled = new MultiStyleText(text, {
-            default: {
-                fontFamily: 'Arial',
-                fontSize: '14px',
-                fill: '#000000',
-                align: 'left'
-            },
-            bold: {
-                fontStyle: 'bold',
-            },
-            heading: {
-                fontSize: '18px',
-            }
-        });
-
-        styled.x = tooltip.x + 5;
-        styled.y = tooltip.y + 5;
-
-        const background = new PIXI.Graphics();
-        background.beginFill(0xFFFFFF, .8);
-        background.drawRect(tooltip.x, tooltip.y, styled.width + 10, styled.height);
-
-        renderedTooltip.addChild(background);
-        renderedTooltip.addChild(styled);
     }
 
     /**
@@ -782,7 +795,7 @@ class GraphPixi extends React.Component {
     }
 
     highlightNode(node) {
-        const { highlight_nodes, dispatch } = this.props;
+        const { highlight_nodes, nodesForDisplay, linksForDisplay, dispatch } = this.props;
         const { nodesFromWorker, transform } = this.state;
 
         if ((typeof node === 'undefined' && isEmpty(highlight_nodes))
@@ -791,18 +804,20 @@ class GraphPixi extends React.Component {
             return;
         }
 
-        let newHighlightNodes = {};
+        let newHighlightNodes = [];
 
         if (typeof node !== 'undefined') {
-            const nodeFromWorker = nodesFromWorker.find(search => search.hash === node.hash);
+            const related = getRelatedNodes([node], nodesForDisplay, linksForDisplay);
 
-            newHighlightNodes = {
-                [node.hash]: {
-                    ...node,
+            related.forEach(relatedNode => {
+                const nodeFromWorker = nodesFromWorker.find(search => search.hash === relatedNode.hash);
+
+                newHighlightNodes.push({
+                    ...relatedNode,
                     x: transform.applyX(nodeFromWorker.x),
                     y: transform.applyY(nodeFromWorker.y)
-                }
-            };
+                });
+            });
         }
 
         dispatch(highlightNodes(newHighlightNodes));
