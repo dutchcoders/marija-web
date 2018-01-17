@@ -474,7 +474,7 @@ class GraphPixi extends React.Component {
     }
 
     renderTooltip() {
-        const { renderedTooltip } = this.state;
+        const { renderedTooltip, nodesFromWorker, transform } = this.state;
         const { highlight_nodes } = this.props;
 
         renderedTooltip.removeChildren();
@@ -484,6 +484,10 @@ class GraphPixi extends React.Component {
         }
 
         highlight_nodes.forEach(tooltip => {
+            const nodeFromWorker = nodesFromWorker.find(search => search.hash === tooltip.hash);
+            const x = transform.applyX(nodeFromWorker.x);
+            const y = transform.applyY(nodeFromWorker.y);
+
             // const tooltip = highlightNode
             // let text = '<heading>' + tooltip.query + "</heading>\n";
 
@@ -512,7 +516,7 @@ class GraphPixi extends React.Component {
             const styled = new MultiStyleText(text, {
                 default: {
                     fontFamily: 'Arial',
-                    fontSize: '14px',
+                    fontSize: '12px',
                     fill: '#ffffff',
                     align: 'left'
                 },
@@ -524,14 +528,13 @@ class GraphPixi extends React.Component {
                 }
             });
 
-            styled.x = tooltip.x + 10;
-            styled.y = tooltip.y + 8;
+            styled.x = x + 10;
+            styled.y = y + 8;
 
             const background = new PIXI.Graphics();
             background.beginFill(0x35394d, 1);
             background.lineStyle(1, 0x323447, 1);
-            console.log(styled.height);
-            background.drawRoundedRect(tooltip.x, tooltip.y, styled.width + 20, styled.height, 18);
+            background.drawRoundedRect(x, y, styled.width + 20, styled.height, 18);
 
             renderedTooltip.addChild(background);
             renderedTooltip.addChild(styled);
@@ -621,8 +624,6 @@ class GraphPixi extends React.Component {
 
     initGraph() {
         const { width, height } = this.pixiContainer.getBoundingClientRect();
-
-        console.log('init', width, height);
 
         const renderer = PIXI.autoDetectRenderer({
             antialias: true,
@@ -807,17 +808,20 @@ class GraphPixi extends React.Component {
         let newHighlightNodes = [];
 
         if (typeof node !== 'undefined') {
-            const related = getRelatedNodes([node], nodesForDisplay, linksForDisplay);
+            newHighlightNodes.push(node);
 
-            related.forEach(relatedNode => {
-                const nodeFromWorker = nodesFromWorker.find(search => search.hash === relatedNode.hash);
 
-                newHighlightNodes.push({
-                    ...relatedNode,
-                    x: transform.applyX(nodeFromWorker.x),
-                    y: transform.applyY(nodeFromWorker.y)
-                });
-            });
+            // const related = getRelatedNodes([node], nodesForDisplay, linksForDisplay);
+            //
+            // related.forEach(relatedNode => {
+            //     const nodeFromWorker = nodesFromWorker.find(search => search.hash === relatedNode.hash);
+            //
+            //     newHighlightNodes.push({
+            //         ...relatedNode,
+            //         x: transform.applyX(nodeFromWorker.x),
+            //         y: transform.applyY(nodeFromWorker.y)
+            //     });
+            // });
         }
 
         dispatch(highlightNodes(newHighlightNodes));

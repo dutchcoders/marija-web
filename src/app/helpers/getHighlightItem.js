@@ -68,6 +68,7 @@ export default function getHighlightItem (item, node, fields, maxValueLength) {
 
     highlightItem.x = node.x;
     highlightItem.y = node.y;
+    highlightItem.hash = node.hash;
     highlightItem.matchFields = node.fields;
     highlightItem.query = item.query;
 

@@ -27,7 +27,7 @@ export const defaultState = {
     total: 0,
     node: [],
     datasources: [],
-    highlight_nodes: {},
+    highlight_nodes: [],
     columns: [],
     fields: [],
     date_fields: [],
@@ -126,7 +126,7 @@ export default function entries(state = defaultState, action) {
                 nodesForDisplay: nodesForDisplay,
                 linksForDisplay: linksForDisplay,
                 selectedNodes: [],
-                highlight_nodes: {},
+                highlight_nodes: [],
                 node: []
             });
         case TABLE_COLUMN_ADD:

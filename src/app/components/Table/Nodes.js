@@ -117,6 +117,12 @@ class Nodes extends React.Component {
         dispatch(deleteNodes(node));
     }
 
+    displayTooltip(node) {
+        const { dispatch } = this.props;
+
+        dispatch(highlightNodes([node]));
+    }
+
     renderSelected() {
         const { node } = this.props;
         const { editNode, value } = this.state;
@@ -125,7 +131,7 @@ class Nodes extends React.Component {
             node.length > 0?
                 map(sortBy(node, ['name']), (i_node) => {
                         return (
-                            <li key={i_node.id}>
+                            <li key={i_node.id} onMouseMove={() => this.displayTooltip(i_node)}>
                                 <div>
                                     <span>{i_node.name}</span>
                                     <Icon style={{'marginRight': '60px'}}  className="glyphicon" name={ i_node.icon[0] }></Icon>
