@@ -48,7 +48,8 @@ class GraphPixi extends React.Component {
             lastLoopTimestamp: new Date(),
             frameTime: 0,
             lastDisplayedFps: new Date(),
-            labelTextures: {}
+            labelTextures: {},
+            tooltipTextures: {}
         };
 
         worker.onmessage = (event) => this.onWorkerMessage(event);
@@ -473,6 +474,50 @@ class GraphPixi extends React.Component {
         }
     }
 
+    getTooltipTexture(node) {
+        const { tooltipTextures, renderer } = this.state;
+
+        const key = node.name + node.fields.join('');
+        let texture = tooltipTextures[key];
+
+        if (typeof texture !== 'undefined') {
+            return texture;
+        }
+
+        const container = new PIXI.Container();
+
+        const description = node.fields.join(', ') + ': ' + node.name;
+        const text = new PIXI.Text(description, {
+            fontFamily: 'Arial',
+            fontSize: '12px',
+            fill: '#ffffff'
+        });
+
+        text.x = 10;
+        text.y = 5;
+
+        const backgroundWidth = text.width + 20;
+        const backgroundHeight = text.height + 10;
+        const background = new PIXI.Graphics();
+        background.beginFill(0x35394d, 1);
+        background.lineStyle(1, 0x323447, 1);
+        background.drawRoundedRect(0, 0, backgroundWidth, backgroundHeight, 14);
+
+        container.addChild(background);
+        container.addChild(text);
+
+        texture = PIXI.RenderTexture.create(backgroundWidth, backgroundHeight);
+        renderer.render(container, texture);
+
+        this.setState({
+            tooltipTextures: {
+                [key]: texture
+            }
+        });
+
+        return texture;
+    }
+
     renderTooltip() {
         const { renderedTooltip, nodesFromWorker, transform } = this.state;
         const { highlight_nodes } = this.props;
@@ -485,26 +530,13 @@ class GraphPixi extends React.Component {
 
         highlight_nodes.forEach(node => {
             const nodeFromWorker = nodesFromWorker.find(search => search.hash === node.hash);
-            const x = transform.applyX(nodeFromWorker.x);
-            const y = transform.applyY(nodeFromWorker.y);
+            const texture = this.getTooltipTexture(node);
+            const sprite = new PIXI.Sprite(texture);
 
-            const description = node.fields.join(', ') + ': ' + node.name;
-            const text = new PIXI.Text(description, {
-                fontFamily: 'Arial',
-                fontSize: '12px',
-                fill: '#ffffff'
-            });
+            sprite.x = transform.applyX(nodeFromWorker.x);
+            sprite.y = transform.applyY(nodeFromWorker.y);
 
-            text.x = x + 10;
-            text.y = y + 5;
-
-            const background = new PIXI.Graphics();
-            background.beginFill(0x35394d, 1);
-            background.lineStyle(1, 0x323447, 1);
-            background.drawRoundedRect(x, y, text.width + 20, text.height + 10, 14);
-
-            renderedTooltip.addChild(background);
-            renderedTooltip.addChild(text);
+            renderedTooltip.addChild(sprite);
         });
     }
 
@@ -544,9 +576,11 @@ class GraphPixi extends React.Component {
             || shouldRender('renderedSinceLastZoom')) {
             this.renderNodes();
             this.renderLinks();
+            this.renderTooltip();
 
             stateUpdates.renderedSinceLastTick = true;
             stateUpdates.renderedSinceLastZoom = true;
+            stateUpdates.renderedSinceLastTooltip = true;
         }
 
         if (shouldRender('renderedSinceLastSelection')) {
