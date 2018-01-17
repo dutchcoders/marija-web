@@ -185,10 +185,38 @@ class Nodes extends React.Component {
         );
     }
 
+    getSearchResults() {
+        const { nodes } = this.props;
+        const { find_value } = this.state;
+
+        return nodes.filter((node) => node.name.toLowerCase().indexOf(find_value) !== -1);
+    }
+
+    handleSelectMultiple(e, nodes) {
+        e.preventDefault();
+
+        const { dispatch, node } = this.props;
+        const searchResults = this.getSearchResults();
+
+        const newNodes = searchResults.filter(search => {
+            const existing = node.find(nodeLoop => nodeLoop.id === search.id);
+            return typeof existing === 'undefined';
+        });
+
+        dispatch(nodesSelect(nodes));
+    }
+
+    handleDeselectMultiple(e, nodes) {
+        e.preventDefault();
+
+        const { dispatch } = this.props;
+
+        dispatch(deselectNodes(nodes));
+    }
 
     render() {
         const { editNode, find_value, value, description } = this.state;
-        const { node, nodes } = this.props;
+        const { node } = this.props;
 
         const updateNodeDialogStyles = {
             backgroundColor: '#fff',
@@ -199,7 +227,21 @@ class Nodes extends React.Component {
             marginLeft: '-200px',
         };
 
-        const find_nodes = map(nodes.filter((node) => node.name.toLowerCase().indexOf(find_value) != -1), (node) => {
+        const searchResults = this.getSearchResults();
+        const notSelectedNodes = [];
+        const selectedNodes = [];
+
+        searchResults.forEach(search => {
+            const inSelection = node.find(nodeLoop => nodeLoop.id === search.id);
+
+            if (typeof inSelection === 'undefined') {
+                notSelectedNodes.push(search);
+            } else {
+                selectedNodes.push(search);
+            }
+        });
+
+        const find_nodes = map(searchResults, (node) => {
             const found = find(this.props.node, (n) => n.id === node.id);
             const checked = (typeof found !== 'undefined');
             return (
@@ -251,6 +293,8 @@ class Nodes extends React.Component {
                             <ul className="nodesSearchResult">
                                 { find_nodes }
                             </ul>
+                            <button className="nodeSelectButton" onClick={e => this.handleSelectMultiple(e, notSelectedNodes)}>Select all ({notSelectedNodes.length})</button>
+                            <button className="nodeSelectButton" onClick={e => this.handleDeselectMultiple(e, selectedNodes)}>Deselect all ({selectedNodes.length})</button>
                         </form>
                     </div>
                 </SkyLight>

@@ -214,7 +214,7 @@
         }
 
         .nodesSearchResult {
-            max-height: 320px;
+            max-height: 286px;
             overflow-y: auto;
         }
 
@@ -231,7 +231,15 @@
         }
 
         .nodesSearchResult .nodeIcon {
-          background-color: rgba(0, 0, 0, 0.2);
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .nodeSelectButton {
+            margin-right: 5px;
+            border-radius: 3px;
+            font-weight: normal;
+            font-size: 13px;
+            padding: 2px 8px;
         }
     }
 
