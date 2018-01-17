@@ -42,6 +42,7 @@ class GraphPixi extends React.Component {
             renderedSinceLastTooltip: false,
             renderedSinceLastSelection: false,
             renderedSinceLastSelectedNodes: false,
+            renderedSinceLastQueries: false,
             transform: d3.zoomIdentity,
             shift: false,
             selecting: false,
@@ -121,28 +122,20 @@ class GraphPixi extends React.Component {
         });
     }
 
-    getQueryColors() {
+    getQueryColor(query) {
         const { queries } = this.props;
 
-        const queryColors = {};
-
-        queries.forEach(query => {
-            queryColors[query.q] = query.color;
-        });
-
-        return queryColors;
+        return queries.find(search => search.q === query).color;
     }
 
     getNodeTextureKey(node) {
-        const { queryColors } = this.state;
-
         return node.icon
             + node.r
-            + node.queries.map(query => queryColors[query]).join('');
+            + node.queries.map(query => this.getQueryColor(query)).join('');
     }
 
     getNodeTexture(node) {
-        const { nodeTextures, queryColors } = this.state;
+        const { nodeTextures } = this.state;
 
         let texture = nodeTextures[node.textureKey];
 
@@ -161,7 +154,7 @@ class GraphPixi extends React.Component {
 
         node.queries.forEach((query, i) => {
             ctx.beginPath();
-            ctx.fillStyle = queryColors[query];
+            ctx.fillStyle = this.getQueryColor(query);
             ctx.arc(node.r, node.r, node.r, currentAngle, currentAngle + anglePerQuery);
             ctx.fill();
 
@@ -373,7 +366,7 @@ class GraphPixi extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        const { nodesForDisplay, highlight_nodes, selectedNodes } = this.props;
+        const { nodesForDisplay, highlight_nodes, selectedNodes, queries } = this.props;
 
         if (!isEqual(prevProps.selectedNodes, selectedNodes)) {
             this.setState({
@@ -384,6 +377,12 @@ class GraphPixi extends React.Component {
         if (!isEqual(prevProps.highlight_nodes, highlight_nodes)) {
             this.setState({
                 renderedSinceLastTooltip: false
+            });
+        }
+
+        if (!isEqual(prevProps.queries, queries)) {
+            this.setState({
+                renderedSinceLastQueries: false
             });
         }
 
@@ -422,18 +421,10 @@ class GraphPixi extends React.Component {
             });
         });
 
-        const queryColors = this.getQueryColors();
-
-        this.setState({ queryColors: queryColors }, () => {
-            // The nodes can only be posted to the worker once the colors
-            // are updated, otherwise we might run into a race condition
-            // due to undefined colors while rendering
-
-            this.postWorkerMessage({
-                type: 'update',
-                nodes: nodesToPost,
-                links: linksToPost
-            });
+        this.postWorkerMessage({
+            type: 'update',
+            nodes: nodesToPost,
+            links: linksToPost
         });
     }
 
@@ -573,14 +564,15 @@ class GraphPixi extends React.Component {
         const stateUpdates = {};
 
         if (shouldRender('renderedSinceLastTick')
-            || shouldRender('renderedSinceLastZoom')) {
+            || shouldRender('renderedSinceLastZoom')
+            || shouldRender('renderedSinceLastQueries')) {
             this.renderNodes();
             this.renderLinks();
             this.renderTooltip();
 
             stateUpdates.renderedSinceLastTick = true;
             stateUpdates.renderedSinceLastZoom = true;
-            stateUpdates.renderedSinceLastTooltip = true;
+            stateUpdates.renderedSinceLastQueries = true;
         }
 
         if (shouldRender('renderedSinceLastSelection')) {

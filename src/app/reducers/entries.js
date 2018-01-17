@@ -5,7 +5,7 @@ import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, 
 import {  INDICES_RECEIVE, INDICES_REQUEST } from '../modules/indices/index';
 import {  FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index';
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODE_SELECT, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
-import {  SEARCH_DELETE, SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_COMPLETED, SET_DISPLAY_NODES } from '../modules/search/index';
+import {  SEARCH_DELETE, SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_COMPLETED, SEARCH_EDIT } from '../modules/search/index';
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
 import {
@@ -369,25 +369,25 @@ export default function entries(state = defaultState, action) {
                 searches: newSearches
             });
         }
-        case SET_DISPLAY_NODES: {
+        case SEARCH_EDIT: {
             const searches = concat([], state.searches);
 
             const search = state.searches.find(search => search.q === action.query);
-            const newSearch = Object.assign({}, search, {
-                displayNodes: action.newAmount
-            });
+            const newSearch = Object.assign({}, search, action.opts);
 
             const index = searches.indexOf(search);
             searches[index] = newSearch;
 
-            const nodesForDisplay = getNodesForDisplay(state.nodes, searches);
-            const linksForDisplay = removeDeadLinks(nodesForDisplay, state.links);
+            const updates = {
+                searches: searches
+            };
 
-            return Object.assign({}, state, {
-                searches: searches,
-                nodesForDisplay: nodesForDisplay,
-                linksForDisplay: linksForDisplay
-            });
+            if (search.displayNodes !== newSearch.displayNodes) {
+                updates.nodesForDisplay = getNodesForDisplay(state.nodes, searches);
+                updates.linksForDisplay = removeDeadLinks(updates.nodesForDisplay, state.links);
+            }
+
+            return Object.assign({}, state, updates);
         }
         case INDICES_REQUEST:
             Socket.ws.postMessage(
