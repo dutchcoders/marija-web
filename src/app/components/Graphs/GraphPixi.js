@@ -970,6 +970,7 @@ class GraphPixi extends React.Component {
     render() {
         const { itemsFetching, version } = this.props;
         const { selecting, frameTime } = this.state;
+        const clientVersion = process.env.CLIENT_VERSION;
 
         return (
             <div className="graphComponent">
@@ -984,7 +985,8 @@ class GraphPixi extends React.Component {
                 <Loader show={itemsFetching} classes={['graphLoader']}/>
                 <p className="stats">
                     {(1000/frameTime).toFixed(1)} FPS<br />
-                    VERSION: {version}
+                    SERVER VERSION: {version}<br />
+                    CLIENT VERSION: {clientVersion}
                 </p>
             </div>
         );
