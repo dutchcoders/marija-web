@@ -168,6 +168,7 @@ class Nodes extends React.Component {
                         return (
                             <li key={i_node.id}>
                                 <div>
+                                    <span className="nodeIcon">{ i_node.icon }</span>
                                     <span>{i_node.name}</span>
                                     <Icon style={{'marginRight': '60px'}}  className="glyphicon" name={ i_node.icon[0] }></Icon>
                                     <Icon style={{'marginRight': '40px'}} onClick={(n) => this.handleEditNode(i_node)} name="ion-ios-remove-circle-outline"/>
