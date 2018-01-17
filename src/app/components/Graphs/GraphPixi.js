@@ -382,7 +382,8 @@ class GraphPixi extends React.Component {
 
         if (!isEqual(prevProps.queries, queries)) {
             this.setState({
-                renderedSinceLastQueries: false
+                renderedSinceLastQueries: false,
+                nodeTextures: {}
             });
         }
 
