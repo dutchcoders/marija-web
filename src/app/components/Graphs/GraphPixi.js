@@ -124,8 +124,11 @@ class GraphPixi extends React.Component {
 
     getQueryColor(query) {
         const { queries } = this.props;
+        const search = queries.find(search => search.q === query);
 
-        return queries.find(search => search.q === query).color;
+        if (typeof search !== 'undefined') {
+            return search.color;
+        }
     }
 
     getNodeTextureKey(node) {
@@ -516,12 +519,17 @@ class GraphPixi extends React.Component {
 
         renderedTooltip.removeChildren();
 
-        if (isEmpty(highlight_nodes)) {
+        if (highlight_nodes.length === 0) {
             return;
         }
 
         highlight_nodes.forEach(node => {
             const nodeFromWorker = nodesFromWorker.find(search => search.hash === node.hash);
+
+            if (typeof nodeFromWorker === 'undefined') {
+                return;
+            }
+
             const texture = this.getTooltipTexture(node);
             const sprite = new PIXI.Sprite(texture);
 
