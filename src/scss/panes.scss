@@ -213,16 +213,25 @@
             }
         }
 
+        .nodesSearchResult {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
         .nodeIcon {
             margin-right: 5px;
             font-size: 1em;
-            background-color: rgba(255, 255, 255, 0.2);
-            width: 20px;
-            height: 20px;
+            background-color: rgba(255, 255, 255, 0.15);
+            width: 19px;
+            height: 19px;
             border-radius: 50%;
             text-align: center;
             line-height: 20px;
             display: inline-block;
+        }
+
+        .nodesSearchResult .nodeIcon {
+          background-color: rgba(0, 0, 0, 0.2);
         }
     }
 
