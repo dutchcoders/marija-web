@@ -123,6 +123,12 @@ class Nodes extends React.Component {
         dispatch(highlightNodes([node]));
     }
 
+    hideTooltip() {
+        const { dispatch } = this.props;
+
+        dispatch(highlightNodes([]));
+    }
+
     renderSelected() {
         const { node } = this.props;
         const { editNode, value } = this.state;
@@ -131,7 +137,7 @@ class Nodes extends React.Component {
             node.length > 0?
                 map(sortBy(node, ['name']), (i_node) => {
                         return (
-                            <li key={i_node.id} onMouseMove={() => this.displayTooltip(i_node)}>
+                            <li key={i_node.id} onMouseEnter={() => this.displayTooltip(i_node)}>
                                 <div>
                                     <span className="nodeIcon">{ i_node.icon }</span>
                                     <span>{i_node.name}</span>
@@ -244,7 +250,7 @@ class Nodes extends React.Component {
                     <button type="button" className="btn btn-default" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}>inverse delete</button>
                 </div>
                 <div>
-                    <ul>
+                    <ul onMouseLeave={this.hideTooltip.bind(this)}>
                         {this.renderSelected()}
                     </ul>
                 </div>

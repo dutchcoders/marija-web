@@ -483,61 +483,28 @@ class GraphPixi extends React.Component {
             return;
         }
 
-        highlight_nodes.forEach(tooltip => {
-            const nodeFromWorker = nodesFromWorker.find(search => search.hash === tooltip.hash);
+        highlight_nodes.forEach(node => {
+            const nodeFromWorker = nodesFromWorker.find(search => search.hash === node.hash);
             const x = transform.applyX(nodeFromWorker.x);
             const y = transform.applyY(nodeFromWorker.y);
 
-            // const tooltip = highlightNode
-            // let text = '<heading>' + tooltip.query + "</heading>\n";
-
-            let text = '';
-
-            forEach(tooltip.fields, (value, path) => {
-                const isMain = tooltip.matchFields.indexOf(path) !== -1;
-
-                if (!isMain) {
-                    return;
-                }
-
-                if (isMain) {
-                    text += '<bold>';
-                }
-
-                text += path + ': ' + (value === null ? '' : value);
-
-                if (isMain) {
-                    text += '</bold>';
-                }
-
-                text += "\n";
+            const description = node.fields.join(', ') + ': ' + node.name;
+            const text = new PIXI.Text(description, {
+                fontFamily: 'Arial',
+                fontSize: '12px',
+                fill: '#ffffff'
             });
 
-            const styled = new MultiStyleText(text, {
-                default: {
-                    fontFamily: 'Arial',
-                    fontSize: '12px',
-                    fill: '#ffffff',
-                    align: 'left'
-                },
-                bold: {
-                    // fontStyle: 'bold',
-                },
-                heading: {
-                    fontSize: '18px',
-                }
-            });
-
-            styled.x = x + 10;
-            styled.y = y + 8;
+            text.x = x + 10;
+            text.y = y + 5;
 
             const background = new PIXI.Graphics();
             background.beginFill(0x35394d, 1);
             background.lineStyle(1, 0x323447, 1);
-            background.drawRoundedRect(x, y, styled.width + 20, styled.height, 18);
+            background.drawRoundedRect(x, y, text.width + 20, text.height + 10, 14);
 
             renderedTooltip.addChild(background);
-            renderedTooltip.addChild(styled);
+            renderedTooltip.addChild(text);
         });
     }
 
@@ -796,35 +763,22 @@ class GraphPixi extends React.Component {
     }
 
     highlightNode(node) {
-        const { highlight_nodes, nodesForDisplay, linksForDisplay, dispatch } = this.props;
-        const { nodesFromWorker, transform } = this.state;
+        const { highlight_nodes, dispatch } = this.props;
 
-        if ((typeof node === 'undefined' && isEmpty(highlight_nodes))
-            || (typeof node !== 'undefined' && typeof highlight_nodes[node.hash] !== 'undefined')) {
-            // nothing changed
+        if (typeof node === 'undefined' && !isEmpty(highlight_nodes)) {
+            dispatch(highlightNodes([]));
             return;
         }
 
-        let newHighlightNodes = [];
-
         if (typeof node !== 'undefined') {
-            newHighlightNodes.push(node);
+            const current = highlight_nodes.find(search => search.hash === node.hash);
 
-
-            // const related = getRelatedNodes([node], nodesForDisplay, linksForDisplay);
-            //
-            // related.forEach(relatedNode => {
-            //     const nodeFromWorker = nodesFromWorker.find(search => search.hash === relatedNode.hash);
-            //
-            //     newHighlightNodes.push({
-            //         ...relatedNode,
-            //         x: transform.applyX(nodeFromWorker.x),
-            //         y: transform.applyY(nodeFromWorker.y)
-            //     });
-            // });
+            if (typeof current === 'undefined') {
+                dispatch(highlightNodes([node]));
+            }
         }
 
-        dispatch(highlightNodes(newHighlightNodes));
+        return;
     }
 
     selectNodes(nodes) {

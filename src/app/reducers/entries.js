@@ -203,15 +203,8 @@ export default function entries(state = defaultState, action) {
                 date_fields: without(state.date_fields, action.field)
             });
         case NODES_HIGHLIGHT:
-            const highlightNodes = [];
-
-            action.highlight_nodes.forEach(node => {
-                const item = Object.assign({}, state.items.find(item => item.id === node.items[0]));
-                highlightNodes.push(getHighlightItem(item, node, state.fields, 50));
-            });
-
             return Object.assign({}, state, {
-                highlight_nodes: highlightNodes
+                highlight_nodes: action.highlight_nodes
             });
         case NODES_SELECT:
             const newNodes = [];
