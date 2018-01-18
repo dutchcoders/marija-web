@@ -394,7 +394,23 @@
         table {
             width: 100%;
 
-            tr {
+            th {
+                font-weight: bold;
+                list-style-type: none;
+                padding: 3px 6px;
+                letter-spacing: 0.6px;
+                font-size: 12px;
+
+                i {
+                    float: right;
+                    margin-right: 15px;
+                    cursor: pointer;
+                    font-size: 21px;
+                }
+            }
+
+            tr.record,
+            tr.recordDetail {
                 position: relative;
                 font-weight: 300;
                 list-style-type: none;
@@ -402,44 +418,32 @@
                 letter-spacing: 0.6px;
                 font-size: 12px;
 
-                &:nth-child(odd) {
+                &.odd {
                     background-color: $input-background-color;
                 }
 
-                &:nth-child(even) {
+                &.even {
                     background-color: rgba(255,255,255,0.05);
                 }
-
-                &:hover {
-                    background-color: rgba(0, 0, 0, 0.2);
-                }
-
 
                 i {
                     font-size: 21px;
                     cursor: pointer;
                 }
 
-                th {
-                    i {
-                        float: right;
-                        margin-right: 15px;
-                    }
-                }
-
-                td, th {
-                    &:hover {
-                        background-color: #4a4b4c;
-                    }
-                }
-
-                &.expanded {
-                    td, th {
-                        background-color: #4a4b4c;
-                    }
+                > td {
+                    padding: 3px 6px;
                 }
             }
 
+            tr.recordDetail > td {
+                padding: 10px 10px 10px 37px;
+            }
+
+            .details {
+                border-top: 1px solid rgba(255,255,255,.3);
+                padding-top: 10px;
+            }
         }
 
         i.add {

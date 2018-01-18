@@ -76,26 +76,26 @@ export default class Record extends Component {
             );
         });
 
-        return ([
-            <td key={1}>
-            </td>,
-            <td colSpan={columns.length ? columns.length : 1 } key={2}>
-                <table className="details">
-                    <tbody>{ expandedFields }</tbody>
-                </table>
+        return (
+            <td colSpan={columns.length + 1}>
+                <div className="details">
+                    <table>
+                        <tbody>{ expandedFields }</tbody>
+                    </table>
+                </div>
             </td>
-        ]);
+        );
     }
 
 
     render() {
-        const { record, columns, node, expanded } = this.props;
+        const { record, columns, node, expanded, className } = this.props;
         if (!expanded) {
             return null;
         }
 
         return (
-            <tr>
+            <tr className={className + ' recordDetail'}>
                 { this.renderDetails(columns) }
             </tr>
         );
