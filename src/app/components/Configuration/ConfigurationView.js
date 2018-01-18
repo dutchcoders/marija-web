@@ -51,12 +51,15 @@ class ConfigurationView extends React.Component {
         }
     }
 
-    handleAddField(path) {
+    handleAddField(field) {
         const { dispatch } = this.props;
 
-        Url.addQueryParam('fields', path);
+        Url.addQueryParam('fields', field.path);
 
-        dispatch(fieldAdd(path));
+        dispatch(fieldAdd({
+            path: field.path,
+            type: field.type
+        }));
     }
 
     handleFieldSearchChange(event) {
@@ -476,8 +479,9 @@ class ConfigurationView extends React.Component {
                     return (
                         <Field
                             key={'available_fields_' + item.path + i}
-                            item={item} handler={() => this.handleAddField(item.path)}
-                            icon={'ion-ios-plus'}/>
+                            item={item} handler={() => this.handleAddField(item)}
+                            icon={'ion-ios-plus'}
+                        />
                     );
                 })}
             </ul>,
@@ -749,18 +753,6 @@ class ConfigurationView extends React.Component {
                     </h2>
 
                     { this.renderFields(fields, availableFields) }
-
-
-                </div>
-
-                <div className="form-group">
-                    <h2>
-                        Date fields
-                        <Loader show={fieldsFetching} />
-                    </h2>
-                    <p>The date fields are being used for the histogram.</p>
-
-                    { this.renderDateFields(date_fields, availableFields) }
                 </div>
 
                 <div className="form-group">

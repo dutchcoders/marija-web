@@ -138,14 +138,14 @@ export default function entries(state = defaultState, action) {
                 columns: without(state.columns, action.field)
             });
         case FIELD_ADD:
-            const existing = state.fields.find(field => field.path === action.path);
+            const existing = state.fields.find(field => field.path === action.field.path);
 
             if (existing) {
                 // Field was already in store, don't add duplicates
                 return state;
             }
 
-            const firstChar = action.path.charAt(0).toUpperCase();
+            const firstChar = action.field.path.charAt(0).toUpperCase();
             const fieldsWithSameChar = state.fields.filter(field => field.icon.indexOf(firstChar) === 0);
             let icon;
 
@@ -158,12 +158,20 @@ export default function entries(state = defaultState, action) {
             }
 
             let newField = {
-                path: action.path,
+                path: action.field.path,
                 icon: icon
             };
 
+            let dateFields = concat([], state.date_fields);
+
+            if (action.field.type === 'date'
+                && typeof dateFields.find(search => search.path === newField.path) === 'undefined') {
+                dateFields.push(newField);
+            }
+
             return Object.assign({}, state, {
-                fields: concat(state.fields, newField)
+                fields: concat(state.fields, newField),
+                date_fields: dateFields
             });
         case FIELD_DELETE:
             return Object.assign({}, state, {
