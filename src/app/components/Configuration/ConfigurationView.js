@@ -16,6 +16,8 @@ import {saveAs} from 'file-saver';
 import {exportData, importData} from "../../modules/import/actions";
 
 class ConfigurationView extends React.Component {
+    defaultMaxSearchResults = 10;
+
     constructor(props) {
         super(props);
 
@@ -26,7 +28,9 @@ class ConfigurationView extends React.Component {
             selectedFrom: '',
             selectedVia: '',
             selectedTo: '',
-            viaError: null
+            viaError: null,
+            searchType: '',
+            maxSearchResults: this.defaultMaxSearchResults
         };
     }
 
@@ -330,9 +334,32 @@ class ConfigurationView extends React.Component {
         );
     }
 
+    getTypes(fields) {
+        const types = [];
+
+        fields.forEach(field => {
+            if (types.indexOf(field.type) === -1) {
+                types.push(field.type);
+            }
+        });
+
+        return types;
+    }
+
+    handleTypeChange(e, type) {
+        this.setState({
+            searchType: type
+        });
+    }
+
+    handleMaxSearchResultsChange(max) {
+        this.setState({
+            maxSearchResults: max
+        });
+    }
 
     renderFields(fields, availableFields) {
-        const { currentFieldSearchValue } = this.state;
+        const { currentFieldSearchValue, searchType, maxSearchResults } = this.state;
 
         const options = map(fields, (field) => {
             return (
@@ -344,40 +371,119 @@ class ConfigurationView extends React.Component {
             );
         });
 
+        const typeInfo = [];
+
+        typeInfo.push({
+            label: 'all types',
+            value: ''
+        });
+
+        const types = this.getTypes(availableFields);
+
+        types.forEach(type => {
+            typeInfo.push({
+                label: type,
+                value: type
+            });
+        });
+
+        const availableFieldsForType = availableFields.filter(item =>
+            searchType === '' || searchType === item.type
+        );
+
         const search = (
             <form>
                 <div className="row">
                     <div className="col-xs-12">
-                        <input className="form-control" value={this.state.currentFieldSearchValue}
+                        <input className="form-control searchInput" value={this.state.currentFieldSearchValue}
                                onChange={this.handleFieldSearchChange.bind(this)} type="text" ref="field"
-                               placeholder={'Search ' + availableFields.length + ' fields'} />
+                               placeholder={'Search ' + availableFieldsForType.length + ' fields'} />
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-xs-12">
+                        <div className="selectType">
+                            {typeInfo.map(type => (
+                                <div className="form-check form-check-inline" key={type.value}>
+                                    <input
+                                        type="radio"
+                                        className="form-check-input"
+                                        name="type"
+                                        id={'type_' + type.value}
+                                        checked={type.value === searchType}
+                                        onChange={(e) => this.handleTypeChange(e, type.value)}
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor={'type_' + type.value}>
+                                        {type.label}
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </form>
         );
 
-        const available = (
-            <ul>
-                {slice(availableFields.filter((item) => {
-                    const inSearch = item.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) === 0;
-                    const inCurrentFields = fields.reduce((value, field) => {
-                        if (value) {
-                            return true;
-                        }
-                        return field.path == item.path;
-                    }, false);
+        const searchResults = availableFieldsForType.filter((item) => {
+            const inSearch = item.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) === 0;
+            const inCurrentFields = fields.reduce((value, field) => {
+                if (value) {
+                    return true;
+                }
+                return field.path === item.path;
+            }, false);
 
-                    return inSearch && !inCurrentFields;
-                }), 0, 10).map((item) => {
+            return inSearch && !inCurrentFields;
+        });
+
+        let numMore = null;
+        let showMore = null;
+        if (searchResults.length > maxSearchResults) {
+            numMore = (
+                <p key={1}>
+                    {searchResults.length - maxSearchResults} more fields
+                </p>
+            );
+
+            showMore = (
+                <button onClick={() => this.handleMaxSearchResultsChange(maxSearchResults + 20)} key={2}>
+                    Show more
+                </button>
+            );
+        }
+
+        let showLess = null;
+        if (maxSearchResults > this.defaultMaxSearchResults) {
+            showLess = (
+                <button
+                    className="showLess"
+                    onClick={() => this.handleMaxSearchResultsChange(this.defaultMaxSearchResults)}
+                    key={3}>
+                    Show less
+                </button>
+            );
+        }
+
+        const firstX = searchResults.slice(0, maxSearchResults);
+        const available = ([
+            <ul key={1}>
+                {firstX.map((item, i) => {
                     return (
                         <Field
-                            key={'available_fields_' + item.path}
+                            key={'available_fields_' + item.path + i}
                             item={item} handler={() => this.handleAddField(item.path)}
                             icon={'ion-ios-plus'}/>
                     );
                 })}
-            </ul>
-        );
+            </ul>,
+            <div className="searchResultsFooter" key={2}>
+                {numMore}
+                {showMore}
+                {showLess}
+            </div>
+        ]);
 
         let selectDatasourceMessage = null;
 
