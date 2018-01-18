@@ -582,6 +582,11 @@ class GraphPixi extends React.Component {
 
         selectedNodes.forEach(selected => {
             const nodeFromWorker = nodesFromWorker.find(search => search.hash === selected.hash);
+
+            if (typeof nodeFromWorker === 'undefined') {
+                return;
+            }
+
             const texture = this.getSelectedNodeTexture(nodeFromWorker.r);
             const sprite = new PIXI.Sprite(texture);
 
