@@ -83,8 +83,10 @@ class TableView extends React.Component {
         const { columns, searches, dispatch} = this.props;
         const { items } = this.state;
 
-        return map(items, (record) => {
+        return map(items, (record, i) => {
                 const expanded = (findIndex(this.state.expandedItems, function(o) { return o == record.id; }) >= 0);
+                const className = i % 2 === 0 ? 'odd' : 'even';
+
                 return [
                     <Record
                         columns={ columns }
@@ -92,6 +94,7 @@ class TableView extends React.Component {
                         searches={ searches }
                         toggleExpand = { this.toggleExpand.bind(this) }
                         expanded = { expanded }
+                        className={className}
                     />,
                     <RecordDetail
                         columns={ columns }
@@ -99,6 +102,7 @@ class TableView extends React.Component {
                         onTableAddColumn={(field) => this.handleTableAddColumn(field) }
                         onTableRemoveColumn={(field) => this.handleTableRemoveColumn(field) }
                         expanded = { expanded }
+                        className={className}
                     />
                 ];
         });

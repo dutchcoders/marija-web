@@ -9,7 +9,7 @@ import moment from 'moment';
 import { nodesSelect, highlightNodes, nodeSelect } from '../../modules/graph/index';
 import { normalize, fieldLocator } from '../../helpers/index';
 import { Icon } from '../../components/index';
-import { deleteSearch, setDisplayNodes, searchRequest } from '../../modules/search/index';
+import { deleteSearch, editSearch, searchRequest } from '../../modules/search/index';
 import Url from "../../domain/Url";
 import Tooltip from 'rc-tooltip';
 import {cancelRequest} from "../../utils/actions";
@@ -56,7 +56,9 @@ class Queries extends React.Component {
             return;
         }
 
-        dispatch(setDisplayNodes(query.q, newNumber));
+        dispatch(editSearch(query.q, {
+            displayNodes: newNumber
+        }));
     }
 
     handleDisplayLess(query) {
@@ -72,13 +74,20 @@ class Queries extends React.Component {
             return;
         }
 
-        dispatch(setDisplayNodes(query.q, newNumber));
+        dispatch(editSearch(query.q, {
+            displayNodes: newNumber
+        }));
     }
 
     handleChangeQueryColorComplete(color) {
-        const search = this.state.editSearchValue;
+        const { dispatch } = this.props;
+        const search = Object.assign({}, this.state.editSearchValue);
 
         search.color = color.hex;
+
+        dispatch(editSearch(search.q, {
+            color: color.hex
+        }));
 
         this.setState({editSearchValue: search});
     }
