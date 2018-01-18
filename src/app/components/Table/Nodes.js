@@ -79,16 +79,11 @@ class Nodes extends React.Component {
     handleFindSelectChange(n, event) {
         const { dispatch } = this.props;
 
-        let { node } = this.props;
         if (event.target.checked) {
-            node = concat(node, n);
+            dispatch(nodesSelect([n]));
         } else {
-            node = filter(node, (o) => {
-                return (o.id !== n.id);
-            });
+            dispatch(deselectNodes([n]));
         }
-
-        dispatch(nodesSelect(node));
     }
 
     handleSelectAllNodes() {
@@ -168,11 +163,6 @@ class Nodes extends React.Component {
 
         const { dispatch, node } = this.props;
         const searchResults = this.getSearchResults();
-
-        const newNodes = searchResults.filter(search => {
-            const existing = node.find(nodeLoop => nodeLoop.id === search.id);
-            return typeof existing === 'undefined';
-        });
 
         dispatch(nodesSelect(nodes));
     }
