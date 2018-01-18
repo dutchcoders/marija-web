@@ -60,7 +60,10 @@ class ConfigurationView extends React.Component {
     }
 
     handleFieldSearchChange(event) {
-        this.setState({currentFieldSearchValue: event.target.value});
+        this.setState({
+            currentFieldSearchValue: event.target.value,
+            maxSearchResults: this.defaultMaxSearchResults
+        });
     }
 
     handleDateFieldSearchChange(event) {
@@ -427,7 +430,7 @@ class ConfigurationView extends React.Component {
         );
 
         const searchResults = availableFieldsForType.filter((item) => {
-            const inSearch = item.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) === 0;
+            const inSearch = item.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) !== -1;
             const inCurrentFields = fields.reduce((value, field) => {
                 if (value) {
                     return true;
