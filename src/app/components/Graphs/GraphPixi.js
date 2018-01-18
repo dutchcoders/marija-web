@@ -35,6 +35,7 @@ class GraphPixi extends React.Component {
             renderer: undefined,
             renderedTooltip: undefined,
             renderedSelectedNodes: undefined,
+            selectedNodeTextures: {},
             stage: undefined,
             worker: worker,
             renderedSinceLastTick: false,
@@ -540,6 +541,36 @@ class GraphPixi extends React.Component {
         });
     }
 
+    getSelectedNodeTexture(radius) {
+        const { selectedNodeTextures } = this.state;
+        let texture = selectedNodeTextures[radius];
+
+        if (texture) {
+            return texture;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = radius * 2 + 4;
+        canvas.height = radius * 2 + 4;
+
+        const ctx = canvas.getContext('2d');
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#ffffff';
+        ctx.arc(radius + 2, radius + 2, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+
+        texture = PIXI.Texture.fromCanvas(canvas);
+
+        this.setState(prevState => ({
+            selectedNodeTextures: {
+                ...prevState.selectedNodeTextures,
+                [radius]: texture
+            }
+        }));
+
+        return texture;
+    }
+
     /**
      * Draws a border around selected nodes
      */
@@ -547,15 +578,19 @@ class GraphPixi extends React.Component {
         const { selectedNodes } = this.props;
         const { nodesFromWorker, renderedSelectedNodes } = this.state;
 
-        renderedSelectedNodes.clear();
-        renderedSelectedNodes.lineStyle(3, 0xFFFFFF);
+        renderedSelectedNodes.removeChildren();
 
         selectedNodes.forEach(selected => {
             const nodeFromWorker = nodesFromWorker.find(search => search.hash === selected.hash);
+            const texture = this.getSelectedNodeTexture(nodeFromWorker.r);
+            const sprite = new PIXI.Sprite(texture);
 
-            if (typeof nodeFromWorker !== 'undefined') {
-                renderedSelectedNodes.drawCircle(nodeFromWorker.x, nodeFromWorker.y, nodeFromWorker.r);
-            }
+            sprite.anchor.x = 0.5;
+            sprite.anchor.y = 0.5;
+            sprite.x = nodeFromWorker.x;
+            sprite.y = nodeFromWorker.y;
+
+            renderedSelectedNodes.addChild(sprite);
         });
     }
 
@@ -653,7 +688,7 @@ class GraphPixi extends React.Component {
         const renderedSelection = new PIXI.Graphics();
         stage.addChild(renderedSelection);
 
-        const renderedSelectedNodes = new PIXI.Graphics();
+        const renderedSelectedNodes = new PIXI.Container();
         stage.addChild(renderedSelectedNodes);
 
         const renderedTooltip = new PIXI.Container();
@@ -812,8 +847,6 @@ class GraphPixi extends React.Component {
                 dispatch(highlightNodes([node]));
             }
         }
-
-        return;
     }
 
     selectNodes(nodes) {
