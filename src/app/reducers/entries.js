@@ -375,7 +375,7 @@ export default function entries(state = defaultState, action) {
             });
         }
         case SEARCH_COMPLETED: {
-            const index = state.searches.findIndex(search => search['request-id'] === action['request-id']);
+            const index = state.searches.findIndex(search => search.requestId === action.requestId);
 
             if (index === -1) {
                 // Could not find out which search was completed
@@ -383,7 +383,7 @@ export default function entries(state = defaultState, action) {
             }
 
             const search = state.searches[index];
-            const newSearch = Object.assign(search, { completed: true });
+            const newSearch = Object.assign({}, search, { completed: true });
             const newSearches = concat([], state.searches);
 
             newSearches[index] = newSearch;
