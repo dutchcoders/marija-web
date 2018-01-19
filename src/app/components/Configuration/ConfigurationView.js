@@ -429,13 +429,18 @@ class ConfigurationView extends React.Component {
             searchTypes.length === 0 || searchTypes.indexOf(item.type) !== -1
         );
 
+        // Only fields that have not already been added
+        let searchResults = availableFieldsForType.filter(field =>
+            typeof fields.find(search => search.path === field.path) === 'undefined'
+        );
+
         const search = (
             <form>
                 <div className="row">
                     <div className="col-xs-12">
                         <input className="form-control searchInput" value={this.state.currentFieldSearchValue}
                                onChange={this.handleFieldSearchChange.bind(this)} type="text" ref="field"
-                               placeholder={'Search ' + availableFieldsForType.length + ' fields'} />
+                               placeholder={'Search ' + searchResults.length + ' fields'} />
                     </div>
                 </div>
                 <div className="row">
@@ -466,11 +471,6 @@ class ConfigurationView extends React.Component {
                     </div>
                 </div>
             </form>
-        );
-
-        // Only fields that have not already been added
-        let searchResults = availableFieldsForType.filter(field =>
-            typeof fields.find(search => search.path === field.path) === 'undefined'
         );
 
         if (currentFieldSearchValue) {
