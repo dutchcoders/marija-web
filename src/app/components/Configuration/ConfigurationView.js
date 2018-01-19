@@ -29,7 +29,7 @@ class ConfigurationView extends React.Component {
             selectedVia: '',
             selectedTo: '',
             viaError: null,
-            searchType: '',
+            searchTypes: [],
             maxSearchResults: this.defaultMaxSearchResults
         };
     }
@@ -340,6 +340,29 @@ class ConfigurationView extends React.Component {
         );
     }
 
+    types = [
+        {
+            label: 'yes/no',
+            types: ['boolean']
+        },
+        {
+            label: 'date',
+            types: ['date']
+        },
+        {
+            label: 'text',
+            types: ['text', 'keyword']
+        },
+        {
+            label: 'number',
+            types: ['long', 'double']
+        },
+        {
+            label: 'location',
+            types: ['geo_point']
+        },
+    ];
+
     getTypes(fields) {
         const types = [];
 
@@ -349,12 +372,32 @@ class ConfigurationView extends React.Component {
             }
         });
 
-        return types;
+        const typeItems = [];
+        types.forEach(type => {
+            const alreadyUsed = typeItems.reduce((prev, item) => prev.concat(item.types), []);
+
+            if (alreadyUsed.indexOf(type) !== -1) {
+                return;
+            }
+
+            const typeItem = this.types.find(search => search.types.indexOf(type) !== -1);
+
+            if (typeItem) {
+                typeItems.push(typeItem);
+            } else {
+                typeItems.push({
+                    label: type,
+                    types: [type]
+                });
+            }
+        });
+
+        return typeItems;
     }
 
     handleTypeChange(e, type) {
         this.setState({
-            searchType: type
+            searchTypes: type
         });
     }
 
@@ -365,7 +408,7 @@ class ConfigurationView extends React.Component {
     }
 
     renderFields(fields, availableFields) {
-        const { currentFieldSearchValue, searchType, maxSearchResults } = this.state;
+        const { currentFieldSearchValue, searchTypes, maxSearchResults } = this.state;
 
         const options = map(fields, (field) => {
             return (
@@ -377,24 +420,13 @@ class ConfigurationView extends React.Component {
             );
         });
 
-        const typeInfo = [];
-
-        typeInfo.push({
+        const types = [{
             label: 'all types',
-            value: ''
-        });
-
-        const types = this.getTypes(availableFields);
-
-        types.forEach(type => {
-            typeInfo.push({
-                label: type,
-                value: type
-            });
-        });
+            types: []
+        }].concat(this.getTypes(availableFields));
 
         const availableFieldsForType = availableFields.filter(item =>
-            searchType === '' || searchType === item.type
+            searchTypes.length === 0 || searchTypes.indexOf(item.type) !== -1
         );
 
         const search = (
@@ -409,23 +441,27 @@ class ConfigurationView extends React.Component {
                 <div className="row">
                     <div className="col-xs-12">
                         <div className="selectType">
-                            {typeInfo.map(type => (
-                                <div className="form-check form-check-inline" key={type.value}>
-                                    <input
-                                        type="radio"
-                                        className="form-check-input"
-                                        name="type"
-                                        id={'type_' + type.value}
-                                        checked={type.value === searchType}
-                                        onChange={(e) => this.handleTypeChange(e, type.value)}
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor={'type_' + type.value}>
-                                        {type.label}
-                                    </label>
-                                </div>
-                            ))}
+                            {types.map(type => {
+                                const key = 'search_types_' + type.types.join(',');
+
+                                return (
+                                    <div className="form-check form-check-inline" key={key}>
+                                        <input
+                                            type="radio"
+                                            className="form-check-input"
+                                            name="type"
+                                            id={key}
+                                            checked={isEqual(type.types, searchTypes)}
+                                            onChange={(e) => this.handleTypeChange(e, type.types)}
+                                        />
+                                        <label
+                                            className="form-check-label"
+                                            htmlFor={key}>
+                                            {type.label}
+                                        </label>
+                                    </div>
+                                )
+                            })}
                         </div>
                     </div>
                 </div>
