@@ -455,14 +455,24 @@ class ConfigurationView extends React.Component {
             });
 
             // Sort by when the search term occurs in the field name (the earlier the better)
+            searchResults.sort((a, b) => a.occurrenceIndex - b.occurrenceIndex);
+        } else {
+            // Sort alphabetically
             searchResults.sort((a, b) => {
-                if (a.occurrenceIndex < b.occurrenceIndex) {
+                // ignore upper and lowercase
+                const nameA = a.path.toUpperCase();
+                const nameB = b.path.toUpperCase();
+                
+                if (nameA < nameB) {
                     return -1;
-                } else if (a.occurrenceIndex > b.occurrenceIndex) {
-                    return 1;
-                } else {
-                    return 0;
                 }
+
+                if (nameA > nameB) {
+                    return 1;
+                }
+
+                // names must be equal
+                return 0;
             });
         }
 
