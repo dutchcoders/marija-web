@@ -338,11 +338,16 @@ export default function entries(state = defaultState, action) {
 
             result.links = removeDeadLinks(result.nodes, result.links);
 
-            const components = getConnectedComponents(result.nodes, result.links);
-            const primaryQuery = state.searches[0].q;
-            const filtered = filterSecondaryComponents(primaryQuery, components);
-            result.nodes = filtered.reduce((prev, current) => prev.concat(current), []);
-            result.links = removeDeadLinks(result.nodes, result.links);
+            if (state.searches.length > 1) {
+                // If there is more than 1 query, all results for subsequent queries
+                // need to be linked to results from the first query
+
+                const components = getConnectedComponents(result.nodes, result.links);
+                const primaryQuery = state.searches[0].q;
+                const filtered = filterSecondaryComponents(primaryQuery, components);
+                result.nodes = filtered.reduce((prev, current) => prev.concat(current), []);
+                result.links = removeDeadLinks(result.nodes, result.links);
+            }
 
             const { nodes, links } = applyVia(result.nodes, result.links, state.via);
             const nodesForDisplay = getNodesForDisplay(nodes, state.searches || []);
