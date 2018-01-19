@@ -432,17 +432,39 @@ class ConfigurationView extends React.Component {
             </form>
         );
 
-        const searchResults = availableFieldsForType.filter((item) => {
-            const inSearch = item.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase()) !== -1;
-            const inCurrentFields = fields.reduce((value, field) => {
-                if (value) {
-                    return true;
-                }
-                return field.path === item.path;
-            }, false);
+        let searchResults = availableFieldsForType;
 
-            return inSearch && !inCurrentFields;
-        });
+        if (currentFieldSearchValue) {
+            searchResults = [];
+
+            availableFieldsForType.forEach((item) => {
+                const copy = Object.assign({}, item);
+                copy.occurrenceIndex = copy.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase());
+
+                const inSearch = copy.occurrenceIndex !== -1;
+                const inCurrentFields = fields.reduce((value, field) => {
+                    if (value) {
+                        return true;
+                    }
+                    return field.path === copy.path;
+                }, false);
+
+                if (inSearch && !inCurrentFields) {
+                    searchResults.push(copy);
+                }
+            });
+
+            // Sort by when the search term occurs in the field name (the earlier the better)
+            searchResults.sort((a, b) => {
+                if (a.occurrenceIndex < b.occurrenceIndex) {
+                    return -1;
+                } else if (a.occurrenceIndex > b.occurrenceIndex) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+        }
 
         let numMore = null;
         let showMore = null;
