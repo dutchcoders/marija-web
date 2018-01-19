@@ -10,7 +10,8 @@ import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_
 
 import {
     normalize, fieldLocator, getNodesForDisplay,
-    removeDeadLinks, applyVia, getQueryColor
+    removeDeadLinks, applyVia, getQueryColor, getConnectedComponents,
+    filterSecondaryComponents
 } from '../helpers/index';
 import getNodesAndLinks from "../helpers/getNodesAndLinks";
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
@@ -334,6 +335,15 @@ export default function entries(state = defaultState, action) {
                 search,
                 state.normalizations
             );
+
+            result.links = removeDeadLinks(result.nodes, result.links);
+
+            const components = getConnectedComponents(result.nodes, result.links);
+            const primaryQuery = state.searches[0].q;
+            const filtered = filterSecondaryComponents(primaryQuery, components);
+            result.nodes = filtered.reduce((prev, current) => prev.concat(current), []);
+            result.links = removeDeadLinks(result.nodes, result.links);
+
             const { nodes, links } = applyVia(result.nodes, result.links, state.via);
             const nodesForDisplay = getNodesForDisplay(nodes, state.searches || []);
 
