@@ -1,16 +1,4 @@
-import {fieldLocator} from './index';
-import {forEach} from 'lodash';
-
-/**
- * If the value exceeds the maximum length, attempt to display the relevant part
- * of the query.
- *
- * @param value
- * @param query
- * @param maxValueLength
- * @returns string
- */
-function getValue(value, query, maxValueLength) {
+export default function abbreviateNodeName(value, query, maxValueLength) {
     value += '';
 
     if (value.length <= maxValueLength) {
@@ -49,28 +37,4 @@ function getValue(value, query, maxValueLength) {
     }
 
     return ret;
-}
-
-export default function getHighlightItem (item, node, fields, maxValueLength) {
-    const highlightItem = {
-        id: item.id,
-        fields: {}
-    };
-
-    // Only keep the fields that the user configured for brevity
-    forEach(fields, (field) => {
-        const value = fieldLocator(item.fields, field.path);
-
-        if (value !== null) {
-            highlightItem.fields[field.path] = getValue(value, item.query, maxValueLength);
-        }
-    });
-
-    highlightItem.x = node.x;
-    highlightItem.y = node.y;
-    highlightItem.hash = node.hash;
-    highlightItem.matchFields = node.fields;
-    highlightItem.query = item.query;
-
-    return highlightItem;
 }

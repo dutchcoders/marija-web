@@ -14,7 +14,6 @@ import {
 } from '../helpers/index';
 import getNodesAndLinks from "../helpers/getNodesAndLinks";
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
-import getHighlightItem from "../helpers/getHighlightItem";
 import {VIA_ADD, VIA_DELETE} from "../modules/data/constants";
 
 

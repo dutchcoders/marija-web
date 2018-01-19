@@ -7,7 +7,7 @@ import { concat, debounce, forEach, remove, includes, assign, isEqual, isEmpty }
 import { nodesSelect, highlightNodes, nodeSelect, deselectNodes } from '../../modules/graph/index';
 import {
     normalize, fieldLocator, getArcParams,
-    getRelatedNodes
+    getRelatedNodes, abbreviateNodeName
 } from '../../helpers/index';
 import Loader from "../Misc/Loader";
 import {Icon} from "../index";
@@ -481,8 +481,8 @@ class GraphPixi extends React.Component {
         }
 
         const container = new PIXI.Container();
-
-        const description = node.fields.join(', ') + ': ' + node.name;
+        const maxNameLength = 40;
+        const description = node.fields.join(', ') + ': ' + node.abbreviated;
         const text = new PIXI.Text(description, {
             fontFamily: 'Arial',
             fontSize: '12px',

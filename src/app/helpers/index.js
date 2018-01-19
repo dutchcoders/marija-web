@@ -10,3 +10,4 @@ export { default as removeDeadLinks } from './removeDeadLinks';
 export { default as applyVia } from './applyVia';
 export { default as getQueryColor } from './getQueryColor';
 export { default as getRelatedNodes } from './getRelatedNodes';
+export { default as abbreviateNodeName } from './abbreviateNodeName';
