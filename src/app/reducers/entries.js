@@ -10,7 +10,8 @@ import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_
 
 import {
     normalize, fieldLocator, getNodesForDisplay,
-    removeDeadLinks, applyVia, getQueryColor
+    removeDeadLinks, applyVia, getQueryColor, getConnectedComponents,
+    filterSecondaryComponents
 } from '../helpers/index';
 import getNodesAndLinks from "../helpers/getNodesAndLinks";
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
@@ -334,6 +335,21 @@ export default function entries(state = defaultState, action) {
                 search,
                 state.normalizations
             );
+
+            result.links = removeDeadLinks(result.nodes, result.links);
+
+            if (state.searches.length > 1) {
+                // If there is more than 1 query, all nodes for subsequent queries
+                // need to be linked to nodes from the first query
+                // If some results are not linked, they will not be displayed as nodes
+
+                const components = getConnectedComponents(result.nodes, result.links);
+                const primaryQuery = state.searches[0].q;
+                const filtered = filterSecondaryComponents(primaryQuery, components);
+                result.nodes = filtered.reduce((prev, current) => prev.concat(current), []);
+                result.links = removeDeadLinks(result.nodes, result.links);
+            }
+
             const { nodes, links } = applyVia(result.nodes, result.links, state.via);
             const nodesForDisplay = getNodesForDisplay(nodes, state.searches || []);
 
@@ -359,7 +375,7 @@ export default function entries(state = defaultState, action) {
             });
         }
         case SEARCH_COMPLETED: {
-            const index = state.searches.findIndex(search => search['request-id'] === action['request-id']);
+            const index = state.searches.findIndex(search => search.requestId === action.requestId);
 
             if (index === -1) {
                 // Could not find out which search was completed
@@ -367,7 +383,7 @@ export default function entries(state = defaultState, action) {
             }
 
             const search = state.searches[index];
-            const newSearch = Object.assign(search, { completed: true });
+            const newSearch = Object.assign({}, search, { completed: true });
             const newSearches = concat([], state.searches);
 
             newSearches[index] = newSearch;

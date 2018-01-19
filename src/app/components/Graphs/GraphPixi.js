@@ -159,6 +159,7 @@ class GraphPixi extends React.Component {
         node.queries.forEach((query, i) => {
             ctx.beginPath();
             ctx.fillStyle = this.getQueryColor(query);
+            ctx.moveTo(node.r, node.r);
             ctx.arc(node.r, node.r, node.r, currentAngle, currentAngle + anglePerQuery);
             ctx.fill();
 
@@ -481,7 +482,6 @@ class GraphPixi extends React.Component {
         }
 
         const container = new PIXI.Container();
-        const maxNameLength = 40;
         const description = node.fields.join(', ') + ': ' + node.abbreviated;
         const text = new PIXI.Text(description, {
             fontFamily: 'Arial',

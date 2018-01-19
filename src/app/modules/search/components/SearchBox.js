@@ -33,7 +33,7 @@ export default class SearchBox extends Component {
     }
 
     render() {
-        const { itemsFetching, connected, enabled } = this.props;
+        const { connected, enabled } = this.props;
         const { query } = this.state;
 
         let tooltipStyles = {};
@@ -68,7 +68,6 @@ export default class SearchBox extends Component {
                                 />
 
                             </Tooltip>
-                            <Loader show={itemsFetching} classes={['sk-search-box__loader']}/>
                         </form>
                     </div>
                 </div>
