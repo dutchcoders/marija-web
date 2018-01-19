@@ -135,7 +135,7 @@ class Nodes extends React.Component {
                             <li key={i_node.id} onMouseEnter={() => this.displayTooltip(i_node)}>
                                 <div>
                                     <span className="nodeIcon">{ i_node.icon }</span>
-                                    <span>{i_node.name}</span>
+                                    <span>{i_node.abbreviated}</span>
                                     <Icon style={{'marginRight': '60px'}}  className="glyphicon" name={ i_node.icon[0] }></Icon>
                                     <Icon style={{'marginRight': '40px'}} onClick={(n) => this.handleEditNode(i_node)} name="ion-ios-remove-circle-outline"/>
                                     <Icon style={{'marginRight': '20px'}} onClick={(n) => this.handleDeselectNode(i_node)} name="ion-ios-remove-circle-outline"/>
@@ -209,7 +209,7 @@ class Nodes extends React.Component {
                 <li key={node.id}>
                     <input type='checkbox' checked={checked}  onChange={ (e) => this.handleFindSelectChange(node, e) } />
                     <span className="nodeIcon">{node.icon}</span>
-                    { node.name }
+                    { node.abbreviated }
                 </li>
             );
         });
