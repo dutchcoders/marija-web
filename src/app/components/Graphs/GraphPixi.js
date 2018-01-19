@@ -482,7 +482,6 @@ class GraphPixi extends React.Component {
         }
 
         const container = new PIXI.Container();
-        const maxNameLength = 40;
         const description = node.fields.join(', ') + ': ' + node.abbreviated;
         const text = new PIXI.Text(description, {
             fontFamily: 'Arial',
