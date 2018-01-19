@@ -472,6 +472,13 @@ class ConfigurationView extends React.Component {
             );
         }
 
+        let noResults = null;
+        if (searchResults.length === 0) {
+            noResults = (
+                <p>No fields found</p>
+            );
+        }
+
         const firstX = searchResults.slice(0, maxSearchResults);
         const available = ([
             <ul key={1}>
@@ -489,6 +496,7 @@ class ConfigurationView extends React.Component {
                 {numMore}
                 {showMore}
                 {showLess}
+                {noResults}
             </div>
         ]);
 
@@ -502,7 +510,7 @@ class ConfigurationView extends React.Component {
             <div>
                 <ul>{ options }</ul>
                 { availableFields.length > 0 ? search : null }
-                { available }
+                { availableFields.length > 0 ? available : null }
                 { selectDatasourceMessage }
             </div>
         );
