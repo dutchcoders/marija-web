@@ -36,6 +36,7 @@ export default function getConnectedComponents(nodes, links) {
 
     const addToGroup = (groupId, nodeId) => {
         const node = nodeMap[nodeId];
+        visited.push(nodeId);
 
         if (groups[groupId]) {
             groups[groupId].push(node);
@@ -44,13 +45,16 @@ export default function getConnectedComponents(nodes, links) {
         }
     };
 
+    const isInGroup = (nodeId) => {
+        return visited.indexOf(nodeId) !== -1;
+    };
+
     const depthFirstSearch = (nodeId, groupId) => {
         each(neighbours[nodeId], loopNodeId => {
-            if (visited.indexOf(loopNodeId) !== -1) {
+            if (isInGroup(loopNodeId)) {
                 return;
             }
 
-            visited.push(loopNodeId);
             addToGroup(groupId, loopNodeId);
             depthFirstSearch(loopNodeId, groupId);
         });
@@ -59,11 +63,10 @@ export default function getConnectedComponents(nodes, links) {
     let groupId = 1;
 
     nodes.forEach(node => {
-        if (visited.indexOf(node.id) !== -1) {
+        if (isInGroup(node.id)) {
             return;
         }
 
-        visited.push(node.id);
         addToGroup(groupId, node.id);
         depthFirstSearch(node.id, groupId);
 
