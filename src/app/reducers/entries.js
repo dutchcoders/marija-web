@@ -339,8 +339,9 @@ export default function entries(state = defaultState, action) {
             result.links = removeDeadLinks(result.nodes, result.links);
 
             if (state.searches.length > 1) {
-                // If there is more than 1 query, all results for subsequent queries
-                // need to be linked to results from the first query
+                // If there is more than 1 query, all nodes for subsequent queries
+                // need to be linked to nodes from the first query
+                // If some results are not linked, they will not be displayed as nodes
 
                 const components = getConnectedComponents(result.nodes, result.links);
                 const primaryQuery = state.searches[0].q;

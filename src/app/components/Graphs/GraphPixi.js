@@ -159,6 +159,7 @@ class GraphPixi extends React.Component {
         node.queries.forEach((query, i) => {
             ctx.beginPath();
             ctx.fillStyle = this.getQueryColor(query);
+            ctx.moveTo(node.r, node.r);
             ctx.arc(node.r, node.r, node.r, currentAngle, currentAngle + anglePerQuery);
             ctx.fill();
 
