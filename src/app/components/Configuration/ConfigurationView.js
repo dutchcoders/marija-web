@@ -432,7 +432,10 @@ class ConfigurationView extends React.Component {
             </form>
         );
 
-        let searchResults = availableFieldsForType;
+        // Only fields that have not already been added
+        let searchResults = availableFieldsForType.filter(field =>
+            typeof fields.find(search => search.path === field.path) === 'undefined'
+        );
 
         if (currentFieldSearchValue) {
             searchResults = [];
@@ -441,15 +444,7 @@ class ConfigurationView extends React.Component {
                 const copy = Object.assign({}, item);
                 copy.occurrenceIndex = copy.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase());
 
-                const inSearch = copy.occurrenceIndex !== -1;
-                const inCurrentFields = fields.reduce((value, field) => {
-                    if (value) {
-                        return true;
-                    }
-                    return field.path === copy.path;
-                }, false);
-
-                if (inSearch && !inCurrentFields) {
+                if (copy.occurrenceIndex !== -1) {
                     searchResults.push(copy);
                 }
             });
