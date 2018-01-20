@@ -52,7 +52,7 @@
     &.configuration {
         transition: left 0.5s;
         position: absolute;
-        top: 65px;
+        top: 56px;
         left: -300px;
         bottom: 0;
         width: 300px;
@@ -165,7 +165,7 @@
     &.nodes {
         transition: right 0.5s;
         position: absolute;
-        top: calc(65px);
+        top: 56px;
         right: -400px;
         bottom: 60%;
         width: 400px;

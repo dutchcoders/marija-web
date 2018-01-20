@@ -5,6 +5,8 @@ import SkyLight from 'react-skylight';
 import SketchPicker from 'react-color';
 import {Query} from "../../../components/index";
 import {editSearch} from "../actions";
+import {isEqual} from 'lodash';
+import {headerHeightChange} from "../../../utils/actions";
 
 class SearchBox extends Component {
     constructor(props) {
@@ -54,6 +56,16 @@ class SearchBox extends Component {
         this.setState({editSearchValue: search});
     }
 
+    componentDidUpdate(prevProps) {
+        const { searches, dispatch } = this.props;
+
+        if (!isEqual(searches, prevProps.searches)) {
+            const height = this.refs.header.getBoundingClientRect().height;
+
+            dispatch(headerHeightChange(height));
+        }
+    }
+
     render() {
         const { connected, enabled, searches } = this.props;
         const { query, editSearchValue } = this.state;
@@ -86,7 +98,7 @@ class SearchBox extends Component {
         }
 
         return (
-            <nav id="searchbox" className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation">
+            <nav id="searchbox" className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation" ref="header">
                 <div className="logoContainer">
                     <img className={`logo ${connected ? 'connected' : 'not-connected'}`} src="/images/logo.png" title={connected ? "Marija is connected to the backendservice" : "No connection to Marija backend available" } />
                 </div>
