@@ -100,7 +100,7 @@ class SearchBox extends Component {
                             overlayStyle={tooltipStyles}
                             arrowContent={<div className="rc-tooltip-arrow-inner" />}>
                             <input
-                                className="searchInput"
+                                className="queryInput"
                                 placeholder="Search"
                                 value={ query }
                                 onChange={this.handleQueryChange.bind(this)}
