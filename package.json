@@ -7,7 +7,7 @@
     "test": "jest --config=jest.config.json",
     "test:watch": "jest --watch --config=jest.config.json",
     "build": "webpack --progress --colors --config webpack-build.config.js",
-    "start": "webpack-dev-server --watch --progress --colors --port 1337 --config webpack.config.js"
+    "start": "webpack-dev-server --watch --progress --colors --port 1338 --config webpack.config.js"
   },
   "author": "",
   "license": "ISC",
