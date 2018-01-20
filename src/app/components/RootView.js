@@ -32,7 +32,7 @@ class RootView extends Component {
 
                 <div className="row">
                     <div className="col-xs-12">
-                        <div className="row" style={{'height': 'calc(100vh - 74px)'}}>
+                        <div className="row" style={{'height': 'calc(100vh - ' + headerHeight + 'px)'}}>
                             <GraphPixi
                                 className="graph"
                                 handleMouseOver={ () => this.handleMouseOver() }

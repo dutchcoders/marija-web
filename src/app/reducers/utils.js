@@ -11,7 +11,7 @@ function setPaneTo(panes, pane, state) {
 
 const defaultState = {
     panes: [],
-    headerHeight: null
+    headerHeight: 56
 };
 
 export default function utils(state = defaultState, action) {

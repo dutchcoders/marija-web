@@ -27,7 +27,7 @@ export function Pane(props) {
     }
 
     let style = {};
-    if (top !== null) {
+    if (top) {
         style.top = top + 'px';
     }
 
