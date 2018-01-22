@@ -12,7 +12,7 @@ export { default as GraphPixi } from './Graphs/GraphPixi';
 export { default as Query } from './Graphs/Query';
 
 export { default as Icon } from './Misc/Icon';
-export { Pane } from './Misc/Pane';
+export { default as Pane } from './Misc/Pane';
 export { default as StateCapturer } from './Misc/StateCapturer';
 export { default as Websocket } from './Misc/Websocket';
 

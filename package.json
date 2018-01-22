@@ -85,6 +85,7 @@
     "react-intl-es6": "^1.0.0",
     "react-list": "^0.7.16",
     "react-redux": "^4.4.1",
+    "react-rnd": "^7.3.0",
     "react-router-dom": "^4.2.2",
     "react-router-redux": "^4.0.0",
     "react-skylight": "^0.4.1",

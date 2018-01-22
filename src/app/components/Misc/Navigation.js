@@ -29,7 +29,7 @@ class Navigation extends React.Component {
     isActive(name) {
         const { panes } = this.props;
 
-        return panes.find(pane => pane.name === name).state;
+        return panes[name].open;
     }
 
     getButton(icon, tooltip, clickHandler, active) {

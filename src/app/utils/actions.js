@@ -1,4 +1,5 @@
 import {ERROR, AUTH_CONNECTED, OPEN_PANE, CLOSE_PANE, CANCEL_REQUEST} from './index';
+import {SET_PANE_CONFIG} from "./constants";
 
 export function error(msg) {
     return {
@@ -34,5 +35,13 @@ export function closePane(pane) {
     return {
         type: CLOSE_PANE,
         pane: pane
+    };
+}
+
+export function setPaneConfig(key, config) {
+    return {
+        type: SET_PANE_CONFIG,
+        key: key,
+        config: config
     };
 }

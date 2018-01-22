@@ -30,8 +30,11 @@ export default class Workspaces {
      * @param Object state
      * @return Object
      */
-    static persistCurrentWorkspace(state){
+    static persistCurrentWorkspace(oldState){
         try {
+            const state = Object.assign({}, oldState);
+            delete state.panes;
+
             const persistedState = Object.assign({}, {state: state}, {
                 version: Migrations.getCurrentVersion(),
                 state: {

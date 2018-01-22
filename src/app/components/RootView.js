@@ -8,32 +8,36 @@ import {
 } from './index';
 
 class RootView extends Component {
+    zoomEvents = new EventEmitter();
+
     constructor(props) {
         super(props);
 
         this.state = {
-            currentNode: null
+            currentNode: null,
+            mainSize: null
         };
-    }
-
-    handleChange(e) {
-        this.setState({selectValue: e.target.value});
     }
 
     handleMouseOver(node) {
         this.setState({currentNode: node});
     }
 
-    zoomEvents = new EventEmitter();
+    componentDidMount() {
+        this.setState({
+            mainSize: this.main.getBoundingClientRect()
+        });
+    }
 
     render() {
         const { panes, dispatch, node, nodes} = this.props;
+        const { mainSize } = this.state;
 
-        return (
-            <div className="rootView">
-                <Header/>
+        let mainContent = null;
 
-                <main className="main">
+        if (mainSize) {
+            mainContent = (
+                <div className="mainInner">
                     <Navigation
                         zoomIn={() => this.zoomEvents.emit('zoomIn')}
                         zoomOut={() => this.zoomEvents.emit('zoomOut')}
@@ -48,8 +52,9 @@ class RootView extends Component {
                     <Pane
                         name="Configuration"
                         handle="configuration"
-                        panes={panes}
+                        config={panes.configuration}
                         dispatch={dispatch}
+                        containerSize={mainSize}
                         icon="ion-ios-arrow-forward">
                         <ConfigurationView ref="configurationView"/>
                     </Pane>
@@ -58,25 +63,48 @@ class RootView extends Component {
                         name="Selected nodes"
                         description={node.length + '/' + nodes.length}
                         handle="nodes"
-                        panes={panes}
+                        config={panes.nodes}
                         dispatch={dispatch}
+                        containerSize={mainSize}
                         icon="ion-ios-arrow-back">
                         <Nodes />
                     </Pane>
 
-                    <Pane name="Table" description={'data for ' + node.length + ' selected nodes'} handle="table" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-back">
+                    <Pane
+                        name="Table"
+                        description={'data for ' + node.length + ' selected nodes'}
+                        handle="table"
+                        config={panes.table}
+                        dispatch={dispatch}
+                        containerSize={mainSize}
+                        icon="ion-ios-arrow-back">
                         <TableView />
                     </Pane>
 
-                    <Pane name="Histogram" handle="histogram" panes={panes} dispatch={dispatch} icon="ion-ios-arrow-up">
+                    <Pane
+                        name="Histogram"
+                        handle="histogram"
+                        config={panes.histogram}
+                        dispatch={dispatch}
+                        containerSize={mainSize}
+                        icon="ion-ios-arrow-up">
                         <Histogram
                             width="1600"
                             height="200"
                             className="histogram"
                         />
                     </Pane>
-                </main>
+                </div>
+            );
+        }
 
+        return (
+            <div className="rootView">
+                <Header/>
+
+                <main className="main" ref={main => this.main = main}>
+                    {mainContent}
+                </main>
             </div>
         );
     }

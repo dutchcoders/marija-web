@@ -20,6 +20,7 @@ import { persistState } from './helpers/index';
 import { i18n } from './config';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import thunk from 'redux-thunk';
+import {defaultUtilsState} from "./reducers/utils";
 
 function configureStore() {
     return createStore(
@@ -37,13 +38,7 @@ function configureStore() {
                 availableFields: []
             },
             utils: {
-                panes: [
-                    {name: 'configuration', state: true},
-                    {name: 'histogram', state: false},
-                    {name: 'table', state: false},
-                    {name: 'nodes', state: true},
-                    {name: 'queries', state: true }
-                ]
+                ...defaultUtilsState
             }
         },
         composeWithDevTools(
