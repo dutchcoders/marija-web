@@ -10,42 +10,47 @@ function setPaneTo(panes, pane, state) {
     });
 }
 
+const defaultPane = {
+    open: false,
+    width: 0,
+    height: 0,
+    x: 0,
+    y: 0,
+    fullHeight: false,
+    fullWidth: false,
+    alignRight: false,
+    alignBottom: false,
+    minWidth: 180,
+    minHeight: 100
+};
+
 export const defaultUtilsState = {
     panes: {
-        configuration: {
+        configuration: Object.assign({}, defaultPane, {
             open: true,
             width: 300,
-            height: 0,
-            x: 0,
-            y: 0,
             fullHeight: true
-        },
-        nodes: {
-            open: false,
+        }),
+        nodes: Object.assign({}, defaultPane, {
             width: 350,
             height: 300,
-            x: 0,
-            y: 0,
-            alignRight: true
-        },
-        table: {
-            open: false,
+            alignRight: true,
+            minWidth: 300
+        }),
+        table: Object.assign({}, defaultPane, {
             width: 500,
             height: 400,
-            x: 0,
             y: 300,
             alignRight: true,
-            alignBottom: true
-        },
-        histogram: {
-            open: false,
+            alignBottom: true,
+            minWidth: 300
+        }),
+        histogram: Object.assign({}, defaultPane, {
             width: 300,
             height: 300,
-            x: 0,
-            y: 0,
             alignBottom: true,
             fullWidth: true
-        }
+        })
     }
 };
 

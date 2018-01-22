@@ -3,6 +3,7 @@ import Rnd from 'react-rnd';
 import { Icon } from '../index';
 import { closePane, openPane } from '../../utils/index';
 import {setPaneConfig} from "../../utils/actions";
+import { debounce } from 'lodash';
 
 class Pane extends React.Component {
     close() {
@@ -12,7 +13,8 @@ class Pane extends React.Component {
     }
 
     updatePositionToStore(x, y, width, height) {
-        const { handle, dispatch, containerSize } = this.props;
+        const { handle, dispatch, container } = this.props;
+        const containerSize = container.getBoundingClientRect();
 
         const newConfig = {
             width: width,
@@ -38,9 +40,58 @@ class Pane extends React.Component {
         this.updatePositionToStore(data.x, data.y, rect.width, rect.height);
     }
 
+    /**
+     * Make sure that none of the panes go out of bounds when the window is resized
+     * 
+     * @type {Function}
+     */
+    onWindowResize = debounce(() => {
+        const { config, container } = this.props;
+        const containerSize = container.getBoundingClientRect();
+
+        const sizeUpdates = {
+            width: config.fullWidth ? containerSize.width : config.width,
+            height: config.fullHeight ? containerSize.height : config.height
+        };
+
+        const positionUpdates = {
+            x: config.alignRight ? containerSize.width - config.width : config.x,
+            y: config.alignBottom ? containerSize.height - config.height : config.y
+        };
+
+        if ((config.width + config.x) > containerSize.width) {
+            if ((containerSize.width - config.x) > config.minWidth) {
+                sizeUpdates.width = containerSize.width - config.x;
+            } else {
+                sizeUpdates.width = config.minWidth;
+                positionUpdates.x = containerSize.width - config.minWidth;
+            }
+        }
+
+        if ((config.height + config.y) > containerSize.height) {
+            if ((containerSize.height - config.y) > config.minHeight) {
+                sizeUpdates.height = containerSize.height - config.y;
+            } else {
+                sizeUpdates.height = config.minHeight;
+                positionUpdates.y = containerSize.height - config.minHeight;
+            }
+        }
+
+        this.rnd.updateSize(sizeUpdates);
+        this.rnd.updatePosition(positionUpdates);
+        this.updatePositionToStore(positionUpdates.x, positionUpdates.y, sizeUpdates.width, sizeUpdates.height);
+    }, 300);
+
+    componentDidMount() {
+        window.addEventListener('resize', () => this.onWindowResize());
+    }
+
     render() {
-        const { handle, children, name, description, top, containerSize, config } = this.props;
+        const { handle, children, name, description, top, container, config } = this.props;
         const isOpen = config.open;
+        const containerSize = container.getBoundingClientRect();
+
+        console.log('render');
 
         let descriptionEl = null;
         if (description) {
@@ -93,13 +144,14 @@ class Pane extends React.Component {
                     width: width,
                     height: height
                 }}
-                minWidth={180}
-                minHeight={180}
+                minWidth={config.minWidth}
+                minHeight={config.minHeight}
                 bounds=".main"
                 dragHandleClassName=".pane-header"
                 onResizeStop={this.onResizeStop.bind(this)}
                 onDragStop={this.onDragStop.bind(this)}
                 style={rndStyle}
+                ref={rnd => this.rnd = rnd}
             >
                 <div className={`pane ${handle}`} style={style}>
                     <div className="container-fluid">

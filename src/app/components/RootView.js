@@ -15,7 +15,7 @@ class RootView extends Component {
 
         this.state = {
             currentNode: null,
-            mainSize: null
+            mounted: false
         };
     }
 
@@ -25,17 +25,17 @@ class RootView extends Component {
 
     componentDidMount() {
         this.setState({
-            mainSize: this.main.getBoundingClientRect()
+            mounted: true
         });
     }
 
     render() {
         const { panes, dispatch, node, nodes} = this.props;
-        const { mainSize } = this.state;
+        const { mounted } = this.state;
 
         let mainContent = null;
 
-        if (mainSize) {
+        if (mounted) {
             mainContent = (
                 <div className="mainInner">
                     <Navigation
@@ -54,7 +54,7 @@ class RootView extends Component {
                         handle="configuration"
                         config={panes.configuration}
                         dispatch={dispatch}
-                        containerSize={mainSize}
+                        container={this.main}
                         icon="ion-ios-arrow-forward">
                         <ConfigurationView ref="configurationView"/>
                     </Pane>
@@ -65,7 +65,7 @@ class RootView extends Component {
                         handle="nodes"
                         config={panes.nodes}
                         dispatch={dispatch}
-                        containerSize={mainSize}
+                        container={this.main}
                         icon="ion-ios-arrow-back">
                         <Nodes />
                     </Pane>
@@ -76,7 +76,7 @@ class RootView extends Component {
                         handle="table"
                         config={panes.table}
                         dispatch={dispatch}
-                        containerSize={mainSize}
+                        container={this.main}
                         icon="ion-ios-arrow-back">
                         <TableView />
                     </Pane>
@@ -86,7 +86,7 @@ class RootView extends Component {
                         handle="histogram"
                         config={panes.histogram}
                         dispatch={dispatch}
-                        containerSize={mainSize}
+                        container={this.main}
                         icon="ion-ios-arrow-up">
                         <Histogram
                             width="1600"
