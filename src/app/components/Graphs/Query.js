@@ -97,6 +97,7 @@ class Query extends React.Component {
                 <Tooltip
                     overlay="Show less results"
                     placement="bottom"
+                    mouseLeaveDelay={0}
                     arrowContent={<div className="rc-tooltip-arrow-inner" />}>
                     <Icon
                         onClick={() => this.handleDisplayLess() }
@@ -108,6 +109,7 @@ class Query extends React.Component {
                 <Tooltip
                     overlay="Show more results"
                     placement="bottom"
+                    mouseLeaveDelay={0}
                     arrowContent={<div className="rc-tooltip-arrow-inner" />}>
                     <Icon
                         onClick={() => this.handleDisplayMore() }
@@ -119,6 +121,7 @@ class Query extends React.Component {
                 <Tooltip
                     overlay="Change color"
                     placement="bottom"
+                    mouseLeaveDelay={0}
                     arrowContent={<div className="rc-tooltip-arrow-inner" />}>
                     <Icon onClick={() => handleEdit()} name="ion-ios-gear"/>
                 </Tooltip>
@@ -126,6 +129,7 @@ class Query extends React.Component {
                 <Tooltip
                     overlay="Delete"
                     placement="bottom"
+                    mouseLeaveDelay={0}
                     arrowContent={<div className="rc-tooltip-arrow-inner" />}>
                     <Icon onClick={(e) => this.handleDelete() }
                           name="ion-ios-close"/>

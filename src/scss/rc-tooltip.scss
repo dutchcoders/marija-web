@@ -1,5 +1,6 @@
 .rc-tooltip {
   opacity: 1;
+  z-index: 9999999;
 
   .rc-tooltip-inner {
     padding: 8px 10px;
