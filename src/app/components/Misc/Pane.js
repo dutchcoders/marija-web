@@ -104,6 +104,10 @@ class Pane extends React.Component {
         if (prevProps.config.zIndex !== config.zIndex) {
             this.rnd.updateZIndex(config.zIndex);
         }
+
+        if (!prevProps.config.open && config.open) {
+            this.moveToTop();
+        }
     }
 
     moveToTop() {
