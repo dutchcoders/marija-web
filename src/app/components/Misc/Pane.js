@@ -35,9 +35,14 @@ class Pane extends React.Component {
         this.updatePositionToStore(position.x, position.y, rect.width, rect.height);
     }
 
+    onDragStart() {
+        document.body.classList.add('noSelect');
+    }
+
     onDragStop(e, data) {
         const rect = data.node.getBoundingClientRect();
         this.updatePositionToStore(data.x, data.y, rect.width, rect.height);
+        document.body.classList.remove('noSelect');
     }
 
     /**
@@ -176,6 +181,7 @@ class Pane extends React.Component {
                 bounds=".main"
                 dragHandleClassName=".pane-header"
                 onResizeStop={this.onResizeStop.bind(this)}
+                onDragStart={this.onDragStart.bind(this)}
                 onDragStop={this.onDragStop.bind(this)}
                 style={rndStyle}
                 ref={rnd => this.rnd = rnd}

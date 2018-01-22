@@ -30,6 +30,10 @@ body {
     font-weight: 300;
     font-size: 12px;
 
+    &.noSelect * {
+        user-select: none;
+    }
+
     .colorBall {
         display: inline-block;
         width: 13px;
