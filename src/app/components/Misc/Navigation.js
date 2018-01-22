@@ -80,13 +80,13 @@ class Navigation extends React.Component {
                 <ul className="mapControls">
                     {this.getButton(
                         'ion-arrow-move',
-                        'Move mode',
+                        'Move',
                         () => this.enableMoving(),
                         !selectingMode
                     )}
                     {this.getButton(
                         'ion-qr-scanner',
-                        'Select nodes mode',
+                        'Select',
                         () => this.enableSelecting(),
                         selectingMode
                     )}

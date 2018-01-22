@@ -1,5 +1,5 @@
 import {ERROR, AUTH_CONNECTED, OPEN_PANE, CLOSE_PANE, CANCEL_REQUEST} from './index';
-import {SET_PANE_CONFIG} from "./constants";
+import {MOVE_PANE_TO_TOP, SET_PANE_CONFIG} from "./constants";
 
 export function error(msg) {
     return {
@@ -43,5 +43,12 @@ export function setPaneConfig(key, config) {
         type: SET_PANE_CONFIG,
         key: key,
         config: config
+    };
+}
+
+export function movePaneToTop(key) {
+    return {
+        type: MOVE_PANE_TO_TOP,
+        key: key
     };
 }

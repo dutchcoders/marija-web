@@ -2,7 +2,7 @@ import React from 'react';
 import Rnd from 'react-rnd';
 import { Icon } from '../index';
 import { closePane, openPane } from '../../utils/index';
-import {setPaneConfig} from "../../utils/actions";
+import {movePaneToTop, setPaneConfig} from "../../utils/actions";
 import { debounce } from 'lodash';
 
 class Pane extends React.Component {
@@ -24,7 +24,7 @@ class Pane extends React.Component {
             alignRight: (width + x) >= containerSize.width,
             alignBottom: (height + y) >= containerSize.height,
             fullHeight: height >= containerSize.height,
-            fullWidth: width >= containerSize.fullWidth
+            fullWidth: width >= containerSize.width
         };
 
         dispatch(setPaneConfig(handle, newConfig));
@@ -42,7 +42,7 @@ class Pane extends React.Component {
 
     /**
      * Make sure that none of the panes go out of bounds when the window is resized
-     * 
+     *
      * @type {Function}
      */
     onWindowResize = debounce(() => {
@@ -55,25 +55,37 @@ class Pane extends React.Component {
         };
 
         const positionUpdates = {
-            x: config.alignRight ? containerSize.width - config.width : config.x,
-            y: config.alignBottom ? containerSize.height - config.height : config.y
+            x: config.alignRight && !config.fullWidth ? containerSize.width - config.width : config.x,
+            y: config.alignBottom && !config.fullHeight ? containerSize.height - config.height : config.y
         };
 
-        if ((config.width + config.x) > containerSize.width) {
-            if ((containerSize.width - config.x) > config.minWidth) {
-                sizeUpdates.width = containerSize.width - config.x;
+        if (config.fullWidth) {
+            // When we want the full width anyway, it becomes very simple
+            sizeUpdates.width = containerSize.width;
+        } else if ((config.width + config.x) > containerSize.width) {
+            // It won't fit, resize or reposition
+            if (config.width <= containerSize.width) {
+                // It can fit if we reposition it, get the highest possible 'x'
+                positionUpdates.x = containerSize.width - config.width;
             } else {
-                sizeUpdates.width = config.minWidth;
-                positionUpdates.x = containerSize.width - config.minWidth;
+                // It won't fit by only repositioning, we also need to resize
+                positionUpdates.x = 0;
+                sizeUpdates.width = containerSize.width;
             }
         }
 
-        if ((config.height + config.y) > containerSize.height) {
-            if ((containerSize.height - config.y) > config.minHeight) {
-                sizeUpdates.height = containerSize.height - config.y;
+        if (config.fullHeight) {
+            // When we want the full height anyway, it becomes very simple
+            sizeUpdates.height = containerSize.height;
+        } else if ((config.height + config.y) > containerSize.height) {
+            // It won't fit, resize or reposition
+            if (config.height <= containerSize.height) {
+                // It can fit if we reposition it, get the highest possible 'y'
+                positionUpdates.y = containerSize.height - config.height;
             } else {
-                sizeUpdates.height = config.minHeight;
-                positionUpdates.y = containerSize.height - config.minHeight;
+                // It won't fit by only repositioning, we also need to resize
+                positionUpdates.y = 0;
+                sizeUpdates.height = containerSize.height;
             }
         }
 
@@ -86,12 +98,23 @@ class Pane extends React.Component {
         window.addEventListener('resize', () => this.onWindowResize());
     }
 
+    componentDidUpdate(prevProps) {
+        const { config } = this.props;
+
+        if (prevProps.config.zIndex !== config.zIndex) {
+            this.rnd.updateZIndex(config.zIndex);
+        }
+    }
+
+    moveToTop() {
+        const { dispatch, handle } = this.props;
+        dispatch(movePaneToTop(handle));
+    }
+
     render() {
         const { handle, children, name, description, top, container, config } = this.props;
         const isOpen = config.open;
         const containerSize = container.getBoundingClientRect();
-
-        console.log('render');
 
         let descriptionEl = null;
         if (description) {
@@ -153,7 +176,7 @@ class Pane extends React.Component {
                 style={rndStyle}
                 ref={rnd => this.rnd = rnd}
             >
-                <div className={`pane ${handle}`} style={style}>
+                <div className={`pane ${handle}`} style={style} onMouseDown={this.moveToTop.bind(this)}>
                     <div className="container-fluid">
                         <div className="row pane-header">
                             <div className="col-md-12">

@@ -1,5 +1,6 @@
 import { OPEN_PANE, CLOSE_PANE, CANCEL_REQUEST, Socket} from '../utils/index';
-import {SET_PANE_CONFIG} from "../utils/constants";
+import {MOVE_PANE_TO_TOP, SET_PANE_CONFIG} from "../utils/constants";
+import {each} from 'lodash';
 
 function setPaneTo(panes, pane, state) {
     return panes.map((item) => {
@@ -20,8 +21,9 @@ const defaultPane = {
     fullWidth: false,
     alignRight: false,
     alignBottom: false,
-    minWidth: 180,
-    minHeight: 100
+    minWidth: 200,
+    minHeight: 100,
+    zIndex: 2
 };
 
 export const defaultUtilsState = {
@@ -29,7 +31,8 @@ export const defaultUtilsState = {
         configuration: Object.assign({}, defaultPane, {
             open: true,
             width: 300,
-            fullHeight: true
+            fullHeight: true,
+            minWidth: 250
         }),
         nodes: Object.assign({}, defaultPane, {
             width: 350,
@@ -89,6 +92,23 @@ export default function utils(state = defaultUtilsState, action) {
             return state;
         case SET_PANE_CONFIG: {
             const pane = Object.assign({}, state.panes[action.key], action.config);
+
+            return Object.assign({}, state, {
+                panes: {
+                    ...state.panes,
+                    [action.key]: pane
+                }
+            });
+        }
+        case MOVE_PANE_TO_TOP: {
+            let highestZIndex = 0;
+
+            each(state.panes, pane => {
+                highestZIndex = Math.max(highestZIndex, pane.zIndex);
+            });
+
+            const pane = Object.assign({}, state.panes[action.key]);
+            pane.zIndex = highestZIndex + 1;
 
             return Object.assign({}, state, {
                 panes: {
