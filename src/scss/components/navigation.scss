@@ -1,0 +1,47 @@
+.navigation {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  padding: 0;
+  z-index: 3;
+
+  .mapControls,
+  .paneToggles {
+    background: #4D657E;
+    border-radius: 4px;
+    padding: 2px 7px;
+    display: flex;
+    margin: 0 5px;
+
+    li {
+      list-style: none;
+
+      &.active {
+        color: #5CA1E6;
+      }
+    }
+
+    i {
+      font-size: 25px;
+      cursor: pointer;
+      padding: 5px 7px;
+
+      &.ion-android-share-alt,
+      &.ion-arrow-move {
+        font-size: 23px;
+        padding-top: 6px;
+        padding-bottom: 6px;
+      }
+
+      &.ion-ios-gear {
+        padding-right: 5px;
+      }
+
+      &:active {
+        transform: translateX(1px) translateY(1px);
+      }
+    }
+  }
+}

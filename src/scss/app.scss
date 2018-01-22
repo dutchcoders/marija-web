@@ -30,16 +30,6 @@ body {
     font-weight: 300;
     font-size: 12px;
 
-    header {
-        background-color: $header-background-color;
-        box-shadow: 0 1px 0 0 rgba(0,0,0,0.25);
-
-        nav{
-            padding: 10px 0 0;
-        }
-
-    }
-
     .colorBall {
         display: inline-block;
         width: 13px;
@@ -73,8 +63,7 @@ body {
 
     .logoContainer{
         width: 81px;
-        margin: -15px 0px;
-        box-shadow: inset -1px 0 0 0 rgba(0,0,0,0.20);
+        border-right: 1px solid rgba(0,0,0,0.20);
         text-align: center;
         flex-shrink: 0;
     }
@@ -83,7 +72,7 @@ body {
         max-width: auto;
         max-height: 42px;
         margin-left: 15px;
-        padding: 11px 0px;
+        margin-top: 6px;
         
         &.not-connected{
             animation: fadeIn 1s infinite alternate;
@@ -101,6 +90,33 @@ body {
     }
 }
 
+html,
+body,
+#root,
+.applicationWrapper,
+.routerWrapper,
+.rootView {
+    height: 100%;
+}
+
+.rootView {
+    display: flex;
+    flex-direction: column;
+
+    .header {
+        flex-grow: 0;
+        background-color: $header-background-color;
+        border-bottom: 1px solid rgba(0, 0, 0, .35);
+    }
+
+    .main {
+        flex-grow: 1;
+        position: relative;
+        display: flex;
+    }
+}
+
 
 @import 'components/field';
 @import 'components/graph';
+@import 'components/navigation';

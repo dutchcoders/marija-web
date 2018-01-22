@@ -65,12 +65,12 @@ class App extends Intl {
 
     render() {
         return (
-            <div>
+            <div className="applicationWrapper">
                 <Websocket store={store}/>
                 <StateCapturer store={store}/>
                 <Provider store={store}>
                     <Router history={history}>
-                        <div>
+                        <div className="routerWrapper">
                             <Route path='*' component={RootView} />
                             <Route path='*' component={ResumeSession} />
                         </div>

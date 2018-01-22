@@ -1,4 +1,4 @@
-import { NODES_DESELECT, NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODE_SELECT, NODES_SELECT, SELECTION_CLEAR } from './index';
+import { NODES_DESELECT, NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODE_SELECT, NODES_SELECT, SELECTION_CLEAR, SET_SELECTING_MODE } from './index';
 
 export function deselectNodes(opts) {
     return {
@@ -57,5 +57,12 @@ export function nodesSelect(opts) {
         type: NODES_SELECT,
         receivedAt: Date.now(),
         nodes: opts
+    };
+}
+
+export function setSelectingMode(enable) {
+    return {
+        type: SET_SELECTING_MODE,
+        selectingMode: enable
     };
 }

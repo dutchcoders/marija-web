@@ -16,6 +16,7 @@ import {
 import getNodesAndLinks from "../helpers/getNodesAndLinks";
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
 import {VIA_ADD, VIA_DELETE} from "../modules/data/constants";
+import {SET_SELECTING_MODE} from "../modules/graph/constants";
 
 
 export const defaultState = {
@@ -41,9 +42,9 @@ export const defaultState = {
     linksForDisplay: [], // links that will be rendered
     errors: null,
     via: [],
-    version: ''
+    version: '',
+    selectingMode: false
 };
-
 
 export default function entries(state = defaultState, action) {
     switch (action.type) {
@@ -453,6 +454,11 @@ export default function entries(state = defaultState, action) {
             return Object.assign({}, state, {
                 datasources: action.initial_state.datasources,
                 version: action.initial_state.version
+            });
+
+        case SET_SELECTING_MODE:
+            return Object.assign({}, state, {
+                selectingMode: action.selectingMode
             });
 
         default:

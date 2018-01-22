@@ -43,7 +43,7 @@ class Header extends Component {
         }
 
         return (
-            <header className="row">
+            <header className="header">
                 <SearchBox
                     total={total}
                     onSubmit={(q, index) => this.onSearchSubmit(q, index)}

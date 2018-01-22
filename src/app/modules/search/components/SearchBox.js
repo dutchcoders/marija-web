@@ -5,8 +5,6 @@ import SkyLight from 'react-skylight';
 import SketchPicker from 'react-color';
 import {Query} from "../../../components/index";
 import {editSearch} from "../actions";
-import {isEqual} from 'lodash';
-import {headerHeightChange} from "../../../utils/actions";
 
 class SearchBox extends Component {
     constructor(props) {
@@ -54,16 +52,6 @@ class SearchBox extends Component {
         }));
 
         this.setState({editSearchValue: search});
-    }
-
-    componentDidUpdate(prevProps) {
-        const { searches, dispatch } = this.props;
-
-        if (!isEqual(searches, prevProps.searches)) {
-            const height = this.refs.header.getBoundingClientRect().height;
-
-            dispatch(headerHeightChange(height));
-        }
     }
 
     render() {

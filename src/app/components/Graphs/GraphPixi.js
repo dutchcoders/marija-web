@@ -1,21 +1,14 @@
-import React, {Component} from 'react';
+import React from 'react';
 import { connect} from 'react-redux';
 import Dimensions from 'react-dimensions';
-
 import * as d3 from 'd3';
-import { concat, debounce, forEach, remove, includes, assign, isEqual, isEmpty } from 'lodash';
-import { nodesSelect, highlightNodes, nodeSelect, deselectNodes } from '../../modules/graph/index';
-import {
-    normalize, fieldLocator, getArcParams,
-    getRelatedNodes, abbreviateNodeName
-} from '../../helpers/index';
+import { concat, debounce, remove, includes, assign, isEqual, isEmpty } from 'lodash';
+import { nodesSelect, highlightNodes, deselectNodes } from '../../modules/graph/index';
+import { getArcParams } from '../../helpers/index';
 import Loader from "../Misc/Loader";
-import {Icon} from "../index";
 import * as PIXI from 'pixi.js';
-import MultiStyleText from 'pixi-multistyle-text';
-
+import {setSelectingMode} from "../../modules/graph/actions";
 const Worker = require("worker-loader!./Worker");
-const nodeSprites = {};
 
 class GraphPixi extends React.Component {
     constructor(props) {
@@ -46,7 +39,6 @@ class GraphPixi extends React.Component {
             renderedSinceLastQueries: false,
             transform: d3.zoomIdentity,
             shift: false,
-            selecting: false,
             lastLoopTimestamp: new Date(),
             frameTime: 0,
             lastDisplayedFps: new Date(),
@@ -58,9 +50,9 @@ class GraphPixi extends React.Component {
     }
 
     isMoving() {
-        const { selecting } = this.state;
+        const { selectingMode } = this.props;
 
-        return !selecting;
+        return !selectingMode;
     }
 
     postWorkerMessage(message) {
@@ -436,11 +428,10 @@ class GraphPixi extends React.Component {
 
     shouldComponentUpdate(nextProps, nextState) {
         const { nodesForDisplay, itemsFetching, highlight_nodes, queries, selectedNodes } = this.props;
-        const { selecting, lastDisplayedFps } = this.state;
+        const { lastDisplayedFps } = this.state;
 
         return nextProps.nodesForDisplay !== nodesForDisplay
             || nextProps.itemsFetching !== itemsFetching
-            || nextState.selecting !== selecting
             || !isEqual(nextProps.highlight_nodes, highlight_nodes)
             || !isEqual(nextProps.queries, queries)
             || !isEqual(nextProps.selectedNodes, selectedNodes)
@@ -740,11 +731,15 @@ class GraphPixi extends React.Component {
     }
 
     componentDidMount() {
+        const { zoomEvents } = this.props;
+
         this.initGraph();
 
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
         document.addEventListener('keyup', this.handleKeyUp.bind(this));
         window.addEventListener('resize', this.handleWindowResize.bind(this));
+        zoomEvents.addListener('zoomIn', this.zoomIn.bind(this));
+        zoomEvents.addListener('zoomOut', this.zoomOut.bind(this));
     }
 
     componentWillUnmount() {
@@ -867,10 +862,10 @@ class GraphPixi extends React.Component {
      * Is not involved with dragging nodes, d3 handles that.
      */
     onMouseDown(event) {
-        const { selecting, shift, transform } = this.state;
-        const { dispatch, selectedNodes, nodesForDisplay } = this.props;
+        const { shift, transform } = this.state;
+        const { dispatch, selectedNodes, nodesForDisplay, selectingMode } = this.props;
 
-        if (!selecting) {
+        if (!selectingMode) {
             return;
         }
 
@@ -901,12 +896,13 @@ class GraphPixi extends React.Component {
     }
 
     onMouseMove() {
-        const { transform, selection, selecting } = this.state;
+        const { transform, selection } = this.state;
+        const { selectingMode } = this.props;
 
         const x = transform.invertX(d3.event.layerX);
         const y = transform.invertY(d3.event.layerY);
 
-        if (selecting && selection) {
+        if (selectingMode && selection) {
             const newSelection = assign({}, selection, {
                 x2: x,
                 y2: y
@@ -961,11 +957,12 @@ class GraphPixi extends React.Component {
     }
 
     handleKeyDown(event) {
+        const { selectingMode, dispatch } = this.props;
         const altKey = 18;
         const shiftKey = 16;
 
         if (event.keyCode === altKey) {
-            this.setState(prevstate => ({ selecting: !prevstate.selecting }));
+            dispatch(setSelectingMode(!selectingMode));
         } else if (event.keyCode === shiftKey) {
             this.setState({ shift: true });
         }
@@ -979,16 +976,9 @@ class GraphPixi extends React.Component {
         }
     }
 
-    enableSelecting() {
-        this.setState({ selecting: true });
-    }
-
-    enableMoving() {
-        this.setState({ selecting: false });
-    }
-
     zoomIn() {
         const { transform } = this.state;
+
         const newK = transform.k * 1.3;
 
         if (newK > 3) {
@@ -1015,19 +1005,12 @@ class GraphPixi extends React.Component {
 
     render() {
         const { itemsFetching, version } = this.props;
-        const { selecting, frameTime } = this.state;
+        const { frameTime } = this.state;
         const clientVersion = process.env.CLIENT_VERSION;
 
         return (
             <div className="graphComponent">
                 <div className="graphContainer" ref={pixiContainer => this.pixiContainer = pixiContainer} />
-
-                <ul className="mapControls">
-                    <li className={!selecting ? 'active': ''}><Icon name="ion-arrow-move" onClick={this.enableMoving.bind(this)}/></li>
-                    <li className={selecting ? 'active': ''}><Icon name="ion-ios-crop" onClick={this.enableSelecting.bind(this)}/></li>
-                    <li><Icon name="ion-ios-minus" onClick={this.zoomOut.bind(this)}/></li>
-                    <li><Icon name="ion-ios-plus" onClick={this.zoomIn.bind(this)}/></li>
-                </ul>
                 <Loader show={itemsFetching} classes={['graphLoader']}/>
                 <p className="stats">
                     {(1000/frameTime).toFixed(1)} FPS<br />
@@ -1050,8 +1033,9 @@ const select = (state, ownProps) => {
         items: state.entries.items,
         highlight_nodes: state.entries.highlight_nodes,
         itemsFetching: state.entries.itemsFetching,
-        version: state.entries.version
+        version: state.entries.version,
+        selectingMode: state.entries.selectingMode
     };
 };
 
-export default connect(select)(Dimensions()(GraphPixi));
+export default connect(select)(GraphPixi);

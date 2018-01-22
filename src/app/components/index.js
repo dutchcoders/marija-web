@@ -17,3 +17,4 @@ export { default as StateCapturer } from './Misc/StateCapturer';
 export { default as Websocket } from './Misc/Websocket';
 
 export { default as ConfigurationView } from './Configuration/ConfigurationView';
+export { default as Navigation } from './Misc/Navigation';

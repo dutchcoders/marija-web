@@ -1,4 +1,4 @@
-import { OPEN_PANE, CLOSE_PANE, CANCEL_REQUEST, Socket, HEADER_HEIGHT_CHANGE } from '../utils/index';
+import { OPEN_PANE, CLOSE_PANE, CANCEL_REQUEST, Socket} from '../utils/index';
 
 function setPaneTo(panes, pane, state) {
     return panes.map((item) => {
@@ -10,8 +10,7 @@ function setPaneTo(panes, pane, state) {
 }
 
 const defaultState = {
-    panes: [],
-    headerHeight: 56
+    panes: []
 };
 
 export default function utils(state = defaultState, action) {
@@ -21,8 +20,6 @@ export default function utils(state = defaultState, action) {
             return Object.assign({}, state, {panes: setPaneTo(state.panes, action.pane, true)});
         case CLOSE_PANE:
             return Object.assign({}, state, {panes: setPaneTo(state.panes, action.pane, false)});
-        case HEADER_HEIGHT_CHANGE:
-            return Object.assign({}, state, {headerHeight: action.height});
         case CANCEL_REQUEST:
             Socket.ws.postMessage(
                 {

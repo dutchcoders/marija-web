@@ -3,6 +3,11 @@
     margin: 0;
     box-shadow: -1px 0 0 0 rgba(0,0,0,0.15);
     z-index: 2;
+    display: none;
+
+    &.open {
+        display: block;
+    }
 
     .pane-header {
         position: relative;
@@ -50,150 +55,33 @@
     }
 
     &.configuration {
-        transition: left 0.5s;
         position: absolute;
-        top: 56px;
-        left: -300px;
+        top: 0;
+        left: 0;
         bottom: 0;
         width: 300px;
-
-        &.open {
-            left: 0;
-        }
     }
 
     &.configuration{
-        .open-tag {
-            transition: all 0.5s;
-            position: absolute;
-            right: -48px;
-            top: 50%;
-            padding: 10px 20px;
-            font-size: 20px;
-            margin-top: -48px;
-            cursor: pointer;
-            background-color: $header-background-color;
-
-            &:hover {
-                background-color: $header-background-color;
-                opacity: 0.7;
-            }
-        }
-
-        &.open {
-            left: 0;
-
-            .open-tag {
-                opacity: 0;
-            }
-        }
-
         .importFile {
             display: none;
         }
     }
 
-    &.queries {
-        transition: left 0.5s;
-        position: absolute;
-        top: calc(50%);
-        left: -300px;
-        bottom: 0;
-        width: 300px;
-
-        .open-tag {
-            transition: all 0.5s;
-            position: absolute;
-            right: -49px;
-            top: 50%;
-            padding: 10px 20px;
-            font-size: 20px;
-            margin-top: -24px;
-            cursor: pointer;
-            background-color: $header-background-color;
-
-            &:hover {
-                background-color: $header-background-color;
-                opacity: 0.7;
-            }
-        }
-
-        &.open {
-            left: 0;
-
-            .open-tag {
-                opacity: 0;
-            }
-        }
-
-    }
-
     &.table {
-        transition: right 0.5s;
         position: absolute;
         top: calc(40%);
-        right: -700px;
+        right: 0;
         bottom: 0;
         width: 700px;
-
-        .open-tag {
-            transition: all 0.5s;
-            position: absolute;
-            left: -49px;
-            top: 50%;
-            padding: 10px 20px;
-            font-size: 20px;
-            margin-top: -24px;
-            cursor: pointer;
-            background-color: $header-background-color;
-
-            &:hover {
-                background-color: $header-background-color;
-                opacity: 0.7;
-            }
-        }
-
-        &.open {
-            right: 0;
-
-            .open-tag {
-                opacity: 0;
-            }
-        }
     }
 
     &.nodes {
-        transition: right 0.5s;
         position: absolute;
-        top: 56px;
-        right: -400px;
+        top: 0;
+        right: 0;
         bottom: 60%;
         width: 400px;
-
-        .open-tag {
-            transition: all 0.5s;
-            position: absolute;
-            left: -49px;
-            top: 50%;
-            padding: 10px 20px;
-            font-size: 20px;
-            margin-top: -24px;
-            cursor: pointer;
-            background-color: $header-background-color;
-
-            &:hover {
-                background-color: $header-background-color;
-                opacity: 0.7;
-            }
-        }
-
-        &.open {
-            right: 0;
-
-            .open-tag {
-                opacity: 0;
-            }
-        }
 
         .pane-holder {
             padding-top: 0;
@@ -252,36 +140,11 @@
     }
 
     &.histogram {
-        transition: bottom 0.5s;
         position: absolute;
-        bottom: -300px;
+        bottom: 0;
         height: 300px;
         left: 0;
         right: 0;
-
-        .open-tag {
-            transition: all 0.5s;
-            position: absolute;
-            left: 50%;
-            top: -93px;
-            background-color: $header-background-color;
-            padding: 10px 20px;
-            font-size: 20px;
-            margin-left: -24px;
-            cursor: pointer;
-
-            &:hover {
-                background-color: $header-background-color;
-                opacity: 0.7;
-            }
-        }
-
-        &.open {
-            bottom: 0;
-            .open-tag {
-                opacity: 0;
-            }
-        }
     }
 
     .form-group {

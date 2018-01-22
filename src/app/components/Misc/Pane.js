@@ -38,19 +38,11 @@ export function Pane(props) {
                     <div className="col-md-12">
                         {name}
                         {descriptionEl}
-                        <Icon onClick={() => close()} name="ion-ios-minus shut"/>
+                        <Icon onClick={() => close()} name="ion-ios-close shut"/>
                     </div>
                 </div>
                 <div className="row">
                     <div className="col-md-12 pane-holder">
-
-                        {icon ?
-                            <div onClick={() => open()} className="open-tag">
-                                <Icon name={icon}/>
-                            </div> :
-                            null
-                        }
-
                         <div className="col-md-12 pane-content">
                             {isOpen ? children : null}
                         </div>
