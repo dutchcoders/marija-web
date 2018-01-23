@@ -65,33 +65,6 @@ class Filter extends React.Component {
         dispatch(highlightNodes([]));
     }
 
-    renderSelected() {
-        const { node } = this.props;
-        const { editNode, value } = this.state;
-
-        return (
-            node.length > 0?
-                map(sortBy(node, ['name']), (i_node) => {
-                    return (
-                        <li key={i_node.id} onMouseEnter={() => this.displayTooltip(i_node)}>
-                            <div>
-                                <span className="nodeIcon">{ i_node.icon }</span>
-                                <span>{i_node.abbreviated}</span>
-                                <Icon style={{'marginRight': '60px'}}  className="glyphicon" name={ i_node.icon[0] }></Icon>
-                                <Icon style={{'marginRight': '40px'}} onClick={(n) => this.handleEditNode(i_node)} name="ion-ios-remove-circle-outline"/>
-                                <Icon style={{'marginRight': '20px'}} onClick={(n) => this.handleDeselectNode(i_node)} name="ion-ios-remove-circle-outline"/>
-                                <Icon onClick={(n) => this.handleDeleteNode(i_node)} name="ion-ios-close-circle-outline"/>
-                            </div>
-                            <div>
-                                <span className='description'>{i_node.description}</span>
-                            </div>
-                        </li>
-                    );
-                })
-                : <li>no node selected</li>
-        );
-    }
-
     getSearchResults() {
         const { nodesForDisplay } = this.props;
         const { find_value } = this.state;
@@ -146,7 +119,7 @@ class Filter extends React.Component {
             const found = find(this.props.node, (n) => n.id === node.id);
             const checked = (typeof found !== 'undefined');
             return (
-                <li key={node.id}>
+                <li key={node.id} onMouseEnter={() => this.displayTooltip(node)}>
                     <input type='checkbox' checked={checked}  onChange={ (e) => this.handleFindSelectChange(node, e) } />
                     <span className="nodeIcon">{node.icon}</span>
                     { node.abbreviated }
@@ -160,7 +133,7 @@ class Filter extends React.Component {
                     <input type="text" className="form-control" value={find_value} onChange={ this.handleFindNodeChange.bind(this) } placeholder='find node' />
                     <button className="nodeSelectButton btn btn-primary" onClick={e => this.handleSelectMultiple(e, notSelectedNodes)}>Select all ({notSelectedNodes.length})</button>
                     <button className="nodeSelectButton btn btn-primary" onClick={e => this.handleDeselectMultiple(e, selectedNodes)}>Deselect all ({selectedNodes.length})</button>
-                    <ul className="nodesSearchResult">
+                    <ul className="nodesSearchResult" onMouseLeave={this.hideTooltip.bind(this)}>
                         { find_nodes }
                     </ul>
                 </form>
