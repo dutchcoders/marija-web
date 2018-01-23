@@ -40,7 +40,7 @@ class Filter extends React.Component {
         } else {
             dispatch(filterSearchResults(this.getSearchResults()));
         }
-    }, 250);
+    }, 50);
 
     handleFindSelectChange(n, event) {
         const { dispatch } = this.props;
