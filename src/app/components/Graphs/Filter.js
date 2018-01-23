@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
-import { map, uniq, filter, concat, without, find, differenceWith, sortBy } from 'lodash';
+import { map, uniq, filter, concat, without, find, differenceWith, sortBy, debounce } from 'lodash';
 
 import { Icon } from '../index';
 import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
 import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
 import { fieldLocator, getRelatedNodes } from '../../helpers/index';
+import {filterSearchResults} from "../../modules/search/actions";
 
 class Filter extends React.Component {
     constructor(props) {
@@ -20,59 +21,26 @@ class Filter extends React.Component {
         };
     }
 
-    handleClearSelection() {
-        const { dispatch } = this.props;
-        dispatch(clearSelection());
-    }
-
-    handleCancelEditNode(node) {
-        const { dispatch } = this.props;
-        this.setState({editNode: null});
-    }
-
-    handleUpdateEditNode(node) {
-        const { editNode, value, description } = this.state;
-        const { dispatch } = this.props;
-
-        dispatch(nodeUpdate(editNode.id, {name: value, description: description }));
-
-        this.setState({editNode: null});
-    }
-
-
-    handleEditNode(node) {
-        this.setState({editNode: node, value: node.name});
-        this.refs.editDialog.show();
-    }
-
     handleDeselectNode(node) {
         const { dispatch } = this.props;
         dispatch(deselectNodes([node]));
     }
 
-    handleDeleteNode(node) {
-        const { dispatch } = this.props;
-        dispatch(deleteNodes([node]));
-    }
-
-    handleDeleteAllButSelectedNodes() {
-        const { dispatch, node, nodes } = this.props;
-
-        const delete_nodes = differenceWith(nodes, node, (n1, n2) => {
-            return n1.id == n2.id;
-        });
-
-        dispatch(deleteNodes(delete_nodes));
-    }
-
-    handleFindNodes() {
-        const { dispatch, node, nodes, links } = this.props;
-        this.refs.findDialog.show();
-    }
-
     handleFindNodeChange(event) {
         this.setState({find_value: event.target.value});
+        this.setFilterSearchResults();
     }
+
+    setFilterSearchResults = debounce(() => {
+        const { dispatch, nodesForDisplay } = this.props;
+        const searchResults = this.getSearchResults();
+
+        if (nodesForDisplay.length === searchResults.length) {
+            dispatch(filterSearchResults([]));
+        } else {
+            dispatch(filterSearchResults(this.getSearchResults()));
+        }
+    }, 250);
 
     handleFindSelectChange(n, event) {
         const { dispatch } = this.props;
@@ -82,32 +50,6 @@ class Filter extends React.Component {
         } else {
             dispatch(deselectNodes([n]));
         }
-    }
-
-    handleSelectAllNodes() {
-        const { dispatch, node, nodes, links } = this.props;
-
-        dispatch(nodesSelect(nodes));
-    }
-
-    handleSelectRelatedNodes() {
-        const { dispatch, node, nodes, links } = this.props;
-
-        const relatedNodes = getRelatedNodes(node, nodes, links);
-        dispatch(nodesSelect(relatedNodes));
-    }
-
-    handleNodeChangeName(event) {
-        this.setState({value: event.target.value});
-    }
-
-    handleNodeChangeDescription(event) {
-        this.setState({description: event.target.value});
-    }
-
-    handleDeleteAllNodes() {
-        const { dispatch, node } = this.props;
-        dispatch(deleteNodes(node));
     }
 
     displayTooltip(node) {
@@ -150,10 +92,10 @@ class Filter extends React.Component {
     }
 
     getSearchResults() {
-        const { nodes } = this.props;
+        const { nodesForDisplay } = this.props;
         const { find_value } = this.state;
 
-        return nodes.filter((node) => node.name.toLowerCase().indexOf(find_value) !== -1);
+        return nodesForDisplay.filter((node) => node.name.toLowerCase().indexOf(find_value) !== -1);
     }
 
     handleSelectMultiple(e, nodes) {
@@ -223,7 +165,7 @@ function select(state) {
     return {
         node: state.entries.node,
         highlight_nodes: state.entries.highlight_nodes,
-        nodes: state.entries.nodes,
+        nodesForDisplay: state.entries.nodesForDisplay,
         links: state.entries.links
     };
 }

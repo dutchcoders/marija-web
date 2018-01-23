@@ -1,4 +1,5 @@
 import { SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_DELETE, DISPLAY_LESS, SEARCH_EDIT, SEARCH_COMPLETED } from './index';
+import {FILTER_SEARCH_RESULTS} from "./constants";
 
 const defaultOpts = {
     from: 0,
@@ -50,5 +51,12 @@ export function editSearch(query, opts) {
         receivedAt: Date.now(),
         query: query,
         opts: opts
+    };
+}
+
+export function filterSearchResults(nodes) {
+    return {
+        type: FILTER_SEARCH_RESULTS,
+        nodes: nodes
     };
 }

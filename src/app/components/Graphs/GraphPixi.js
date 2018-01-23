@@ -29,6 +29,8 @@ class GraphPixi extends React.Component {
             renderedTooltip: undefined,
             renderedSelectedNodes: undefined,
             selectedNodeTextures: {},
+            searchResultTextures: {},
+            renderedSearchResults: undefined,
             stage: undefined,
             worker: worker,
             renderedSinceLastTick: false,
@@ -37,6 +39,7 @@ class GraphPixi extends React.Component {
             renderedSinceLastSelection: false,
             renderedSinceLastSelectedNodes: false,
             renderedSinceLastQueries: false,
+            renderedSinceLastSearchResults: true,
             transform: d3.zoomIdentity,
             shift: false,
             lastLoopTimestamp: new Date(),
@@ -85,9 +88,9 @@ class GraphPixi extends React.Component {
     }
 
     zoom(fraction, newX, newY) {
-        const { renderedNodesContainer, renderedLinks, renderedSelectedNodes, renderedLinkLabels } = this.state;
+        const { renderedNodesContainer, renderedLinks, renderedSelectedNodes, renderedLinkLabels, renderedSearchResults } = this.state;
 
-        [renderedNodesContainer, renderedLinks, renderedSelectedNodes, renderedLinkLabels].forEach(zoomable => {
+        [renderedNodesContainer, renderedLinks, renderedSelectedNodes, renderedLinkLabels, renderedSearchResults].forEach(zoomable => {
             zoomable.scale.x = fraction;
             zoomable.scale.y = fraction;
 
@@ -363,7 +366,7 @@ class GraphPixi extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        const { nodesForDisplay, highlight_nodes, selectedNodes, queries } = this.props;
+        const { nodesForDisplay, highlight_nodes, selectedNodes, queries, filterSearchResults } = this.props;
 
         if (!isEqual(prevProps.selectedNodes, selectedNodes)) {
             this.setState({
@@ -386,6 +389,12 @@ class GraphPixi extends React.Component {
 
         if (!isEqual(prevProps.nodesForDisplay, nodesForDisplay)) {
             this.postNodesAndLinksToWorker();
+        }
+
+        if (!isEqual(prevProps.filterSearchResults, filterSearchResults)) {
+            this.setState({
+                renderedSinceLastSearchResults: false
+            });
         }
 
         this.setState({
@@ -427,7 +436,7 @@ class GraphPixi extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const { nodesForDisplay, itemsFetching, highlight_nodes, queries, selectedNodes } = this.props;
+        const { nodesForDisplay, itemsFetching, highlight_nodes, queries, selectedNodes, filterSearchResults } = this.props;
         const { lastDisplayedFps } = this.state;
 
         return nextProps.nodesForDisplay !== nodesForDisplay
@@ -435,6 +444,7 @@ class GraphPixi extends React.Component {
             || !isEqual(nextProps.highlight_nodes, highlight_nodes)
             || !isEqual(nextProps.queries, queries)
             || !isEqual(nextProps.selectedNodes, selectedNodes)
+            || !isEqual(nextProps.filterSearchResults, filterSearchResults)
             || new Date() - lastDisplayedFps > 1000;
     }
 
@@ -590,6 +600,62 @@ class GraphPixi extends React.Component {
         });
     }
 
+    getSearchResultTexture(radius) {
+        const { searchResultTextures } = this.state;
+        let texture = searchResultTextures[radius];
+
+        if (texture) {
+            return texture;
+        }
+
+        radius += 5;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = radius * 2;
+        canvas.height = radius * 2;
+
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.arc(radius, radius, radius, 0, 2 * Math.PI);
+        ctx.fill();
+
+        texture = PIXI.Texture.fromCanvas(canvas);
+
+        this.setState(prevState => ({
+            searchResultTextures: {
+                ...prevState.searchResultTextures,
+                [radius]: texture
+            }
+        }));
+
+        return texture;
+    }
+
+    renderSearchResults() {
+        const { filterSearchResults } = this.props;
+        const { nodesFromWorker, renderedSearchResults } = this.state;
+
+        renderedSearchResults.removeChildren();
+
+        filterSearchResults.forEach(searchResult => {
+            const nodeFromWorker = nodesFromWorker.find(search => search.hash === searchResult.hash);
+
+            if (typeof nodeFromWorker === 'undefined') {
+                return;
+            }
+
+            const texture = this.getSearchResultTexture(nodeFromWorker.r);
+            const sprite = new PIXI.Sprite(texture);
+
+            sprite.anchor.x = 0.5;
+            sprite.anchor.y = 0.5;
+            sprite.x = nodeFromWorker.x;
+            sprite.y = nodeFromWorker.y;
+
+            renderedSearchResults.addChild(sprite);
+        });
+    }
+
     renderGraph(renderStage) {
         const { renderer, stage } = this.state;
 
@@ -635,6 +701,14 @@ class GraphPixi extends React.Component {
             stateUpdates.renderedSinceLastSelectedNodes = true;
         }
 
+        if (shouldRender('renderedSinceLastSearchResults')
+            || shouldRender('renderedSinceLastZoom')
+            || shouldRender('renderedSinceLastTick')) {
+            this.renderSearchResults();
+
+            stateUpdates.renderedSinceLastSearchResults = true;
+        }
+
         this.setState(stateUpdates);
         this.measureFps();
 
@@ -677,6 +751,9 @@ class GraphPixi extends React.Component {
 
         const renderedLinkLabels =  new PIXI.Container();
         stage.addChild(renderedLinkLabels);
+
+        const renderedSearchResults =  new PIXI.Container();
+        stage.addChild(renderedSearchResults);
 
         const renderedNodesContainer = new PIXI.Container();
         stage.addChild(renderedNodesContainer);
@@ -726,7 +803,8 @@ class GraphPixi extends React.Component {
             renderedTooltip: renderedTooltip,
             stage: stage,
             renderedLinkLabels: renderedLinkLabels,
-            renderedSelectedNodes: renderedSelectedNodes
+            renderedSelectedNodes: renderedSelectedNodes,
+            renderedSearchResults: renderedSearchResults
         }, () => this.renderGraph());
     }
 
@@ -1028,6 +1106,7 @@ const select = (state, ownProps) => {
         selectedNodes: state.entries.node,
         nodesForDisplay: state.entries.nodesForDisplay,
         linksForDisplay: state.entries.linksForDisplay,
+        filterSearchResults: state.entries.filterSearchResults,
         queries: state.entries.searches,
         fields: state.entries.fields,
         items: state.entries.items,

@@ -17,6 +17,7 @@ import getNodesAndLinks from "../helpers/getNodesAndLinks";
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
 import {VIA_ADD, VIA_DELETE} from "../modules/data/constants";
 import {SET_SELECTING_MODE} from "../modules/graph/constants";
+import {FILTER_SEARCH_RESULTS} from "../modules/search/constants";
 
 
 export const defaultState = {
@@ -40,6 +41,7 @@ export const defaultState = {
     links: [], // relations between nodes
     nodesForDisplay: [], // nodes that will be rendered
     linksForDisplay: [], // links that will be rendered
+    filterSearchResults: [],
     errors: null,
     via: [],
     version: '',
@@ -459,6 +461,11 @@ export default function entries(state = defaultState, action) {
         case SET_SELECTING_MODE:
             return Object.assign({}, state, {
                 selectingMode: action.selectingMode
+            });
+
+        case FILTER_SEARCH_RESULTS:
+            return Object.assign({}, state, {
+                filterSearchResults: action.nodes
             });
 
         default:
