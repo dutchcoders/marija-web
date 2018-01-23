@@ -60,6 +60,12 @@ class ConfigurationView extends React.Component {
             path: field.path,
             type: field.type
         }));
+
+        this.setState({
+            currentFieldSearchValue: ''
+        });
+
+        this.searchInput.focus();
     }
 
     handleFieldSearchChange(event) {
@@ -438,9 +444,12 @@ class ConfigurationView extends React.Component {
             <form>
                 <div className="row">
                     <div className="col-xs-12">
-                        <input className="form-control searchInput" value={this.state.currentFieldSearchValue}
-                               onChange={this.handleFieldSearchChange.bind(this)} type="text" ref="field"
-                               placeholder={'Search ' + searchResults.length + ' fields'} />
+                        <input
+                            className="form-control searchInput"
+                            ref={searchInput => this.searchInput = searchInput}
+                            value={this.state.currentFieldSearchValue}
+                            onChange={this.handleFieldSearchChange.bind(this)} type="text"
+                            placeholder={'Search ' + searchResults.length + ' fields'} />
                     </div>
                 </div>
                 <div className="row">
