@@ -1,0 +1,38 @@
+.nodesSearchResult {
+  margin: 0;
+  padding: 0;
+
+  li {
+    background-color: rgba(0, 0, 0, 0.1);
+    position: relative;
+    font-weight: 300;
+    list-style-type: none;
+    padding: 3px 6px;
+    letter-spacing: 0.6px;
+    font-size: 12px;
+
+    &:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    input {
+      margin-right: 5px;
+    }
+
+    .nodeIcon {
+      margin-right: 5px;
+      font-size: 1em;
+      background-color: rgba(255, 255, 255, 0.15);
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 20px;
+      display: inline-block;
+    }
+  }
+}
+
+.nodeSelectButton {
+  margin: 5px 5px 5px 0;
+}

@@ -17,7 +17,6 @@ class Nodes extends React.Component {
         this.state = {
             editNode: null,
             value: "",
-            find_value: "",
             description: ""
         };
     }
@@ -67,25 +66,6 @@ class Nodes extends React.Component {
         dispatch(deleteNodes(delete_nodes));
     }
 
-    handleFindNodes() {
-        const { dispatch, node, nodes, links } = this.props;
-        this.refs.findDialog.show();
-    }
-
-    handleFindNodeChange(event) {
-        this.setState({find_value: event.target.value});
-    }
-
-    handleFindSelectChange(n, event) {
-        const { dispatch } = this.props;
-
-        if (event.target.checked) {
-            dispatch(nodesSelect([n]));
-        } else {
-            dispatch(deselectNodes([n]));
-        }
-    }
-
     handleSelectAllNodes() {
         const { dispatch, node, nodes, links } = this.props;
 
@@ -126,7 +106,6 @@ class Nodes extends React.Component {
 
     renderSelected() {
         const { node } = this.props;
-        const { editNode, value } = this.state;
 
         return (
             node.length > 0?
@@ -151,30 +130,6 @@ class Nodes extends React.Component {
         );
     }
 
-    getSearchResults() {
-        const { nodes } = this.props;
-        const { find_value } = this.state;
-
-        return nodes.filter((node) => node.name.toLowerCase().indexOf(find_value) !== -1);
-    }
-
-    handleSelectMultiple(e, nodes) {
-        e.preventDefault();
-
-        const { dispatch, node } = this.props;
-        const searchResults = this.getSearchResults();
-
-        dispatch(nodesSelect(nodes));
-    }
-
-    handleDeselectMultiple(e, nodes) {
-        e.preventDefault();
-
-        const { dispatch } = this.props;
-
-        dispatch(deselectNodes(nodes));
-    }
-
     render() {
         const { editNode, find_value, value, description } = this.state;
         const { node } = this.props;
@@ -187,32 +142,6 @@ class Nodes extends React.Component {
             marginTop: '-200px',
             marginLeft: '-200px',
         };
-
-        const searchResults = this.getSearchResults();
-        const notSelectedNodes = [];
-        const selectedNodes = [];
-
-        searchResults.forEach(search => {
-            const inSelection = node.find(nodeLoop => nodeLoop.id === search.id);
-
-            if (typeof inSelection === 'undefined') {
-                notSelectedNodes.push(search);
-            } else {
-                selectedNodes.push(search);
-            }
-        });
-
-        const find_nodes = map(searchResults, (node) => {
-            const found = find(this.props.node, (n) => n.id === node.id);
-            const checked = (typeof found !== 'undefined');
-            return (
-                <li key={node.id}>
-                    <input type='checkbox' checked={checked}  onChange={ (e) => this.handleFindSelectChange(node, e) } />
-                    <span className="nodeIcon">{node.icon}</span>
-                    { node.abbreviated }
-                </li>
-            );
-        });
 
         let edit_node = null;
         if (editNode) {
@@ -234,7 +163,6 @@ class Nodes extends React.Component {
                 <div className="nodes-btn-group" role="group">
                     <button type="button" className="btn btn-default" aria-label="Clear selection" onClick={() => this.handleClearSelection()}>deselect</button>
                     <button type="button" className="btn btn-default" aria-label="Select related nodes" onClick={() => this.handleSelectRelatedNodes()}>related</button>
-                    <button type="button" className="btn btn-default" aria-label="Find nodes" onClick={() => this.handleFindNodes()}>find</button>
                     <button type="button" className="btn btn-default" aria-label="Select all nodes" onClick={() => this.handleSelectAllNodes()}>all</button>
                     <button type="button" className="btn btn-default" aria-label="Delete selected nodes" onClick={() => this.handleDeleteAllNodes()}>delete</button>
                     <button type="button" className="btn btn-default" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}>delete others</button>
@@ -246,18 +174,6 @@ class Nodes extends React.Component {
                 </div>
                 <SkyLight dialogStyles={updateNodeDialogStyles} hideOnOverlayClicked ref="editDialog" title="Update node" afterClose={ this.handleUpdateEditNode.bind(this) }>
                     { edit_node }
-                </SkyLight>
-                <SkyLight dialogStyles={updateNodeDialogStyles} hideOnOverlayClicked ref="findDialog" title="Find node">
-                    <div>
-                        <form>
-                            <input type="text" className="form-control" value={find_value} onChange={ this.handleFindNodeChange.bind(this) } placeholder='find node' />
-                            <ul className="nodesSearchResult">
-                                { find_nodes }
-                            </ul>
-                            <button className="nodeSelectButton" onClick={e => this.handleSelectMultiple(e, notSelectedNodes)}>Select all ({notSelectedNodes.length})</button>
-                            <button className="nodeSelectButton" onClick={e => this.handleDeselectMultiple(e, selectedNodes)}>Deselect all ({selectedNodes.length})</button>
-                        </form>
-                    </div>
                 </SkyLight>
             </div>
         );

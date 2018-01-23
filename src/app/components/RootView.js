@@ -6,6 +6,7 @@ import {
     Header, Record, TableView, ConfigurationView, Histogram, Queries, Graph,
     GraphPixi, Pane, Icon, Nodes, Navigation
 } from './index';
+import Filter from "./Graphs/Filter";
 
 class RootView extends Component {
     zoomEvents = new EventEmitter();
@@ -54,8 +55,7 @@ class RootView extends Component {
                         handle="configuration"
                         config={panes.configuration}
                         dispatch={dispatch}
-                        container={this.main}
-                        icon="ion-ios-arrow-forward">
+                        container={this.main}>
                         <ConfigurationView ref="configurationView"/>
                     </Pane>
 
@@ -65,8 +65,7 @@ class RootView extends Component {
                         handle="nodes"
                         config={panes.nodes}
                         dispatch={dispatch}
-                        container={this.main}
-                        icon="ion-ios-arrow-back">
+                        container={this.main}>
                         <Nodes />
                     </Pane>
 
@@ -76,8 +75,7 @@ class RootView extends Component {
                         handle="table"
                         config={panes.table}
                         dispatch={dispatch}
-                        container={this.main}
-                        icon="ion-ios-arrow-back">
+                        container={this.main}>
                         <TableView />
                     </Pane>
 
@@ -86,13 +84,21 @@ class RootView extends Component {
                         handle="histogram"
                         config={panes.histogram}
                         dispatch={dispatch}
-                        container={this.main}
-                        icon="ion-ios-arrow-up">
+                        container={this.main}>
                         <Histogram
                             width="1600"
                             height="200"
                             className="histogram"
                         />
+                    </Pane>
+
+                    <Pane
+                        name="Filter"
+                        handle="filter"
+                        config={panes.filter}
+                        dispatch={dispatch}
+                        container={this.main}>
+                        <Filter />
                     </Pane>
                 </div>
             );

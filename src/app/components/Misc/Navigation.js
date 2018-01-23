@@ -76,6 +76,12 @@ class Navigation extends React.Component {
                         () => this.togglePane('histogram'),
                         this.isActive('histogram')
                     )}
+                    {this.getButton(
+                        'ion-ios-search',
+                        'Filter',
+                        () => this.togglePane('filter'),
+                        this.isActive('filter')
+                    )}
                 </ul>
                 <ul className="mapControls">
                     {this.getButton(

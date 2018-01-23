@@ -53,6 +53,10 @@ export const defaultUtilsState = {
             height: 300,
             alignBottom: true,
             fullWidth: true
+        }),
+        filter: Object.assign({}, defaultPane, {
+            width: 300,
+            height: 300,
         })
     }
 };
