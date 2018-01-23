@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
-import { map, uniq, filter, concat, without, find, differenceWith, sortBy, debounce } from 'lodash';
+import { map, uniq, filter, concat, without, find, differenceWith, sortBy, debounce, isEqual } from 'lodash';
 
 import { Icon } from '../index';
 import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
@@ -27,11 +27,12 @@ class Filter extends React.Component {
     }
 
     handleFindNodeChange(event) {
-        this.setState({find_value: event.target.value});
-        this.setFilterSearchResults();
+        this.setState({find_value: event.target.value}, () => {
+            this.setFilterSearchResults();
+        });
     }
 
-    setFilterSearchResults = debounce(() => {
+    setFilterSearchResults() {
         const { dispatch, nodesForDisplay } = this.props;
         const searchResults = this.getSearchResults();
 
@@ -40,7 +41,7 @@ class Filter extends React.Component {
         } else {
             dispatch(filterSearchResults(this.getSearchResults()));
         }
-    }, 50);
+    }
 
     handleFindSelectChange(n, event) {
         const { dispatch } = this.props;
@@ -113,6 +114,14 @@ class Filter extends React.Component {
         const { dispatch } = this.props;
 
         dispatch(deselectNodes(nodes));
+    }
+
+    componentDidUpdate(prevProps) {
+        const { nodesForDisplay } = this.props;
+
+        if (!isEqual(prevProps.nodesForDisplay, nodesForDisplay)) {
+            this.setFilterSearchResults();
+        }
     }
 
     render() {
