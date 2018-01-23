@@ -602,13 +602,12 @@ class GraphPixi extends React.Component {
 
     getSearchResultTexture(radius) {
         const { searchResultTextures } = this.state;
+        radius += 5;
         let texture = searchResultTextures[radius];
 
         if (texture) {
             return texture;
         }
-
-        radius += 5;
 
         const canvas = document.createElement('canvas');
         canvas.width = radius * 2;
