@@ -13,6 +13,7 @@ import { deleteSearch, editSearch, searchRequest } from '../../modules/search/in
 import Url from "../../domain/Url";
 import Tooltip from 'rc-tooltip';
 import {cancelRequest} from "../../utils/actions";
+import {deselectNodes} from "../../modules/graph/actions";
 
 class Query extends React.Component {
     constructor(props) {
@@ -78,6 +79,23 @@ class Query extends React.Component {
         return nodesForDisplay.filter(node => node.queries.indexOf(search.q) !== -1).length;
     }
 
+    selectNodes() {
+        const { nodesForDisplay, search, dispatch, selectedNodes } = this.props;
+
+        const nodesInQuery = nodesForDisplay.filter(node => node.queries.indexOf(search.q) !== -1);
+
+        if (nodesInQuery.length === 0) {
+            return;
+        }
+
+        // If the nodes in this query are exactly the same as the current selection, we deselect instead
+        if (isEqual(nodesInQuery, selectedNodes)) {
+            dispatch(deselectNodes(nodesInQuery));
+        } else {
+            dispatch(nodesSelect(nodesInQuery));
+        }
+    }
+
     render() {
         const { search, handleEdit } = this.props;
 
@@ -95,7 +113,7 @@ class Query extends React.Component {
                 </span>
 
                 <Tooltip
-                    overlay="Show less results"
+                    overlay="Show less"
                     placement="bottom"
                     mouseLeaveDelay={0}
                     arrowContent={<div className="rc-tooltip-arrow-inner" />}>
@@ -107,7 +125,7 @@ class Query extends React.Component {
                 </Tooltip>
 
                 <Tooltip
-                    overlay="Show more results"
+                    overlay="Show more"
                     placement="bottom"
                     mouseLeaveDelay={0}
                     arrowContent={<div className="rc-tooltip-arrow-inner" />}>
@@ -127,6 +145,14 @@ class Query extends React.Component {
                 </Tooltip>
 
                 <Tooltip
+                    overlay="Select nodes"
+                    placement="bottom"
+                    mouseLeaveDelay={0}
+                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                    <Icon onClick={this.selectNodes.bind(this)} name="ion-ios-color-wand"/>
+                </Tooltip>
+
+                <Tooltip
                     overlay="Delete"
                     placement="bottom"
                     mouseLeaveDelay={0}
@@ -143,7 +169,8 @@ const select = (state, ownProps) => {
     return {
         ...ownProps,
         nodesForDisplay: state.entries.nodesForDisplay,
-        nodes: state.entries.nodes
+        nodes: state.entries.nodes,
+        selectedNodes: state.entries.node
     };
 };
 
