@@ -162,10 +162,10 @@ class Nodes extends React.Component {
         }));
     }
 
-    componentWillReceiveProps(nextProps) {
+    prepareImages(nodes) {
         const keys = {};
 
-        nextProps.node.forEach(node => {
+        nodes.forEach(node => {
             const key = this.getImageKey(node);
 
             if (typeof keys[key] === 'undefined') {
@@ -176,6 +176,14 @@ class Nodes extends React.Component {
         forEach(keys, (node, key) => {
             this.prepareImage(key, node);
         });
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.prepareImages(nextProps.nodes);
+    }
+
+    componentWillMount() {
+        this.prepareImages(this.props.node);
     }
 
     renderSelected() {
