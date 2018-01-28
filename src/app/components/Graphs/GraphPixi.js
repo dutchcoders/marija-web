@@ -151,7 +151,7 @@ class GraphPixi extends React.Component {
         const anglePerQuery = 2 * Math.PI * fractionPerQuery;
         let currentAngle = .5 * Math.PI;
 
-        node.queries.forEach((query, i) => {
+        node.queries.forEach(query => {
             ctx.beginPath();
             ctx.fillStyle = this.getQueryColor(query);
             ctx.moveTo(node.r, node.r);

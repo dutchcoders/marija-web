@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
-import { map, uniq, filter, concat, without, find, differenceWith, sortBy } from 'lodash';
+import { map, uniq, filter, concat, without, find, differenceWith, sortBy, forEach } from 'lodash';
 
 import { Icon } from '../index';
 import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
@@ -17,7 +17,8 @@ class Nodes extends React.Component {
         this.state = {
             editNode: null,
             value: "",
-            description: ""
+            description: "",
+            nodeImages: {}
         };
     }
 
@@ -104,29 +105,107 @@ class Nodes extends React.Component {
         dispatch(highlightNodes([]));
     }
 
+    getQueryColor(query) {
+        const { queries } = this.props;
+        const search = queries.find(search => search.q === query);
+
+        if (typeof search !== 'undefined') {
+            return search.color;
+        }
+    }
+
+    getImageKey(node) {
+        return node.icon
+            + node.queries.map(query => this.getQueryColor(query)).join('');
+    }
+
+    prepareImage(key, node) {
+        const { nodeImages } = this.state;
+
+        if (nodeImages[key]) {
+            return;
+        }
+
+        const width = 20;
+        const height = 20;
+        const radius = width / 2;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+
+        const fractionPerQuery = 1 / node.queries.length;
+        const anglePerQuery = 2 * Math.PI * fractionPerQuery;
+        let currentAngle = .5 * Math.PI;
+
+        node.queries.forEach(query => {
+            ctx.beginPath();
+            ctx.fillStyle = this.getQueryColor(query);
+            ctx.moveTo(radius, radius);
+            ctx.arc(radius, radius, radius, currentAngle, currentAngle + anglePerQuery);
+            ctx.fill();
+
+            currentAngle += anglePerQuery;
+        });
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'italic 12px Roboto, Helvetica, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(node.icon, radius - 1, radius + 5);
+
+        this.setState(prevState => ({
+            nodeImages: {
+                ...prevState.nodeImages,
+                [key]: canvas.toDataURL()
+            }
+        }));
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const keys = {};
+
+        nextProps.node.forEach(node => {
+            const key = this.getImageKey(node);
+
+            if (typeof keys[key] === 'undefined') {
+                keys[key] = node;
+            }
+        });
+
+        forEach(keys, (node, key) => {
+            this.prepareImage(key, node);
+        });
+    }
+
     renderSelected() {
         const { node } = this.props;
+        const { nodeImages } = this.state;
 
         return (
             node.length > 0?
                 map(sortBy(node, ['name']), (i_node) => {
-                        return (
-                            <li key={i_node.id} onMouseEnter={() => this.displayTooltip(i_node)}>
-                                <div>
-                                    <span className="nodeIcon">{ i_node.icon }</span>
-                                    <span>{i_node.abbreviated}</span>
-                                    <Icon style={{'marginRight': '60px'}}  className="glyphicon" name={ i_node.icon[0] }></Icon>
-                                    <Icon style={{'marginRight': '40px'}} onClick={(n) => this.handleEditNode(i_node)} name="ion-ios-remove-circle-outline"/>
-                                    <Icon style={{'marginRight': '20px'}} onClick={(n) => this.handleDeselectNode(i_node)} name="ion-ios-remove-circle-outline"/>
-                                    <Icon onClick={(n) => this.handleDeleteNode(i_node)} name="ion-ios-close-circle-outline"/>
-                                </div>
-                                <div>
-                                    <span className='description'>{i_node.description}</span>
-                                </div>
-                            </li>
-                        );
+                    const image = nodeImages[this.getImageKey(i_node)];
+
+                    const listItem = (
+                        <li key={i_node.id} onMouseEnter={() => this.displayTooltip(i_node)}>
+                            <div>
+                                <img className="nodeIcon" src={image} />
+                                <span>{i_node.abbreviated}</span>
+                                <Icon style={{'marginRight': '60px'}}  className="glyphicon" name={ i_node.icon[0] }></Icon>
+                                <Icon style={{'marginRight': '40px'}} onClick={(n) => this.handleEditNode(i_node)} name="ion-ios-remove-circle-outline"/>
+                                <Icon style={{'marginRight': '20px'}} onClick={(n) => this.handleDeselectNode(i_node)} name="ion-ios-remove-circle-outline"/>
+                                <Icon onClick={(n) => this.handleDeleteNode(i_node)} name="ion-ios-close-circle-outline"/>
+                            </div>
+                            <div>
+                                <span className='description'>{i_node.description}</span>
+                            </div>
+                        </li>
+                    );
+
+                    return listItem;
                 })
-            : <li>no node selected</li>
+            : <li>No nodes selected</li>
         );
     }
 
@@ -184,9 +263,9 @@ class Nodes extends React.Component {
 function select(state) {
     return {
         node: state.entries.node,
-        highlight_nodes: state.entries.highlight_nodes,
         nodes: state.entries.nodes,
-        links: state.entries.links
+        links: state.entries.links,
+        queries: state.entries.searches
     };
 }
 
