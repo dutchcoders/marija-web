@@ -86,6 +86,31 @@ test('should output 1 node for every field in an item', () => {
     expect(nodes.length).toBe(2);
 });
 
+test('should output nodes for nested data', () => {
+    const previousNodes = [];
+    const previousLinks = [];
+    const normalizations = [];
+
+    const items = [
+        generateItem({
+            text: 'hello',
+            user: {
+                name: 'thomas'
+            }
+        }),
+    ];
+
+    const fields = [
+        generateField('text'),
+        generateField('user')
+    ];
+
+    const query = generateQuery(items);
+    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations);
+
+    expect(nodes.length).toBe(2);
+});
+
 test('should output links between related nodes', () => {
     const previousNodes = [];
     const previousLinks = [];
