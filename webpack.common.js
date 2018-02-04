@@ -5,11 +5,21 @@ const dotenv = require('dotenv');
 const { gitDescribeSync } = require('git-describe');
 
 dotenv.config();
+
 const gitInfo = gitDescribeSync();
 
+const BUILD_DIR = path.resolve(__dirname, 'build');
+const SRC_DIR = path.resolve(__dirname, 'src');
+
 module.exports = {
-    entry: './src/app/main.js',
+    entry: {
+        index: [SRC_DIR + '/app/main.js']
+    },
     target: 'web',
+    output: {
+        path: BUILD_DIR,
+        filename: '[name].bundle.js'
+    },
     devtool: 'source-map',
     plugins: [
         new ExtractTextPlugin('../dist/app.css'),

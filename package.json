@@ -6,8 +6,8 @@
   "scripts": {
     "test": "jest --config=jest.config.json",
     "test:watch": "jest --watch --config=jest.config.json",
-    "build": "webpack --progress --colors --config webpack-build.config.js",
-    "start": "webpack-dev-server --watch --progress --colors --port 1337 --config webpack.config.js"
+    "build": "webpack --config webpack.prod.js --progress --colors",
+    "start": "webpack-dev-server --watch --progress --colors --port 1339 --config webpack.dev.js"
   },
   "author": "",
   "license": "ISC",
@@ -54,6 +54,7 @@
     "url-loader": "^0.5.5",
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.4",
+    "webpack-merge": "^4.1.1",
     "webpack-stream": "^3.1.0"
   },
   "dependencies": {
