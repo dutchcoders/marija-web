@@ -18,7 +18,7 @@ module.exports = {
     target: 'web',
     output: {
         path: BUILD_DIR,
-        filename: '[name].bundle.js'
+        filename: 'bundle.js'
     },
     devtool: 'source-map',
     plugins: [
