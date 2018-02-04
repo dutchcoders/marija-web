@@ -1,6 +1,7 @@
 export default function fieldLocator(document, field) {
     if (!field) {return false;}
 
+    /*
     const field_levels = field.split('.');
 
     const value = field_levels.reduce((currentLevelInDocument, currentField) => {
@@ -14,6 +15,7 @@ export default function fieldLocator(document, field) {
 
         return null;
     }, document);
+    */
 
-    return (value);
+    return (document[field]);
 }
