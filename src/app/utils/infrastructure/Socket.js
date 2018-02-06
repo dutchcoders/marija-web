@@ -12,17 +12,29 @@ export const Socket = {
     ws: null,
     searchResults: {},
     searchTimeouts: {},
-    searchReceive: (results, query, dispatch) => {
-        if (results === null) {
+    searchReceive: (newResults, query, dispatch) => {
+        if (newResults === null) {
             return;
         }
 
-        let prevResults = [];
-        if (Socket.searchResults[query]) {
-            prevResults = Socket.searchResults[query];
-        }
+        let results = Socket.searchResults[query] || [];
 
-        Socket.searchResults[query] = prevResults.concat(results);
+        for ( var i = 0; i < newResults.length; i++ ) {
+            let result = newResults[i];
+
+            let index = results.findIndex((item) => (item.id == result.id));
+
+            if (index == -1) {
+                results.push(result);
+                continue;
+            }
+
+            // already exists, update count
+            results[index].count = result.count;
+        };
+
+        Socket.searchResults[query] = results;
+
         clearTimeout(Socket.searchTimeouts[query]);
 
         Socket.searchTimeouts[query] = setTimeout(() => {
