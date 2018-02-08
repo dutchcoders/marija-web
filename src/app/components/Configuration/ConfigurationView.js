@@ -61,10 +61,6 @@ class ConfigurationView extends React.Component {
             type: field.type
         }));
 
-        this.setState({
-            currentFieldSearchValue: ''
-        });
-
         this.searchInput.focus();
     }
 
