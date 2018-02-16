@@ -19,6 +19,7 @@ import {VIA_ADD, VIA_DELETE} from "../modules/data/constants";
 import {SET_SELECTING_MODE} from "../modules/graph/constants";
 import {FILTER_SEARCH_RESULTS} from "../modules/search/constants";
 import {REQUEST_COMPLETED} from "../utils/constants";
+import filterBoringComponents from "../helpers/filterBoringComponents";
 
 
 export const defaultState = {
@@ -342,6 +343,11 @@ export default function entries(state = defaultState, action) {
                 search.aroundNodeId
             );
 
+            result.links = removeDeadLinks(result.nodes, result.links);
+
+            const components = getConnectedComponents(result.nodes, result.links);
+            const filtered = filterBoringComponents(components);
+            result.nodes = filtered.reduce((prev, current) => prev.concat(current), []);
             result.links = removeDeadLinks(result.nodes, result.links);
 
             if (state.searches.length > 1) {
