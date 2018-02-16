@@ -50,7 +50,7 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                 }
 
                 const normalizedSourceValue = normalize(normalizations, sv);
-                if (normalizedSourceValue === "") {
+                if (normalizedSourceValue === "" || typeof normalizedSourceValue === 'undefined') {
                     continue;
                 }
 
@@ -106,7 +106,7 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                         }
 
                         const normalizedTargetValue = normalize(normalizations, tv);
-                        if (normalizedTargetValue === "") {
+                        if (normalizedTargetValue === ""  || typeof normalizedTargetValue === 'undefined') {
                             continue;
                         }
 

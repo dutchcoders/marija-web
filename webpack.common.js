@@ -32,18 +32,20 @@ module.exports = {
         })
     ],
     resolve: {
-        modules: ['node_modules', 'src'],
-        extensions: ['.js', '.scss']
+        // modules: ['node_modules', 'src'],
+        extensions: ['.js', '.scss', '.ts']
     },
     module: {
-        loaders: [
+        rules: [
             {
-                test: /.js?$/,
-                loader: 'babel-loader',
-                exclude: /node_modules/,
-                query: {
-                    presets: ['es2015', 'stage-1', 'react'],
-                }
+                test: /\.(tsx|js)$/,
+                loader: 'awesome-typescript-loader',
+                include: [path.join(__dirname, "src")]
+            },
+            {
+                enforce: "pre",
+                test: /\.js$/,
+                loader: "source-map-loader"
             },
             {
                 test: /\.(scss|css)$/,

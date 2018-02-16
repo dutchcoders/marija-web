@@ -9,6 +9,7 @@ import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
 import { fieldLocator, getRelatedNodes } from '../../helpers/index';
 
 import SkyLight from 'react-skylight';
+import {searchRequest} from "../../modules/search/actions";
 
 class Nodes extends React.Component {
     constructor(props) {
@@ -217,6 +218,20 @@ class Nodes extends React.Component {
         );
     }
 
+    searchAround() {
+        const { dispatch, activeIndices, fields, node } = this.props;
+
+        node.forEach(nodeLoop => {
+            dispatch(searchRequest({
+                query: nodeLoop.name,
+                from: 0,
+                size: 500,
+                datasources: activeIndices,
+                fields: fields
+            }));
+        });
+    }
+
     render() {
         const { editNode, find_value, value, description } = this.state;
         const { node } = this.props;
@@ -253,6 +268,7 @@ class Nodes extends React.Component {
                     <button type="button" className="btn btn-default" aria-label="Select all nodes" onClick={() => this.handleSelectAllNodes()}>all</button>
                     <button type="button" className="btn btn-default" aria-label="Delete selected nodes" onClick={() => this.handleDeleteAllNodes()}>delete</button>
                     <button type="button" className="btn btn-default" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}>delete others</button>
+                    <button type="button" className="btn btn-default" aria-label="Search around" onClick={() => this.searchAround()}>search around</button>
                 </div>
                 <div>
                     <ul onMouseLeave={this.hideTooltip.bind(this)}>
@@ -273,7 +289,9 @@ function select(state) {
         node: state.entries.node,
         nodes: state.entries.nodes,
         links: state.entries.links,
-        queries: state.entries.searches
+        queries: state.entries.searches,
+        fields: state.entries.fields,
+        activeIndices: state.indices.activeIndices
     };
 }
 

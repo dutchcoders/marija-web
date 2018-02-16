@@ -1,6 +1,5 @@
-import React from 'react';
+import * as React from 'react';
 import { connect} from 'react-redux';
-import Dimensions from 'react-dimensions';
 import * as d3 from 'd3';
 import { concat, debounce, remove, includes, assign, isEqual, isEmpty } from 'lodash';
 import { nodesSelect, highlightNodes, deselectNodes } from '../../modules/graph/index';
@@ -10,7 +9,9 @@ import * as PIXI from 'pixi.js';
 import {setSelectingMode} from "../../modules/graph/actions";
 const Worker = require("worker-loader!./Worker");
 
-class GraphPixi extends React.Component {
+class GraphPixi extends React.Component<any, any> {
+    pixiContainer: HTMLElement;
+
     constructor(props) {
         super(props);
 
@@ -70,7 +71,7 @@ class GraphPixi extends React.Component {
                 this.onWorkerTick(event.data);
                 break;
             case 'end':
-                this.ended(event.data);
+                // this.ended(event.data);
                 break;
         }
     }
@@ -312,7 +313,7 @@ class GraphPixi extends React.Component {
         });
 
         const text = new PIXI.Text(label, style);
-        const metrics = new PIXI.TextMetrics.measureText(label, style);
+        const metrics = PIXI.TextMetrics.measureText(label, style);
 
         texture = PIXI.RenderTexture.create(metrics.width, metrics.height);
         renderer.render(text, texture);
@@ -445,7 +446,7 @@ class GraphPixi extends React.Component {
             || !isEqual(nextProps.queries, queries)
             || !isEqual(nextProps.selectedNodes, selectedNodes)
             || !isEqual(nextProps.filterSearchResults, filterSearchResults)
-            || new Date() - lastDisplayedFps > 1000;
+            || (new Date().getTime()) - lastDisplayedFps > 1000;
     }
 
     renderSelection() {
@@ -666,7 +667,7 @@ class GraphPixi extends React.Component {
             return !this.state[key];
         };
 
-        const stateUpdates = {};
+        const stateUpdates: any = {};
 
         if (shouldRender('renderedSinceLastTick')
             || shouldRender('renderedSinceLastZoom')
@@ -718,7 +719,7 @@ class GraphPixi extends React.Component {
         const { lastLoopTimestamp, frameTime } = this.state;
 
         const filterStrength = 20;
-        const thisLoopTimestamp = new Date();
+        const thisLoopTimestamp = (new Date()).getTime();
         const thisFrameTime = thisLoopTimestamp - lastLoopTimestamp;
         const newFrameTime = frameTime + (thisFrameTime - frameTime) / filterStrength;
 
@@ -804,7 +805,7 @@ class GraphPixi extends React.Component {
             renderedLinkLabels: renderedLinkLabels,
             renderedSelectedNodes: renderedSelectedNodes,
             renderedSearchResults: renderedSearchResults
-        }, () => this.renderGraph());
+        }, () => this.renderGraph(false));
     }
 
     componentDidMount() {
@@ -851,7 +852,7 @@ class GraphPixi extends React.Component {
         });
 
         // Remove the tooltip
-        this.highlightNode();
+        this.highlightNode(undefined);
     }
 
     dragged() {
@@ -1064,7 +1065,7 @@ class GraphPixi extends React.Component {
 
         transform.k = newK;
 
-        this.zoom(transform.k);
+        this.zoom(transform.k, undefined, undefined);
     }
 
     zoomOut() {
@@ -1077,7 +1078,7 @@ class GraphPixi extends React.Component {
 
         transform.k = newK;
 
-        this.zoom(transform.k);
+        this.zoom(transform.k, undefined, undefined);
     }
 
     render() {
