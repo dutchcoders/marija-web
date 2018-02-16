@@ -1,5 +1,8 @@
 import {ERROR, AUTH_CONNECTED, OPEN_PANE, CLOSE_PANE, CANCEL_REQUEST} from './index';
-import {MOVE_PANE_TO_TOP, SET_PANE_CONFIG} from "./constants";
+import {
+    MOVE_PANE_TO_TOP, REQUEST_COMPLETED,
+    SET_PANE_CONFIG
+} from "./constants";
 
 export function error(msg) {
     return {
@@ -12,6 +15,13 @@ export function error(msg) {
 export function cancelRequest(requestId) {
     return {
         type: CANCEL_REQUEST,
+        requestId: requestId
+    };
+}
+
+export function requestCompleted(requestId) {
+    return {
+        type: REQUEST_COMPLETED,
         requestId: requestId
     };
 }

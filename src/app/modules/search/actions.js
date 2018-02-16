@@ -1,4 +1,4 @@
-import { SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_DELETE, DISPLAY_LESS, SEARCH_EDIT, SEARCH_COMPLETED } from './index';
+import { SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_DELETE, DISPLAY_LESS, SEARCH_EDIT } from './index';
 import {FILTER_SEARCH_RESULTS} from "./constants";
 
 const defaultOpts = {
@@ -27,13 +27,6 @@ export function searchReceive(items, opts = {from: 0}) {
         type: SEARCH_RECEIVE,
         items: items,
         receivedAt: Date.now()
-    };
-}
-
-export function searchCompleted(requestId) {
-    return {
-        type: SEARCH_COMPLETED,
-        requestId: requestId
     };
 }
 
