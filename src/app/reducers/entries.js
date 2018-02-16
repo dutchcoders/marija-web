@@ -280,7 +280,8 @@ export default function entries(state = defaultState, action) {
                     displayNodes: action.displayNodes,
                     items: [],
                     requestId: uniqueId(),
-                    completed: false
+                    completed: false,
+                    aroundNodeId: action.aroundNodeId
                 };
 
                 searches.push(search);
@@ -337,7 +338,8 @@ export default function entries(state = defaultState, action) {
                 items,
                 state.fields,
                 search,
-                state.normalizations
+                state.normalizations,
+                search.aroundNodeId
             );
 
             result.links = removeDeadLinks(result.nodes, result.links);

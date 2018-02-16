@@ -3,7 +3,7 @@ import { connect} from 'react-redux';
 import Tooltip from 'rc-tooltip';
 import SkyLight from 'react-skylight';
 import SketchPicker from 'react-color';
-import {Query} from "../../../components/index";
+import {Query, Icon, Loader} from "../../../components/index";
 import {editSearch} from "../actions";
 
 class SearchBox extends Component {
@@ -15,7 +15,8 @@ class SearchBox extends Component {
         this.state = {
             query: '',
             selectValue: this.props.indexes[0],
-            editSearchValue: null
+            editSearchValue: null,
+            searchAroundOpen: false
         };
     }
 
@@ -54,9 +55,17 @@ class SearchBox extends Component {
         this.setState({editSearchValue: search});
     }
 
+    toggleSearchAroundContainer() {
+        const { searchAroundOpen } = this.state;
+
+        this.setState({
+            searchAroundOpen: !searchAroundOpen
+        });
+    }
+
     render() {
         const { connected, enabled, searches } = this.props;
-        const { query, editSearchValue } = this.state;
+        const { query, editSearchValue, searchAroundOpen } = this.state;
 
         let tooltipStyles = {};
 
@@ -85,13 +94,53 @@ class SearchBox extends Component {
             </form>;
         }
 
+        const userQueries = searches
+            .filter(search => search.aroundNodeId === null)
+            .map(search =>
+                <Query search={search} key={search.q} handleEdit={() => this.handleEditSearch(search)}/>
+            );
+
+        const searchAroundQueries = searches
+            .filter(search => search.aroundNodeId !== null)
+            .map(search =>
+                <Query search={search} key={search.q} handleEdit={() => this.handleEditSearch(search)}/>
+            );
+
+        const searchAroundLoading = searches
+            .filter(
+                search => !search.completed && search.aroundNodeId !== null
+            ).length > 0
+            && !searchAroundOpen;
+
+        let searchAroundContainer = null;
+        if (searchAroundQueries.length > 0) {
+            searchAroundContainer = (
+                <div className={
+                        'searchAroundContainer'
+                        + (searchAroundOpen ? ' opened' : '')}>
+                    <div className={'loaderContainer' + (searchAroundLoading ? ' loading' : '')} />
+
+                    <h1 onClick={this.toggleSearchAroundContainer.bind(this)}>
+                        Search around
+                        <span className="num">{searchAroundQueries.length}</span>
+                        <Icon name={searchAroundOpen ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down'} />
+                    </h1>
+
+                    <div className={'queries' + (searchAroundOpen ? '' : ' hidden')}>
+                        {searchAroundQueries}
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <nav id="searchbox" className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation" ref="header">
                 <div className="logoContainer">
                     <img className={`logo ${connected ? 'connected' : 'not-connected'}`} src="/images/logo.png" title={connected ? "Marija is connected to the backendservice" : "No connection to Marija backend available" } />
                 </div>
                 <div className="queriesContainer">
-                    {searches.map(search => <Query search={search} key={search.q} handleEdit={() => this.handleEditSearch(search)}/>)}
+                    {searchAroundContainer}
+                    {userQueries}
 
                     <form onSubmit={this.handleSubmit.bind(this)}>
                         <Tooltip

@@ -9,7 +9,8 @@ const defaultOpts = {
     query: '',
     color: '',
     fields: [],
-    completed: false
+    completed: false,
+    aroundNodeId: null
 };
 
 export function searchRequest(opts) {

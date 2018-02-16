@@ -224,6 +224,7 @@ class Nodes extends React.Component {
         node.forEach(nodeLoop => {
             dispatch(searchRequest({
                 query: nodeLoop.name,
+                aroundNodeId: nodeLoop.id,
                 from: 0,
                 size: 500,
                 datasources: activeIndices,
