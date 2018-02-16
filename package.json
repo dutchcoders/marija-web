@@ -7,7 +7,7 @@
     "test": "jest --config=jest.config.json",
     "test:watch": "jest --watch --config=jest.config.json",
     "build": "webpack --config webpack.prod.js --progress --colors",
-    "start": "webpack-dev-server --watch --progress --colors --port 1339 --config webpack.dev.js"
+    "start": "webpack-dev-server --watch --progress --colors --port 1337 --config webpack.dev.js"
   },
   "author": "",
   "license": "ISC",
@@ -58,6 +58,14 @@
     "webpack-stream": "^3.1.0"
   },
   "dependencies": {
+    "@types/d3": "^5.0.0",
+    "@types/lodash": "^4.14.103",
+    "@types/pixi.js": "^4.7.1",
+    "@types/react": "^16.0.38",
+    "@types/react-dom": "^16.0.4",
+    "@types/react-redux": "^5.0.15",
+    "@types/redux": "^3.6.0",
+    "awesome-typescript-loader": "^3.4.1",
     "babel-jest": "^21.2.0",
     "classnames": "^2.2.3",
     "d3": "^4.3.0",
@@ -96,6 +104,8 @@
     "redux-devtools-extension": "^2.13.2",
     "redux-thunk": "^2.2.0",
     "sass-loader": "^4.0.2",
+    "source-map-loader": "^0.2.3",
+    "typescript": "^2.7.2",
     "worker-loader": "^0.7.1"
   }
 }

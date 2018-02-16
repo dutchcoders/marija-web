@@ -6,7 +6,8 @@
   ],
   "moduleFileExtensions": [
     "js",
-    "jsx"
+    "jsx",
+    "tsx"
   ],
   "plugins": ["transform-es2015-modules-commonjs"],
   "transform": {
