@@ -220,12 +220,12 @@ class Nodes extends React.Component {
     }
 
     searchAround() {
-        const { dispatch, activeIndices, fields, node } = this.props;
+        const { dispatch, activeIndices, fields, selectedNodes } = this.props;
 
-        node.forEach(nodeLoop => {
+        selectedNodes.forEach(node => {
             dispatch(searchRequest({
-                query: nodeLoop.name,
-                aroundNodeId: nodeLoop.id,
+                query: node.name,
+                aroundNodeId: node.id,
                 from: 0,
                 size: 500,
                 datasources: activeIndices,
