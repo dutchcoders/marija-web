@@ -172,7 +172,7 @@ const select = (state, ownProps) => {
         ...ownProps,
         nodesForDisplay: state.entries.nodesForDisplay,
         nodes: state.entries.nodes,
-        selectedNodes: state.entries.node
+        selectedNodes: state.entries.selectedNodes
     };
 };
 
