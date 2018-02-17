@@ -19,6 +19,8 @@ import {VIA_ADD, VIA_DELETE} from "../modules/data/constants";
 import {NODES_TOOLTIP, SET_SELECTING_MODE} from "../modules/graph/constants";
 import {REQUEST_COMPLETED} from "../utils/constants";
 import filterBoringComponents from "../helpers/filterBoringComponents";
+import {SEARCH_FIELDS_UPDATE} from "../modules/search/constants";
+import {cancelRequest} from "./utils";
 
 
 export const defaultState = {
@@ -286,18 +288,12 @@ export default function entries(state = defaultState, action) {
                 searches.push(search);
             }
 
-            let from = search.items.length || 0;
-
             const fieldPaths = [];
             action.fields.forEach(field => fieldPaths.push(field.path));
 
             let message = {
                 datasources: action.datasources,
                 query: action.query,
-                from: from,
-                size: action.size,
-                // todo: remove this, but requires a backend change. now the server wont respond if we dont send a color
-                color: '#de79f2',
                 fields: fieldPaths,
                 'request-id': search.requestId
             };
@@ -308,6 +304,32 @@ export default function entries(state = defaultState, action) {
                 itemsFetching: true,
                 didInvalidate: false,
                 searches: searches
+            });
+        }
+        case SEARCH_FIELDS_UPDATE: {
+            const fields = state.fields.map(field => field.path);
+            const datasources = state.datasources.map(datasource => datasource.id);
+
+            const newSearches = state.searches.map(search => {
+                cancelRequest(search.requestId);
+
+                const newRequestId = uniqueId();
+
+                Socket.ws.postMessage({
+                    datasources: datasources,
+                    query: search.q,
+                    fields: fields,
+                    'request-id': newRequestId
+                });
+
+                return Object.assign({}, search, {
+                    requestId: newRequestId,
+                    completed: false
+                });
+            });
+
+            return Object.assign({}, state, {
+                searches: newSearches
             });
         }
         case SEARCH_RECEIVE: {

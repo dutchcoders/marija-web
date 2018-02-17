@@ -14,6 +14,7 @@ import 'rc-tooltip/assets/bootstrap.css';
 import {Workspaces} from "../../domain/index";
 import {saveAs} from 'file-saver';
 import {exportData, importData} from "../../modules/import/actions";
+import {searchFieldsUpdate} from "../../modules/search/actions";
 
 class ConfigurationView extends React.Component {
     defaultMaxSearchResults = 10;
@@ -60,6 +61,8 @@ class ConfigurationView extends React.Component {
             path: field.path,
             type: field.type
         }));
+
+        dispatch(searchFieldsUpdate());
 
         this.searchInput.focus();
     }
