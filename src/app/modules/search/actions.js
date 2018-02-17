@@ -11,7 +11,7 @@ const defaultOpts = {
 };
 
 export function searchRequest(opts) {
-    const newOpts = Object.assign(defaultOpts, opts);
+    const newOpts = Object.assign({}, defaultOpts, opts);
 
     return {
         type: SEARCH_REQUEST,
