@@ -21,8 +21,6 @@ class Header extends Component {
 
         dispatch(searchRequest({
             query: q,
-            from: 0, 
-            size: 500,
             datasources: activeIndices,
             fields: fields
         }));

@@ -26,6 +26,15 @@ const defaultPane = {
     zIndex: 2
 };
 
+export function cancelRequest(requestId) {
+    Socket.ws.postMessage(
+        {
+            'request-id': requestId
+        },
+        CANCEL_REQUEST
+    );
+}
+
 export const defaultUtilsState = {
     panes: {
         configuration: Object.assign({}, defaultPane, {
@@ -87,12 +96,7 @@ export default function utils(state = defaultUtilsState, action) {
             });
         }
         case CANCEL_REQUEST:
-            Socket.ws.postMessage(
-                {
-                    'request-id': action.requestId
-                },
-                CANCEL_REQUEST
-            );
+            cancelRequest(action.requestId);
             return state;
         case SET_PANE_CONFIG: {
             const pane = Object.assign({}, state.panes[action.key], action.config);

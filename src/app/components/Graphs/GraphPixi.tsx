@@ -1101,7 +1101,6 @@ class GraphPixi extends React.Component<any, any> {
         return (
             <div className="graphComponent">
                 <div className="graphContainer" ref={pixiContainer => this.pixiContainer = pixiContainer} />
-                <Loader show={itemsFetching} classes={['graphLoader']}/>
                 <p className="stats">
                     {(1000/frameTime).toFixed(1)} FPS<br />
                     SERVER VERSION: {version}<br />

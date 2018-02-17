@@ -1,12 +1,10 @@
 import { SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_DELETE, DISPLAY_LESS, SEARCH_EDIT } from './index';
+import {SEARCH_FIELDS_UPDATE} from "./constants";
 
 const defaultOpts = {
-    from: 0,
-    size: 500,
     displayNodes: 500,
     index: '',
     query: '',
-    color: '',
     fields: [],
     completed: false,
     aroundNodeId: null
@@ -44,5 +42,12 @@ export function editSearch(query, opts) {
         receivedAt: Date.now(),
         query: query,
         opts: opts
+    };
+}
+
+export function searchFieldsUpdate() {
+    return {
+        type: SEARCH_FIELDS_UPDATE,
+        receivedAt: Date.now()
     };
 }
