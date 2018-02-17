@@ -16,7 +16,7 @@ function getHash(string) {
     return hash;
 }
 
-export default function getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations) {
+export default function getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations, aroundNodeId) {
     let nodes = concat(previousNodes, []);
     let links = concat(previousLinks, []);
 
@@ -51,6 +51,10 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
 
                 const normalizedSourceValue = normalize(normalizations, sv);
                 if (normalizedSourceValue === "" || typeof normalizedSourceValue === 'undefined') {
+                    continue;
+                }
+
+                if (aroundNodeId && aroundNodeId !== normalizedSourceValue) {
                     continue;
                 }
 

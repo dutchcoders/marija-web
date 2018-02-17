@@ -239,7 +239,7 @@ test('should be able to draw multiple labeled lines between 2 nodes', () => {
         label: 'port'
     }];
 
-    const result = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations, via);
+    const result = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations);
     const { nodes, links } = applyVia(result.nodes, result.links, via);
 
     expect(nodes.length).toBe(2);
@@ -296,7 +296,7 @@ test('should not mess up when multiple via configs are present', () => {
         }
     ];
 
-    const result = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations, via);
+    const result = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations);
     const { nodes, links } = applyVia(result.nodes, result.links, via);
 
     expect(nodes.length).toBe(4);
@@ -340,7 +340,7 @@ test('should generate labeled links between endpoints of the same type', () => {
         }
     ];
 
-    let { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations, via);
+    let { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations);
     const viaResult = applyVia(nodes, links, via);
     nodes = viaResult.nodes;
     links = viaResult.links;
@@ -396,4 +396,85 @@ test('should not remove too many links when via info is specified', () => {
     expectLink(links, 1, 2);
     expectLink(links, 'nl', 1);
     expectLink(links, 'nl', 2);
+});
+
+test('should filter nodes that are not directly related when searching around a node', () => {
+    const previousNodes = [{
+        id: 1,
+    }, {
+        id: 2
+    }];
+    const previousLinks = [{
+        source: 1,
+        target: 2
+    }];
+
+    const items = [
+        {
+            id: 3,
+            fields: {
+                client: 1,
+                server: 3
+            }
+        }
+    ];
+
+    const fields = [
+        generateField('client'),
+        generateField('server')
+    ];
+
+    const query = generateQuery(items);
+
+    const aroundNodeId = 2;
+
+    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, [], aroundNodeId);
+
+    // Nothing should be added, because the new items were not directly related to node id 2
+    expect(nodes.length).toBe(2);
+    expect(links.length).toBe(1);
+});
+
+
+test('should not filter nodes that are directly related when searching around a node', () => {
+    const previousNodes = [{
+        id: 1,
+        items: [],
+        fields: [],
+        queries: []
+    }, {
+        id: 2,
+        items: [],
+        fields: [],
+        queries: []
+    }];
+    const previousLinks = [{
+        source: 1,
+        target: 2
+    }];
+
+    const items = [
+        {
+            id: 'vndfnvdfj',
+            fields: {
+                client: 1,
+                server: 3
+            }
+        }
+    ];
+
+    const fields = [
+        generateField('client'),
+        generateField('server')
+    ];
+
+    const query = generateQuery(items);
+
+    const aroundNodeId = 1;
+
+    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, [], aroundNodeId);
+
+    // 1 node should be added, because the new items were directly related to node id 1
+    expect(nodes.length).toBe(3);
+    expect(links.length).toBe(2);
 });

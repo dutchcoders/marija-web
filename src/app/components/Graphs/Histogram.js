@@ -32,7 +32,7 @@ class Histogram extends React.Component {
     }
 
     draw() {
-        const { node, normalizations, fields, date_fields, items } = this.props;
+        const { selectedNodes, normalizations, fields, date_fields, items } = this.props;
         const { canvas } = this;
 
         if (!items.length || !date_fields.length) {
@@ -163,14 +163,14 @@ class Histogram extends React.Component {
             context.fillRect(x(v), y(d.length), x.bandwidth(), height - y(d.length));
         });
 
-        if (node.length > 0) {
+        if (selectedNodes.length > 0) {
             itemsCopy = filter(itemsCopy, (item) => {
                 // check if node contains item
                 return reduce(fields, (found, field) => {
                     const val = fieldLocator(item.fields, field.path);
                     if (!val) {return found;}
 
-                    return found || find(node, (o) => {
+                    return found || find(selectedNodes, (o) => {
                         return (o.id === normalize(normalizations, val));
                     });
                 }, false);
@@ -230,13 +230,12 @@ class Histogram extends React.Component {
 const select = (state, ownProps) => {
     return {
         ...ownProps,
-        node: state.entries.node,
+        selectedNodes: state.entries.selectedNodes,
         queries: state.entries.queries,
         fields: state.entries.fields,
         normalizations: state.entries.normalizations,
         date_fields: state.entries.date_fields,
-        items: state.entries.items,
-        highlight_nodes: state.entries.highlight_nodes
+        items: state.entries.items
     };
 };
 

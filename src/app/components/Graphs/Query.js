@@ -112,54 +112,56 @@ class Query extends React.Component {
                     {displayNodes}/{nodes}
                 </span>
 
-                <Tooltip
-                    overlay="Show less"
-                    placement="bottom"
-                    mouseLeaveDelay={0}
-                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                    <Icon
-                        onClick={() => this.handleDisplayLess() }
-                        name="ion-ios-minus"
-                        className={lessClass}
-                    />
-                </Tooltip>
+                <div className="actions">
+                    <Tooltip
+                        overlay="Show less"
+                        placement="bottom"
+                        mouseLeaveDelay={0}
+                        arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                        <Icon
+                            onClick={() => this.handleDisplayLess() }
+                            name="ion-ios-minus"
+                            className={lessClass}
+                        />
+                    </Tooltip>
 
-                <Tooltip
-                    overlay="Show more"
-                    placement="bottom"
-                    mouseLeaveDelay={0}
-                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                    <Icon
-                        onClick={() => this.handleDisplayMore() }
-                        name="ion-ios-plus"
-                        className={moreClass}
-                    />
-                </Tooltip>
+                    <Tooltip
+                        overlay="Show more"
+                        placement="bottom"
+                        mouseLeaveDelay={0}
+                        arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                        <Icon
+                            onClick={() => this.handleDisplayMore() }
+                            name="ion-ios-plus"
+                            className={moreClass}
+                        />
+                    </Tooltip>
 
-                <Tooltip
-                    overlay="Change color"
-                    placement="bottom"
-                    mouseLeaveDelay={0}
-                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                    <Icon onClick={() => handleEdit()} name="ion-ios-gear"/>
-                </Tooltip>
+                    <Tooltip
+                        overlay="Change color"
+                        placement="bottom"
+                        mouseLeaveDelay={0}
+                        arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                        <Icon onClick={() => handleEdit()} name="ion-ios-gear"/>
+                    </Tooltip>
 
-                <Tooltip
-                    overlay="Select nodes"
-                    placement="bottom"
-                    mouseLeaveDelay={0}
-                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                    <Icon onClick={this.selectNodes.bind(this)} name="ion-ios-color-wand"/>
-                </Tooltip>
+                    <Tooltip
+                        overlay="Select nodes"
+                        placement="bottom"
+                        mouseLeaveDelay={0}
+                        arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                        <Icon onClick={this.selectNodes.bind(this)} name="ion-ios-color-wand"/>
+                    </Tooltip>
 
-                <Tooltip
-                    overlay="Delete"
-                    placement="bottom"
-                    mouseLeaveDelay={0}
-                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                    <Icon onClick={(e) => this.handleDelete() }
-                          name="ion-ios-close"/>
-                </Tooltip>
+                    <Tooltip
+                        overlay="Delete"
+                        placement="bottom"
+                        mouseLeaveDelay={0}
+                        arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                        <Icon onClick={(e) => this.handleDelete() }
+                              name="ion-ios-close"/>
+                    </Tooltip>
+                </div>
             </div>
         );
     }
@@ -170,7 +172,7 @@ const select = (state, ownProps) => {
         ...ownProps,
         nodesForDisplay: state.entries.nodesForDisplay,
         nodes: state.entries.nodes,
-        selectedNodes: state.entries.node
+        selectedNodes: state.entries.selectedNodes
     };
 };
 

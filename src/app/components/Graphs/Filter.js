@@ -5,19 +5,15 @@ import { map, uniq, filter, concat, without, find, differenceWith, sortBy, debou
 
 import { Icon } from '../index';
 import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
-import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
-import { fieldLocator, getRelatedNodes } from '../../helpers/index';
 import {filterSearchResults} from "../../modules/search/actions";
+import {showTooltip} from "../../modules/graph/actions";
 
 class Filter extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            editNode: null,
-            value: "",
-            find_value: "",
-            description: ""
+            find_value: ""
         };
     }
 
@@ -37,9 +33,9 @@ class Filter extends React.Component {
         const searchResults = this.getSearchResults();
 
         if (nodesForDisplay.length === searchResults.length) {
-            dispatch(filterSearchResults([]));
+            dispatch(highlightNodes([]));
         } else {
-            dispatch(filterSearchResults(this.getSearchResults()));
+            dispatch(highlightNodes(this.getSearchResults()));
         }
     }
 
@@ -56,13 +52,13 @@ class Filter extends React.Component {
     displayTooltip(node) {
         const { dispatch } = this.props;
 
-        dispatch(highlightNodes([node]));
+        dispatch(showTooltip([node]));
     }
 
     hideTooltip() {
         const { dispatch } = this.props;
 
-        dispatch(highlightNodes([]));
+        dispatch(showTooltip([]));
     }
 
     getSearchResults() {
@@ -75,8 +71,7 @@ class Filter extends React.Component {
     handleSelectMultiple(e, nodes) {
         e.preventDefault();
 
-        const { dispatch, node } = this.props;
-        const searchResults = this.getSearchResults();
+        const { dispatch } = this.props;
 
         dispatch(nodesSelect(nodes));
     }
@@ -98,20 +93,20 @@ class Filter extends React.Component {
     }
 
     render() {
-        const { editNode, find_value, value, description } = this.state;
-        const { node } = this.props;
+        const { find_value } = this.state;
+        const { selectedNodes } = this.props;
 
         const searchResults = this.getSearchResults();
         const notSelectedNodes = [];
-        const selectedNodes = [];
+        const selectedNodesInSearch = [];
 
         searchResults.forEach(search => {
-            const inSelection = node.find(nodeLoop => nodeLoop.id === search.id);
+            const inSelection = selectedNodes.find(nodeLoop => nodeLoop.id === search.id);
 
             if (typeof inSelection === 'undefined') {
                 notSelectedNodes.push(search);
             } else {
-                selectedNodes.push(search);
+                selectedNodesInSearch.push(search);
             }
         });
 
@@ -132,7 +127,7 @@ class Filter extends React.Component {
                 <form>
                     <input type="text" className="form-control" value={find_value} onChange={ this.handleFindNodeChange.bind(this) } placeholder='find node' />
                     <button className="nodeSelectButton btn btn-primary" onClick={e => this.handleSelectMultiple(e, notSelectedNodes)}>Select all ({notSelectedNodes.length})</button>
-                    <button className="nodeSelectButton btn btn-primary" onClick={e => this.handleDeselectMultiple(e, selectedNodes)}>Deselect all ({selectedNodes.length})</button>
+                    <button className="nodeSelectButton btn btn-primary" onClick={e => this.handleDeselectMultiple(e, selectedNodesInSearch)}>Deselect all ({selectedNodesInSearch.length})</button>
                     <ul className="nodesSearchResult" onMouseLeave={this.hideTooltip.bind(this)}>
                         { find_nodes }
                     </ul>
@@ -145,8 +140,7 @@ class Filter extends React.Component {
 
 function select(state) {
     return {
-        node: state.entries.node,
-        highlight_nodes: state.entries.highlight_nodes,
+        selectedNodes: state.entries.selectedNodes,
         nodesForDisplay: state.entries.nodesForDisplay,
         links: state.entries.links
     };

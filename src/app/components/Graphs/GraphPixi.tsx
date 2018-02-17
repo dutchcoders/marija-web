@@ -2,11 +2,10 @@ import * as React from 'react';
 import { connect} from 'react-redux';
 import * as d3 from 'd3';
 import { concat, debounce, remove, includes, assign, isEqual, isEmpty } from 'lodash';
-import { nodesSelect, highlightNodes, deselectNodes } from '../../modules/graph/index';
-import { getArcParams } from '../../helpers/index';
-import Loader from "../Misc/Loader";
+import { nodesSelect, highlightNodes, deselectNodes, showTooltip, setSelectingMode } from '../../modules/graph/actions.js';
+import { getArcParams, getDirectlyRelatedNodes } from '../../helpers/index.js';
+import Loader from "../Misc/Loader.js";
 import * as PIXI from 'pixi.js';
-import {setSelectingMode} from "../../modules/graph/actions";
 const Worker = require("worker-loader!./Worker");
 
 class GraphPixi extends React.Component<any, any> {
@@ -367,7 +366,7 @@ class GraphPixi extends React.Component<any, any> {
     }
 
     componentDidUpdate(prevProps) {
-        const { nodesForDisplay, highlight_nodes, selectedNodes, queries, filterSearchResults } = this.props;
+        const { nodesForDisplay, tooltipNodes, selectedNodes, queries, highlightNodes } = this.props;
 
         if (!isEqual(prevProps.selectedNodes, selectedNodes)) {
             this.setState({
@@ -375,7 +374,7 @@ class GraphPixi extends React.Component<any, any> {
             });
         }
 
-        if (!isEqual(prevProps.highlight_nodes, highlight_nodes)) {
+        if (!isEqual(prevProps.tooltipNodes, tooltipNodes)) {
             this.setState({
                 renderedSinceLastTooltip: false
             });
@@ -392,7 +391,7 @@ class GraphPixi extends React.Component<any, any> {
             this.postNodesAndLinksToWorker();
         }
 
-        if (!isEqual(prevProps.filterSearchResults, filterSearchResults)) {
+        if (!isEqual(prevProps.highlightNodes, highlightNodes)) {
             this.setState({
                 renderedSinceLastSearchResults: false
             });
@@ -437,15 +436,15 @@ class GraphPixi extends React.Component<any, any> {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const { nodesForDisplay, itemsFetching, highlight_nodes, queries, selectedNodes, filterSearchResults } = this.props;
+        const { nodesForDisplay, itemsFetching, tooltipNodes, queries, selectedNodes, highlightNodes } = this.props;
         const { lastDisplayedFps } = this.state;
 
         return nextProps.nodesForDisplay !== nodesForDisplay
             || nextProps.itemsFetching !== itemsFetching
-            || !isEqual(nextProps.highlight_nodes, highlight_nodes)
+            || !isEqual(nextProps.tooltipNodes, tooltipNodes)
             || !isEqual(nextProps.queries, queries)
             || !isEqual(nextProps.selectedNodes, selectedNodes)
-            || !isEqual(nextProps.filterSearchResults, filterSearchResults)
+            || !isEqual(nextProps.highlightNodes, highlightNodes)
             || (new Date().getTime()) - lastDisplayedFps > 1000;
     }
 
@@ -518,15 +517,15 @@ class GraphPixi extends React.Component<any, any> {
 
     renderTooltip() {
         const { renderedTooltip, nodesFromWorker, transform } = this.state;
-        const { highlight_nodes } = this.props;
+        const { tooltipNodes } = this.props;
 
         renderedTooltip.removeChildren();
 
-        if (highlight_nodes.length === 0) {
+        if (tooltipNodes.length === 0) {
             return;
         }
 
-        highlight_nodes.forEach(node => {
+        tooltipNodes.forEach(node => {
             const nodeFromWorker = nodesFromWorker.find(search => search.hash === node.hash);
 
             if (typeof nodeFromWorker === 'undefined') {
@@ -632,12 +631,12 @@ class GraphPixi extends React.Component<any, any> {
     }
 
     renderSearchResults() {
-        const { filterSearchResults } = this.props;
+        const { highlightNodes } = this.props;
         const { nodesFromWorker, renderedSearchResults } = this.state;
 
         renderedSearchResults.removeChildren();
 
-        filterSearchResults.forEach(searchResult => {
+        highlightNodes.forEach(searchResult => {
             const nodeFromWorker = nodesFromWorker.find(search => search.hash === searchResult.hash);
 
             if (typeof nodeFromWorker === 'undefined') {
@@ -852,7 +851,7 @@ class GraphPixi extends React.Component<any, any> {
         });
 
         // Remove the tooltip
-        this.highlightNode(undefined);
+        this.tooltipNode(undefined);
     }
 
     dragged() {
@@ -910,19 +909,19 @@ class GraphPixi extends React.Component<any, any> {
         return nodesForDisplay.find(node => node.hash === nodeFromWorker.hash);
     }
 
-    highlightNode(node) {
-        const { highlight_nodes, dispatch } = this.props;
+    tooltipNode(node) {
+        const { tooltipNodes, dispatch } = this.props;
 
-        if (typeof node === 'undefined' && !isEmpty(highlight_nodes)) {
-            dispatch(highlightNodes([]));
+        if (typeof node === 'undefined' && !isEmpty(tooltipNodes)) {
+            dispatch(showTooltip([]));
             return;
         }
 
         if (typeof node !== 'undefined') {
-            const current = highlight_nodes.find(search => search.hash === node.hash);
+            const current = tooltipNodes.find(search => search.hash === node.hash);
 
             if (typeof current === 'undefined') {
-                dispatch(highlightNodes([node]));
+                dispatch(showTooltip([node]));
             }
         }
     }
@@ -975,7 +974,7 @@ class GraphPixi extends React.Component<any, any> {
 
     onMouseMove() {
         const { transform, selection } = this.state;
-        const { selectingMode } = this.props;
+        const { selectingMode, nodesForDisplay, linksForDisplay, dispatch, tooltipNodes } = this.props;
 
         const x = transform.invertX(d3.event.layerX);
         const y = transform.invertY(d3.event.layerY);
@@ -993,7 +992,20 @@ class GraphPixi extends React.Component<any, any> {
         }
 
         const tooltip = this.findNode(x, y);
-        this.highlightNode(tooltip);
+
+        if (tooltipNodes[0] === tooltip) {
+            // Nothing changed
+            return;
+        }
+
+        this.tooltipNode(tooltip);
+        let related = [];
+
+        if (tooltip) {
+            related = getDirectlyRelatedNodes([tooltip], nodesForDisplay, linksForDisplay);
+        }
+
+        dispatch(highlightNodes(related));
     }
 
     onMouseUp() {
@@ -1103,14 +1115,14 @@ class GraphPixi extends React.Component<any, any> {
 const select = (state, ownProps) => {
     return {
         ...ownProps,
-        selectedNodes: state.entries.node,
+        selectedNodes: state.entries.selectedNodes,
         nodesForDisplay: state.entries.nodesForDisplay,
         linksForDisplay: state.entries.linksForDisplay,
-        filterSearchResults: state.entries.filterSearchResults,
+        highlightNodes: state.entries.highlightNodes,
         queries: state.entries.searches,
         fields: state.entries.fields,
         items: state.entries.items,
-        highlight_nodes: state.entries.highlight_nodes,
+        tooltipNodes: state.entries.tooltipNodes,
         itemsFetching: state.entries.itemsFetching,
         version: state.entries.version,
         selectingMode: state.entries.selectingMode

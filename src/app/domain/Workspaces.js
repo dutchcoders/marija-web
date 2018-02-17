@@ -42,15 +42,15 @@ export default class Workspaces {
                     routing: {},
                     entries:{
                         ...state.entries,
-                        node: [],
+                        selectedNodes: [],
                         items: [],
                         nodes: [],
                         links: [],
                         searches: [],
                         nodesForDisplay: [],
                         linksForDisplay: [],
-                        highlight_nodes: [],
-                        filterSearchResults: []
+                        tooltipNodes: [],
+                        highlightNodes: []
                     }
                 }
             });

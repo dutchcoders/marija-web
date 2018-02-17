@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { EventEmitter } from 'fbemitter';
 
 import {
-    Header, Record, TableView, ConfigurationView, Histogram, Queries, Graph,
+    Header, Record, TableView, ConfigurationView, Histogram, Queries,
     GraphPixi, Pane, Icon, Nodes, Navigation
 } from './index';
 import Filter from "./Graphs/Filter";
@@ -31,7 +31,7 @@ class RootView extends Component {
     }
 
     render() {
-        const { panes, dispatch, node, nodes} = this.props;
+        const { panes, dispatch, selectedNodes, nodes} = this.props;
         const { mounted } = this.state;
 
         let mainContent = null;
@@ -61,7 +61,7 @@ class RootView extends Component {
 
                     <Pane
                         name="Selected nodes"
-                        description={node.length + '/' + nodes.length}
+                        description={selectedNodes.length + '/' + nodes.length}
                         handle="nodes"
                         config={panes.nodes}
                         dispatch={dispatch}
@@ -71,7 +71,7 @@ class RootView extends Component {
 
                     <Pane
                         name="Table"
-                        description={'data for ' + node.length + ' selected nodes'}
+                        description={'data for ' + selectedNodes.length + ' selected nodes'}
                         handle="table"
                         config={panes.table}
                         dispatch={dispatch}
@@ -120,7 +120,7 @@ const select = (state, ownProps) => {
     return {
         ...ownProps,
         errors: state.entries.errors,
-        node: state.entries.node,
+        selectedNodes: state.entries.selectedNodes,
         nodes: state.entries.nodes,
         links: state.entries.links,
         panes: state.utils.panes

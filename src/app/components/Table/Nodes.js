@@ -10,6 +10,7 @@ import { fieldLocator, getRelatedNodes } from '../../helpers/index';
 
 import SkyLight from 'react-skylight';
 import {searchRequest} from "../../modules/search/actions";
+import {showTooltip} from "../../modules/graph/actions";
 
 class Nodes extends React.Component {
     constructor(props) {
@@ -59,9 +60,9 @@ class Nodes extends React.Component {
     }
 
     handleDeleteAllButSelectedNodes() {
-        const { dispatch, node, nodes } = this.props;
+        const { dispatch, selectedNodes, nodes } = this.props;
 
-        const delete_nodes = differenceWith(nodes, node, (n1, n2) => {
+        const delete_nodes = differenceWith(nodes, selectedNodes, (n1, n2) => {
             return n1.id == n2.id;
         });
 
@@ -69,15 +70,15 @@ class Nodes extends React.Component {
     }
 
     handleSelectAllNodes() {
-        const { dispatch, node, nodes, links } = this.props;
+        const { dispatch, nodes } = this.props;
 
         dispatch(nodesSelect(nodes));
     }
 
     handleSelectRelatedNodes() {
-        const { dispatch, node, nodes, links } = this.props;
+        const { dispatch, selectedNodes, nodes, links } = this.props;
 
-        const relatedNodes = getRelatedNodes(node, nodes, links);
+        const relatedNodes = getRelatedNodes(selectedNodes, nodes, links);
         dispatch(nodesSelect(relatedNodes));
     }
 
@@ -90,20 +91,20 @@ class Nodes extends React.Component {
     }
 
     handleDeleteAllNodes() {
-        const { dispatch, node } = this.props;
-        dispatch(deleteNodes(node));
+        const { dispatch, selectedNodes } = this.props;
+        dispatch(deleteNodes(selectedNodes));
     }
 
     displayTooltip(node) {
         const { dispatch } = this.props;
 
-        dispatch(highlightNodes([node]));
+        dispatch(showTooltip([node]));
     }
 
     hideTooltip() {
         const { dispatch } = this.props;
 
-        dispatch(highlightNodes([]));
+        dispatch(showTooltip([]));
     }
 
     getQueryColor(query) {
@@ -180,20 +181,20 @@ class Nodes extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.prepareImages(nextProps.nodes);
+        this.prepareImages(nextProps.selectedNodes);
     }
 
     componentWillMount() {
-        this.prepareImages(this.props.node);
+        this.prepareImages(this.props.selectedNodes);
     }
 
     renderSelected() {
-        const { node } = this.props;
+        const { selectedNodes } = this.props;
         const { nodeImages } = this.state;
 
         return (
-            node.length > 0?
-                map(sortBy(node, ['name']), (i_node) => {
+            selectedNodes.length > 0?
+                map(sortBy(selectedNodes, ['name']), (i_node) => {
                     const image = nodeImages[this.getImageKey(i_node)];
 
                     const listItem = (
@@ -224,6 +225,7 @@ class Nodes extends React.Component {
         node.forEach(nodeLoop => {
             dispatch(searchRequest({
                 query: nodeLoop.name,
+                aroundNodeId: nodeLoop.id,
                 from: 0,
                 size: 500,
                 datasources: activeIndices,
@@ -233,8 +235,7 @@ class Nodes extends React.Component {
     }
 
     render() {
-        const { editNode, find_value, value, description } = this.state;
-        const { node } = this.props;
+        const { editNode, value, description } = this.state;
 
         const updateNodeDialogStyles = {
             backgroundColor: '#fff',
@@ -286,7 +287,7 @@ class Nodes extends React.Component {
 
 function select(state) {
     return {
-        node: state.entries.node,
+        selectedNodes: state.entries.selectedNodes,
         nodes: state.entries.nodes,
         links: state.entries.links,
         queries: state.entries.searches,
