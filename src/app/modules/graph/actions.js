@@ -1,4 +1,4 @@
-import { NODES_DESELECT, NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODE_SELECT, NODES_SELECT, SELECTION_CLEAR, SET_SELECTING_MODE } from './index';
+import { NODES_DESELECT, NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODE_SELECT, NODES_SELECT, SELECTION_CLEAR, SET_SELECTING_MODE, NODES_TOOLTIP } from './index';
 
 export function deselectNodes(opts) {
     return {
@@ -16,15 +16,21 @@ export function deleteNodes(opts) {
     };
 }
 
-
 export function highlightNodes(opts) {
     return {
         type: NODES_HIGHLIGHT,
         receivedAt: Date.now(),
-        highlight_nodes: opts
+        nodes: opts
     };
 }
 
+export function showTooltip(nodes) {
+    return {
+        type: NODES_TOOLTIP,
+        receivedAt: Date.now(),
+        nodes: nodes
+    };
+}
 
 export function clearSelection(opts) {
     return {

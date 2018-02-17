@@ -77,7 +77,7 @@ class TableView extends React.Component {
     }
 
     renderBody() {
-        const { columns, searches, dispatch} = this.props;
+        const { columns, searches } = this.props;
         const { items } = this.state;
 
         return map(items, (record, i) => {
@@ -176,7 +176,7 @@ class TableView extends React.Component {
 
 function select(state) {
     return {
-        selectedNodes: state.entries.node,
+        selectedNodes: state.entries.selectedNodes,
         normalizations: state.entries.normalizations,
         items: state.entries.items,
         searches: state.entries.searches,

@@ -235,8 +235,7 @@ const select = (state, ownProps) => {
         fields: state.entries.fields,
         normalizations: state.entries.normalizations,
         date_fields: state.entries.date_fields,
-        items: state.entries.items,
-        highlight_nodes: state.entries.highlight_nodes
+        items: state.entries.items
     };
 };
 
