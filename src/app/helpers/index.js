@@ -13,3 +13,4 @@ export { default as getRelatedNodes } from './getRelatedNodes';
 export { default as abbreviateNodeName } from './abbreviateNodeName';
 export { default as getConnectedComponents } from './getConnectedComponents';
 export { default as filterSecondaryComponents } from './filterSecondaryComponents';
+export { default as getDirectlyRelatedNodes } from './getDirectlyRelatedNodes';

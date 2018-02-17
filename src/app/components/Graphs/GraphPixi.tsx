@@ -3,7 +3,7 @@ import { connect} from 'react-redux';
 import * as d3 from 'd3';
 import { concat, debounce, remove, includes, assign, isEqual, isEmpty } from 'lodash';
 import { nodesSelect, highlightNodes, deselectNodes, showTooltip, setSelectingMode } from '../../modules/graph/actions.js';
-import { getArcParams } from '../../helpers/index.js';
+import { getArcParams, getDirectlyRelatedNodes } from '../../helpers/index.js';
 import Loader from "../Misc/Loader.js";
 import * as PIXI from 'pixi.js';
 const Worker = require("worker-loader!./Worker");
@@ -974,7 +974,7 @@ class GraphPixi extends React.Component<any, any> {
 
     onMouseMove() {
         const { transform, selection } = this.state;
-        const { selectingMode } = this.props;
+        const { selectingMode, nodesForDisplay, linksForDisplay, dispatch, tooltipNodes } = this.props;
 
         const x = transform.invertX(d3.event.layerX);
         const y = transform.invertY(d3.event.layerY);
@@ -992,7 +992,20 @@ class GraphPixi extends React.Component<any, any> {
         }
 
         const tooltip = this.findNode(x, y);
+
+        if (tooltipNodes[0] === tooltip) {
+            // Nothing changed
+            return;
+        }
+
         this.tooltipNode(tooltip);
+        let related = [];
+
+        if (tooltip) {
+            related = getDirectlyRelatedNodes([tooltip], nodesForDisplay, linksForDisplay);
+        }
+
+        dispatch(highlightNodes(related));
     }
 
     onMouseUp() {
