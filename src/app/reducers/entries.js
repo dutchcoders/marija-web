@@ -1,4 +1,4 @@
-import { slice, concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy, uniqueId } from 'lodash';
+import { slice, concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy, uniqueId, intersection } from 'lodash';
 
 import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
 
@@ -11,7 +11,7 @@ import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_
 import {
     normalize, fieldLocator, getNodesForDisplay,
     removeDeadLinks, applyVia, getQueryColor, getConnectedComponents,
-    filterSecondaryComponents
+    filterSecondaryComponents, deleteFieldFromNodes
 } from '../helpers/index';
 import getNodesAndLinks from "../helpers/getNodesAndLinks";
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
@@ -178,10 +178,20 @@ export default function entries(state = defaultState, action) {
                 fields: concat(state.fields, newField),
                 date_fields: dateFields
             });
-        case FIELD_DELETE:
+        case FIELD_DELETE: {
+            const nodes = deleteFieldFromNodes(action.field.path, state.nodes);
+            const links = removeDeadLinks(nodes, state.links);
+            const nodesForDisplay = intersection(nodes, state.nodesForDisplay);
+            const linksForDisplay = intersection(links, state.linksForDisplay);
+
             return Object.assign({}, state, {
-                fields: without(state.fields, action.field)
+                fields: without(state.fields, action.field),
+                nodes: nodes,
+                links: links,
+                nodesForDisplay: nodesForDisplay,
+                linksForDisplay: linksForDisplay
             });
+        }
         case NORMALIZATION_ADD:
             let normalization = action.normalization;
             normalization.re = new RegExp(normalization.regex, "i");
