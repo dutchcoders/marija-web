@@ -556,7 +556,7 @@ class GraphPixi extends React.Component<any, any> {
 
         const ctx = canvas.getContext('2d');
         ctx.lineWidth = 3;
-        ctx.strokeStyle = '#ffffff';
+        ctx.strokeStyle = '#fac04b';
         ctx.arc(radius + 2, radius + 2, radius, 0, 2 * Math.PI);
         ctx.stroke();
 
