@@ -431,6 +431,7 @@ class ConfigurationView extends React.Component {
 
     renderFields(fields, availableFields) {
         const { currentFieldSearchValue, searchTypes, maxSearchResults } = this.state;
+        availableFields = availableFields.concat([]);
 
         const options = map(fields, (field) => {
             return (
@@ -450,12 +451,15 @@ class ConfigurationView extends React.Component {
             types: []
         }].concat(this.getTypes(availableFields));
 
-        const availableFieldsForType = availableFields.filter(item =>
-            searchTypes.length === 0 || searchTypes.indexOf(item.type) !== -1
-        );
+        // Filter by type, if we are searching on a certain type
+        if (searchTypes.length > 0) {
+            availableFields = availableFields.filter(item =>
+                searchTypes.indexOf(item.type) !== -1
+            );
+        }
 
         // Only fields that have not already been added
-        let searchResults = availableFieldsForType.filter(field =>
+        availableFields = availableFields.filter(field =>
             typeof fields.find(search => search.path === field.path) === 'undefined'
         );
 
@@ -468,7 +472,7 @@ class ConfigurationView extends React.Component {
                             ref={searchInput => this.searchInput = searchInput}
                             value={this.state.currentFieldSearchValue}
                             onChange={this.handleFieldSearchChange.bind(this)} type="text"
-                            placeholder={'Search ' + searchResults.length + ' fields'} />
+                            placeholder={'Search ' + availableFields.length + ' fields'} />
                     </div>
                 </div>
                 <div className="row">
@@ -501,10 +505,10 @@ class ConfigurationView extends React.Component {
             </form>
         );
 
-        if (currentFieldSearchValue) {
-            searchResults = [];
+        let searchResults = availableFields.concat([]);
 
-            availableFieldsForType.forEach((item) => {
+        if (currentFieldSearchValue) {
+            availableFields.forEach((item) => {
                 const copy = Object.assign({}, item);
                 copy.occurrenceIndex = copy.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase());
 
