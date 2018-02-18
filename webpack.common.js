@@ -33,12 +33,12 @@ module.exports = {
     ],
     resolve: {
         // modules: ['node_modules', 'src'],
-        extensions: ['.js', '.scss', '.ts']
+        extensions: ['.js', '.scss', '.ts', '.tsx']
     },
     module: {
         rules: [
             {
-                test: /\.(tsx|js)$/,
+                test: /\.(tsx|ts|js)$/,
                 loader: 'awesome-typescript-loader',
                 include: [path.join(__dirname, "src")]
             },

@@ -1,5 +1,8 @@
 import { slice, concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy } from 'lodash';
 import {abbreviateNodeName, fieldLocator, normalize} from "./index";
+import {Node} from "../interfaces/node";
+import {Link} from "../interfaces/link";
+import {Item} from "../interfaces/item";
 
 function getHash(string) {
     let hash = 0, i, chr;
@@ -16,9 +19,21 @@ function getHash(string) {
     return hash;
 }
 
-export default function getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations, aroundNodeId) {
-    let nodes = concat(previousNodes, []);
-    let links = concat(previousLinks, []);
+export default function getNodesAndLinks(
+    previousNodes: Node[],
+    previousLinks: Link[],
+    items: Item[],
+    fields,
+    query,
+    normalizations,
+    aroundNodeId,
+    deletedNodes: Node[] = []
+): {
+    nodes: Node[],
+    links: Link[]
+} {
+    let nodes: Node[] = concat(previousNodes, []);
+    let links: Link[] = concat(previousLinks, []);
 
     let nodeCache = {};
     for (let node of nodes) {
@@ -29,6 +44,9 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
     for (let link of links) {
         linkCache[link.source + link.target] = link;
     }
+
+    const isDeleted = (nodeId: string): boolean =>
+        typeof deletedNodes.find(node => node.id === nodeId) !== 'undefined';
 
     query = query.q;
 
@@ -54,6 +72,10 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                     continue;
                 }
 
+                if (isDeleted(normalizedSourceValue)) {
+                    continue;
+                }
+
                 if (aroundNodeId && aroundNodeId !== normalizedSourceValue) {
                     continue;
                 }
@@ -72,7 +94,7 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                         n.queries.push(query);
                     }
                 } else {
-                    let n = {
+                    let n: Node = {
                         id: normalizedSourceValue,
                         queries: [query],
                         items: [d.id],
@@ -114,6 +136,10 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                             continue;
                         }
 
+                        if (isDeleted(normalizedTargetValue)) {
+                            continue;
+                        }
+
                         let n = nodeCache[normalizedTargetValue];
                         if (n) {
                             if (n.items.indexOf(d.id) === -1){
@@ -128,7 +154,7 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                                 n.queries.push(query);
                             }
                         } else {
-                            let n = {
+                            let n: Node = {
                                 id: normalizedTargetValue,
                                 queries: [query],
                                 items: [d.id],
@@ -136,7 +162,7 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                                 name: normalizedTargetValue,
                                 abbreviated: abbreviateNodeName(normalizedTargetValue, query, 40),
                                 description: '',
-                                icon: [target.icon],
+                                icon: target.icon,
                                 fields: [target.path],
                                 hash: getHash(normalizedTargetValue)
                             };
@@ -166,7 +192,7 @@ export default function getNodesAndLinks(previousNodes, previousLinks, items, fi
                             continue;
                         }
 
-                        const link = {
+                        const link: Link = {
                             source: normalizedSourceValue,
                             target: normalizedTargetValue,
                             color: '#ccc',

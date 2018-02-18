@@ -50,7 +50,8 @@ export default class Workspaces {
                         nodesForDisplay: [],
                         linksForDisplay: [],
                         tooltipNodes: [],
-                        highlightNodes: []
+                        highlightNodes: [],
+                        deletedNodes: []
                     }
                 }
             });

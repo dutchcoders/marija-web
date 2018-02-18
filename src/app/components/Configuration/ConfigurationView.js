@@ -15,6 +15,7 @@ import {Workspaces} from "../../domain/index";
 import {saveAs} from 'file-saver';
 import {exportData, importData} from "../../modules/import/actions";
 import {searchFieldsUpdate} from "../../modules/search/actions";
+import {highlightNodes} from "../../modules/graph/actions";
 
 class ConfigurationView extends React.Component {
     defaultMaxSearchResults = 10;
@@ -412,12 +413,32 @@ class ConfigurationView extends React.Component {
         });
     }
 
+    highlightNodes(field) {
+        const { nodesForDisplay, dispatch } = this.props;
+
+        const nodes = nodesForDisplay.filter(node =>
+            node.fields.indexOf(field) !== -1
+        );
+
+        dispatch(highlightNodes(nodes));
+    }
+
+    removeHighlightNodes() {
+        const { dispatch } = this.props;
+
+        dispatch(highlightNodes([]));
+    }
+
     renderFields(fields, availableFields) {
         const { currentFieldSearchValue, searchTypes, maxSearchResults } = this.state;
+        availableFields = availableFields.concat([]);
 
         const options = map(fields, (field) => {
             return (
-                <li key={'field_' + field.path} value={ field.path }>
+                <li
+                    key={'field_' + field.path}
+                    value={ field.path }
+                    onMouseEnter={() => this.highlightNodes(field.path)}>
                     { field.path }
                     <i className="fieldIcon">{ field.icon }</i>
                     <Icon onClick={() => this.handleDeleteField(field)} name="ion-ios-trash-outline"/>
@@ -430,12 +451,15 @@ class ConfigurationView extends React.Component {
             types: []
         }].concat(this.getTypes(availableFields));
 
-        const availableFieldsForType = availableFields.filter(item =>
-            searchTypes.length === 0 || searchTypes.indexOf(item.type) !== -1
-        );
+        // Filter by type, if we are searching on a certain type
+        if (searchTypes.length > 0) {
+            availableFields = availableFields.filter(item =>
+                searchTypes.indexOf(item.type) !== -1
+            );
+        }
 
         // Only fields that have not already been added
-        let searchResults = availableFieldsForType.filter(field =>
+        availableFields = availableFields.filter(field =>
             typeof fields.find(search => search.path === field.path) === 'undefined'
         );
 
@@ -448,7 +472,7 @@ class ConfigurationView extends React.Component {
                             ref={searchInput => this.searchInput = searchInput}
                             value={this.state.currentFieldSearchValue}
                             onChange={this.handleFieldSearchChange.bind(this)} type="text"
-                            placeholder={'Search ' + searchResults.length + ' fields'} />
+                            placeholder={'Search ' + availableFields.length + ' fields'} />
                     </div>
                 </div>
                 <div className="row">
@@ -481,10 +505,10 @@ class ConfigurationView extends React.Component {
             </form>
         );
 
-        if (currentFieldSearchValue) {
-            searchResults = [];
+        let searchResults = availableFields.concat([]);
 
-            availableFieldsForType.forEach((item) => {
+        if (currentFieldSearchValue) {
+            availableFields.forEach((item) => {
                 const copy = Object.assign({}, item);
                 copy.occurrenceIndex = copy.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase());
 
@@ -579,7 +603,7 @@ class ConfigurationView extends React.Component {
 
         return (
             <div>
-                <ul>{ options }</ul>
+                <ul onMouseLeave={this.removeHighlightNodes.bind(this)}>{ options }</ul>
                 { availableFields.length > 0 ? search : null }
                 { availableFields.length > 0 ? available : null }
                 { selectDatasourceMessage }
@@ -871,6 +895,7 @@ function select(state) {
         activeIndices: state.indices.activeIndices,
         datasources: state.entries.datasources,
         fieldsFetching: state.fields.fieldsFetching,
+        nodesForDisplay: state.entries.nodesForDisplay
     };
 }
 
