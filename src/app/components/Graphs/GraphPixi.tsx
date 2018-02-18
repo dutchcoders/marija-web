@@ -132,7 +132,7 @@ class GraphPixi extends React.Component<Props, State> {
         });
     }
 
-    zoom(fraction, newX, newY) {
+    zoom(fraction: number, newX: number, newY: number) {
         const { renderedNodesContainer, renderedLinks, renderedSelectedNodes, renderedLinkLabels, renderedSearchResults } = this.state;
 
         [renderedNodesContainer, renderedLinks, renderedSelectedNodes, renderedLinkLabels, renderedSearchResults].forEach(zoomable => {
@@ -163,7 +163,7 @@ class GraphPixi extends React.Component<Props, State> {
         });
     }
 
-    getQueryColor(query) {
+    getQueryColor(query: string) {
         const { searches } = this.props;
         const search = searches.find(search => search.q === query);
 
@@ -172,13 +172,13 @@ class GraphPixi extends React.Component<Props, State> {
         }
     }
 
-    getNodeTextureKey(node) {
+    getNodeTextureKey(node: NodeFromWorker) {
         return node.icon
             + node.r
             + node.queries.map(query => this.getQueryColor(query)).join('');
     }
 
-    getNodeTexture(node) {
+    getNodeTexture(node: NodeFromWorker) {
         const { nodeTextures } = this.state;
 
         let texture = nodeTextures[node.textureKey];
@@ -303,14 +303,14 @@ class GraphPixi extends React.Component<Props, State> {
         }
     }
 
-    renderStraightLine(x1, y1, x2, y2) {
+    renderStraightLine(x1: number, y1: number, x2: number, y2: number) {
         const { renderedLinks } = this.state;
 
         renderedLinks.moveTo(x1, y1);
         renderedLinks.lineTo(x2, y2);
     }
 
-    renderArc(centerX, centerY, radius, startAngle, endAngle, antiClockwise) {
+    renderArc(centerX: number, centerY: number, radius: number, startAngle: number, endAngle: number, antiClockwise: boolean) {
         const { renderedLinks } = this.state;
 
         const xStart = centerX + radius * Math.cos(startAngle);
@@ -320,7 +320,7 @@ class GraphPixi extends React.Component<Props, State> {
         renderedLinks.arc(centerX, centerY, radius, startAngle, endAngle, antiClockwise);
     }
 
-    renderTextAlongStraightLine(string, x1, y1, x2, y2) {
+    renderTextAlongStraightLine(string: string, x1: number, y1: number, x2: number, y2: number) {
         const { renderedLinkLabels } = this.state;
 
         const texture = this.getLabelTexture(string);
@@ -343,7 +343,7 @@ class GraphPixi extends React.Component<Props, State> {
         renderedLinkLabels.addChild(text);
     }
 
-    getLabelTexture(label) {
+    getLabelTexture(label: string) {
         const { labelTextures, renderer } = this.state;
         let texture = labelTextures[label];
 
@@ -372,7 +372,7 @@ class GraphPixi extends React.Component<Props, State> {
         return texture;
     }
 
-    getRopeCoordinates(startAngle, endAngle, radius) {
+    getRopeCoordinates(startAngle: number, endAngle: number, radius: number) {
         const num = 10;
         const perIteration = (endAngle - startAngle) / num;
         let currentAngle = startAngle;
@@ -390,7 +390,7 @@ class GraphPixi extends React.Component<Props, State> {
         return coordinates;
     }
 
-    renderTextAlongArc(string, centerX, centerY, radius, angle, distanceFromArc) {
+    renderTextAlongArc(string: any, centerX: number, centerY: number, radius: number, angle: number, distanceFromArc: number) {
         const { renderedLinkLabels } = this.state;
         radius += distanceFromArc;
 
@@ -516,7 +516,7 @@ class GraphPixi extends React.Component<Props, State> {
         }
     }
 
-    getTooltipTexture(node) {
+    getTooltipTexture(node: Node) {
         const { tooltipTextures, renderer } = this.state;
 
         const key = node.name + node.fields.join('');
@@ -586,7 +586,7 @@ class GraphPixi extends React.Component<Props, State> {
         });
     }
 
-    getSelectedNodeTexture(radius) {
+    getSelectedNodeTexture(radius: number) {
         const { selectedNodeTextures } = this.state;
         let texture = selectedNodeTextures[radius];
 
@@ -644,7 +644,7 @@ class GraphPixi extends React.Component<Props, State> {
         });
     }
 
-    getSearchResultTexture(radius) {
+    getSearchResultTexture(radius: number) {
         const { searchResultTextures } = this.state;
         radius += 5;
         let texture = searchResultTextures[radius];
@@ -699,7 +699,7 @@ class GraphPixi extends React.Component<Props, State> {
         });
     }
 
-    renderGraph(renderStage) {
+    renderGraph(renderStage: boolean) {
         const { renderer, stage } = this.state;
 
         if (renderStage) {
@@ -941,7 +941,7 @@ class GraphPixi extends React.Component<Props, State> {
         return this.findNodeFromWorker(x, y);
     }
 
-    findNodeFromWorker(x, y) {
+    findNodeFromWorker(x: number, y: number) {
         const { nodesFromWorker } = this.state;
 
         return nodesFromWorker.find(node => {
@@ -965,7 +965,7 @@ class GraphPixi extends React.Component<Props, State> {
         return nodesForDisplay.find(node => node.hash === nodeFromWorker.hash);
     }
 
-    tooltipNode(node) {
+    tooltipNode(node: Node) {
         const { tooltipNodes, dispatch } = this.props;
 
         if (typeof node === 'undefined' && !isEmpty(tooltipNodes)) {
@@ -982,7 +982,7 @@ class GraphPixi extends React.Component<Props, State> {
         }
     }
 
-    selectNodes(nodes) {
+    selectNodes(nodes: Node[]) {
         const { dispatch } = this.props;
 
         dispatch(nodesSelect(nodes));
@@ -994,7 +994,7 @@ class GraphPixi extends React.Component<Props, State> {
      * Handles selecting/deselecting nodes.
      * Is not involved with dragging nodes, d3 handles that.
      */
-    onMouseDown(event) {
+    onMouseDown() {
         const { shift, transform } = this.state;
         const { dispatch, selectedNodes, nodesForDisplay, selectingMode } = this.props;
 

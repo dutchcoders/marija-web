@@ -6,5 +6,10 @@ export interface NodeFromWorker {
     x: number;
     y: number;
     r: number; // radius
-    hash: number; // use the hash to map the NodeFromWorker to the Node
+    id: string;
+    count: number;
+    hash: number;
+    queries: string[];
+    icon: string;
+    textureKey?: string;
 }
