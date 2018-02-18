@@ -11,7 +11,11 @@ import {Node} from "../../interfaces/node";
 import {Link} from "../../interfaces/link";
 import {NodeFromWorker} from "../../interfaces/nodeFromWorker";
 import {LinkFromWorker} from "../../interfaces/linkFromWorker";
-const Worker = require("worker-loader!./Worker");
+const myWorker = require("worker-loader!./Worker");
+
+interface TextureMap {
+    [hash: string]: PIXI.RenderTexture;
+}
 
 interface Props {
     selectingMode: boolean;
@@ -28,21 +32,21 @@ interface Props {
 
 interface State {
     nodesFromWorker: NodeFromWorker[];
-    nodeTextures: any;
+    nodeTextures: TextureMap;
     renderedNodesContainer: PIXI.Container;
     linksFromWorker: LinkFromWorker[];
-    renderedLinks: any;
-    renderedLinkLabels: any;
+    renderedLinks: PIXI.Graphics;
+    renderedLinkLabels: PIXI.Container;
     selection: any;
-    renderedSelection: any;
+    renderedSelection: PIXI.Graphics;
     renderer: PIXI.WebGLRenderer;
-    renderedTooltip: any;
-    renderedSelectedNodes: any;
-    selectedNodeTextures: any;
-    searchResultTextures: any;
-    renderedSearchResults: any;
-    stage: any;
-    worker: any;
+    renderedTooltip: PIXI.Container;
+    renderedSelectedNodes: PIXI.Container;
+    selectedNodeTextures: TextureMap;
+    searchResultTextures: TextureMap;
+    renderedSearchResults: PIXI.Container;
+    stage: PIXI.Container;
+    worker: Worker;
     renderedSinceLastTick: boolean;
     renderedSinceLastZoom: boolean;
     renderedSinceLastTooltip: boolean;
@@ -55,8 +59,8 @@ interface State {
     lastLoopTimestamp: number;
     frameTime: number;
     lastDisplayedFps: Date;
-    labelTextures: any;
-    tooltipTextures: any;
+    labelTextures: TextureMap;
+    tooltipTextures: TextureMap;
 }
 
 class GraphPixi extends React.Component<Props, State> {
@@ -208,7 +212,7 @@ class GraphPixi extends React.Component<Props, State> {
         ctx.textAlign = 'center';
         ctx.fillText(node.icon, node.r - 1, node.r + 5);
 
-        texture = PIXI.Texture.fromCanvas(canvas);
+        texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
 
         this.setState(prevState => ({
             nodeTextures: {
@@ -601,7 +605,7 @@ class GraphPixi extends React.Component<Props, State> {
         ctx.arc(radius + 2, radius + 2, radius, 0, 2 * Math.PI);
         ctx.stroke();
 
-        texture = PIXI.Texture.fromCanvas(canvas);
+        texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
 
         this.setState(prevState => ({
             selectedNodeTextures: {
@@ -659,7 +663,7 @@ class GraphPixi extends React.Component<Props, State> {
         ctx.arc(radius, radius, radius, 0, 2 * Math.PI);
         ctx.fill();
 
-        texture = PIXI.Texture.fromCanvas(canvas);
+        texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
 
         this.setState(prevState => ({
             searchResultTextures: {
@@ -827,8 +831,6 @@ class GraphPixi extends React.Component<Props, State> {
             .on('mousemove', this.onMouseMove.bind(this))
             .on('mouseup', this.onMouseUp.bind(this));
 
-
-
         this.setState({
             renderedNodesContainer: renderedNodesContainer,
             renderedLinks: renderedLinks,
@@ -844,7 +846,7 @@ class GraphPixi extends React.Component<Props, State> {
 
     initWorker() {
         const { width, height } = this.pixiContainer.getBoundingClientRect();
-        const worker = new Worker();
+        const worker = new myWorker();
 
         this.setState({
             worker: worker
