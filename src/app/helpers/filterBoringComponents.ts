@@ -1,12 +1,13 @@
 import {uniq} from 'lodash';
+import {Node} from "../interfaces/node";
 
 /**
  * Filters connected components that contain nodes that are based on only 1 item.
- * This prevents very small connected components cluttering the graph.
+ * This prevents very small connected components from cluttering the graph.
  *
  * @param components
  */
-export default function filterBoringComponents(components) {
+export default function filterBoringComponents(components: Node[][]) {
     return components.filter(nodes => {
         let itemIds = [];
 
