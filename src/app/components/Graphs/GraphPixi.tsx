@@ -1,14 +1,63 @@
 import * as React from 'react';
-import { connect} from 'react-redux';
+import {connect, Dispatch} from 'react-redux';
 import * as d3 from 'd3';
 import { concat, debounce, remove, includes, assign, isEqual, isEmpty } from 'lodash';
 import { nodesSelect, highlightNodes, deselectNodes, showTooltip, setSelectingMode } from '../../modules/graph/actions.js';
 import { getArcParams, getDirectlyRelatedNodes } from '../../helpers/index.js';
 import Loader from "../Misc/Loader.js";
 import * as PIXI from 'pixi.js';
+import {Search} from "../../interfaces/search";
+import {Node} from "../../interfaces/node";
+import {Link} from "../../interfaces/link";
 const Worker = require("worker-loader!./Worker");
 
-class GraphPixi extends React.Component<any, any> {
+interface Props {
+    selectingMode: boolean;
+    searches: Search[];
+    nodesForDisplay: Node[];
+    linksForDisplay: Link[];
+    tooltipNodes: Node[];
+    selectedNodes: Node[];
+    highlightNodes: Node[];
+    zoomEvents: any;
+    dispatch: Dispatch<any>;
+    version: string;
+}
+
+interface State {
+    nodesFromWorker: any[];
+    nodeTextures: any;
+    renderedNodesContainer: PIXI.Container;
+    linksFromWorker: any[];
+    renderedLinks: any;
+    renderedLinkLabels: any;
+    selection: any;
+    renderedSelection: any;
+    renderer: PIXI.WebGLRenderer;
+    renderedTooltip: any;
+    renderedSelectedNodes: any;
+    selectedNodeTextures: any;
+    searchResultTextures: any;
+    renderedSearchResults: any;
+    stage: any;
+    worker: any;
+    renderedSinceLastTick: boolean;
+    renderedSinceLastZoom: boolean;
+    renderedSinceLastTooltip: boolean;
+    renderedSinceLastSelection: boolean;
+    renderedSinceLastSelectedNodes: boolean;
+    renderedSinceLastQueries: boolean;
+    renderedSinceLastSearchResults: boolean;
+    transform: any; // d3.ZoomTransform gives error saying that 'k' is readonly
+    shift: boolean;
+    lastLoopTimestamp: number;
+    frameTime: number;
+    lastDisplayedFps: Date;
+    labelTextures: any;
+    tooltipTextures: any;
+}
+
+class GraphPixi extends React.Component<Props, State> {
     pixiContainer: HTMLElement;
 
     constructor(props) {
@@ -42,7 +91,7 @@ class GraphPixi extends React.Component<any, any> {
             renderedSinceLastSearchResults: true,
             transform: d3.zoomIdentity,
             shift: false,
-            lastLoopTimestamp: new Date(),
+            lastLoopTimestamp: 0,
             frameTime: 0,
             lastDisplayedFps: new Date(),
             labelTextures: {},
@@ -119,8 +168,8 @@ class GraphPixi extends React.Component<any, any> {
     }
 
     getQueryColor(query) {
-        const { queries } = this.props;
-        const search = queries.find(search => search.q === query);
+        const { searches } = this.props;
+        const search = searches.find(search => search.q === query);
 
         if (typeof search !== 'undefined') {
             return search.color;
@@ -365,8 +414,8 @@ class GraphPixi extends React.Component<any, any> {
         renderedLinkLabels.addChild(rope);
     }
 
-    componentDidUpdate(prevProps) {
-        const { nodesForDisplay, tooltipNodes, selectedNodes, queries, highlightNodes } = this.props;
+    componentDidUpdate(prevProps: Props) {
+        const { nodesForDisplay, tooltipNodes, selectedNodes, searches, highlightNodes } = this.props;
 
         if (!isEqual(prevProps.selectedNodes, selectedNodes)) {
             this.setState({
@@ -380,7 +429,7 @@ class GraphPixi extends React.Component<any, any> {
             });
         }
 
-        if (!isEqual(prevProps.queries, queries)) {
+        if (!isEqual(prevProps.searches, searches)) {
             this.setState({
                 renderedSinceLastQueries: false,
                 nodeTextures: {}
@@ -435,17 +484,16 @@ class GraphPixi extends React.Component<any, any> {
         });
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        const { nodesForDisplay, itemsFetching, tooltipNodes, queries, selectedNodes, highlightNodes } = this.props;
+    shouldComponentUpdate(nextProps: Props, nextState: State) {
+        const { nodesForDisplay, tooltipNodes, searches, selectedNodes, highlightNodes } = this.props;
         const { lastDisplayedFps } = this.state;
 
         return nextProps.nodesForDisplay !== nodesForDisplay
-            || nextProps.itemsFetching !== itemsFetching
             || !isEqual(nextProps.tooltipNodes, tooltipNodes)
-            || !isEqual(nextProps.queries, queries)
+            || !isEqual(nextProps.searches, searches)
             || !isEqual(nextProps.selectedNodes, selectedNodes)
             || !isEqual(nextProps.highlightNodes, highlightNodes)
-            || (new Date().getTime()) - lastDisplayedFps > 1000;
+            || (Date.now() - lastDisplayedFps.getTime()) > 1000;
     }
 
     renderSelection() {
@@ -731,7 +779,7 @@ class GraphPixi extends React.Component<any, any> {
     initGraph() {
         const { width, height } = this.pixiContainer.getBoundingClientRect();
 
-        const renderer = PIXI.autoDetectRenderer({
+        const renderer = new PIXI.WebGLRenderer({
             antialias: true,
             transparent: false,
             resolution: 1,
@@ -1094,7 +1142,7 @@ class GraphPixi extends React.Component<any, any> {
     }
 
     render() {
-        const { itemsFetching, version } = this.props;
+        const { version } = this.props;
         const { frameTime } = this.state;
         const clientVersion = process.env.CLIENT_VERSION;
 
@@ -1118,11 +1166,10 @@ const select = (state, ownProps) => {
         nodesForDisplay: state.entries.nodesForDisplay,
         linksForDisplay: state.entries.linksForDisplay,
         highlightNodes: state.entries.highlightNodes,
-        queries: state.entries.searches,
+        searches: state.entries.searches,
         fields: state.entries.fields,
         items: state.entries.items,
         tooltipNodes: state.entries.tooltipNodes,
-        itemsFetching: state.entries.itemsFetching,
         version: state.entries.version,
         selectingMode: state.entries.selectingMode
     };
