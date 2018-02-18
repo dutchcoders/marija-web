@@ -33,7 +33,7 @@ module.exports = {
     ],
     resolve: {
         // modules: ['node_modules', 'src'],
-        extensions: ['.js', '.scss', '.ts']
+        extensions: ['.js', '.scss', '.ts', '.tsx']
     },
     module: {
         rules: [

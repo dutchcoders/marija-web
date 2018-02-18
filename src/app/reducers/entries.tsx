@@ -13,7 +13,6 @@ import {
     removeDeadLinks, applyVia, getQueryColor, getConnectedComponents,
     filterSecondaryComponents, deleteFieldFromNodes
 } from '../helpers/index';
-import getNodesAndLinks from "../helpers/getNodesAndLinks";
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
 import {VIA_ADD, VIA_DELETE} from "../modules/data/constants";
 import {NODES_TOOLTIP, SET_SELECTING_MODE} from "../modules/graph/constants";
@@ -21,9 +20,41 @@ import {REQUEST_COMPLETED} from "../utils/constants";
 import filterBoringComponents from "../helpers/filterBoringComponents";
 import {SEARCH_FIELDS_UPDATE} from "../modules/search/constants";
 import {cancelRequest} from "./utils";
+import {Node} from '../interfaces/node';
+import getNodesAndLinks from '../helpers/getNodesAndLinks';
+import {Link} from "../interfaces/link";
+import {Item} from "../interfaces/item";
+import {Search} from "../interfaces/search";
 
+interface State {
+    isFetching: boolean;
+    itemsFetching: boolean;
+    noMoreHits: boolean;
+    didInvalidate: boolean;
+    connected: boolean;
+    total: number;
+    datasources: any[];
+    columns: any[];
+    fields: any[];
+    date_fields: any[];
+    normalizations: any[];
+    indexes: any[];
+    items: Item[];
+    searches: Search[];
+    nodes: Node[]; // all nodes
+    links: Link[]; // relations between nodes
+    nodesForDisplay: Node[]; // nodes that will be rendered
+    linksForDisplay: Link[]; // links that will be rendered
+    highlightNodes: Node[];
+    tooltipNodes: Node[];
+    selectedNodes: Node[];
+    errors: any;
+    via: any[];
+    version: string;
+    selectingMode: boolean;
+}
 
-export const defaultState = {
+export const defaultState: State = {
     isFetching: false,
     itemsFetching: false,
     noMoreHits: false,
@@ -44,13 +75,14 @@ export const defaultState = {
     linksForDisplay: [], // links that will be rendered
     highlightNodes: [],
     tooltipNodes: [],
+    selectedNodes: [],
     errors: null,
     via: [],
     version: '',
     selectingMode: false
 };
 
-export default function entries(state = defaultState, action) {
+export default function entries(state: State = defaultState, action) {
     switch (action.type) {
         case SELECTION_CLEAR:
             return Object.assign({}, state, {
@@ -443,7 +475,7 @@ export default function entries(state = defaultState, action) {
             const index = searches.indexOf(search);
             searches[index] = newSearch;
 
-            const updates = {
+            const updates: any = {
                 searches: searches
             };
 
