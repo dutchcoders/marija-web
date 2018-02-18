@@ -2,6 +2,7 @@ import { slice, concat, without, reduce, remove, assign, find, forEach, union, f
 import {abbreviateNodeName, fieldLocator, normalize} from "./index";
 import {Node} from "../interfaces/node";
 import {Link} from "../interfaces/link";
+import {Item} from "../interfaces/item";
 
 function getHash(string) {
     let hash = 0, i, chr;
@@ -21,11 +22,12 @@ function getHash(string) {
 export default function getNodesAndLinks(
     previousNodes: Node[],
     previousLinks: Link[],
-    items,
+    items: Item[],
     fields,
     query,
     normalizations,
-    aroundNodeId
+    aroundNodeId,
+    deletedNodes: Node[] = []
 ): {
     nodes: Node[],
     links: Link[]
@@ -42,6 +44,9 @@ export default function getNodesAndLinks(
     for (let link of links) {
         linkCache[link.source + link.target] = link;
     }
+
+    const isDeleted = (nodeId: string): boolean =>
+        typeof deletedNodes.find(node => node.id === nodeId) !== 'undefined';
 
     query = query.q;
 
@@ -64,6 +69,10 @@ export default function getNodesAndLinks(
 
                 const normalizedSourceValue = normalize(normalizations, sv);
                 if (normalizedSourceValue === "" || typeof normalizedSourceValue === 'undefined') {
+                    continue;
+                }
+
+                if (isDeleted(normalizedSourceValue)) {
                     continue;
                 }
 
@@ -124,6 +133,10 @@ export default function getNodesAndLinks(
 
                         const normalizedTargetValue = normalize(normalizations, tv);
                         if (normalizedTargetValue === ""  || typeof normalizedTargetValue === 'undefined') {
+                            continue;
+                        }
+
+                        if (isDeleted(normalizedTargetValue)) {
                             continue;
                         }
 

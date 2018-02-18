@@ -48,6 +48,7 @@ interface State {
     highlightNodes: Node[];
     tooltipNodes: Node[];
     selectedNodes: Node[];
+    deletedNodes: Node[];
     errors: any;
     via: any[];
     version: string;
@@ -76,6 +77,7 @@ export const defaultState: State = {
     highlightNodes: [],
     tooltipNodes: [],
     selectedNodes: [],
+    deletedNodes: [],
     errors: null,
     via: [],
     version: '',
@@ -131,7 +133,8 @@ export default function entries(state: State = defaultState, action) {
                 nodes: nodes,
                 links: links,
                 nodesForDisplay: nodesForDisplay,
-                linksForDisplay: linksForDisplay
+                linksForDisplay: linksForDisplay,
+                deletedNodes: state.deletedNodes.concat(action.nodes)
             });
         }
         case SEARCH_DELETE:
@@ -402,7 +405,8 @@ export default function entries(state: State = defaultState, action) {
                 state.fields,
                 search,
                 state.normalizations,
-                search.aroundNodeId
+                search.aroundNodeId,
+                state.deletedNodes
             );
 
             result.links = removeDeadLinks(result.nodes, result.links);
