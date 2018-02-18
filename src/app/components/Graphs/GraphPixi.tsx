@@ -9,6 +9,8 @@ import * as PIXI from 'pixi.js';
 import {Search} from "../../interfaces/search";
 import {Node} from "../../interfaces/node";
 import {Link} from "../../interfaces/link";
+import {NodeFromWorker} from "../../interfaces/nodeFromWorker";
+import {LinkFromWorker} from "../../interfaces/linkFromWorker";
 const Worker = require("worker-loader!./Worker");
 
 interface Props {
@@ -25,10 +27,10 @@ interface Props {
 }
 
 interface State {
-    nodesFromWorker: any[];
+    nodesFromWorker: NodeFromWorker[];
     nodeTextures: any;
     renderedNodesContainer: PIXI.Container;
-    linksFromWorker: any[];
+    linksFromWorker: LinkFromWorker[];
     renderedLinks: any;
     renderedLinkLabels: any;
     selection: any;
@@ -59,47 +61,38 @@ interface State {
 
 class GraphPixi extends React.Component<Props, State> {
     pixiContainer: HTMLElement;
-
-    constructor(props) {
-        super(props);
-
-        const worker = new Worker();
-
-        this.state = {
-            nodesFromWorker: [],
-            nodeTextures: {},
-            renderedNodesContainer: undefined,
-            linksFromWorker: [],
-            renderedLinks: undefined,
-            renderedLinkLabels: undefined,
-            selection: null,
-            renderedSelection: undefined,
-            renderer: undefined,
-            renderedTooltip: undefined,
-            renderedSelectedNodes: undefined,
-            selectedNodeTextures: {},
-            searchResultTextures: {},
-            renderedSearchResults: undefined,
-            stage: undefined,
-            worker: worker,
-            renderedSinceLastTick: false,
-            renderedSinceLastZoom: true,
-            renderedSinceLastTooltip: false,
-            renderedSinceLastSelection: false,
-            renderedSinceLastSelectedNodes: false,
-            renderedSinceLastQueries: false,
-            renderedSinceLastSearchResults: true,
-            transform: d3.zoomIdentity,
-            shift: false,
-            lastLoopTimestamp: 0,
-            frameTime: 0,
-            lastDisplayedFps: new Date(),
-            labelTextures: {},
-            tooltipTextures: {}
-        };
-
-        worker.onmessage = (event) => this.onWorkerMessage(event);
-    }
+    state: State = {
+        nodesFromWorker: [],
+        nodeTextures: {},
+        renderedNodesContainer: undefined,
+        linksFromWorker: [],
+        renderedLinks: undefined,
+        renderedLinkLabels: undefined,
+        selection: null,
+        renderedSelection: undefined,
+        renderer: undefined,
+        renderedTooltip: undefined,
+        renderedSelectedNodes: undefined,
+        selectedNodeTextures: {},
+        searchResultTextures: {},
+        renderedSearchResults: undefined,
+        stage: undefined,
+        worker: undefined,
+        renderedSinceLastTick: false,
+        renderedSinceLastZoom: true,
+        renderedSinceLastTooltip: false,
+        renderedSinceLastSelection: false,
+        renderedSinceLastSelectedNodes: false,
+        renderedSinceLastQueries: false,
+        renderedSinceLastSearchResults: true,
+        transform: d3.zoomIdentity as any,
+        shift: false,
+        lastLoopTimestamp: 0,
+        frameTime: 0,
+        lastDisplayedFps: new Date(),
+        labelTextures: {},
+        tooltipTextures: {}
+    };
 
     isMoving() {
         const { selectingMode } = this.props;
@@ -253,12 +246,12 @@ class GraphPixi extends React.Component<Props, State> {
         renderedLinks.lineStyle(1, 0xFFFFFF);
 
         linksFromWorker.forEach(link => {
-            this.renderLink(link, link.current, link.total);
+            this.renderLink(link);
         });
     }
 
-    renderLink(link, nthLink, linksBetweenNodes) {
-        if (linksBetweenNodes <= 1) {
+    renderLink(link: LinkFromWorker) {
+        if (link.total <= 1) {
             // When there's only 1 link between 2 nodes, we can draw a straight line
 
             this.renderStraightLine(
@@ -281,10 +274,10 @@ class GraphPixi extends React.Component<Props, State> {
             // When there are multiple links between 2 nodes, we need to draw arcs
 
             // Bend only increases per 2 new links
-            let bend = (nthLink + (nthLink % 2)) / 15;
+            let bend = (link.current + (link.current % 2)) / 15;
 
             // Every second link will be drawn on the bottom instead of the top
-            if (nthLink % 2 === 0) {
+            if (link.current % 2 === 0) {
                 bend = bend * -1;
             }
 
@@ -834,13 +827,7 @@ class GraphPixi extends React.Component<Props, State> {
             .on('mousemove', this.onMouseMove.bind(this))
             .on('mouseup', this.onMouseUp.bind(this));
 
-        this.postWorkerMessage({
-            type: 'init',
-            clientWidth: width,
-            clientHeight: height
-        });
 
-        this.postNodesAndLinksToWorker();
 
         this.setState({
             renderedNodesContainer: renderedNodesContainer,
@@ -855,9 +842,29 @@ class GraphPixi extends React.Component<Props, State> {
         }, () => this.renderGraph(false));
     }
 
+    initWorker() {
+        const { width, height } = this.pixiContainer.getBoundingClientRect();
+        const worker = new Worker();
+
+        this.setState({
+            worker: worker
+        }, () => {
+            worker.onmessage = (event) => this.onWorkerMessage(event);
+
+            this.postWorkerMessage({
+                type: 'init',
+                clientWidth: width,
+                clientHeight: height
+            });
+
+            this.postNodesAndLinksToWorker();
+        });
+    }
+
     componentDidMount() {
         const { zoomEvents } = this.props;
 
+        this.initWorker();
         this.initGraph();
 
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
