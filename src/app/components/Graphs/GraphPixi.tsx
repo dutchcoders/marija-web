@@ -4,7 +4,6 @@ import * as d3 from 'd3';
 import { concat, debounce, remove, includes, assign, isEqual, isEmpty } from 'lodash';
 import { nodesSelect, highlightNodes, deselectNodes, showTooltip, setSelectingMode } from '../../modules/graph/actions.js';
 import { getArcParams, getDirectlyRelatedNodes } from '../../helpers/index.js';
-import Loader from "../Misc/Loader.js";
 import * as PIXI from 'pixi.js';
 import {Search} from "../../interfaces/search";
 import {Node} from "../../interfaces/node";
