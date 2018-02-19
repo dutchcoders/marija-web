@@ -1,38 +1,114 @@
-.nodesSearchResult {
-  margin: 0;
-  padding: 0;
+.filter {
+  position: relative;
 
-  li {
-    background-color: rgba(0, 0, 0, 0.1);
+  .filterHeaderWrapper {
+    width: 127px;
     position: relative;
-    font-weight: 300;
-    list-style-type: none;
-    padding: 3px 6px;
-    letter-spacing: 0.6px;
-    font-size: 12px;
+  }
 
-    &:nth-child(even) {
-      background-color: rgba(255, 255, 255, 0.05);
+  .filterHeader {
+    position: absolute;
+    right: 0;
+    width: 127px;
+    transition: width .2s;
+    background: #4D657E;
+    border-radius: 4px;
+    margin: 0 5px;
+
+    &.focused,
+    &.opened {
+      width: 180px;
+    }
+
+    &.opened {
+      border-bottom-right-radius: 0;
+      border-bottom-left-radius: 0;
     }
 
     input {
-      margin-right: 5px;
+      border: none;
+      background: none;
+      padding: 0 7px 0 31px;
+      height: 39px;
+      font-size: 14px;
+      color: white;
+      box-sizing: border-box;
+      width: 100%;
+
+      &::placeholder {
+        color: white;
+      }
     }
 
-    .nodeIcon {
-      margin-right: 5px;
-      font-size: 1em;
-      background-color: rgba(255, 255, 255, 0.15);
-      width: 19px;
-      height: 19px;
-      border-radius: 50%;
-      text-align: center;
-      line-height: 20px;
-      display: inline-block;
+    .ion-ios-search {
+      position: absolute;
+      top: 11px;
+      font-size: 18px;
+      left: 10px;
     }
+
+    .ion-ios-arrow-up,
+    .ion-ios-arrow-down {
+      position: absolute;
+      top: 6px;
+      right: 5px;
+      font-size: 18px;
+      cursor: pointer;
+      display: inline-block;
+      padding: 5px;
+    }
+  }
+
+  .filterExtra {
+    position: absolute;
+    top: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    right: 5px;
+    background: #4D657E;
+    border-radius: 4px;
+    border-top-right-radius: 0;
+    width: 300px;
+    padding: 5px;
+  }
+
+  .nodesSearchResult {
+    margin: 0;
+    padding: 0;
+
+    li {
+      background-color: rgba(0, 0, 0, 0.1);
+      position: relative;
+      font-weight: 300;
+      list-style-type: none;
+      padding: 3px 6px;
+      letter-spacing: 0.6px;
+      font-size: 12px;
+
+      &:nth-child(even) {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+
+      input {
+        margin-right: 5px;
+      }
+
+      .nodeIcon {
+        margin-right: 5px;
+        font-size: 1em;
+        background-color: rgba(255, 255, 255, 0.15);
+        width: 19px;
+        height: 19px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 20px;
+        display: inline-block;
+      }
+    }
+  }
+
+  .nodeSelectButton {
+    margin: 5px 5px 5px 0;
   }
 }
 
-.nodeSelectButton {
-  margin: 5px 5px 5px 0;
-}

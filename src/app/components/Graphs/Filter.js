@@ -13,7 +13,9 @@ class Filter extends React.Component {
         super(props);
 
         this.state = {
-            find_value: ""
+            find_value: "",
+            focused: false,
+            opened: false
         };
     }
 
@@ -92,8 +94,30 @@ class Filter extends React.Component {
         }
     }
 
+    onFocus() {
+        this.setState({
+            focused: true
+        });
+    }
+
+    onBlur() {
+        setTimeout(() => {
+            this.setState({
+                focused: false
+            });
+        }, 100);
+    }
+
+    toggleOpened() {
+        const { opened } = this.state;
+
+        this.setState({
+            opened: !opened
+        });
+    }
+
     render() {
-        const { find_value } = this.state;
+        const { find_value, focused, opened } = this.state;
         const { selectedNodes } = this.props;
 
         const searchResults = this.getSearchResults();
@@ -123,20 +147,36 @@ class Filter extends React.Component {
         });
 
         return (
-            <div>
-                <form>
-                    <input type="text" className="form-control" value={find_value} onChange={ this.handleFindNodeChange.bind(this) } placeholder='find node' />
+            <div className="filter">
+                <div className="filterHeaderWrapper">
+                    <div className={'filterHeader' + (focused ? ' focused' : '') + (opened ? ' opened' : '')}>
+                        <Icon name="ion-ios-search" />
+                        <input
+                            type="text"
+                            value={find_value}
+                            onChange={ this.handleFindNodeChange.bind(this) }
+                            onFocus={this.onFocus.bind(this)}
+                            onBlur={this.onBlur.bind(this)}
+                            placeholder="Filter nodes"
+                        />
+                        <Icon
+                            name={opened ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down'}
+                            onClick={this.toggleOpened.bind(this)}
+                        />
+                    </div>
+                </div>
+
+                <div className={'filterExtra' + (opened ? '' : ' hidden')}>
                     <button className="nodeSelectButton btn btn-primary" onClick={e => this.handleSelectMultiple(e, notSelectedNodes)}>Select all ({notSelectedNodes.length})</button>
                     <button className="nodeSelectButton btn btn-primary" onClick={e => this.handleDeselectMultiple(e, selectedNodesInSearch)}>Deselect all ({selectedNodesInSearch.length})</button>
                     <ul className="nodesSearchResult" onMouseLeave={this.hideTooltip.bind(this)}>
                         { find_nodes }
                     </ul>
-                </form>
+                </div>
             </div>
         );
     }
 }
-
 
 function select(state) {
     return {
