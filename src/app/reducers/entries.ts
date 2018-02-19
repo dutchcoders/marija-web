@@ -25,6 +25,7 @@ import getNodesAndLinks from '../helpers/getNodesAndLinks';
 import {Link} from "../interfaces/link";
 import {Item} from "../interfaces/item";
 import {Search} from "../interfaces/search";
+import {ITEMS_REQUEST} from "../modules/items/constants";
 
 interface State {
     isFetching: boolean;
@@ -542,6 +543,20 @@ export default function entries(state: State = defaultState, action) {
             return Object.assign({}, state, {
                 highlightNodes: action.nodes
             });
+
+        case ITEMS_REQUEST: {
+            const message = {
+                'request-id': uniqueId(),
+                items: action.items.map(item => item.id)
+            };
+
+            Socket.ws.postMessage(message, ITEMS_REQUEST);
+
+            const newItems = state.items.concat([]);
+            // state.items.forEach()
+
+            return state;
+        }
 
         default:
             return state;

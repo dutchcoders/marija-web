@@ -35,7 +35,7 @@ class Filter extends React.Component {
         if (nodesForDisplay.length === searchResults.length) {
             dispatch(highlightNodes([]));
         } else {
-            dispatch(highlightNodes(this.getSearchResults()));
+            dispatch(highlightNodes(searchResults));
         }
     }
 
