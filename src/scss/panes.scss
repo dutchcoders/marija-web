@@ -90,6 +90,12 @@
             overflow-y: auto;
         }
 
+        .node {
+            padding: 2px;
+            line-height: 16px;
+            display: flex;
+        }
+
         .nodeIcon {
             margin-right: 5px;
             font-size: 1em;
@@ -100,6 +106,8 @@
             text-align: center;
             line-height: 20px;
             display: inline-block;
+            flex-shrink: 0;
+            flex-grow: 0;
         }
 
         .nodesSearchResult .nodeIcon {
