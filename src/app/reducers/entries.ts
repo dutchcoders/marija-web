@@ -278,12 +278,15 @@ export default function entries(state: State = defaultState, action) {
             return Object.assign({}, state, {
                 selectedNodes: concat(state.selectedNodes, newNodes)
             });
-        case NODES_DESELECT:
+        case NODES_DESELECT: {
             return Object.assign({}, state, {
-                selectedNodes: filter(state.selectedNodes, (o) => {
-                    return !find(action.nodes, o);
+                selectedNodes: filter(state.selectedNodes, (node) => {
+                    const found = action.nodes.find(search => search.id === node.id);
+
+                    return typeof found === 'undefined';
                 })
             });
+        }
         case NODE_UPDATE:
             let nodes = concat(state.nodes, []);
 
