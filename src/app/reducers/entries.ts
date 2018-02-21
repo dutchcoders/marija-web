@@ -599,11 +599,19 @@ export default function entries(state: State = defaultState, action) {
             Socket.ws.postMessage(message, ITEMS_REQUEST);
 
             const newItems = state.items.concat([]);
-            // state.items.forEach()
 
-            return state;
+            action.items.forEach(item => {
+                const index = state.items.findIndex(search => search.id === item.id);
+
+                newItems[index] = Object.assign({}, newItems[index], {
+                    requestedExtraData: true
+                });
+            });
+
+            return Object.assign({}, state, {
+                items: newItems
+            });
         }
-
         case ITEMS_RECEIVE: {
             if (!action.items) {
                 return state;
@@ -646,16 +654,19 @@ export default function entries(state: State = defaultState, action) {
                 const selectedNodes = state.selectedNodes.concat([]);
                 const highlightNodes = state.highlightNodes.concat([]);
                 const tooltipNodes = state.tooltipNodes.concat([]);
+                const nodesForDisplay = state.nodesForDisplay.concat([]);
 
                 updateCollection(nodes);
                 updateCollection(selectedNodes);
                 updateCollection(highlightNodes);
                 updateCollection(tooltipNodes);
+                updateCollection(nodesForDisplay);
 
                 stateUpdates.nodes = nodes;
                 stateUpdates.selectedNodes = selectedNodes;
                 stateUpdates.highlightNodes = highlightNodes;
                 stateUpdates.tooltipNodes = tooltipNodes;
+                stateUpdates.nodesForDisplay = nodesForDisplay;
             }
 
             return Object.assign({}, state, stateUpdates);

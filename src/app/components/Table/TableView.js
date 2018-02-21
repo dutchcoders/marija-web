@@ -82,7 +82,11 @@ class TableView extends React.Component {
 
         if (prevProps.selectedNodes.length !== this.props.selectedNodes.length) {
             // Fetch more info about the items from the server
-            dispatch(requestItems(items));
+            const request = items.filter(item => !item.requestedExtraData);
+
+            if (request.length > 0) {
+                dispatch(requestItems(request));
+            }
         }
     }
 
