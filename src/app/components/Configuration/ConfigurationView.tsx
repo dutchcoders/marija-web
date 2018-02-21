@@ -567,8 +567,6 @@ class ConfigurationView extends React.Component<Props, State> {
     renderNormalizations(normalizations: Normalization[]) {
         const { normalization_error } = this.state;
 
-        console.log(normalizations);
-
         const options = map(normalizations, (normalization) => {
             return (
                 <li key={normalization.replaceWith}>
