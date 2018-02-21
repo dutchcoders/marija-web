@@ -9,4 +9,9 @@ export interface Node {
     icon: string;
     fields: string[];
     hash: number;
+
+    /**
+     * Whether the node was created due to a normalization.
+     */
+    normalized: boolean;
 }

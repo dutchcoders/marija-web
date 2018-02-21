@@ -26,6 +26,9 @@ import {Link} from "../interfaces/link";
 import {Item} from "../interfaces/item";
 import {Search} from "../interfaces/search";
 import {ITEMS_REQUEST} from "../modules/items/constants";
+import normalizeNodes from "../helpers/normalizeNodes";
+import {Normalization} from "../interfaces/normalization";
+import normalizeLinks from "../helpers/normalizeLinks";
 
 interface State {
     isFetching: boolean;
@@ -38,7 +41,7 @@ interface State {
     columns: any[];
     fields: any[];
     date_fields: any[];
-    normalizations: any[];
+    normalizations: Normalization[];
     indexes: any[];
     items: Item[];
     searches: Search[];
@@ -228,12 +231,27 @@ export default function entries(state: State = defaultState, action) {
                 linksForDisplay: linksForDisplay
             });
         }
-        case NORMALIZATION_ADD:
-            let normalization = action.normalization;
-            normalization.re = new RegExp(normalization.regex, "i");
+        case NORMALIZATION_ADD: {
+            const normalization: Normalization = {
+                regex: action.normalization.regex,
+                replaceWith: action.normalization.replaceWith,
+                affectedNodes: [],
+                affectedLinks: []
+            };
+
+            const normalizations = state.normalizations.concat([normalization]);
+            const resultNodes = normalizeNodes(state.nodes, normalizations);
+            const resultLinks = normalizeLinks(state.links, resultNodes.normalizations);
+            const nodesForDisplay = getNodesForDisplay(resultNodes.nodes, state.searches);
+
             return Object.assign({}, state, {
-                normalizations: concat(state.normalizations, normalization)
+                normalizations: resultLinks.normalizations,
+                nodes: resultNodes.nodes,
+                links: resultLinks.links,
+                nodesForDisplay: nodesForDisplay,
+                linksForDisplay: removeDeadLinks(nodesForDisplay, resultLinks.links)
             });
+        }
         case NORMALIZATION_DELETE:
             return Object.assign({}, state, {
                 normalizations: without(state.normalizations, action.normalization)
@@ -413,7 +431,11 @@ export default function entries(state: State = defaultState, action) {
                 state.deletedNodes
             );
 
-            result.links = removeDeadLinks(result.nodes, result.links);
+            const normalizedNodes = normalizeNodes(result.nodes, state.normalizations);
+            const normalizedLinks = normalizeLinks(result.links, normalizedNodes.normalizations);
+
+            result.nodes = normalizedNodes.nodes;
+            result.links = removeDeadLinks(result.nodes, normalizedLinks.links);
 
             const components = getConnectedComponents(result.nodes, result.links);
             const filtered = filterBoringComponents(components);

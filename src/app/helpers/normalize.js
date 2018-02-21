@@ -6,6 +6,8 @@ let cache = {
 
 // get store
 export default function normalize(normalizations, v) {
+    return v;
+
     if (cache[v]) {
         return (cache[v]);
     }

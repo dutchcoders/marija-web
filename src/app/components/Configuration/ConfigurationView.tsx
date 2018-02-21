@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import * as React from 'react';
+import { connect, Dispatch } from 'react-redux';
 import { find, sortBy, map, slice, uniq, concat, isEqual } from 'lodash';
 import { requestIndices } from '../../modules/indices/index';
 import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, normalizationAdd, normalizationDelete, indexAdd, indexDelete, viaDelete, viaAdd } from '../../modules/data/index';
@@ -16,25 +16,49 @@ import {saveAs} from 'file-saver';
 import {exportData, importData} from "../../modules/import/actions";
 import {searchFieldsUpdate} from "../../modules/search/actions";
 import {highlightNodes} from "../../modules/graph/actions";
+import {Node} from "../../interfaces/node";
+import {Normalization} from "../../interfaces/normalization";
 
-class ConfigurationView extends React.Component {
+interface State {
+    normalization_error: string;
+    currentFieldSearchValue: string;
+    currentDateFieldSearchValue: string;
+    selectedFrom: string;
+    selectedVia: string;
+    selectedTo: string;
+    viaError: string | null;
+    searchTypes: any[],
+    maxSearchResults: number;
+}
+
+interface Props {
+    dispatch: Dispatch<any>;
+    fields: any;
+    availableFields: any;
+    date_fields: any;
+    normalizations: Normalization[];
+    via: any;
+    activeIndices: any;
+    datasources: any;
+    fieldsFetching: boolean;
+    nodesForDisplay: Node[];
+}
+
+class ConfigurationView extends React.Component<Props, State> {
     defaultMaxSearchResults = 10;
-
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            normalization_error: '',
-            currentFieldSearchValue: '',
-            currentDateFieldSearchValue: '',
-            selectedFrom: '',
-            selectedVia: '',
-            selectedTo: '',
-            viaError: null,
-            searchTypes: [],
-            maxSearchResults: this.defaultMaxSearchResults
-        };
-    }
+    searchInput: HTMLElement;
+    refs: any;
+    state: State = {
+        normalization_error: '',
+        currentFieldSearchValue: '',
+        currentDateFieldSearchValue: '',
+        selectedFrom: '',
+        selectedVia: '',
+        selectedTo: '',
+        viaError: null,
+        searchTypes: [],
+        maxSearchResults: this.defaultMaxSearchResults
+    };
 
     componentWillReceiveProps(nextProps) {
         const { selectedFrom, selectedVia, selectedTo } = this.state;
@@ -273,79 +297,6 @@ class ConfigurationView extends React.Component {
         }
     }
 
-    renderDateFields(fields, availableFields) {
-        const { currentDateFieldSearchValue } = this.state;
-
-        const options = map(fields, (field) => {
-            return (
-                <li key={'date_field_' + field.path} value={ field.path }>
-                    <i className="glyphicon">{ field.icon }</i>{ field.path }
-                    <Icon onClick={() => this.handleDeleteDateField(field)} name="ion-ios-trash-outline"/>
-                </li>
-            );
-        });
-
-        let no_date_fields = null;
-
-        if (fields.length === 0) {
-            no_date_fields = <div className='text-warning'>No date fields configured.</div>;
-        }
-
-        const availableDateFields = availableFields.filter(field => field.type === 'date');
-
-        const search = (
-            <form>
-                <div className="row">
-                    <div className="col-xs-12">
-                        <input className="form-control" value={this.state.currentDateFieldSearchValue}
-                               onChange={this.handleDateFieldSearchChange.bind(this)} type="text" ref="date_field"
-                               placeholder={'Search ' + availableDateFields.length + ' date fields'} />
-                    </div>
-                </div>
-            </form>
-        );
-
-        const available = (
-            <ul>
-                {slice(availableDateFields.filter((item) => {
-                    const inSearch = item.path.toLowerCase().indexOf(currentDateFieldSearchValue.toLowerCase()) === 0;
-                    const inCurrentFields = fields.reduce((value, field) => {
-                        if (value) {
-                            return true;
-                        }
-
-                        return field.path === item.path;
-                    }, false);
-
-                    return inSearch && !inCurrentFields;
-                }), 0, 10).map((item) => {
-                    return (
-                        <Field
-                            key={'available_date_fields_' + item.path}
-                            item={item} handler={() => this.handleAddDateField(item.path)}
-                            icon={'ion-ios-plus'}/>
-                    );
-                })}
-            </ul>
-        );
-
-        let noAvailableDateFields = null;
-
-        if (availableDateFields.length === 0) {
-            noAvailableDateFields = <p>The selected datasources don't have any date fields.</p>;
-        }
-
-        return (
-            <div>
-                <ul>{ options }</ul>
-                { noAvailableDateFields === null ? no_date_fields : null }
-                { noAvailableDateFields }
-                { availableDateFields.length > 0 ? search : null }
-                { available }
-            </div>
-        );
-    }
-
     types = [
         {
             label: 'yes/no',
@@ -433,7 +384,7 @@ class ConfigurationView extends React.Component {
         const { currentFieldSearchValue, searchTypes, maxSearchResults } = this.state;
         availableFields = availableFields.concat([]);
 
-        const options = map(fields, (field) => {
+        const options = map(fields, (field: any) => {
             return (
                 <li
                     key={'field_' + field.path}
@@ -508,6 +459,8 @@ class ConfigurationView extends React.Component {
         let searchResults = availableFields.concat([]);
 
         if (currentFieldSearchValue) {
+            searchResults = [];
+
             availableFields.forEach((item) => {
                 const copy = Object.assign({}, item);
                 copy.occurrenceIndex = copy.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase());
@@ -611,12 +564,14 @@ class ConfigurationView extends React.Component {
         );
     }
 
-    renderNormalizations(normalizations) {
+    renderNormalizations(normalizations: Normalization[]) {
         const { normalization_error } = this.state;
+
+        console.log(normalizations);
 
         const options = map(normalizations, (normalization) => {
             return (
-                <li key={normalization.path} value={ normalization.path }>
+                <li key={normalization.replaceWith}>
                     <span>
                        Regex '<b>{normalization.regex}</b>' will be replaced with value '<b>{normalization.replaceWith}</b>'.
                     </span>
@@ -703,7 +658,7 @@ class ConfigurationView extends React.Component {
     }
 
     renderFieldSelector(fields, changeHandler, value) {
-        const options = map(fields, field => {
+        const options = map(fields, (field: any) => {
             return (
                 <option key={field.path} value={field.path}>
                     {field.path}
@@ -738,7 +693,7 @@ class ConfigurationView extends React.Component {
         let existing;
 
         if (via && via.length > 0) {
-            const viaItems = map(via, viaItem => {
+            const viaItems = map(via, (viaItem: any) => {
                 return (
                     <li key={JSON.stringify(viaItem)}>
                         <ol>
@@ -808,7 +763,7 @@ class ConfigurationView extends React.Component {
     resetConfig() {
         Workspaces.deleteWorkspace();
         // Remove all data from url and refresh the page for simplicity
-        window.location = '/';
+        window.location.href = '/';
     }
 
     exportJson() {

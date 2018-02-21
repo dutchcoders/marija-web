@@ -6,6 +6,7 @@ import {Item} from "../interfaces/item";
 
 function getHash(string) {
     let hash = 0, i, chr;
+    string += '';
 
     if (string.length === 0) {
         return hash;
@@ -52,35 +53,34 @@ export default function getNodesAndLinks(
 
     forEach(items, (d, i) => {
         forEach(fields, (source) => {
-            let sourceValue = fieldLocator(d.fields, source.path);
-            if (sourceValue === null) {
+            let sourceValues = fieldLocator(d.fields, source.path);
+            if (sourceValues === null) {
                 return;
             }
 
-            if (!Array.isArray(sourceValue)) {
-                sourceValue = [sourceValue];
+            if (!Array.isArray(sourceValues)) {
+                sourceValues = [sourceValues];
             }
 
-            for (let sv of sourceValue) {
-                switch (typeof sv) {
+            sourceValues.forEach(sourceValue => {
+                switch (typeof sourceValue) {
                     case "boolean":
-                        sv = (sv?"true":"false");
+                        sourceValue = (sourceValue?"true":"false");
                 }
 
-                const normalizedSourceValue = normalize(normalizations, sv);
-                if (normalizedSourceValue === "" || typeof normalizedSourceValue === 'undefined') {
-                    continue;
+                if (sourceValue === "" || typeof sourceValue === 'undefined') {
+                    return;
                 }
 
-                if (isDeleted(normalizedSourceValue)) {
-                    continue;
+                if (isDeleted(sourceValue)) {
+                    return;
                 }
 
-                if (aroundNodeId && aroundNodeId !== normalizedSourceValue) {
-                    continue;
+                if (aroundNodeId && aroundNodeId !== sourceValue) {
+                    return;
                 }
 
-                let n = nodeCache[normalizedSourceValue];
+                let n = nodeCache[sourceValue];
                 if (n) {
                     if (n.items.indexOf(d.id) === -1){
                         n.items.push(d.id);
@@ -95,16 +95,17 @@ export default function getNodesAndLinks(
                     }
                 } else {
                     let n: Node = {
-                        id: normalizedSourceValue,
+                        id: sourceValue,
                         queries: [query],
                         items: [d.id],
                         count: d.count,
-                        name: normalizedSourceValue,
-                        abbreviated: abbreviateNodeName(normalizedSourceValue, query, 40),
+                        name: sourceValue,
+                        abbreviated: abbreviateNodeName(sourceValue, query, 40),
                         description: '',
                         icon: source.icon,
                         fields: [source.path],
-                        hash: getHash(normalizedSourceValue),
+                        hash: getHash(sourceValue),
+                        normalized: false
                     };
 
                     nodeCache[n.id] = n;
@@ -112,32 +113,32 @@ export default function getNodesAndLinks(
                 }
 
                 forEach(fields, (target) => {
-                    let targetValue = fieldLocator(d.fields, target.path);
-                    if (targetValue === null) {
+                    let targetValues = fieldLocator(d.fields, target.path);
+                    if (targetValues === null) {
                         return;
                     }
 
-                    if (!Array.isArray(targetValue)) {
-                        targetValue = [targetValue];
+                    if (!Array.isArray(targetValues)) {
+                        targetValues = [targetValues];
                     }
 
                     // todo(nl5887): issue with normalizing is if we want to use it as name as well.
                     // for example we don't want to have the first name only as name.
                     //
                     // we need to keep track of the fields the value is in as well.
-                    for (let tv of targetValue) {
-                        switch (typeof tv) {
+                    targetValues.forEach(targetValue => {
+                        switch (typeof targetValue) {
                             case "boolean":
-                                tv = (tv?"true":"false");
+                                targetValue = (targetValue?"true":"false");
                         }
 
-                        const normalizedTargetValue = normalize(normalizations, tv);
+                        const normalizedTargetValue = normalize(normalizations, targetValue);
                         if (normalizedTargetValue === ""  || typeof normalizedTargetValue === 'undefined') {
-                            continue;
+                            return;
                         }
 
                         if (isDeleted(normalizedTargetValue)) {
-                            continue;
+                            return;
                         }
 
                         let n = nodeCache[normalizedTargetValue];
@@ -164,47 +165,49 @@ export default function getNodesAndLinks(
                                 description: '',
                                 icon: target.icon,
                                 fields: [target.path],
-                                hash: getHash(normalizedTargetValue)
+                                hash: getHash(normalizedTargetValue),
+                                normalized: false
                             };
 
                             nodeCache[n.id] = n;
                             nodes.push(n);
                         }
 
-                        if (sourceValue.length > 1) {
+                        if (sourceValues.length > 1) {
                             // we don't want all individual arrays to be linked together
                             // those individual arrays being linked are (I assume) irrelevant
                             // otherwise this needs to be a configuration option
-                            continue;
+                            return;
                         }
 
                         // Dont create links from a node to itself
-                        if (normalizedSourceValue === normalizedTargetValue) {
-                            continue;
+                        if (sourceValue === normalizedTargetValue) {
+                            return;
                         }
 
-                        let linkCacheRef = normalizedSourceValue + normalizedTargetValue;
-                        let oppositeLinkCacheRef = normalizedTargetValue + normalizedSourceValue;
+                        let linkCacheRef = sourceValue + normalizedTargetValue;
+                        let oppositeLinkCacheRef = normalizedTargetValue + sourceValue;
 
                         // check if link already exists
                         if ((linkCache[linkCacheRef]
                          || linkCache[oppositeLinkCacheRef])) {
-                            continue;
+                            return;
                         }
 
                         const link: Link = {
-                            source: normalizedSourceValue,
+                            source: sourceValue,
                             target: normalizedTargetValue,
                             color: '#ccc',
                             total: 1,
-                            current: 1
+                            current: 1,
+                            normalized: false
                         };
 
                         links.push(link);
                         linkCache[linkCacheRef] = link;
-                    }
+                    });
                 });
-            }
+            });
         });
     });
 
