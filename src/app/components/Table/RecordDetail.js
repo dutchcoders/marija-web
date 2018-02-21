@@ -61,7 +61,12 @@ export default class Record extends Component {
 
         const expandedFields = map(allFields, (value, key) => {
             const highlight =  (record.highlight || {});
-            const field_value = highlight[value] || fieldLocator(record.fields, value) ;
+            let field_value = highlight[value] || fieldLocator(record.fields, value) ;
+
+            if (typeof field_value === 'object') {
+                field_value = JSON.stringify(field_value);
+            }
+
             return (
                 <tr key={ 'field_' + value }>
                     <td width="110">{value}
@@ -69,7 +74,7 @@ export default class Record extends Component {
                             name="ion-ios-plus"
                             style={{marginLeft: '8px', lineHeight: '20px', fontSize: '12px'}}/>
                     </td>
-                    <td colSpan="3">{field_value}</td>
+                    <td colSpan="3" className="fieldValue">{field_value}</td>
                 </tr>
             );
         });

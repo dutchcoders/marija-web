@@ -68,7 +68,6 @@ export const Socket = {
 
             case ITEMS_RECEIVE:
                 dispatch(receiveItems(message.items));
-                console.log(message);
                 break;
         }
     },

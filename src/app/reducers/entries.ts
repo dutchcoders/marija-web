@@ -605,10 +605,29 @@ export default function entries(state: State = defaultState, action) {
         }
 
         case ITEMS_RECEIVE: {
-            console.log(action);
+            if (!action.items) {
+                return state;
+            }
+
+            const selectedNodes = state.selectedNodes.concat([]);
+
+            action.items.forEach((item: Item) => {
+                forEach(item.fields, (value, field) => {
+                    const index = state.selectedNodes.findIndex(node => node.id === value);
+
+                    if (index === -1) {
+                        return;
+                    }
+
+                    selectedNodes[index] = Object.assign({}, selectedNodes[index], {
+                        items: selectedNodes[index].items.concat([item.id])
+                    });
+                });
+            });
 
             return Object.assign({}, state, {
-                items: state.items.concat(action.items)
+                items: state.items.concat(action.items),
+                selectedNodes: selectedNodes
             });
         }
 
