@@ -25,6 +25,7 @@ import getNodesAndLinks from '../helpers/getNodesAndLinks';
 import {Link} from "../interfaces/link";
 import {Item} from "../interfaces/item";
 import {Search} from "../interfaces/search";
+import {ITEMS_REQUEST} from "../modules/items/constants";
 
 interface State {
     isFetching: boolean;
@@ -277,12 +278,15 @@ export default function entries(state: State = defaultState, action) {
             return Object.assign({}, state, {
                 selectedNodes: concat(state.selectedNodes, newNodes)
             });
-        case NODES_DESELECT:
+        case NODES_DESELECT: {
             return Object.assign({}, state, {
-                selectedNodes: filter(state.selectedNodes, (o) => {
-                    return !find(action.nodes, o);
+                selectedNodes: filter(state.selectedNodes, (node) => {
+                    const found = action.nodes.find(search => search.id === node.id);
+
+                    return typeof found === 'undefined';
                 })
             });
+        }
         case NODE_UPDATE:
             let nodes = concat(state.nodes, []);
 
@@ -542,6 +546,20 @@ export default function entries(state: State = defaultState, action) {
             return Object.assign({}, state, {
                 highlightNodes: action.nodes
             });
+
+        case ITEMS_REQUEST: {
+            const message = {
+                'request-id': uniqueId(),
+                items: action.items.map(item => item.id)
+            };
+
+            Socket.ws.postMessage(message, ITEMS_REQUEST);
+
+            const newItems = state.items.concat([]);
+            // state.items.forEach()
+
+            return state;
+        }
 
         default:
             return state;

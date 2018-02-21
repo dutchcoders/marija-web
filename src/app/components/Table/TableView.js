@@ -4,6 +4,7 @@ import {saveAs} from 'file-saver';
 import { forEach, uniqWith, reduce, find, findIndex, pull, concat, map } from 'lodash';
 import { Record, RecordDetail, Icon } from '../index';
 import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
+import {requestItems} from "../../modules/items/actions";
 
 class TableView extends React.Component {
     constructor(props) {
@@ -71,8 +72,15 @@ class TableView extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
+        const { dispatch } = this.props;
+
         if (prevProps.selectedNodes !== this.props.selectedNodes) {
-            this.setState({items: this.getSelectedItems()});
+            const items = this.getSelectedItems();
+
+            // Fetch more info about the items from the server
+            dispatch(requestItems(items));
+
+            this.setState({items: items});
         }
     }
 

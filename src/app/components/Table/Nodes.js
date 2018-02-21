@@ -192,16 +192,24 @@ class Nodes extends React.Component {
         const { selectedNodes } = this.props;
         const { nodeImages } = this.state;
 
+        const maxNameLength = 200;
+
         return (
-            selectedNodes.length > 0?
+            selectedNodes.length > 0 ?
                 map(sortBy(selectedNodes, ['name']), (i_node) => {
                     const image = nodeImages[this.getImageKey(i_node)];
 
+                    let name = i_node.name;
+
+                    if (i_node.name.length > maxNameLength) {
+                        name = i_node.name.substr(0, maxNameLength) + '...';
+                    }
+
                     const listItem = (
                         <li key={i_node.id} onMouseEnter={() => this.displayTooltip(i_node)}>
-                            <div>
+                            <div className="node">
                                 <img className="nodeIcon" src={image} />
-                                <span>{i_node.abbreviated}</span>
+                                <span>{name}</span>
                                 <Icon style={{'marginRight': '60px'}}  className="glyphicon" name={ i_node.icon[0] }></Icon>
                                 <Icon style={{'marginRight': '40px'}} onClick={(n) => this.handleEditNode(i_node)} name="ion-ios-remove-circle-outline"/>
                                 <Icon style={{'marginRight': '20px'}} onClick={(n) => this.handleDeselectNode(i_node)} name="ion-ios-remove-circle-outline"/>

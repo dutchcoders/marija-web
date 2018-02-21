@@ -4,6 +4,7 @@ import {Icon} from "../index";
 import {closePane, openPane} from "../../utils/actions";
 import Tooltip from 'rc-tooltip';
 import {setSelectingMode} from "../../modules/graph/actions";
+import Filter from "../Graphs/Filter";
 
 class Navigation extends React.Component {
     enableMoving() {
@@ -51,6 +52,7 @@ class Navigation extends React.Component {
 
         return (
             <nav className="navigation">
+                <Filter />
                 <ul className="paneToggles">
                     {this.getButton(
                         'ion-ios-gear',
@@ -75,12 +77,6 @@ class Navigation extends React.Component {
                         'Histogram',
                         () => this.togglePane('histogram'),
                         this.isActive('histogram')
-                    )}
-                    {this.getButton(
-                        'ion-ios-search',
-                        'Filter',
-                        () => this.togglePane('filter'),
-                        this.isActive('filter')
                     )}
                 </ul>
                 <ul className="mapControls">
