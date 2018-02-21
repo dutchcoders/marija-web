@@ -11,6 +11,7 @@ import { fieldLocator, getRelatedNodes } from '../../helpers/index';
 import SkyLight from 'react-skylight';
 import {searchRequest} from "../../modules/search/actions";
 import {showTooltip} from "../../modules/graph/actions";
+import {normalizationAdd} from "../../modules/data";
 
 class Nodes extends React.Component {
     constructor(props) {
@@ -242,6 +243,22 @@ class Nodes extends React.Component {
         });
     }
 
+    escapeRegExp(text) {
+        return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+    }
+
+    merge() {
+        const { selectedNodes, dispatch } = this.props;
+
+        const ids = selectedNodes.map(node => this.escapeRegExp(node.id));
+        const regex = ids.join('|');
+
+        dispatch(normalizationAdd({
+            regex: regex,
+            replaceWith: selectedNodes[0].id
+        }));
+    }
+
     render() {
         const { editNode, value, description } = this.state;
 
@@ -278,6 +295,7 @@ class Nodes extends React.Component {
                     <button type="button" className="btn btn-default" aria-label="Delete selected nodes" onClick={() => this.handleDeleteAllNodes()}>delete</button>
                     <button type="button" className="btn btn-default" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}>delete others</button>
                     <button type="button" className="btn btn-default" aria-label="Search around" onClick={() => this.searchAround()}>search around</button>
+                    <button type="button" className="btn btn-default" aria-label="Merge" onClick={() => this.merge()}>merge</button>
                 </div>
                 <div>
                     <ul onMouseLeave={this.hideTooltip.bind(this)}>

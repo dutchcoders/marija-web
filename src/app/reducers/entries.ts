@@ -252,7 +252,10 @@ export default function entries(state: State = defaultState, action) {
                 nodes: resultNodes.nodes,
                 links: resultLinks.links,
                 nodesForDisplay: nodesForDisplay,
-                linksForDisplay: removeDeadLinks(nodesForDisplay, resultLinks.links)
+                linksForDisplay: removeDeadLinks(nodesForDisplay, resultLinks.links),
+                selectedNodes: intersection(nodesForDisplay, state.selectedNodes),
+                tooltipNodes: intersection(nodesForDisplay, state.tooltipNodes),
+                highlightNodes: intersection(nodesForDisplay, state.highlightNodes)
             });
         }
         case NORMALIZATION_DELETE: {
