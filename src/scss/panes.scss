@@ -305,6 +305,12 @@
                 border-top: 1px solid rgba(255,255,255,.3);
                 padding-top: 10px;
             }
+
+            .fieldValue {
+                overflow: hidden;
+                max-height: 200px;
+                word-break: break-all;
+            }
         }
 
         i.add {

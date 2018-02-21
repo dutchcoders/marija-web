@@ -5,5 +5,6 @@ export interface Item {
     count: number;
     fields: {
         [key: string]: any
-    }
+    };
+    requestedExtraData: boolean;
 }

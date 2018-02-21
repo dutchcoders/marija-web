@@ -25,7 +25,12 @@ import getNodesAndLinks from '../helpers/getNodesAndLinks';
 import {Link} from "../interfaces/link";
 import {Item} from "../interfaces/item";
 import {Search} from "../interfaces/search";
-import {ITEMS_REQUEST} from "../modules/items/constants";
+import {ITEMS_RECEIVE, ITEMS_REQUEST} from "../modules/items/constants";
+import normalizeNodes from "../helpers/normalizeNodes";
+import {Normalization} from "../interfaces/normalization";
+import normalizeLinks from "../helpers/normalizeLinks";
+import denormalizeNodes from "../helpers/denormalizeNodes";
+import denormalizeLinks from "../helpers/denormalizeLinks";
 
 interface State {
     isFetching: boolean;
@@ -38,7 +43,7 @@ interface State {
     columns: any[];
     fields: any[];
     date_fields: any[];
-    normalizations: any[];
+    normalizations: Normalization[];
     indexes: any[];
     items: Item[];
     searches: Search[];
@@ -228,16 +233,50 @@ export default function entries(state: State = defaultState, action) {
                 linksForDisplay: linksForDisplay
             });
         }
-        case NORMALIZATION_ADD:
-            let normalization = action.normalization;
-            normalization.re = new RegExp(normalization.regex, "i");
+        case NORMALIZATION_ADD: {
+            const normalization: Normalization = {
+                id: uniqueId(),
+                regex: action.normalization.regex,
+                replaceWith: action.normalization.replaceWith,
+                affectedNodes: [],
+                affectedLinks: []
+            };
+
+            const normalizations = state.normalizations.concat([normalization]);
+            const resultNodes = normalizeNodes(state.nodes, normalizations);
+            console.log(resultNodes.nodes.map(node => node.normalizationId));
+
+            const resultLinks = normalizeLinks(state.links, resultNodes.normalizations);
+            const nodesForDisplay = getNodesForDisplay(resultNodes.nodes, state.searches);
+            const selectedNodes = intersection(nodesForDisplay, state.selectedNodes);
+
+            // console.log(state.selectedNodes);
+            // console.log(selectedNodes);
+
             return Object.assign({}, state, {
-                normalizations: concat(state.normalizations, normalization)
+                normalizations: resultLinks.normalizations,
+                nodes: resultNodes.nodes,
+                links: resultLinks.links,
+                nodesForDisplay: nodesForDisplay,
+                linksForDisplay: removeDeadLinks(nodesForDisplay, resultLinks.links),
+                selectedNodes: selectedNodes,
+                tooltipNodes: intersection(nodesForDisplay, state.tooltipNodes),
+                highlightNodes: intersection(nodesForDisplay, state.highlightNodes)
             });
-        case NORMALIZATION_DELETE:
+        }
+        case NORMALIZATION_DELETE: {
+            const nodes = denormalizeNodes(state.nodes, action.normalization);
+            const links = denormalizeLinks(state.links, action.normalization);
+            const nodesForDisplay = getNodesForDisplay(nodes, state.searches);
+
             return Object.assign({}, state, {
-                normalizations: without(state.normalizations, action.normalization)
+                normalizations: without(state.normalizations, action.normalization),
+                nodes: nodes,
+                links: links,
+                nodesForDisplay: nodesForDisplay,
+                linksForDisplay: removeDeadLinks(nodesForDisplay, links)
             });
+        }
         case VIA_ADD:
             return Object.assign({}, state, {
                 via: concat(state.via, action.via)
@@ -413,7 +452,11 @@ export default function entries(state: State = defaultState, action) {
                 state.deletedNodes
             );
 
-            result.links = removeDeadLinks(result.nodes, result.links);
+            const normalizedNodes = normalizeNodes(result.nodes, state.normalizations);
+            const normalizedLinks = normalizeLinks(result.links, normalizedNodes.normalizations);
+
+            result.nodes = normalizedNodes.nodes;
+            result.links = removeDeadLinks(result.nodes, normalizedLinks.links);
 
             const components = getConnectedComponents(result.nodes, result.links);
             const filtered = filterBoringComponents(components);
@@ -556,9 +599,77 @@ export default function entries(state: State = defaultState, action) {
             Socket.ws.postMessage(message, ITEMS_REQUEST);
 
             const newItems = state.items.concat([]);
-            // state.items.forEach()
 
-            return state;
+            action.items.forEach(item => {
+                const index = state.items.findIndex(search => search.id === item.id);
+
+                newItems[index] = Object.assign({}, newItems[index], {
+                    requestedExtraData: true
+                });
+            });
+
+            return Object.assign({}, state, {
+                items: newItems
+            });
+        }
+        case ITEMS_RECEIVE: {
+            if (!action.items) {
+                return state;
+            }
+
+            const stateUpdates: any = {
+                items: state.items.concat(action.items)
+            };
+
+            const updates: Node[] = [];
+
+            action.items.forEach((item: Item) => {
+                forEach(item.fields, value => {
+                    const node: Node = state.selectedNodes.find(node => node.id === value);
+
+                    if (typeof node === 'undefined') {
+                        return;
+                    }
+
+                    const newNode: Node = Object.assign({}, node, {
+                        items: node.items.concat([item.id])
+                    });
+
+                    updates.push(newNode);
+                });
+            });
+
+            if (updates.length > 0) {
+                const updateCollection = (collection: Node[]) => {
+                    updates.forEach(node => {
+                        const index = collection.findIndex(search => search.id === node.id);
+
+                        if (index !== -1) {
+                            collection[index] = node;
+                        }
+                    });
+                };
+
+                const nodes = state.nodes.concat([]);
+                const selectedNodes = state.selectedNodes.concat([]);
+                const highlightNodes = state.highlightNodes.concat([]);
+                const tooltipNodes = state.tooltipNodes.concat([]);
+                const nodesForDisplay = state.nodesForDisplay.concat([]);
+
+                updateCollection(nodes);
+                updateCollection(selectedNodes);
+                updateCollection(highlightNodes);
+                updateCollection(tooltipNodes);
+                updateCollection(nodesForDisplay);
+
+                stateUpdates.nodes = nodes;
+                stateUpdates.selectedNodes = selectedNodes;
+                stateUpdates.highlightNodes = highlightNodes;
+                stateUpdates.tooltipNodes = tooltipNodes;
+                stateUpdates.nodesForDisplay = nodesForDisplay;
+            }
+
+            return Object.assign({}, state, stateUpdates);
         }
 
         default:

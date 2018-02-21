@@ -71,17 +71,31 @@ class TableView extends React.Component {
         });
     }
 
-    componentDidUpdate(prevProps) {
+    requestData() {
+        const items = this.getSelectedItems();
         const { dispatch } = this.props;
 
+        const request = items.filter(item => !item.requestedExtraData);
+
+        if (request.length > 0) {
+            dispatch(requestItems(request));
+        }
+    }
+
+    componentDidUpdate(prevProps) {
         if (prevProps.selectedNodes !== this.props.selectedNodes) {
             const items = this.getSelectedItems();
-
-            // Fetch more info about the items from the server
-            dispatch(requestItems(items));
-
             this.setState({items: items});
         }
+
+        if (prevProps.selectedNodes.length !== this.props.selectedNodes.length) {
+            // Fetch more info about the items from the server
+            this.requestData();
+        }
+    }
+
+    componentDidMount() {
+        this.requestData();
     }
 
     renderBody() {

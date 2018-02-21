@@ -6,11 +6,13 @@
   ],
   "moduleFileExtensions": [
     "js",
+    "ts",
     "jsx",
     "tsx"
   ],
-  "plugins": ["transform-es2015-modules-commonjs"],
   "transform": {
-    "^.+\\.jsx?$": "./node_modules/babel-jest"
-  }
+    "^.+\\.jsx?$": "<rootDir>/node_modules/babel-jest",
+    "^.+\\.tsx?$": "ts-jest"
+  },
+  "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$"
 }
