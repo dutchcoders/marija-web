@@ -8,6 +8,8 @@ import {
 } from '../../modules/data/index';
 import {requestCompleted} from "../actions";
 import {REQUEST_COMPLETED} from "../constants";
+import {ITEMS_RECEIVE} from "../../modules/items/constants";
+import {receiveItems} from "../../modules/items/actions";
 
 export const Socket = {
     ws: null,
@@ -62,6 +64,12 @@ export const Socket = {
 
             case REQUEST_COMPLETED:
                 dispatch(requestCompleted(message['request-id']));
+                break;
+
+            case ITEMS_RECEIVE:
+                dispatch(receiveItems(message.items));
+                console.log(message);
+                break;
         }
     },
     startWS: (dispatch) => {

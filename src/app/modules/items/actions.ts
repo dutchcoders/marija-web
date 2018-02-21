@@ -1,4 +1,4 @@
-import {ITEMS_REQUEST} from "./constants";
+import {ITEMS_RECEIVE, ITEMS_REQUEST} from "./constants";
 import {Item} from "../../interfaces/item";
 
 export function requestItems(items: Item[]) {
@@ -6,4 +6,11 @@ export function requestItems(items: Item[]) {
         type: ITEMS_REQUEST,
         items: items
     }
+}
+
+export function receiveItems(items: Item[]) {
+    return {
+        type: ITEMS_RECEIVE,
+        items: items
+    };
 }

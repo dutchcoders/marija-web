@@ -25,7 +25,7 @@ import getNodesAndLinks from '../helpers/getNodesAndLinks';
 import {Link} from "../interfaces/link";
 import {Item} from "../interfaces/item";
 import {Search} from "../interfaces/search";
-import {ITEMS_REQUEST} from "../modules/items/constants";
+import {ITEMS_RECEIVE, ITEMS_REQUEST} from "../modules/items/constants";
 import normalizeNodes from "../helpers/normalizeNodes";
 import {Normalization} from "../interfaces/normalization";
 import normalizeLinks from "../helpers/normalizeLinks";
@@ -581,6 +581,14 @@ export default function entries(state: State = defaultState, action) {
             // state.items.forEach()
 
             return state;
+        }
+
+        case ITEMS_RECEIVE: {
+            console.log(action);
+
+            return Object.assign({}, state, {
+                items: state.items.concat(action.items)
+            });
         }
 
         default:
