@@ -189,36 +189,60 @@ class Nodes extends React.Component {
         this.prepareImages(this.props.selectedNodes);
     }
 
+    renderNode(node) {
+        const { nodeImages } = this.state;
+        const maxNameLength = 200;
+        const image = nodeImages[this.getImageKey(node)];
+        let name = node.name;
+
+        if (node.name.length > maxNameLength) {
+            name = node.name.substr(0, maxNameLength) + '...';
+        }
+
+        return (
+            <div className="node" key={node.id}>
+                <img className="nodeIcon" src={image} />
+                <span>{name}</span>
+                <Icon style={{'marginRight': '60px'}}  className="glyphicon" name={ node.icon[0] } />
+                <Icon style={{'marginRight': '40px'}} onClick={(n) => this.handleEditNode(node)} name="ion-ios-remove-circle-outline"/>
+                <Icon style={{'marginRight': '20px'}} onClick={(n) => this.handleDeselectNode(node)} name="ion-ios-remove-circle-outline"/>
+                <Icon onClick={(n) => this.handleDeleteNode(node)} name="ion-ios-close-circle-outline"/>
+            </div>
+        );
+    }
+
+    getMergedNodes(normalizationId) {
+        const { normalizations } = this.props;
+        const normalization = normalizations.find(search => search.id === normalizationId);
+
+        return normalization.affectedNodes.map(node => this.renderNode(node));
+    }
+
     renderSelected() {
         const { selectedNodes } = this.props;
-        const { nodeImages } = this.state;
 
-        const maxNameLength = 200;
+        console.log(selectedNodes);
 
         return (
             selectedNodes.length > 0 ?
                 map(sortBy(selectedNodes, ['name']), (i_node) => {
-                    const image = nodeImages[this.getImageKey(i_node)];
+                    let merged = null;
 
-                    let name = i_node.name;
-
-                    if (i_node.name.length > maxNameLength) {
-                        name = i_node.name.substr(0, maxNameLength) + '...';
+                    if (i_node.normalizationId !== null) {
+                        merged = (
+                            <div className="merged">
+                                {this.getMergedNodes(i_node.normalizationId)}
+                            </div>
+                        );
                     }
 
                     const listItem = (
                         <li key={i_node.id} onMouseEnter={() => this.displayTooltip(i_node)}>
-                            <div className="node">
-                                <img className="nodeIcon" src={image} />
-                                <span>{name}</span>
-                                <Icon style={{'marginRight': '60px'}}  className="glyphicon" name={ i_node.icon[0] }></Icon>
-                                <Icon style={{'marginRight': '40px'}} onClick={(n) => this.handleEditNode(i_node)} name="ion-ios-remove-circle-outline"/>
-                                <Icon style={{'marginRight': '20px'}} onClick={(n) => this.handleDeselectNode(i_node)} name="ion-ios-remove-circle-outline"/>
-                                <Icon onClick={(n) => this.handleDeleteNode(i_node)} name="ion-ios-close-circle-outline"/>
-                            </div>
+                            {this.renderNode(i_node)}
                             <div>
                                 <span className='description'>{i_node.description}</span>
                             </div>
+                            {merged}
                         </li>
                     );
 
@@ -318,7 +342,8 @@ function select(state) {
         links: state.entries.links,
         queries: state.entries.searches,
         fields: state.entries.fields,
-        activeIndices: state.indices.activeIndices
+        activeIndices: state.indices.activeIndices,
+        normalizations: state.entries.normalizations
     };
 }
 

@@ -51,3 +51,19 @@ test('should mark newly created nodes as normalized', () => {
     expect(result.nodes[0].id).toBe('hello');
     expect(result.nodes[0].normalizationId).not.toBeNull();
 });
+
+test('should mark newly created nodes as normalized', () => {
+    const nodes = [
+        generateNode('bello'),
+        generateNode('hello'),
+    ];
+
+    const normalizations = [
+        generateNormalization('^[bh]ello$', 'hello')
+    ];
+
+    const result = normalizeNodes(nodes, normalizations);
+
+    expect(result.nodes[0].id).toBe('hello');
+    expect(result.nodes[0].normalizationId).not.toBeNull();
+});

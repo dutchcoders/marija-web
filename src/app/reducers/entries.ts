@@ -244,8 +244,14 @@ export default function entries(state: State = defaultState, action) {
 
             const normalizations = state.normalizations.concat([normalization]);
             const resultNodes = normalizeNodes(state.nodes, normalizations);
+            console.log(resultNodes.nodes.map(node => node.normalizationId));
+
             const resultLinks = normalizeLinks(state.links, resultNodes.normalizations);
             const nodesForDisplay = getNodesForDisplay(resultNodes.nodes, state.searches);
+            const selectedNodes = intersection(nodesForDisplay, state.selectedNodes);
+
+            // console.log(state.selectedNodes);
+            // console.log(selectedNodes);
 
             return Object.assign({}, state, {
                 normalizations: resultLinks.normalizations,
@@ -253,7 +259,7 @@ export default function entries(state: State = defaultState, action) {
                 links: resultLinks.links,
                 nodesForDisplay: nodesForDisplay,
                 linksForDisplay: removeDeadLinks(nodesForDisplay, resultLinks.links),
-                selectedNodes: intersection(nodesForDisplay, state.selectedNodes),
+                selectedNodes: selectedNodes,
                 tooltipNodes: intersection(nodesForDisplay, state.tooltipNodes),
                 highlightNodes: intersection(nodesForDisplay, state.highlightNodes)
             });
