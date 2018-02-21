@@ -29,6 +29,8 @@ import {ITEMS_RECEIVE, ITEMS_REQUEST} from "../modules/items/constants";
 import normalizeNodes from "../helpers/normalizeNodes";
 import {Normalization} from "../interfaces/normalization";
 import normalizeLinks from "../helpers/normalizeLinks";
+import denormalizeNodes from "../helpers/denormalizeNodes";
+import denormalizeLinks from "../helpers/denormalizeLinks";
 
 interface State {
     isFetching: boolean;
@@ -233,6 +235,7 @@ export default function entries(state: State = defaultState, action) {
         }
         case NORMALIZATION_ADD: {
             const normalization: Normalization = {
+                id: uniqueId(),
                 regex: action.normalization.regex,
                 replaceWith: action.normalization.replaceWith,
                 affectedNodes: [],
@@ -252,10 +255,19 @@ export default function entries(state: State = defaultState, action) {
                 linksForDisplay: removeDeadLinks(nodesForDisplay, resultLinks.links)
             });
         }
-        case NORMALIZATION_DELETE:
+        case NORMALIZATION_DELETE: {
+            const nodes = denormalizeNodes(state.nodes, action.normalization);
+            const links = denormalizeLinks(state.links, action.normalization);
+            const nodesForDisplay = getNodesForDisplay(nodes, state.searches);
+
             return Object.assign({}, state, {
-                normalizations: without(state.normalizations, action.normalization)
+                normalizations: without(state.normalizations, action.normalization),
+                nodes: nodes,
+                links: links,
+                nodesForDisplay: nodesForDisplay,
+                linksForDisplay: removeDeadLinks(nodesForDisplay, links)
             });
+        }
         case VIA_ADD:
             return Object.assign({}, state, {
                 via: concat(state.via, action.via)

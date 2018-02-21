@@ -11,7 +11,8 @@ export interface Node {
     hash: number;
 
     /**
-     * Whether the node was created due to a normalization.
+     * When the node was created due to a normalization, we store which one it
+     * was. This is helpful if we want to delete the normalization later.
      */
-    normalized: boolean;
+    normalizationId: string | null;
 }

@@ -7,7 +7,8 @@ export interface Link {
     label?: string;
 
     /**
-     * Whether the link was created due to a normalization.
+     * When the link was created due to a normalization, we store which one it
+     * was. This is helpful if we want to delete the normalization later.
      */
-    normalized: boolean;
+    normalizationId: string | null;
 }

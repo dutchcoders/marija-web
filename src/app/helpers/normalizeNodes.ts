@@ -39,7 +39,7 @@ export default function normalizeNodes(
                         id: normalization.replaceWith,
                         name: normalization.replaceWith,
                         abbreviated: normalization.replaceWith,
-                        normalized: true
+                        normalizationId: normalization.id
                     });
 
                     nodes.push(normalized);

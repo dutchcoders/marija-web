@@ -105,7 +105,7 @@ export default function getNodesAndLinks(
                         icon: source.icon,
                         fields: [source.path],
                         hash: getHash(sourceValue),
-                        normalized: false
+                        normalizationId: null
                     };
 
                     nodeCache[n.id] = n;
@@ -166,7 +166,7 @@ export default function getNodesAndLinks(
                                 icon: target.icon,
                                 fields: [target.path],
                                 hash: getHash(normalizedTargetValue),
-                                normalized: false
+                                normalizationId: null
                             };
 
                             nodeCache[n.id] = n;
@@ -200,7 +200,7 @@ export default function getNodesAndLinks(
                             color: '#ccc',
                             total: 1,
                             current: 1,
-                            normalized: false
+                            normalizationId: null
                         };
 
                         links.push(link);

@@ -3,6 +3,7 @@ import {Node} from "../interfaces/node";
 import {Link} from "../interfaces/link";
 import {Normalization} from "../interfaces/normalization";
 import normalizeLinks from "./normalizeLinks";
+import {uniqueId} from 'lodash';
 
 const generateLink = (source, target): Link => {
     return {
@@ -13,6 +14,7 @@ const generateLink = (source, target): Link => {
 
 const generateNormalization = (regex: string, replaceWith: string): Normalization => {
     return {
+        id: uniqueId(),
         regex: regex,
         replaceWith: replaceWith,
         affectedNodes: [],

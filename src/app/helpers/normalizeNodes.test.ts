@@ -1,5 +1,5 @@
 import {Node} from "../interfaces/node";
-import {Link} from "../interfaces/link";
+import {uniqueId} from 'lodash';
 import normalizeNodes from "./normalizeNodes";
 import {Normalization} from "../interfaces/normalization";
 
@@ -12,6 +12,7 @@ const generateNode = (id): Node => {
 
 const generateNormalization = (regex: string, replaceWith: string): Normalization => {
     return {
+        id: uniqueId(),
         regex: regex,
         replaceWith: replaceWith,
         affectedNodes: [],
@@ -48,5 +49,5 @@ test('should mark newly created nodes as normalized', () => {
     const result = normalizeNodes(nodes, normalizations);
 
     expect(result.nodes[0].id).toBe('hello');
-    expect(result.nodes[0].normalized).toBe(true);
+    expect(result.nodes[0].normalizationId).not.toBeNull();
 });

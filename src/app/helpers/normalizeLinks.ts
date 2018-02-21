@@ -44,7 +44,7 @@ export default function normalizeLinks(
                         // Update if source and target are different
                         links[index] = Object.assign({}, link, {
                             [property]: normalization.replaceWith,
-                            normalized: true
+                            normalizationId: true
                         });
                     }
 
