@@ -609,26 +609,56 @@ export default function entries(state: State = defaultState, action) {
                 return state;
             }
 
-            const selectedNodes = state.selectedNodes.concat([]);
+            const stateUpdates: any = {
+                items: state.items.concat(action.items)
+            };
+
+            const updates: Node[] = [];
 
             action.items.forEach((item: Item) => {
-                forEach(item.fields, (value, field) => {
-                    const index = state.selectedNodes.findIndex(node => node.id === value);
+                forEach(item.fields, value => {
+                    const node: Node = state.selectedNodes.find(node => node.id === value);
 
-                    if (index === -1) {
+                    if (typeof node === 'undefined') {
                         return;
                     }
 
-                    selectedNodes[index] = Object.assign({}, selectedNodes[index], {
-                        items: selectedNodes[index].items.concat([item.id])
+                    const newNode: Node = Object.assign({}, node, {
+                        items: node.items.concat([item.id])
                     });
+
+                    updates.push(newNode);
                 });
             });
 
-            return Object.assign({}, state, {
-                items: state.items.concat(action.items),
-                selectedNodes: selectedNodes
-            });
+            if (updates.length > 0) {
+                const updateCollection = (collection: Node[]) => {
+                    updates.forEach(node => {
+                        const index = collection.findIndex(search => search.id === node.id);
+
+                        if (index !== -1) {
+                            collection[index] = node;
+                        }
+                    });
+                };
+
+                const nodes = state.nodes.concat([]);
+                const selectedNodes = state.selectedNodes.concat([]);
+                const highlightNodes = state.highlightNodes.concat([]);
+                const tooltipNodes = state.tooltipNodes.concat([]);
+
+                updateCollection(nodes);
+                updateCollection(selectedNodes);
+                updateCollection(highlightNodes);
+                updateCollection(tooltipNodes);
+
+                stateUpdates.nodes = nodes;
+                stateUpdates.selectedNodes = selectedNodes;
+                stateUpdates.highlightNodes = highlightNodes;
+                stateUpdates.tooltipNodes = tooltipNodes;
+            }
+
+            return Object.assign({}, state, stateUpdates);
         }
 
         default:
