@@ -289,13 +289,15 @@ export default function entries(state: State = defaultState, action) {
             });
         }
         case NODES_DESELECT: {
-            const deselect: Node[] = action.nodes.filter(node => !node.selected);
             const nodes: Node[] = state.nodes.concat([]);
 
-            deselect.forEach(node => {
-                const index = nodes.findIndex(search => search.id === node.id);
+            action.nodes.forEach(node => {
+                const index = nodes.findIndex(search =>
+                    search.selected
+                    && search.id === node.id
+                );
 
-                if (nodes[index].selected) {
+                if (index !== -1) {
                     nodes[index] = Object.assign({}, node, {
                         selected: false
                     });
