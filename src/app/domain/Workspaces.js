@@ -47,8 +47,6 @@ export default class Workspaces {
                         nodes: [],
                         links: [],
                         searches: [],
-                        nodesForDisplay: [],
-                        linksForDisplay: [],
                         tooltipNodes: [],
                         highlightNodes: [],
                         deletedNodes: []

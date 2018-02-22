@@ -74,15 +74,15 @@ class Query extends React.Component {
     }
 
     countDisplayNodes() {
-        const { nodesForDisplay, search } = this.props;
+        const { nodes, search } = this.props;
 
-        return nodesForDisplay.filter(node => node.queries.indexOf(search.q) !== -1).length;
+        return nodes.filter(node => node.display && node.queries.indexOf(search.q) !== -1).length;
     }
 
     selectNodes() {
-        const { nodesForDisplay, search, dispatch, selectedNodes } = this.props;
+        const { nodes, search, dispatch, selectedNodes } = this.props;
 
-        const nodesInQuery = nodesForDisplay.filter(node => node.queries.indexOf(search.q) !== -1);
+        const nodesInQuery = nodes.filter(node => node.queries.indexOf(search.q) !== -1);
 
         if (nodesInQuery.length === 0) {
             return;
@@ -170,7 +170,6 @@ class Query extends React.Component {
 const select = (state, ownProps) => {
     return {
         ...ownProps,
-        nodesForDisplay: state.entries.nodesForDisplay,
         nodes: state.entries.nodes,
         selectedNodes: state.entries.selectedNodes
     };

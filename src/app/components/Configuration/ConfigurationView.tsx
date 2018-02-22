@@ -41,7 +41,7 @@ interface Props {
     activeIndices: any;
     datasources: any;
     fieldsFetching: boolean;
-    nodesForDisplay: Node[];
+    nodes: Node[];
 }
 
 class ConfigurationView extends React.Component<Props, State> {
@@ -365,13 +365,13 @@ class ConfigurationView extends React.Component<Props, State> {
     }
 
     highlightNodes(field) {
-        const { nodesForDisplay, dispatch } = this.props;
+        const { nodes, dispatch } = this.props;
 
-        const nodes = nodesForDisplay.filter(node =>
+        const highlight: Node[] = nodes.filter(node =>
             node.fields.indexOf(field) !== -1
         );
 
-        dispatch(highlightNodes(nodes));
+        dispatch(highlightNodes(highlight));
     }
 
     removeHighlightNodes() {
@@ -848,7 +848,7 @@ function select(state) {
         activeIndices: state.indices.activeIndices,
         datasources: state.entries.datasources,
         fieldsFetching: state.fields.fieldsFetching,
-        nodesForDisplay: state.entries.nodesForDisplay
+        nodes: state.entries.nodes
     };
 }
 

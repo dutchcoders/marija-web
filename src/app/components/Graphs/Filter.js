@@ -31,10 +31,10 @@ class Filter extends React.Component {
     }
 
     setFilterSearchResults() {
-        const { dispatch, nodesForDisplay } = this.props;
+        const { dispatch, nodes } = this.props;
         const searchResults = this.getSearchResults();
 
-        if (nodesForDisplay.length === searchResults.length) {
+        if (nodes.length === searchResults.length) {
             dispatch(highlightNodes([]));
         } else {
             dispatch(highlightNodes(searchResults));
@@ -64,10 +64,10 @@ class Filter extends React.Component {
     }
 
     getSearchResults() {
-        const { nodesForDisplay } = this.props;
+        const { nodes } = this.props;
         const { find_value } = this.state;
 
-        return nodesForDisplay.filter((node) => node.name.toLowerCase().indexOf(find_value) !== -1);
+        return nodes.filter((node) => node.name.toLowerCase().indexOf(find_value) !== -1);
     }
 
     handleSelectMultiple(e, nodes) {
@@ -87,9 +87,9 @@ class Filter extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        const { nodesForDisplay } = this.props;
+        const { nodes } = this.props;
 
-        if (!isEqual(prevProps.nodesForDisplay, nodesForDisplay)) {
+        if (!isEqual(prevProps.nodes, nodes)) {
             this.setFilterSearchResults();
         }
     }
@@ -181,7 +181,7 @@ class Filter extends React.Component {
 function select(state) {
     return {
         selectedNodes: state.entries.selectedNodes,
-        nodesForDisplay: state.entries.nodesForDisplay,
+        nodes: state.entries.nodes,
         links: state.entries.links
     };
 }
