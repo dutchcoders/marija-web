@@ -11,6 +11,11 @@ export interface Node {
     hash: number;
 
     /**
+     * Whether the user has selected this node.
+     */
+    selected: boolean;
+
+    /**
      * Per search a user can choose the amount of nodes that he wants to be
      * displayed. When the amount of available nodes exceeds this chosen amount,
      * this can cause the node to be hidden.

@@ -1,15 +1,9 @@
 import React, {Component} from 'react';
 import { connect} from 'react-redux';
-import Dimensions from 'react-dimensions';
-import SkyLight from 'react-skylight';
-import SketchPicker from 'react-color';
-import * as d3 from 'd3';
-import { map, clone, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign, isEqual } from 'lodash';
-import moment from 'moment';
-import { nodesSelect, highlightNodes, nodeSelect } from '../../modules/graph/index';
-import { normalize, fieldLocator } from '../../helpers/index';
+import { isEqual } from 'lodash';
+import { nodesSelect } from '../../modules/graph/index';
 import { Icon } from '../../components/index';
-import { deleteSearch, editSearch, searchRequest } from '../../modules/search/index';
+import { deleteSearch, editSearch } from '../../modules/search/index';
 import Url from "../../domain/Url";
 import Tooltip from 'rc-tooltip';
 import {cancelRequest} from "../../utils/actions";
@@ -171,7 +165,7 @@ const select = (state, ownProps) => {
     return {
         ...ownProps,
         nodes: state.entries.nodes,
-        selectedNodes: state.entries.selectedNodes
+        selectedNodes: state.entries.nodes.filter(node => node.selected)
     };
 };
 

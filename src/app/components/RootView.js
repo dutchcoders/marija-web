@@ -31,10 +31,11 @@ class RootView extends Component {
     }
 
     render() {
-        const { panes, dispatch, selectedNodes, nodes} = this.props;
+        const { panes, dispatch, nodes} = this.props;
         const { mounted } = this.state;
 
         let mainContent = null;
+        const selectedNodes = nodes.filter(node => node.selected).length;
 
         if (mounted) {
             mainContent = (
@@ -61,7 +62,7 @@ class RootView extends Component {
 
                     <Pane
                         name="Selected nodes"
-                        description={selectedNodes.length + '/' + nodes.length}
+                        description={selectedNodes + '/' + nodes.length}
                         handle="nodes"
                         config={panes.nodes}
                         dispatch={dispatch}
@@ -71,7 +72,7 @@ class RootView extends Component {
 
                     <Pane
                         name="Table"
-                        description={'data for ' + selectedNodes.length + ' selected nodes'}
+                        description={'data for ' + selectedNodes + ' selected nodes'}
                         handle="table"
                         config={panes.table}
                         dispatch={dispatch}
@@ -120,7 +121,6 @@ const select = (state, ownProps) => {
     return {
         ...ownProps,
         errors: state.entries.errors,
-        selectedNodes: state.entries.selectedNodes,
         nodes: state.entries.nodes,
         links: state.entries.links,
         panes: state.utils.panes

@@ -116,9 +116,15 @@ class Filter extends React.Component {
         });
     }
 
+    getSelectedNodes() {
+        const { nodes } = this.props;
+
+        return nodes.filter(node => node.selected);
+    }
+
     render() {
         const { find_value, focused, opened } = this.state;
-        const { selectedNodes } = this.props;
+        const selectedNodes = this.getSelectedNodes();
 
         const searchResults = this.getSearchResults();
         const notSelectedNodes = [];
@@ -180,7 +186,6 @@ class Filter extends React.Component {
 
 function select(state) {
     return {
-        selectedNodes: state.entries.selectedNodes,
         nodes: state.entries.nodes,
         links: state.entries.links
     };

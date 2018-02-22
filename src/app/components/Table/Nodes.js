@@ -61,7 +61,8 @@ class Nodes extends React.Component {
     }
 
     handleDeleteAllButSelectedNodes() {
-        const { dispatch, selectedNodes, nodes } = this.props;
+        const { dispatch, nodes } = this.props;
+        const selectedNodes = nodes.filter(node => node.selected);
 
         const delete_nodes = differenceWith(nodes, selectedNodes, (n1, n2) => {
             return n1.id == n2.id;
@@ -77,7 +78,8 @@ class Nodes extends React.Component {
     }
 
     handleSelectRelatedNodes() {
-        const { dispatch, selectedNodes, nodes, links } = this.props;
+        const { dispatch, nodes, links } = this.props;
+        const selectedNodes = nodes.filter(node => node.selected);
 
         const relatedNodes = getRelatedNodes(selectedNodes, nodes, links);
         dispatch(nodesSelect(relatedNodes));
@@ -92,7 +94,9 @@ class Nodes extends React.Component {
     }
 
     handleDeleteAllNodes() {
-        const { dispatch, selectedNodes } = this.props;
+        const { dispatch, nodes } = this.props;
+        const selectedNodes = nodes.filter(node => node.selected);
+
         dispatch(deleteNodes(selectedNodes));
     }
 
@@ -182,11 +186,16 @@ class Nodes extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.prepareImages(nextProps.selectedNodes);
+        const selectedNodes = nextProps.nodes.filter(node => node.selected);
+
+        this.prepareImages(selectedNodes);
     }
 
     componentWillMount() {
-        this.prepareImages(this.props.selectedNodes);
+        const { nodes } = this.props;
+        const selectedNodes = nodes.filter(node => node.selected);
+
+        this.prepareImages(selectedNodes);
     }
 
     renderNode(node) {
@@ -219,9 +228,8 @@ class Nodes extends React.Component {
     }
 
     renderSelected() {
-        const { selectedNodes } = this.props;
-
-        console.log(selectedNodes);
+        const { nodes } = this.props;
+        const selectedNodes = nodes.filter(node => node.selected);
 
         return (
             selectedNodes.length > 0 ?
@@ -253,7 +261,8 @@ class Nodes extends React.Component {
     }
 
     searchAround() {
-        const { dispatch, activeIndices, fields, selectedNodes } = this.props;
+        const { dispatch, activeIndices, fields, nodes } = this.props;
+        const selectedNodes = nodes.filter(node => node.selected);
 
         selectedNodes.forEach(node => {
             dispatch(searchRequest({
@@ -272,7 +281,8 @@ class Nodes extends React.Component {
     }
 
     merge() {
-        const { selectedNodes, dispatch } = this.props;
+        const { nodes, dispatch } = this.props;
+        const selectedNodes = nodes.filter(node => node.selected);
 
         const ids = selectedNodes.map(node => this.escapeRegExp(node.id));
         const regex = ids.join('|');
@@ -337,7 +347,6 @@ class Nodes extends React.Component {
 
 function select(state) {
     return {
-        selectedNodes: state.entries.selectedNodes,
         nodes: state.entries.nodes,
         links: state.entries.links,
         queries: state.entries.searches,

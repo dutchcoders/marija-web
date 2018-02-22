@@ -42,7 +42,6 @@ export default class Workspaces {
                     routing: {},
                     entries:{
                         ...state.entries,
-                        selectedNodes: [],
                         items: [],
                         nodes: [],
                         links: [],

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
 import * as d3 from 'd3';
-import { concat, debounce, remove, includes, assign, isEqual, isEmpty } from 'lodash';
+import { concat, debounce, remove, includes, assign, isEqual, isEmpty, isEqualWith } from 'lodash';
 import { nodesSelect, highlightNodes, deselectNodes, showTooltip, setSelectingMode } from '../../modules/graph/actions.js';
 import { getArcParams, getDirectlyRelatedNodes } from '../../helpers/index.js';
 import * as PIXI from 'pixi.js';
@@ -22,7 +22,6 @@ interface Props {
     nodes: Node[];
     links: Link[];
     tooltipNodes: Node[];
-    selectedNodes: Node[];
     highlightNodes: Node[];
     zoomEvents: any;
     dispatch: Dispatch<any>;
@@ -414,9 +413,24 @@ class GraphPixi extends React.Component<Props, State> {
         renderedLinkLabels.addChild(rope);
     }
 
+    getSelectedNodes() {
+        const { nodes } = this.props;
+
+        return nodes.filter(node => node.selected);
+    }
+
+    shouldPostToWorker(prevNodes: Node[], nextNodes: Node[]): boolean {
+        return prevNodes.length !== nextNodes.length;
+
+        // Todo: make this more intelligent than only looking at array length
+        // Can the graph also change when properties of the nodes change?
+    }
+
     componentDidUpdate(prevProps: Props, prevState: State) {
-        const { nodes, links, tooltipNodes, selectedNodes, searches, highlightNodes } = this.props;
+        const { nodes, links, tooltipNodes, searches, highlightNodes } = this.props;
         const { nodesForDisplay } = this.state;
+        const selectedNodes = this.getSelectedNodes();
+        const prevSelected = prevProps.nodes.filter(node => node.selected);
 
         if (!isEqual(prevProps.nodes, nodes)) {
             this.setState({
@@ -425,7 +439,7 @@ class GraphPixi extends React.Component<Props, State> {
             });
         }
 
-        if (!isEqual(prevProps.selectedNodes, selectedNodes)) {
+        if (!isEqual(prevSelected, selectedNodes)) {
             this.setState({
                 renderedSinceLastSelectedNodes: false
             });
@@ -444,7 +458,7 @@ class GraphPixi extends React.Component<Props, State> {
             });
         }
 
-        if (!isEqual(prevState.nodesForDisplay, nodesForDisplay)) {
+        if (this.shouldPostToWorker(prevState.nodesForDisplay, nodesForDisplay)) {
             this.postNodesAndLinksToWorker();
         }
 
@@ -493,14 +507,16 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     shouldComponentUpdate(nextProps: Props, nextState: State) {
-        const { tooltipNodes, searches, selectedNodes, highlightNodes, nodes } = this.props;
+        const { tooltipNodes, searches, highlightNodes, nodes } = this.props;
         const { lastDisplayedFps, nodesForDisplay } = this.state;
+        const selectedNodes = this.getSelectedNodes();
+        const nextSelected = nextProps.nodes.filter(node => node.selected);
 
         return nextProps.nodes !== nodes
             || nextState.nodesForDisplay !== nodesForDisplay
             || !isEqual(nextProps.tooltipNodes, tooltipNodes)
             || !isEqual(nextProps.searches, searches)
-            || !isEqual(nextProps.selectedNodes, selectedNodes)
+            || !isEqual(nextSelected, selectedNodes)
             || !isEqual(nextProps.highlightNodes, highlightNodes)
             || (Date.now() - lastDisplayedFps.getTime()) > 1000;
     }
@@ -633,8 +649,8 @@ class GraphPixi extends React.Component<Props, State> {
      * Draws a border around selected nodes
      */
     renderSelectedNodes() {
-        const { selectedNodes } = this.props;
         const { nodesFromWorker, renderedSelectedNodes } = this.state;
+        const selectedNodes = this.getSelectedNodes();
 
         renderedSelectedNodes.removeChildren();
 
@@ -1012,7 +1028,8 @@ class GraphPixi extends React.Component<Props, State> {
      */
     onMouseDown() {
         const { shift, transform, nodesForDisplay } = this.state;
-        const { dispatch, selectedNodes, selectingMode } = this.props;
+        const { dispatch, selectingMode } = this.props;
+        const selectedNodes = this.getSelectedNodes();
 
         if (!selectingMode) {
             return;
@@ -1082,7 +1099,7 @@ class GraphPixi extends React.Component<Props, State> {
 
     onMouseUp() {
         const { selection, nodesFromWorker, nodesForDisplay } = this.state;
-        const { selectedNodes } = this.props;
+        const selectedNodes = this.getSelectedNodes();
 
         if (!selection) {
             return;
@@ -1186,7 +1203,6 @@ class GraphPixi extends React.Component<Props, State> {
 const select = (state, ownProps) => {
     return {
         ...ownProps,
-        selectedNodes: state.entries.selectedNodes,
         nodes: state.entries.nodes,
         links: state.entries.links,
         highlightNodes: state.entries.highlightNodes,

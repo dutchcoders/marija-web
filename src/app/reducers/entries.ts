@@ -4,7 +4,7 @@ import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, 
 
 import {  INDICES_RECEIVE, INDICES_REQUEST } from '../modules/indices/index';
 import {  FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index';
-import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODE_SELECT, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
+import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
 import {  SEARCH_DELETE, SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_EDIT } from '../modules/search/index';
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
@@ -52,7 +52,6 @@ interface State {
     links: Link[]; // relations between nodes
     highlightNodes: Node[];
     tooltipNodes: Node[];
-    selectedNodes: Node[];
     deletedNodes: Node[];
     errors: any;
     via: any[];
@@ -79,7 +78,6 @@ export const defaultState: State = {
     links: [], // relations between nodes
     highlightNodes: [],
     tooltipNodes: [],
-    selectedNodes: [],
     deletedNodes: [],
     errors: null,
     via: [],
@@ -89,10 +87,6 @@ export const defaultState: State = {
 
 export default function entries(state: State = defaultState, action) {
     switch (action.type) {
-        case SELECTION_CLEAR:
-            return Object.assign({}, state, {
-                selectedNodes: [],
-            });
         case INDEX_DELETE:
             const index = find(state.indexes, (i) => {
                 return (i.id == action.index);
@@ -104,16 +98,8 @@ export default function entries(state: State = defaultState, action) {
             });
         case NODES_DELETE: {
             const items = concat([], state.items);
-            const selectedNodes = concat([], state.selectedNodes);
             const nodes = concat([], state.nodes);
             const links = concat([], state.links);
-
-            // remove from selection as well
-            remove(selectedNodes, (p) => {
-                return find(action.nodes, (o) => {
-                    return o.id == p.id;
-                });
-            });
 
             remove(nodes, (p) => {
                 return find(action.nodes, (o) => {
@@ -129,7 +115,6 @@ export default function entries(state: State = defaultState, action) {
 
             return Object.assign({}, state, {
                 items: items,
-                selectedNodes: selectedNodes,
                 nodes: nodes,
                 links: links,
                 deletedNodes: state.deletedNodes.concat(action.nodes)
@@ -159,7 +144,6 @@ export default function entries(state: State = defaultState, action) {
                 items: items,
                 nodes: result.nodes,
                 links: result.links,
-                selectedNodes: [],
                 highlightNodes: [],
                 tooltipNodes: []
             });
@@ -231,13 +215,11 @@ export default function entries(state: State = defaultState, action) {
             console.log(resultNodes.nodes.map(node => node.normalizationId));
 
             const resultLinks = normalizeLinks(state.links, resultNodes.normalizations);
-            const selectedNodes = intersection(resultNodes.nodes, state.selectedNodes);
 
             return Object.assign({}, state, {
                 normalizations: resultLinks.normalizations,
                 nodes: resultNodes.nodes,
                 links: resultLinks.links,
-                selectedNodes: selectedNodes,
                 tooltipNodes: intersection(resultNodes.nodes, state.tooltipNodes),
                 highlightNodes: intersection(resultNodes.nodes, state.highlightNodes)
             });
@@ -279,26 +261,55 @@ export default function entries(state: State = defaultState, action) {
             return Object.assign({}, state, {
                 tooltipNodes: action.nodes
             });
-        case NODES_SELECT:
-            const newNodes = [];
+        case NODES_SELECT: {
+            const select: Node[] = action.nodes.filter(node => !node.selected);
+            const nodes: Node[] = state.nodes.concat([]);
 
-            action.nodes.forEach(node => {
-                // First check if it's already selected, don't add duplicates
-                if (state.selectedNodes.indexOf(node) === -1) {
-                    newNodes.push(node);
+            select.forEach(node => {
+                const index = nodes.findIndex(search => search.id === node.id);
+
+                if (!nodes[index].selected) {
+                    nodes[index] = Object.assign({}, node, {
+                        selected: true
+                    });
                 }
             });
 
             return Object.assign({}, state, {
-                selectedNodes: concat(state.selectedNodes, newNodes)
+                nodes: nodes
             });
+        }
         case NODES_DESELECT: {
-            return Object.assign({}, state, {
-                selectedNodes: filter(state.selectedNodes, (node) => {
-                    const found = action.nodes.find(search => search.id === node.id);
+            const deselect: Node[] = action.nodes.filter(node => !node.selected);
+            const nodes: Node[] = state.nodes.concat([]);
 
-                    return typeof found === 'undefined';
-                })
+            deselect.forEach(node => {
+                const index = nodes.findIndex(search => search.id === node.id);
+
+                if (nodes[index].selected) {
+                    nodes[index] = Object.assign({}, node, {
+                        selected: false
+                    });
+                }
+            });
+
+            return Object.assign({}, state, {
+                nodes: nodes
+            });
+        }
+        case SELECTION_CLEAR: {
+            const nodes: Node[] = state.nodes.concat([]);
+
+            nodes.forEach((node, index) => {
+                if (node.selected) {
+                    nodes[index] = Object.assign({}, node, {
+                        selected: false
+                    });
+                }
+            });
+
+            return Object.assign({}, state, {
+                nodes: nodes
             });
         }
         case NODE_UPDATE:
@@ -311,10 +322,6 @@ export default function entries(state: State = defaultState, action) {
 
             return Object.assign({}, state, {
                 nodes: nodes
-            });
-        case NODE_SELECT:
-            return Object.assign({}, state, {
-                selectedNodes: concat(state.selectedNodes, action.node)
             });
         case ERROR:
             console.debug(action);
@@ -591,7 +598,7 @@ export default function entries(state: State = defaultState, action) {
 
             action.items.forEach((item: Item) => {
                 forEach(item.fields, value => {
-                    const node: Node = state.selectedNodes.find(node => node.id === value);
+                    const node: Node = state.nodes.find(node => node.id === value);
 
                     if (typeof node === 'undefined') {
                         return;
@@ -617,17 +624,14 @@ export default function entries(state: State = defaultState, action) {
                 };
 
                 const nodes = state.nodes.concat([]);
-                const selectedNodes = state.selectedNodes.concat([]);
                 const highlightNodes = state.highlightNodes.concat([]);
                 const tooltipNodes = state.tooltipNodes.concat([]);
 
                 updateCollection(nodes);
-                updateCollection(selectedNodes);
                 updateCollection(highlightNodes);
                 updateCollection(tooltipNodes);
 
                 stateUpdates.nodes = nodes;
-                stateUpdates.selectedNodes = selectedNodes;
                 stateUpdates.highlightNodes = highlightNodes;
                 stateUpdates.tooltipNodes = tooltipNodes;
             }
