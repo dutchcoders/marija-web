@@ -108,7 +108,8 @@ export default function getNodesAndLinks(
                         normalizationId: null,
                         display: true,
                         selected: false,
-                        highlighted: false
+                        highlighted: false,
+                        displayTooltip: false
                     };
 
                     nodeCache[n.id] = n;
@@ -172,7 +173,8 @@ export default function getNodesAndLinks(
                                 normalizationId: null,
                                 display: true,
                                 selected: false,
-                                highlighted: false
+                                highlighted: false,
+                                displayTooltip: false
                             };
 
                             nodeCache[n.id] = n;

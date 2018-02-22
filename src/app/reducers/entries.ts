@@ -48,9 +48,8 @@ interface State {
     indexes: any[];
     items: Item[];
     searches: Search[];
-    nodes: Node[]; // all nodes
+    nodes: Node[];
     links: Link[]; // relations between nodes
-    tooltipNodes: Node[];
     deletedNodes: Node[];
     errors: any;
     via: any[];
@@ -75,7 +74,6 @@ export const defaultState: State = {
     searches: [],
     nodes: [], // all nodes
     links: [], // relations between nodes
-    tooltipNodes: [],
     deletedNodes: [],
     errors: null,
     via: [],
@@ -209,15 +207,12 @@ export default function entries(state: State = defaultState, action) {
 
             const normalizations = state.normalizations.concat([normalization]);
             const resultNodes = normalizeNodes(state.nodes, normalizations);
-            console.log(resultNodes.nodes.map(node => node.normalizationId));
-
             const resultLinks = normalizeLinks(state.links, resultNodes.normalizations);
 
             return Object.assign({}, state, {
                 normalizations: resultLinks.normalizations,
                 nodes: resultNodes.nodes,
-                links: resultLinks.links,
-                tooltipNodes: intersection(resultNodes.nodes, state.tooltipNodes)
+                links: resultLinks.links
             });
         }
         case NORMALIZATION_DELETE: {
@@ -253,10 +248,28 @@ export default function entries(state: State = defaultState, action) {
             return Object.assign({}, state, {
                 date_fields: without(state.date_fields, action.field)
             });
-        case NODES_TOOLTIP:
-            return Object.assign({}, state, {
-                tooltipNodes: action.nodes
+        case NODES_TOOLTIP: {
+            const nodes = state.nodes.concat([]);
+            const ids = action.nodes.map(node => node.id);
+
+            nodes.forEach((node, index) => {
+                const shouldTooltip: boolean = ids.indexOf(node.id) !== -1;
+
+                if (shouldTooltip && !node.displayTooltip) {
+                    nodes[index] = Object.assign({}, node, {
+                        displayTooltip: true
+                    });
+                } else if (!shouldTooltip && node.displayTooltip) {
+                    nodes[index] = Object.assign({}, node, {
+                        displayTooltip: false
+                    });
+                }
             });
+
+            return Object.assign({}, state, {
+                nodes: nodes
+            });
+        }
         case NODES_SELECT: {
             const select: Node[] = action.nodes.filter(node => !node.selected);
             const nodes: Node[] = state.nodes.concat([]);
@@ -639,13 +652,10 @@ export default function entries(state: State = defaultState, action) {
                 };
 
                 const nodes = state.nodes.concat([]);
-                const tooltipNodes = state.tooltipNodes.concat([]);
 
                 updateCollection(nodes);
-                updateCollection(tooltipNodes);
 
                 stateUpdates.nodes = nodes;
-                stateUpdates.tooltipNodes = tooltipNodes;
             }
 
             return Object.assign({}, state, stateUpdates);

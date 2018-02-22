@@ -1209,7 +1209,7 @@ const select = (state, ownProps) => {
         searches: state.entries.searches,
         fields: state.entries.fields,
         items: state.entries.items,
-        tooltipNodes: state.entries.tooltipNodes,
+        tooltipNodes: state.entries.nodes.filter(node => node.displayTooltip),
         version: state.entries.version,
         selectingMode: state.entries.selectingMode
     };

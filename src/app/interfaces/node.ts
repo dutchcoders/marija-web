@@ -11,6 +11,11 @@ export interface Node {
     hash: number;
 
     /**
+     * Whether we're displaying a tooltip in the graph for this node.
+     */
+    displayTooltip: boolean;
+
+    /**
      * Whether the user has selected this node.
      */
     selected: boolean;
