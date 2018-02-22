@@ -15,17 +15,14 @@ export default function normalizeLinks(
 
     const exists = (source, target): boolean => {
         const link = parents.find(search =>
-            typeof search !== 'undefined'
-            && (
-                search.source === source && search.target === target
-                || search.source === target && search.target === source
-            )
+            (search.source === source && search.target === target)
+            || (search.source === target && search.target === source)
         );
 
         return typeof link !== 'undefined';
     };
 
-    children = children.map((link, index) => {
+    children = children.map(link => {
         const updates: any = {};
 
         normalizations.forEach((normalization, nIndex) => {
@@ -33,12 +30,11 @@ export default function normalizeLinks(
                 if (regexes[nIndex].test(link[property])) {
                     updates.normalizationId = normalization.id;
 
-                    const wouldLinkToSelf: boolean = link[oppositeProperty] === normalization.replaceWith;
+                    const wouldLinkToSelf: boolean =
+                        link[oppositeProperty] === normalization.replaceWith
+                        || regexes[nIndex].test(link[oppositeProperty]);
 
-                    if (!wouldLinkToSelf
-                        && !exists(link[oppositeProperty], normalization.replaceWith)
-                        && !regexes[nIndex].test(link[oppositeProperty])) {
-
+                    if (!wouldLinkToSelf && !exists(link[oppositeProperty], normalization.replaceWith)) {
                         const parentLink: Link = Object.assign({}, link, {
                             [property]: normalization.replaceWith,
                             isNormalizationParent: true,

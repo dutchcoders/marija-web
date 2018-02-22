@@ -22,8 +22,7 @@ export default function normalizeNodes(
         normalizations.forEach((normalization, nIndex) => {
             if (regexes[nIndex].test(node.id)) {
                 const parent: Node = parents.find(node =>
-                    node.isNormalizationParent
-                    && node.normalizationId === normalization.id
+                    node.normalizationId === normalization.id
                 );
 
                 if (typeof parent === 'undefined') {

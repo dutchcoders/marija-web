@@ -134,11 +134,9 @@ class Filter extends React.Component {
         });
 
         const find_nodes = map(searchResults, (node) => {
-            const found = find(this.props.node, (n) => n.id === node.id);
-            const checked = (typeof found !== 'undefined');
             return (
                 <li key={node.id} onMouseEnter={() => this.displayTooltip(node)}>
-                    <input type='checkbox' checked={checked}  onChange={ (e) => this.handleFindSelectChange(node, e) } />
+                    <input type='checkbox' checked={node.selected} onChange={ (e) => this.handleFindSelectChange(node, e) } />
                     <span className="nodeIcon">{node.icon}</span>
                     { node.abbreviated }
                 </li>
