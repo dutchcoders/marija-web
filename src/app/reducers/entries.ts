@@ -618,47 +618,26 @@ export default function entries(state: State = defaultState, action) {
                 return state;
             }
 
-            const stateUpdates: any = {
-                items: state.items.concat(action.items)
-            };
-
-            const updates: Node[] = [];
+            const nodes: Node[] = state.nodes.concat([]);
 
             action.items.forEach((item: Item) => {
                 forEach(item.fields, value => {
-                    const node: Node = state.nodes.find(node => node.id === value);
+                    const index = nodes.findIndex(node => node.id === value);
 
-                    if (typeof node === 'undefined') {
+                    if (index === -1) {
                         return;
                     }
 
-                    const newNode: Node = Object.assign({}, node, {
-                        items: node.items.concat([item.id])
+                    nodes[index] = Object.assign({}, nodes[index], {
+                        items: nodes[index].items.concat([item.id])
                     });
-
-                    updates.push(newNode);
                 });
             });
 
-            if (updates.length > 0) {
-                const updateCollection = (collection: Node[]) => {
-                    updates.forEach(node => {
-                        const index = collection.findIndex(search => search.id === node.id);
-
-                        if (index !== -1) {
-                            collection[index] = node;
-                        }
-                    });
-                };
-
-                const nodes = state.nodes.concat([]);
-
-                updateCollection(nodes);
-
-                stateUpdates.nodes = nodes;
-            }
-
-            return Object.assign({}, state, stateUpdates);
+            return Object.assign({}, state, {
+                nodes: nodes,
+                items: state.items.concat(action.items)
+            });
         }
 
         default:
