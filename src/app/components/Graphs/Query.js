@@ -1,15 +1,9 @@
 import React, {Component} from 'react';
 import { connect} from 'react-redux';
-import Dimensions from 'react-dimensions';
-import SkyLight from 'react-skylight';
-import SketchPicker from 'react-color';
-import * as d3 from 'd3';
-import { map, clone, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign, isEqual } from 'lodash';
-import moment from 'moment';
-import { nodesSelect, highlightNodes, nodeSelect } from '../../modules/graph/index';
-import { normalize, fieldLocator } from '../../helpers/index';
+import { isEqual } from 'lodash';
+import { nodesSelect } from '../../modules/graph/index';
 import { Icon } from '../../components/index';
-import { deleteSearch, editSearch, searchRequest } from '../../modules/search/index';
+import { deleteSearch, editSearch } from '../../modules/search/index';
 import Url from "../../domain/Url";
 import Tooltip from 'rc-tooltip';
 import {cancelRequest} from "../../utils/actions";
@@ -74,15 +68,15 @@ class Query extends React.Component {
     }
 
     countDisplayNodes() {
-        const { nodesForDisplay, search } = this.props;
+        const { nodes, search } = this.props;
 
-        return nodesForDisplay.filter(node => node.queries.indexOf(search.q) !== -1).length;
+        return nodes.filter(node => node.display && node.queries.indexOf(search.q) !== -1).length;
     }
 
     selectNodes() {
-        const { nodesForDisplay, search, dispatch, selectedNodes } = this.props;
+        const { nodes, search, dispatch, selectedNodes } = this.props;
 
-        const nodesInQuery = nodesForDisplay.filter(node => node.queries.indexOf(search.q) !== -1);
+        const nodesInQuery = nodes.filter(node => node.queries.indexOf(search.q) !== -1);
 
         if (nodesInQuery.length === 0) {
             return;
@@ -168,12 +162,7 @@ class Query extends React.Component {
 }
 
 const select = (state, ownProps) => {
-    return {
-        ...ownProps,
-        nodesForDisplay: state.entries.nodesForDisplay,
-        nodes: state.entries.nodes,
-        selectedNodes: state.entries.selectedNodes
-    };
+    return ownProps;
 };
 
 export default connect(select)(Query);

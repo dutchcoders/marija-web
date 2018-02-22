@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
 import * as d3 from 'd3';
-import { concat, debounce, remove, includes, assign, isEqual, isEmpty } from 'lodash';
+import { concat, debounce, remove, includes, assign, isEqual, isEmpty, isEqualWith } from 'lodash';
 import { nodesSelect, highlightNodes, deselectNodes, showTooltip, setSelectingMode } from '../../modules/graph/actions.js';
 import { getArcParams, getDirectlyRelatedNodes } from '../../helpers/index.js';
 import * as PIXI from 'pixi.js';
@@ -10,6 +10,7 @@ import {Node} from "../../interfaces/node";
 import {Link} from "../../interfaces/link";
 import {NodeFromWorker} from "../../interfaces/nodeFromWorker";
 import {LinkFromWorker} from "../../interfaces/linkFromWorker";
+import displayFilter from "../../helpers/displayFilter";
 const myWorker = require("worker-loader!./Worker");
 
 interface TextureMap {
@@ -19,10 +20,9 @@ interface TextureMap {
 interface Props {
     selectingMode: boolean;
     searches: Search[];
-    nodesForDisplay: Node[];
-    linksForDisplay: Link[];
+    nodes: Node[];
+    links: Link[];
     tooltipNodes: Node[];
-    selectedNodes: Node[];
     highlightNodes: Node[];
     zoomEvents: any;
     dispatch: Dispatch<any>;
@@ -30,6 +30,8 @@ interface Props {
 }
 
 interface State {
+    nodesForDisplay: Node[];
+    linksForDisplay: Link[];
     nodesFromWorker: NodeFromWorker[];
     nodeTextures: TextureMap;
     renderedNodesContainer: PIXI.Container;
@@ -65,6 +67,8 @@ interface State {
 class GraphPixi extends React.Component<Props, State> {
     pixiContainer: HTMLElement;
     state: State = {
+        nodesForDisplay: [],
+        linksForDisplay: [],
         nodesFromWorker: [],
         nodeTextures: {},
         renderedNodesContainer: undefined,
@@ -410,10 +414,33 @@ class GraphPixi extends React.Component<Props, State> {
         renderedLinkLabels.addChild(rope);
     }
 
-    componentDidUpdate(prevProps: Props) {
-        const { nodesForDisplay, tooltipNodes, selectedNodes, searches, highlightNodes } = this.props;
+    getSelectedNodes() {
+        const { nodes } = this.props;
 
-        if (!isEqual(prevProps.selectedNodes, selectedNodes)) {
+        return nodes.filter(node => node.selected);
+    }
+
+    shouldPostToWorker(prevNodes: Node[], nextNodes: Node[]): boolean {
+        return prevNodes.length !== nextNodes.length;
+
+        // Todo: make this more intelligent than only looking at array length
+        // Can the graph also change when properties of the nodes change?
+    }
+
+    componentDidUpdate(prevProps: Props, prevState: State) {
+        const { nodes, links, tooltipNodes, searches, highlightNodes } = this.props;
+        const { nodesForDisplay } = this.state;
+        const selectedNodes = this.getSelectedNodes();
+        const prevSelected = prevProps.nodes.filter(node => node.selected);
+
+        if (!isEqual(prevProps.nodes, nodes)) {
+            this.setState({
+                nodesForDisplay: nodes.filter(node => displayFilter(node)),
+                linksForDisplay: links.filter(link => displayFilter(link))
+            });
+        }
+
+        if (!isEqual(prevSelected, selectedNodes)) {
             this.setState({
                 renderedSinceLastSelectedNodes: false
             });
@@ -432,7 +459,7 @@ class GraphPixi extends React.Component<Props, State> {
             });
         }
 
-        if (!isEqual(prevProps.nodesForDisplay, nodesForDisplay)) {
+        if (this.shouldPostToWorker(prevState.nodesForDisplay, nodesForDisplay)) {
             this.postNodesAndLinksToWorker();
         }
 
@@ -448,7 +475,7 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     postNodesAndLinksToWorker() {
-        const { nodesForDisplay, linksForDisplay } = this.props;
+        const { nodesForDisplay, linksForDisplay } = this.state;
         const nodesToPost = [];
 
         nodesForDisplay.forEach(node => {
@@ -481,13 +508,16 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     shouldComponentUpdate(nextProps: Props, nextState: State) {
-        const { nodesForDisplay, tooltipNodes, searches, selectedNodes, highlightNodes } = this.props;
-        const { lastDisplayedFps } = this.state;
+        const { tooltipNodes, searches, highlightNodes, nodes } = this.props;
+        const { lastDisplayedFps, nodesForDisplay } = this.state;
+        const selectedNodes = this.getSelectedNodes();
+        const nextSelected = nextProps.nodes.filter(node => node.selected);
 
-        return nextProps.nodesForDisplay !== nodesForDisplay
+        return nextProps.nodes !== nodes
+            || nextState.nodesForDisplay !== nodesForDisplay
             || !isEqual(nextProps.tooltipNodes, tooltipNodes)
             || !isEqual(nextProps.searches, searches)
-            || !isEqual(nextProps.selectedNodes, selectedNodes)
+            || !isEqual(nextSelected, selectedNodes)
             || !isEqual(nextProps.highlightNodes, highlightNodes)
             || (Date.now() - lastDisplayedFps.getTime()) > 1000;
     }
@@ -620,8 +650,8 @@ class GraphPixi extends React.Component<Props, State> {
      * Draws a border around selected nodes
      */
     renderSelectedNodes() {
-        const { selectedNodes } = this.props;
         const { nodesFromWorker, renderedSelectedNodes } = this.state;
+        const selectedNodes = this.getSelectedNodes();
 
         renderedSelectedNodes.removeChildren();
 
@@ -845,10 +875,15 @@ class GraphPixi extends React.Component<Props, State> {
 
     initWorker() {
         const { width, height } = this.pixiContainer.getBoundingClientRect();
+        const { nodes, links } = this.props;
         const worker = new myWorker();
 
+        console.log(nodes);
+
         this.setState({
-            worker: worker
+            worker: worker,
+            nodesForDisplay: nodes.filter(node => displayFilter(node)),
+            linksForDisplay: links.filter(link => displayFilter(link)),
         }, () => {
             worker.onmessage = (event) => this.onWorkerMessage(event);
 
@@ -960,7 +995,7 @@ class GraphPixi extends React.Component<Props, State> {
             return;
         }
 
-        const { nodesForDisplay } = this.props;
+        const { nodesForDisplay } = this.state;
 
         return nodesForDisplay.find(node => node.hash === nodeFromWorker.hash);
     }
@@ -995,8 +1030,9 @@ class GraphPixi extends React.Component<Props, State> {
      * Is not involved with dragging nodes, d3 handles that.
      */
     onMouseDown() {
-        const { shift, transform } = this.state;
-        const { dispatch, selectedNodes, nodesForDisplay, selectingMode } = this.props;
+        const { shift, transform, nodesForDisplay } = this.state;
+        const { dispatch, selectingMode } = this.props;
+        const selectedNodes = this.getSelectedNodes();
 
         if (!selectingMode) {
             return;
@@ -1029,8 +1065,8 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     onMouseMove() {
-        const { transform, selection } = this.state;
-        const { selectingMode, nodesForDisplay, linksForDisplay, dispatch, tooltipNodes } = this.props;
+        const { transform, selection, nodesForDisplay, linksForDisplay } = this.state;
+        const { selectingMode, dispatch, tooltipNodes } = this.props;
 
         const x = transform.invertX(d3.event.layerX);
         const y = transform.invertY(d3.event.layerY);
@@ -1065,8 +1101,8 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     onMouseUp() {
-        const { selection, nodesFromWorker } = this.state;
-        const { nodesForDisplay, selectedNodes } = this.props;
+        const { selection, nodesFromWorker, nodesForDisplay } = this.state;
+        const selectedNodes = this.getSelectedNodes();
 
         if (!selection) {
             return;
@@ -1170,14 +1206,13 @@ class GraphPixi extends React.Component<Props, State> {
 const select = (state, ownProps) => {
     return {
         ...ownProps,
-        selectedNodes: state.entries.selectedNodes,
-        nodesForDisplay: state.entries.nodesForDisplay,
-        linksForDisplay: state.entries.linksForDisplay,
-        highlightNodes: state.entries.highlightNodes,
+        nodes: state.entries.nodes,
+        links: state.entries.links,
+        highlightNodes: state.entries.nodes.filter(node => node.highlighted),
         searches: state.entries.searches,
         fields: state.entries.fields,
         items: state.entries.items,
-        tooltipNodes: state.entries.tooltipNodes,
+        tooltipNodes: state.entries.nodes.filter(node => node.displayTooltip),
         version: state.entries.version,
         selectingMode: state.entries.selectingMode
     };

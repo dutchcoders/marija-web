@@ -32,7 +32,7 @@ class Histogram extends React.Component {
     }
 
     draw() {
-        const { selectedNodes, normalizations, fields, date_fields, items } = this.props;
+        const { normalizations, fields, date_fields, items, selectedNodes } = this.props;
         const { canvas } = this;
 
         if (!items.length || !date_fields.length) {
@@ -230,7 +230,7 @@ class Histogram extends React.Component {
 const select = (state, ownProps) => {
     return {
         ...ownProps,
-        selectedNodes: state.entries.selectedNodes,
+        selectedNodes: state.entries.nodes.filter(node => node.selected),
         queries: state.entries.queries,
         fields: state.entries.fields,
         normalizations: state.entries.normalizations,

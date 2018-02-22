@@ -1,4 +1,3 @@
-export const NODE_SELECT = 'NODE_SELECT';
 export const NODE_UPDATE = 'NODE_UPDATE';
 export const NODES_SELECT = 'NODES_SELECT';
 export const NODES_DESELECT = 'NODES_DESELECT';

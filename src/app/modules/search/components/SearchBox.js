@@ -64,7 +64,7 @@ class SearchBox extends Component {
     }
 
     render() {
-        const { connected, enabled, searches } = this.props;
+        const { connected, enabled, searches, nodes } = this.props;
         const { query, editSearchValue, searchAroundOpen } = this.state;
 
         let tooltipStyles = {};
@@ -97,13 +97,13 @@ class SearchBox extends Component {
         const userQueries = searches
             .filter(search => search.aroundNodeId === null)
             .map(search =>
-                <Query search={search} key={search.q} handleEdit={() => this.handleEditSearch(search)}/>
+                <Query search={search} key={search.q} nodes={nodes} handleEdit={() => this.handleEditSearch(search)}/>
             );
 
         const searchAroundQueries = searches
             .filter(search => search.aroundNodeId !== null)
             .map(search =>
-                <Query search={search} key={search.q} handleEdit={() => this.handleEditSearch(search)}/>
+                <Query search={search} key={search.q} nodes={nodes} handleEdit={() => this.handleEditSearch(search)}/>
             );
 
         const searchAroundLoading = searches
@@ -169,7 +169,8 @@ class SearchBox extends Component {
 const select = (state, ownProps) => {
     return {
         ...ownProps,
-        searches: state.entries.searches
+        searches: state.entries.searches,
+        nodes: state.entries.nodes.filter(node => node.isNormalizationParent || node.normalizationId === null)
     };
 };
 

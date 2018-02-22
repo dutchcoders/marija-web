@@ -6,7 +6,7 @@ export default function getNodesForDisplay(nodes, searches) {
     searches.forEach(search => max[search.q] = search.displayNodes);
 
     nodes.forEach(node => {
-        let accepted = true;
+        let display = true;
 
         node.queries.forEach(query => {
             if (searchesCounter[query]) {
@@ -16,13 +16,13 @@ export default function getNodesForDisplay(nodes, searches) {
             }
 
             if (searchesCounter[query] > max[query]) {
-                accepted = false;
+                display = false;
             }
         });
 
-        if (accepted) {
-            nodesForDisplay.push(node);
-        }
+        nodesForDisplay.push(Object.assign({}, node, {
+            display: display
+        }));
     });
 
     return nodesForDisplay;

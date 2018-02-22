@@ -198,7 +198,7 @@ class TableView extends React.Component {
 
 function select(state) {
     return {
-        selectedNodes: state.entries.selectedNodes,
+        selectedNodes: state.entries.nodes.filter(node => node.selected),
         normalizations: state.entries.normalizations,
         items: state.entries.items,
         searches: state.entries.searches,

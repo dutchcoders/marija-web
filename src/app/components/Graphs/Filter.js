@@ -7,6 +7,7 @@ import { Icon } from '../index';
 import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
 import {filterSearchResults} from "../../modules/search/actions";
 import {showTooltip} from "../../modules/graph/actions";
+import displayFilter from "../../helpers/displayFilter";
 
 class Filter extends React.Component {
     constructor(props) {
@@ -31,10 +32,10 @@ class Filter extends React.Component {
     }
 
     setFilterSearchResults() {
-        const { dispatch, nodesForDisplay } = this.props;
+        const { dispatch, nodes } = this.props;
         const searchResults = this.getSearchResults();
 
-        if (nodesForDisplay.length === searchResults.length) {
+        if (nodes.length === searchResults.length) {
             dispatch(highlightNodes([]));
         } else {
             dispatch(highlightNodes(searchResults));
@@ -64,10 +65,10 @@ class Filter extends React.Component {
     }
 
     getSearchResults() {
-        const { nodesForDisplay } = this.props;
+        const { nodes } = this.props;
         const { find_value } = this.state;
 
-        return nodesForDisplay.filter((node) => node.name.toLowerCase().indexOf(find_value) !== -1);
+        return nodes.filter((node) => node.name.toLowerCase().indexOf(find_value) !== -1);
     }
 
     handleSelectMultiple(e, nodes) {
@@ -84,14 +85,6 @@ class Filter extends React.Component {
         const { dispatch } = this.props;
 
         dispatch(deselectNodes(nodes));
-    }
-
-    componentDidUpdate(prevProps) {
-        const { nodesForDisplay } = this.props;
-
-        if (!isEqual(prevProps.nodesForDisplay, nodesForDisplay)) {
-            this.setFilterSearchResults();
-        }
     }
 
     onFocus() {
@@ -116,9 +109,15 @@ class Filter extends React.Component {
         });
     }
 
+    getSelectedNodes() {
+        const { nodes } = this.props;
+
+        return nodes.filter(node => node.selected);
+    }
+
     render() {
         const { find_value, focused, opened } = this.state;
-        const { selectedNodes } = this.props;
+        const selectedNodes = this.getSelectedNodes();
 
         const searchResults = this.getSearchResults();
         const notSelectedNodes = [];
@@ -135,11 +134,9 @@ class Filter extends React.Component {
         });
 
         const find_nodes = map(searchResults, (node) => {
-            const found = find(this.props.node, (n) => n.id === node.id);
-            const checked = (typeof found !== 'undefined');
             return (
                 <li key={node.id} onMouseEnter={() => this.displayTooltip(node)}>
-                    <input type='checkbox' checked={checked}  onChange={ (e) => this.handleFindSelectChange(node, e) } />
+                    <input type='checkbox' checked={node.selected} onChange={ (e) => this.handleFindSelectChange(node, e) } />
                     <span className="nodeIcon">{node.icon}</span>
                     { node.abbreviated }
                 </li>
@@ -180,9 +177,7 @@ class Filter extends React.Component {
 
 function select(state) {
     return {
-        selectedNodes: state.entries.selectedNodes,
-        nodesForDisplay: state.entries.nodesForDisplay,
-        links: state.entries.links
+        nodes: state.entries.nodes.filter(node => displayFilter(node))
     };
 }
 

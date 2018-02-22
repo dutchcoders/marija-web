@@ -41,7 +41,7 @@ interface Props {
     activeIndices: any;
     datasources: any;
     fieldsFetching: boolean;
-    nodesForDisplay: Node[];
+    nodes: Node[];
 }
 
 class ConfigurationView extends React.Component<Props, State> {
@@ -365,13 +365,13 @@ class ConfigurationView extends React.Component<Props, State> {
     }
 
     highlightNodes(field) {
-        const { nodesForDisplay, dispatch } = this.props;
+        const { nodes, dispatch } = this.props;
 
-        const nodes = nodesForDisplay.filter(node =>
+        const highlight: Node[] = nodes.filter(node =>
             node.fields.indexOf(field) !== -1
         );
 
-        dispatch(highlightNodes(nodes));
+        dispatch(highlightNodes(highlight));
     }
 
     removeHighlightNodes() {
@@ -472,24 +472,6 @@ class ConfigurationView extends React.Component<Props, State> {
 
             // Sort by when the search term occurs in the field name (the earlier the better)
             searchResults.sort((a, b) => a.occurrenceIndex - b.occurrenceIndex);
-        } else {
-            // Sort alphabetically
-            searchResults.sort((a, b) => {
-                // ignore upper and lowercase
-                const nameA = a.path.toUpperCase();
-                const nameB = b.path.toUpperCase();
-                
-                if (nameA < nameB) {
-                    return -1;
-                }
-
-                if (nameA > nameB) {
-                    return 1;
-                }
-
-                // names must be equal
-                return 0;
-            });
         }
 
         let numMore = null;
@@ -789,7 +771,7 @@ class ConfigurationView extends React.Component<Props, State> {
     }
 
     render() {
-        const { fields, date_fields, normalizations, datasources, availableFields, activeIndices, dispatch, fieldsFetching } = this.props;
+        const { fields, normalizations, datasources, availableFields, activeIndices, fieldsFetching } = this.props;
 
         return (
             <div>
@@ -848,7 +830,7 @@ function select(state) {
         activeIndices: state.indices.activeIndices,
         datasources: state.entries.datasources,
         fieldsFetching: state.fields.fieldsFetching,
-        nodesForDisplay: state.entries.nodesForDisplay
+        nodes: state.entries.nodes
     };
 }
 
