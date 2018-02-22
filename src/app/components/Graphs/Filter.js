@@ -7,6 +7,7 @@ import { Icon } from '../index';
 import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
 import {filterSearchResults} from "../../modules/search/actions";
 import {showTooltip} from "../../modules/graph/actions";
+import displayFilter from "../../helpers/displayFilter";
 
 class Filter extends React.Component {
     constructor(props) {
@@ -178,8 +179,7 @@ class Filter extends React.Component {
 
 function select(state) {
     return {
-        nodes: state.entries.nodes,
-        links: state.entries.links
+        nodes: state.entries.nodes.filter(node => displayFilter(node))
     };
 }
 

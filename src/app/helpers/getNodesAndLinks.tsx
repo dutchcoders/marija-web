@@ -109,7 +109,8 @@ export default function getNodesAndLinks(
                         display: true,
                         selected: false,
                         highlighted: false,
-                        displayTooltip: false
+                        displayTooltip: false,
+                        isNormalizationParent: false
                     };
 
                     nodeCache[n.id] = n;
@@ -174,7 +175,8 @@ export default function getNodesAndLinks(
                                 display: true,
                                 selected: false,
                                 highlighted: false,
-                                displayTooltip: false
+                                displayTooltip: false,
+                                isNormalizationParent: false
                             };
 
                             nodeCache[n.id] = n;
@@ -209,7 +211,8 @@ export default function getNodesAndLinks(
                             total: 1,
                             current: 1,
                             normalizationId: null,
-                            display: true
+                            display: true,
+                            isNormalizationParent: false
                         };
 
                         links.push(link);

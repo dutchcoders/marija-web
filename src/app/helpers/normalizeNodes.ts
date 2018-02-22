@@ -4,54 +4,50 @@ import {Normalization} from "../interfaces/normalization";
 export default function normalizeNodes(
     nodes: Node[],
     normalizations: Normalization[]
-): {
-    nodes: Node[],
-    normalizations: Normalization[]
-} {
+): Node[] {
     if (normalizations.length === 0) {
-        return {
-            nodes,
-            normalizations
-        };
+        return nodes;
     }
 
     nodes = nodes.concat([]);
     normalizations = normalizations.concat([]);
 
     const regexes = normalizations.map(normalization => new RegExp(normalization.regex, 'i'));
+    const parents: Node[] = nodes.filter(node => node.isNormalizationParent);
+    let children: Node[] = nodes.filter(node => !node.isNormalizationParent);
 
-    nodes.forEach((node, index) => {
+    children = children.map(node => {
+        const updates: any = {};
+
         normalizations.forEach((normalization, nIndex) => {
-            if (node.id !== normalization.replaceWith && regexes[nIndex].test(node.id)) {
-                normalizations[nIndex] = Object.assign({}, normalization, {
-                    affectedNodes: normalization.affectedNodes.concat([node])
-                });
-
-                delete nodes[index];
-
-                const existing: Node = nodes.find(node =>
-                    typeof node !== 'undefined'
-                    && node.id === normalization.replaceWith
+            if (regexes[nIndex].test(node.id)) {
+                const parent: Node = parents.find(node =>
+                    node.isNormalizationParent
+                    && node.normalizationId === normalization.id
                 );
 
-                if (typeof existing === 'undefined') {
-                    const normalized: Node = Object.assign({}, node, {
+                if (typeof parent === 'undefined') {
+                    const newParent: Node = Object.assign({}, node, {
                         id: normalization.replaceWith,
                         name: normalization.replaceWith,
                         abbreviated: normalization.replaceWith,
-                        normalizationId: normalization.id
+                        normalizationId: normalization.id,
+                        isNormalizationParent: true
                     });
 
-                    nodes.push(normalized);
+                    parents.push(newParent);
                 }
+
+                updates.normalizationId = normalization.id;
             }
         });
+
+        if (updates) {
+            return Object.assign({}, node, updates);
+        }
+
+        return node;
     });
 
-    nodes = nodes.filter(node => typeof node !== 'undefined');
-
-    return {
-        nodes,
-        normalizations
-    }
+    return children.concat(parents);
 }

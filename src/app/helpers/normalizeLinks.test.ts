@@ -16,9 +16,7 @@ const generateNormalization = (regex: string, replaceWith: string): Normalizatio
     return {
         id: uniqueId(),
         regex: regex,
-        replaceWith: replaceWith,
-        affectedNodes: [],
-        affectedLinks: []
+        replaceWith: replaceWith
     };
 };
 
@@ -34,7 +32,7 @@ test('should merge links when target gets normalized', () => {
 
     const result = normalizeLinks(links, normalizations);
 
-    expect(result.links.length).toBe(1);
+    expect(result.length).toBe(3);
 });
 
 test('should merge links when source gets normalized', () => {
@@ -49,7 +47,7 @@ test('should merge links when source gets normalized', () => {
 
     const result = normalizeLinks(links, normalizations);
 
-    expect(result.links.length).toBe(1);
+    expect(result.length).toBe(3);
 });
 
 test('should work when both source and target get normalized', () => {
@@ -64,21 +62,10 @@ test('should work when both source and target get normalized', () => {
 
     const result = normalizeLinks(links, normalizations);
 
-    expect(result.links.length).toBe(1);
-    expect(result.links[0].source).toBe('hello');
-    expect(result.links[0].target).toBe('something');
-});
+    expect(result.length).toBe(3);
 
-test('should mark newly created links as normalized', () => {
-    const links = [
-        generateLink('bello', 'something')
-    ];
+    const parent = result.find(link => link.isNormalizationParent);
 
-    const normalizations = [
-        generateNormalization('^[bh]ello$', 'hello')
-    ];
-
-    const result = normalizeLinks(links, normalizations);
-
-    expect(result.links[0].source).toBe('hello');
+    expect(parent.source).toBe('hello');
+    expect(parent.target).toBe('something');
 });

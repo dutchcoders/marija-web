@@ -12,6 +12,7 @@ import SkyLight from 'react-skylight';
 import {searchRequest} from "../../modules/search/actions";
 import {showTooltip} from "../../modules/graph/actions";
 import {normalizationAdd} from "../../modules/data";
+import displayFilter from "../../helpers/displayFilter";
 
 class Nodes extends React.Component {
     constructor(props) {
@@ -221,15 +222,16 @@ class Nodes extends React.Component {
     }
 
     getMergedNodes(normalizationId) {
-        const { normalizations } = this.props;
-        const normalization = normalizations.find(search => search.id === normalizationId);
+        const { nodes } = this.props;
 
-        return normalization.affectedNodes.map(node => this.renderNode(node));
+        return nodes
+            .filter(node => !node.isNormalizationParent && node.normalizationId === normalizationId)
+            .map(node => this.renderNode(node));
     }
 
     renderSelected() {
         const { nodes } = this.props;
-        const selectedNodes = nodes.filter(node => node.selected);
+        const selectedNodes = nodes.filter(node => node.selected && displayFilter(node));
 
         return (
             selectedNodes.length > 0 ?

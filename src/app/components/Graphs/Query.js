@@ -162,11 +162,7 @@ class Query extends React.Component {
 }
 
 const select = (state, ownProps) => {
-    return {
-        ...ownProps,
-        nodes: state.entries.nodes,
-        selectedNodes: state.entries.nodes.filter(node => node.selected)
-    };
+    return ownProps;
 };
 
 export default connect(select)(Query);

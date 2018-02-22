@@ -2,11 +2,21 @@ import {Node} from "../interfaces/node";
 import {Normalization} from "../interfaces/normalization";
 
 export default function denormalizeNodes(nodes: Node[], deleted: Normalization): Node[] {
-    nodes = nodes.filter((node, index) => {
-        return node.normalizationId !== deleted.id;
-    });
+    // Remove normalization parent
+    nodes = nodes.filter(node =>
+        !(node.isNormalizationParent && node.normalizationId === deleted.id)
+    );
 
-    nodes = nodes.concat(deleted.affectedNodes);
+    // Delete references to parent that no longer exists
+    nodes = nodes.map(node => {
+        if (node.normalizationId === deleted.id) {
+            return Object.assign({}, node, {
+                normalizationId: null
+            });
+        }
+
+        return node;
+    });
 
     return nodes;
 }

@@ -2,11 +2,21 @@ import {Link} from "../interfaces/link";
 import {Normalization} from "../interfaces/normalization";
 
 export default function denormalizeLinks(links: Link[], deleted: Normalization): Link[] {
-    links = links.filter((link, index) => {
-        return link.normalizationId !== deleted.id;
-    });
+    // Remove normalization parent
+    links = links.filter(link =>
+        !(link.isNormalizationParent && link.normalizationId === deleted.id)
+    );
 
-    links = links.concat(deleted.affectedLinks);
+    // Delete references to parent that no longer exists
+    links = links.map(link => {
+        if (link.normalizationId === deleted.id) {
+            return Object.assign({}, link, {
+                normalizationId: null
+            });
+        }
+
+        return link;
+    });
 
     return links;
 }

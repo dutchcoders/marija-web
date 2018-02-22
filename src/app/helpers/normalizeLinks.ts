@@ -4,22 +4,17 @@ import {Normalization} from "../interfaces/normalization";
 export default function normalizeLinks(
     links: Link[],
     normalizations: Normalization[]
-): {
-    links: Link[],
-    normalizations: Normalization[]
-} {
+): Link[] {
     if (normalizations.length === 0) {
-        return {
-            links,
-            normalizations
-        };
+        return links;
     }
 
-    links = links.concat([]);
-    normalizations = normalizations.concat([]);
+    const regexes = normalizations.map(normalization => new RegExp(normalization.regex, 'i'));
+    const parents = links.filter(link => link.isNormalizationParent);
+    let children = links.filter(link => !link.isNormalizationParent);
 
     const exists = (source, target): boolean => {
-        const link = links.find(search =>
+        const link = parents.find(search =>
             typeof search !== 'undefined'
             && (
                 search.source === source && search.target === target
@@ -30,41 +25,41 @@ export default function normalizeLinks(
         return typeof link !== 'undefined';
     };
 
-    const regexes = normalizations.map(normalization => new RegExp(normalization.regex, 'i'));
+    children = children.map((link, index) => {
+        const updates: any = {};
 
-    links.forEach((link, index) => {
         normalizations.forEach((normalization, nIndex) => {
             const check = (property: 'source' | 'target', oppositeProperty: 'source' | 'target') => {
-                if (regexes[nIndex].test(link[property]) && link[property] !== normalization.replaceWith) {
+                if (regexes[nIndex].test(link[property])) {
+                    updates.normalizationId = normalization.id;
+
                     const wouldLinkToSelf: boolean = link[oppositeProperty] === normalization.replaceWith;
 
-                    if (wouldLinkToSelf || exists(link[oppositeProperty], normalization.replaceWith) || regexes[nIndex].test(link[oppositeProperty])) {
-                        delete links[index];
-                    } else {
-                        // Update if source and target are different
-                        links[index] = Object.assign({}, link, {
-                            [property]: normalization.replaceWith,
-                            normalizationId: true
-                        });
-                    }
+                    if (!wouldLinkToSelf
+                        && !exists(link[oppositeProperty], normalization.replaceWith)
+                        && !regexes[nIndex].test(link[oppositeProperty])) {
 
-                    // Store as an 'affected link', in case we might want to undo the
-                    // normalization later
-                    normalizations[nIndex] = Object.assign({}, normalization, {
-                        affectedLinks: normalization.affectedLinks.concat([link])
-                    });
+                        const parentLink: Link = Object.assign({}, link, {
+                            [property]: normalization.replaceWith,
+                            isNormalizationParent: true,
+                            normalizationId: normalization.id
+                        });
+
+                        parents.push(parentLink);
+                    }
                 }
             };
 
             check('source', 'target');
             check('target', 'source');
         });
+
+        if (updates) {
+            return Object.assign({}, link, updates);
+        }
+
+        return link;
     });
 
-    links = links.filter(link => typeof link !== 'undefined');
-
-    return {
-        links,
-        normalizations
-    }
+    return children.concat(parents);
 }

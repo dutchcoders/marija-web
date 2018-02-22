@@ -10,6 +10,7 @@ import {Node} from "../../interfaces/node";
 import {Link} from "../../interfaces/link";
 import {NodeFromWorker} from "../../interfaces/nodeFromWorker";
 import {LinkFromWorker} from "../../interfaces/linkFromWorker";
+import displayFilter from "../../helpers/displayFilter";
 const myWorker = require("worker-loader!./Worker");
 
 interface TextureMap {
@@ -434,8 +435,8 @@ class GraphPixi extends React.Component<Props, State> {
 
         if (!isEqual(prevProps.nodes, nodes)) {
             this.setState({
-                nodesForDisplay: nodes.filter(node => node.display),
-                linksForDisplay: links.filter(link => link.display)
+                nodesForDisplay: nodes.filter(node => displayFilter(node)),
+                linksForDisplay: links.filter(link => displayFilter(link))
             });
         }
 
@@ -877,10 +878,12 @@ class GraphPixi extends React.Component<Props, State> {
         const { nodes, links } = this.props;
         const worker = new myWorker();
 
+        console.log(nodes);
+
         this.setState({
             worker: worker,
-            nodesForDisplay: nodes.filter(node => node.display),
-            linksForDisplay: links.filter(link => link.display),
+            nodesForDisplay: nodes.filter(node => displayFilter(node)),
+            linksForDisplay: links.filter(link => displayFilter(link)),
         }, () => {
             worker.onmessage = (event) => this.onWorkerMessage(event);
 

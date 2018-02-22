@@ -18,4 +18,10 @@ export interface Link {
      * was. This is helpful if we want to delete the normalization later.
      */
     normalizationId: string | null;
+
+    /**
+     * Whether this link is the parent of some other links that are normalized.
+     * The id of this link would be the 'replaceWith' value of the normalization.
+     */
+    isNormalizationParent: boolean;
 }

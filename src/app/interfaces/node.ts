@@ -37,4 +37,10 @@ export interface Node {
      * was. This is helpful if we want to delete the normalization later.
      */
     normalizationId: string | null;
+
+    /**
+     * Whether this node is the parent of some other nodes that are normalized.
+     * The id of this node would be the 'replaceWith' value of the normalization.
+     */
+    isNormalizationParent: boolean;
 }

@@ -200,19 +200,17 @@ export default function entries(state: State = defaultState, action) {
             const normalization: Normalization = {
                 id: uniqueId(),
                 regex: action.normalization.regex,
-                replaceWith: action.normalization.replaceWith,
-                affectedNodes: [],
-                affectedLinks: []
+                replaceWith: action.normalization.replaceWith
             };
 
             const normalizations = state.normalizations.concat([normalization]);
-            const resultNodes = normalizeNodes(state.nodes, normalizations);
-            const resultLinks = normalizeLinks(state.links, resultNodes.normalizations);
+            const nodes = normalizeNodes(state.nodes, normalizations);
+            const links = normalizeLinks(state.links, normalizations);
 
             return Object.assign({}, state, {
-                normalizations: resultLinks.normalizations,
-                nodes: resultNodes.nodes,
-                links: resultLinks.links
+                normalizations: normalizations,
+                nodes: nodes,
+                links: links
             });
         }
         case NORMALIZATION_DELETE: {
@@ -446,10 +444,10 @@ export default function entries(state: State = defaultState, action) {
             );
 
             const normalizedNodes = normalizeNodes(result.nodes, state.normalizations);
-            const normalizedLinks = normalizeLinks(result.links, normalizedNodes.normalizations);
+            const normalizedLinks = normalizeLinks(result.links, state.normalizations);
 
-            result.nodes = normalizedNodes.nodes;
-            result.links = removeDeadLinks(result.nodes, normalizedLinks.links);
+            result.nodes = normalizedNodes;
+            result.links = removeDeadLinks(result.nodes, normalizedLinks);
 
             const components = getConnectedComponents(result.nodes, result.links);
             const filtered = filterBoringComponents(components);
