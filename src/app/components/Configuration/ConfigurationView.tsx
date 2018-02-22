@@ -472,24 +472,6 @@ class ConfigurationView extends React.Component<Props, State> {
 
             // Sort by when the search term occurs in the field name (the earlier the better)
             searchResults.sort((a, b) => a.occurrenceIndex - b.occurrenceIndex);
-        } else {
-            // Sort alphabetically
-            searchResults.sort((a, b) => {
-                // ignore upper and lowercase
-                const nameA = a.path.toUpperCase();
-                const nameB = b.path.toUpperCase();
-                
-                if (nameA < nameB) {
-                    return -1;
-                }
-
-                if (nameA > nameB) {
-                    return 1;
-                }
-
-                // names must be equal
-                return 0;
-            });
         }
 
         let numMore = null;
@@ -789,7 +771,7 @@ class ConfigurationView extends React.Component<Props, State> {
     }
 
     render() {
-        const { fields, date_fields, normalizations, datasources, availableFields, activeIndices, dispatch, fieldsFetching } = this.props;
+        const { fields, normalizations, datasources, availableFields, activeIndices, fieldsFetching } = this.props;
 
         return (
             <div>

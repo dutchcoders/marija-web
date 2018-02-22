@@ -86,14 +86,6 @@ class Filter extends React.Component {
         dispatch(deselectNodes(nodes));
     }
 
-    componentDidUpdate(prevProps) {
-        const { nodes } = this.props;
-
-        if (!isEqual(prevProps.nodes, nodes)) {
-            this.setFilterSearchResults();
-        }
-    }
-
     onFocus() {
         this.setState({
             focused: true

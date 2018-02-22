@@ -1205,7 +1205,7 @@ const select = (state, ownProps) => {
         ...ownProps,
         nodes: state.entries.nodes,
         links: state.entries.links,
-        highlightNodes: state.entries.highlightNodes,
+        highlightNodes: state.entries.nodes.filter(node => node.highlighted),
         searches: state.entries.searches,
         fields: state.entries.fields,
         items: state.entries.items,

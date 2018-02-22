@@ -16,6 +16,11 @@ export interface Node {
     selected: boolean;
 
     /**
+     * Whether this node is highlighted, making it stand out in the graph.
+     */
+    highlighted: boolean;
+
+    /**
      * Per search a user can choose the amount of nodes that he wants to be
      * displayed. When the amount of available nodes exceeds this chosen amount,
      * this can cause the node to be hidden.

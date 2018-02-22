@@ -4,6 +4,7 @@ import { concat, without, map, filter, union, reduce, merge } from 'lodash'
 import { Fields } from '../domain/index'
 
 import { Socket } from '../utils/index';
+import sortFields from "../helpers/sortFields";
 
 const defaultState = {
     availableFields: [],
@@ -16,7 +17,7 @@ export default function fields(state = defaultState, action) {
             const newAvailableFields = Fields.extractNewFields(action.payload.fields, state.availableFields);
 
             return Object.assign({}, state, {
-                availableFields: state.availableFields.concat(newAvailableFields),
+                availableFields: sortFields(state.availableFields.concat(newAvailableFields)),
                 fieldsFetching: false
             });
 

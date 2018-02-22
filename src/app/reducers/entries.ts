@@ -50,7 +50,6 @@ interface State {
     searches: Search[];
     nodes: Node[]; // all nodes
     links: Link[]; // relations between nodes
-    highlightNodes: Node[];
     tooltipNodes: Node[];
     deletedNodes: Node[];
     errors: any;
@@ -76,7 +75,6 @@ export const defaultState: State = {
     searches: [],
     nodes: [], // all nodes
     links: [], // relations between nodes
-    highlightNodes: [],
     tooltipNodes: [],
     deletedNodes: [],
     errors: null,
@@ -144,7 +142,6 @@ export default function entries(state: State = defaultState, action) {
                 items: items,
                 nodes: result.nodes,
                 links: result.links,
-                highlightNodes: [],
                 tooltipNodes: []
             });
         case TABLE_COLUMN_ADD:
@@ -220,8 +217,7 @@ export default function entries(state: State = defaultState, action) {
                 normalizations: resultLinks.normalizations,
                 nodes: resultNodes.nodes,
                 links: resultLinks.links,
-                tooltipNodes: intersection(resultNodes.nodes, state.tooltipNodes),
-                highlightNodes: intersection(resultNodes.nodes, state.highlightNodes)
+                tooltipNodes: intersection(resultNodes.nodes, state.tooltipNodes)
             });
         }
         case NORMALIZATION_DELETE: {
@@ -558,11 +554,30 @@ export default function entries(state: State = defaultState, action) {
                 selectingMode: action.selectingMode
             });
 
-        case NODES_HIGHLIGHT:
-            return Object.assign({}, state, {
-                highlightNodes: action.nodes
+        case NODES_HIGHLIGHT: {
+            const nodes = state.nodes.concat([]);
+            const ids = action.nodes.map(node => node.id);
+
+            nodes.forEach((node, index) => {
+                const shouldHighlight = ids.indexOf(node.id) !== -1;
+
+                if (shouldHighlight && !node.highlighted) {
+                    // Add new highlight
+                    nodes[index] = Object.assign({}, node, {
+                        highlighted: true
+                    });
+                } else if (!shouldHighlight && node.highlighted) {
+                    // Remove previous highlight
+                    nodes[index] = Object.assign({}, node, {
+                        highlighted: false
+                    });
+                }
             });
 
+            return Object.assign({}, state, {
+                nodes: nodes
+            });
+        }
         case ITEMS_REQUEST: {
             const message = {
                 'request-id': uniqueId(),
@@ -624,15 +639,12 @@ export default function entries(state: State = defaultState, action) {
                 };
 
                 const nodes = state.nodes.concat([]);
-                const highlightNodes = state.highlightNodes.concat([]);
                 const tooltipNodes = state.tooltipNodes.concat([]);
 
                 updateCollection(nodes);
-                updateCollection(highlightNodes);
                 updateCollection(tooltipNodes);
 
                 stateUpdates.nodes = nodes;
-                stateUpdates.highlightNodes = highlightNodes;
                 stateUpdates.tooltipNodes = tooltipNodes;
             }
 

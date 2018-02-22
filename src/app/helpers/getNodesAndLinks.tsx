@@ -107,7 +107,8 @@ export default function getNodesAndLinks(
                         hash: getHash(sourceValue),
                         normalizationId: null,
                         display: true,
-                        selected: false
+                        selected: false,
+                        highlighted: false
                     };
 
                     nodeCache[n.id] = n;
@@ -170,7 +171,8 @@ export default function getNodesAndLinks(
                                 hash: getHash(normalizedTargetValue),
                                 normalizationId: null,
                                 display: true,
-                                selected: false
+                                selected: false,
+                                highlighted: false
                             };
 
                             nodeCache[n.id] = n;
