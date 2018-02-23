@@ -31,13 +31,15 @@ export default function normalizeNodes(
                         name: normalization.replaceWith,
                         abbreviated: normalization.replaceWith,
                         normalizationId: normalization.id,
-                        isNormalizationParent: true
+                        isNormalizationParent: true,
+                        selected: true
                     });
 
                     parents.push(newParent);
                 }
 
                 updates.normalizationId = normalization.id;
+                updates.selected = false;
             }
         });
 
