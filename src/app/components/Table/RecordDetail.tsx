@@ -72,28 +72,30 @@ export default class Record extends React.Component<any, any> {
 
             return (
                 <tr key={ 'field_' + value }>
-                    <td>{value}<br />
-                        <Tooltip
-                            overlay="Add as column"
-                            placement="bottom"
-                            mouseLeaveDelay={0}
-                            arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                            <Icon
-                                onClick={() => this.handleTableAddColumn(value)}
-                                name="ion-ios-plus"
-                            />
-                        </Tooltip>
+                    <td>{value}
+                        <div className="fieldButtons">
+                            <Tooltip
+                                overlay="Add as column"
+                                placement="bottom"
+                                mouseLeaveDelay={0}
+                                arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                                <Icon
+                                    onClick={() => this.handleTableAddColumn(value)}
+                                    name="ion-ios-plus"
+                                />
+                            </Tooltip>
 
-                        <Tooltip
-                            overlay="Add to graph"
-                            placement="bottom"
-                            mouseLeaveDelay={0}
-                            arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                            <Icon
-                                onClick={() => this.handleAddField(value)}
-                                name="ion-android-share-alt"
-                            />
-                        </Tooltip>
+                            <Tooltip
+                                overlay="Add to graph"
+                                placement="bottom"
+                                mouseLeaveDelay={0}
+                                arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                                <Icon
+                                    onClick={() => this.handleAddField(value)}
+                                    name="ion-android-share-alt"
+                                />
+                            </Tooltip>
+                        </div>
                     </td>
                     <td colSpan={3} className="fieldValue">{field_value}</td>
                 </tr>

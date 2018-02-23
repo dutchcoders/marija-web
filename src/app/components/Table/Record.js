@@ -54,10 +54,12 @@ export default class Record extends Component {
 
         return (
             <tr key={`record_${record.id}`} className={`columns record ${className} ${expanded ? 'expanded' : 'closed'}`}>
-                <td width="25" style={{'textAlign': 'center'}}>
-                    <Icon onClick={() => this.handleToggleExpand(record.id) }
-                          name={expanded ? 'ion-ios-minus' : 'ion-ios-plus'}/>
-                    { queryElements }
+                <td>
+                    <div className="itemIcons">
+                        <Icon onClick={() => this.handleToggleExpand(record.id) }
+                          name={expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down'}/>
+                        { queryElements }
+                    </div>
                 </td>
                 { renderedColumns}
             </tr>

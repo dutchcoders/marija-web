@@ -128,7 +128,7 @@ class TableView extends React.Component<Props, State> {
 
         return map(items, (record, i) => {
                 const expanded = (findIndex(this.state.expandedItems, function(o) { return o == record.id; }) >= 0);
-                const className = i % 2 === 0 ? 'odd' : 'even';
+                const className = (i % 2 === 0 ? 'odd' : 'even') + (columns.length ? '' : ' noColumns');
 
                 return [
                     <Record
@@ -158,8 +158,10 @@ class TableView extends React.Component<Props, State> {
         return map(columns, (value) => {
             return (
                 <th key={ 'header_' + value }>
-                    { value }
-                    <Icon onClick={(e) => this.handleTableRemoveColumn(value)} name="ion-ios-trash-outline"/>
+                    <h1>
+                        <span>{ value }</span>
+                        <Icon onClick={(e) => this.handleTableRemoveColumn(value)} name="ion-ios-close-empty"/>
+                    </h1>
                 </th>
             );
         });
@@ -204,7 +206,7 @@ class TableView extends React.Component<Props, State> {
             <div className="form-group">
                 <button className="btn btn-primary pull-right" onClick={this.exportCsv.bind(this)}>Export as CSV</button>
 
-                <table>
+                <table className="tableView">
                     <tbody>
                     <tr>
                         <th>
