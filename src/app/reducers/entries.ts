@@ -32,6 +32,7 @@ import normalizeLinks from "../helpers/normalizeLinks";
 import denormalizeNodes from "../helpers/denormalizeNodes";
 import denormalizeLinks from "../helpers/denormalizeLinks";
 import getLinksForDisplay from "../helpers/getLinksForDisplay";
+import darkenColor from "../helpers/darkenColor";
 
 interface State {
     isFetching: boolean;
@@ -351,7 +352,15 @@ export default function entries(state: State = defaultState, action) {
             let search = find(state.searches, (o) => o.q === action.query);
 
             if (!search) {
-                const color = getQueryColor(state.searches);
+                let color;
+
+                if (action.aroundNodeId === null) {
+                    color = getQueryColor(state.searches);
+                } else {
+                    const node: Node = state.nodes.find(nodeLoop => nodeLoop.id === action.aroundNodeId);
+                    const parentSearch: Search = state.searches.find(searchLoop => searchLoop.q === node.queries[0]);
+                    color = darkenColor(parentSearch.color, -.3);
+                }
 
                 search = {
                     q: action.query,
