@@ -1,11 +1,10 @@
-import React, { Component } from 'react';
-import { map, mapValues, reduce } from 'lodash';
+import * as React from 'react';
+import { map, mapValues, reduce, concat } from 'lodash';
 import { fieldLocator } from '../../helpers/index';
-import { highlightNodes } from '../../modules/graph/index';
 import { Icon } from '../../components/index';
-import DOMPurify from 'dompurify';
+import Tooltip from 'rc-tooltip';
 
-export default class Record extends Component {
+export default class Record extends React.Component<any, any> {
     constructor(props) {
         super(props);
 
@@ -25,6 +24,11 @@ export default class Record extends Component {
         onTableRemoveColumn(field);
     }
 
+    handleAddField(path: string) {
+        const { onAddField } = this.props;
+        onAddField(path);
+    }
+
     handleMouseOver(id) {
         /*
         const { onMouseOver } = this.props;
@@ -32,7 +36,7 @@ export default class Record extends Component {
         */
     }
 
-    extractAllFields(fields, keySeed = false) {
+    extractAllFields(fields, keySeed: any = false) {
         return reduce(mapValues(fields, (value, key) => {
             const keyParts = [key];
             if (keySeed) {
@@ -50,17 +54,16 @@ export default class Record extends Component {
                 return [useKey];
             }
         }), (result, value) => {
-            return result.concat(value);
+            return concat(result, value);
         });
     }
 
     renderDetails(columns) {
         const { record } = this.props;
-
         const allFields = this.extractAllFields(record.fields, false);
 
-        const expandedFields = map(allFields, (value, key) => {
-            const highlight =  (record.highlight || {});
+        const expandedFields = map(allFields, (value: any, key) => {
+            const highlight = record.highlight || {};
             let field_value = highlight[value] || fieldLocator(record.fields, value) ;
 
             if (typeof field_value === 'object') {
@@ -69,12 +72,30 @@ export default class Record extends Component {
 
             return (
                 <tr key={ 'field_' + value }>
-                    <td width="110">{value}
-                        <Icon onClick={() => this.handleTableAddColumn(value)}
-                            name="ion-ios-plus"
-                            style={{marginLeft: '8px', lineHeight: '20px', fontSize: '12px'}}/>
+                    <td>{value}<br />
+                        <Tooltip
+                            overlay="Add as column"
+                            placement="bottom"
+                            mouseLeaveDelay={0}
+                            arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                            <Icon
+                                onClick={() => this.handleTableAddColumn(value)}
+                                name="ion-ios-plus"
+                            />
+                        </Tooltip>
+
+                        <Tooltip
+                            overlay="Add to graph"
+                            placement="bottom"
+                            mouseLeaveDelay={0}
+                            arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                            <Icon
+                                onClick={() => this.handleAddField(value)}
+                                name="ion-android-share-alt"
+                            />
+                        </Tooltip>
                     </td>
-                    <td colSpan="3" className="fieldValue">{field_value}</td>
+                    <td colSpan={3} className="fieldValue">{field_value}</td>
                 </tr>
             );
         });

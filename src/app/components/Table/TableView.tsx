@@ -9,6 +9,10 @@ import {Item} from "../../interfaces/item";
 import {Node} from "../../interfaces/node";
 import {Normalization} from "../../interfaces/normalization";
 import {Search} from "../../interfaces/search";
+import {Field} from "../../interfaces/field";
+import {dispatch} from "d3-dispatch";
+import { fieldAdd } from '../../modules/data/index';
+import {searchFieldsUpdate} from "../../modules/search/actions";
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -18,6 +22,7 @@ interface Props {
     columns: any;
     normalizations: Normalization[];
     searches: Search[];
+    availableFields: Field[]
 }
 
 interface State {
@@ -50,6 +55,14 @@ class TableView extends React.Component<Props, State> {
         const { dispatch } = this.props;
 
         dispatch(tableColumnRemove(field));
+    }
+
+    handleAddField(path: string) {
+        const { dispatch, availableFields } = this.props;
+        const field = availableFields.find(search => search.path === path);
+
+        dispatch(fieldAdd(field));
+        dispatch(searchFieldsUpdate());
     }
 
     getSelectedItems() {
@@ -131,6 +144,7 @@ class TableView extends React.Component<Props, State> {
                         record={ record }
                         onTableAddColumn={(field) => this.handleTableAddColumn(field) }
                         onTableRemoveColumn={(field) => this.handleTableRemoveColumn(field) }
+                        onAddField={field => this.handleAddField(field)}
                         expanded = { expanded }
                         className={className}
                     />
@@ -139,14 +153,13 @@ class TableView extends React.Component<Props, State> {
     }
 
     renderHeader() {
-        const { columns, dispatch } = this.props;
-        const { handleTableRemoveColumn } = this;
+        const { columns } = this.props;
 
-        return map(columns, function (value) {
+        return map(columns, (value) => {
             return (
                 <th key={ 'header_' + value }>
                     { value }
-                    <Icon onClick={(e) => handleTableRemoveColumn(value)} name="ion-ios-trash-outline"/>
+                    <Icon onClick={(e) => this.handleTableRemoveColumn(value)} name="ion-ios-trash-outline"/>
                 </th>
             );
         });
@@ -214,7 +227,8 @@ function select(state) {
         items: state.entries.items,
         searches: state.entries.searches,
         fields: state.entries.fields,
-        columns: state.entries.columns
+        columns: state.entries.columns,
+        availableFields: state.fields.availableFields
     };
 }
 

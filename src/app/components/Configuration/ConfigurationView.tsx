@@ -99,21 +99,6 @@ class ConfigurationView extends React.Component<Props, State> {
         });
     }
 
-    handleDateFieldSearchChange(event) {
-        this.setState({currentDateFieldSearchValue: event.target.value});
-    }
-
-    handleAddDateField(path) {
-        const { date_field } = this.refs;
-        const { dispatch } = this.props;
-
-        Url.addQueryParam('date-fields', path);
-
-        dispatch(dateFieldAdd({
-            path: path
-        }));
-    }
-
     handleAddNormalization(e) {
         e.preventDefault();
 
