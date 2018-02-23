@@ -1047,15 +1047,11 @@ class GraphPixi extends React.Component<Props, State> {
         const node = this.findNode(x, y);
 
         if (node) {
-            const selectedNodesCopy = concat(selectedNodes, []);
-
-            if (!includes(selectedNodes, node)) {
-                selectedNodesCopy.push(node);
+            if (node.selected) {
+                dispatch(deselectNodes([node]));
             } else {
-                remove(selectedNodesCopy, node);
+                dispatch(nodesSelect([node]));
             }
-
-            this.selectNodes(selectedNodesCopy);
         } else {
             const selection = {x1: x, y1: y, x2: x, y2: y};
 
