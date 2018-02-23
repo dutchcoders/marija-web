@@ -33,6 +33,7 @@ import denormalizeNodes from "../helpers/denormalizeNodes";
 import denormalizeLinks from "../helpers/denormalizeLinks";
 import getLinksForDisplay from "../helpers/getLinksForDisplay";
 import darkenColor from "../helpers/darkenColor";
+import {Column} from "../interfaces/column";
 
 interface State {
     isFetching: boolean;
@@ -42,7 +43,7 @@ interface State {
     connected: boolean;
     total: number;
     datasources: any[];
-    columns: any[];
+    columns: Column[];
     fields: any[];
     date_fields: any[];
     normalizations: Normalization[];
@@ -183,9 +184,16 @@ export default function entries(state: State = defaultState, action) {
                 dateFields.push(newField);
             }
 
+            let columns = state.columns;
+
+            if (columns.length < 3) {
+                columns = columns.concat([newField.path]);
+            }
+
             return Object.assign({}, state, {
                 fields: concat(state.fields, newField),
-                date_fields: dateFields
+                date_fields: dateFields,
+                columns: columns
             });
         case FIELD_DELETE: {
             const nodes = deleteFieldFromNodes(action.field.path, state.nodes);
