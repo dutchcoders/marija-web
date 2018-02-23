@@ -200,6 +200,10 @@
     "@types/d3-voronoi" "*"
     "@types/d3-zoom" "*"
 
+"@types/fbemitter@^2.0.32":
+  version "2.0.32"
+  resolved "https://registry.yarnpkg.com/@types/fbemitter/-/fbemitter-2.0.32.tgz#8ed204da0f54e9c8eaec31b1eec91e25132d082c"
+
 "@types/geojson@*":
   version "7946.0.1"
   resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.1.tgz#1fc41280e42f08f0d568401a556bc97c34f5262e"

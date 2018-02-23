@@ -33,11 +33,25 @@
             font-size: .8em;
             font-weight: 300;
         }
+
+        .paneButton {
+            float: right;
+            color: #5794D0;
+            background: white;
+            border: none;
+            border-radius: 20px;
+            line-height: 20px;
+            margin-top: 2px;
+            padding: 2px 13px 0;
+            font-size: .8em;
+            font-weight: 300;
+            text-transform: uppercase;
+        }
     }
 
     .pane-holder {
         position: absolute;
-        top: 45px;
+        top: 46px;
         left: 0;
         right: 0;
         bottom: 0;
@@ -49,6 +63,16 @@
         width: 100%;
         height: 100%;
         overflow-y: scroll;
+    }
+
+    &.table {
+        .pane-holder {
+            padding: 0;
+        }
+
+        .noNodes {
+            margin-top: 15px;
+        }
     }
 
     &.configuration{
@@ -332,7 +356,7 @@
                         padding: 0 10px;
 
                         i.disabled {
-                            opacity: .3;
+                            opacity: .5;
                             cursor: default;
                         }
                     }

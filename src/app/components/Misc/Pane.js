@@ -120,6 +120,20 @@ class Pane extends React.Component {
         dispatch(movePaneToTop(handle));
     }
 
+    getButton() {
+        const { buttonText, onButtonClick } = this.props;
+
+        if (!buttonText) {
+            return null;
+        }
+
+        return (
+            <button className="paneButton" onClick={() => onButtonClick()}>
+                {buttonText}
+            </button>
+        );
+    }
+
     render() {
         const { handle, children, name, description, top, container, config } = this.props;
         const isOpen = config.open;
@@ -193,6 +207,7 @@ class Pane extends React.Component {
                                 {name}
                                 {descriptionEl}
                                 <Icon onClick={this.close.bind(this)} name="ion-ios-close shut"/>
+                                {this.getButton()}
                             </div>
                         </div>
                         <div className="row">

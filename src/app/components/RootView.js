@@ -10,6 +10,7 @@ import Filter from "./Graphs/Filter";
 
 class RootView extends Component {
     zoomEvents = new EventEmitter();
+    exportTableEvents = new EventEmitter();
 
     constructor(props) {
         super(props);
@@ -73,11 +74,13 @@ class RootView extends Component {
                     <Pane
                         name="Table"
                         description={'data for ' + selectedNodes + ' selected nodes'}
+                        buttonText="Export as CSV"
+                        onButtonClick={() => this.exportTableEvents.emit('export')}
                         handle="table"
                         config={panes.table}
                         dispatch={dispatch}
                         container={this.main}>
-                        <TableView />
+                        <TableView exportEvents={this.exportTableEvents} />
                     </Pane>
 
                     <Pane

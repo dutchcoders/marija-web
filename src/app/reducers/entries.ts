@@ -418,6 +418,8 @@ export default function entries(state: State = defaultState, action) {
             });
         }
         case LIVE_RECEIVE: {
+            console.log(state.indexes);
+
             let searches = state.searches;
             let search: Search = searches.find(search => search.liveDatasource === action.datasource);
 
@@ -461,7 +463,6 @@ export default function entries(state: State = defaultState, action) {
                 });
             });
 
-
             // update nodes and links
             const result = getNodesAndLinks(
                 state.nodes,
@@ -483,8 +484,6 @@ export default function entries(state: State = defaultState, action) {
             let { nodes, links } = applyVia(result.nodes, result.links, state.via);
             nodes = getNodesForDisplay(nodes, state.searches || []);
             links = getLinksForDisplay(nodes, links);
-
-            console.log(nodes);
 
             return Object.assign({}, state, {
                 errors: null,
