@@ -330,6 +330,11 @@
                     .fieldButtons {
                         display: flex;
                         padding: 0 10px;
+
+                        i.disabled {
+                            opacity: .3;
+                            cursor: default;
+                        }
                     }
                 }
             }

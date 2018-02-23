@@ -123,8 +123,10 @@ class TableView extends React.Component<Props, State> {
     }
 
     renderBody() {
-        const { columns, searches } = this.props;
+        const { columns, searches, fields } = this.props;
         const { items } = this.state;
+
+        const activeFields = fields.map(field => field.path);
 
         return map(items, (record, i) => {
                 const expanded = (findIndex(this.state.expandedItems, function(o) { return o == record.id; }) >= 0);
@@ -147,6 +149,7 @@ class TableView extends React.Component<Props, State> {
                         onAddField={field => this.handleAddField(field)}
                         expanded = { expanded }
                         className={className}
+                        activeFields={activeFields}
                     />
                 ];
         });

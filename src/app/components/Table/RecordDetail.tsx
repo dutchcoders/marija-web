@@ -59,7 +59,7 @@ export default class Record extends React.Component<any, any> {
     }
 
     renderDetails(columns) {
-        const { record } = this.props;
+        const { record, activeFields } = this.props;
         const allFields = this.extractAllFields(record.fields, false);
 
         const expandedFields = map(allFields, (value: any, key) => {
@@ -70,29 +70,32 @@ export default class Record extends React.Component<any, any> {
                 field_value = JSON.stringify(field_value);
             }
 
+            const activeAsColumn: boolean = columns.indexOf(value) !== -1;
+            const activeAsField: boolean = activeFields.indexOf(value) !== -1;
+
             return (
                 <tr key={ 'field_' + value }>
                     <td>{value}
                         <div className="fieldButtons">
                             <Tooltip
-                                overlay="Add as column"
+                                overlay={activeAsColumn ? 'Is used as column' : 'Add as column'}
                                 placement="bottom"
                                 mouseLeaveDelay={0}
                                 arrowContent={<div className="rc-tooltip-arrow-inner" />}>
                                 <Icon
                                     onClick={() => this.handleTableAddColumn(value)}
-                                    name="ion-ios-plus"
+                                    name={'ion-ios-plus' + (activeAsColumn ? ' disabled' : '')}
                                 />
                             </Tooltip>
 
                             <Tooltip
-                                overlay="Add to graph"
+                                overlay={activeAsField ? 'Is used in graph' : 'Add to graph'}
                                 placement="bottom"
                                 mouseLeaveDelay={0}
                                 arrowContent={<div className="rc-tooltip-arrow-inner" />}>
                                 <Icon
                                     onClick={() => this.handleAddField(value)}
-                                    name="ion-android-share-alt"
+                                    name={'ion-android-share-alt' + (activeAsField ? ' disabled' : '')}
                                 />
                             </Tooltip>
                         </div>
