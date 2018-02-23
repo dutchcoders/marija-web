@@ -22,8 +22,6 @@ interface Props {
     searches: Search[];
     nodes: Node[];
     links: Link[];
-    tooltipNodes: Node[];
-    highlightNodes: Node[];
     zoomEvents: any;
     dispatch: Dispatch<any>;
     version: string;
@@ -45,7 +43,7 @@ interface State {
     renderedSelectedNodes: PIXI.Container;
     selectedNodeTextures: TextureMap;
     searchResultTextures: TextureMap;
-    renderedSearchResults: PIXI.Container;
+    renderedHighlights: PIXI.Container;
     stage: PIXI.Container;
     worker: Worker;
     renderedSinceLastTick: boolean;
@@ -82,7 +80,7 @@ class GraphPixi extends React.Component<Props, State> {
         renderedSelectedNodes: undefined,
         selectedNodeTextures: {},
         searchResultTextures: {},
-        renderedSearchResults: undefined,
+        renderedHighlights: undefined,
         stage: undefined,
         worker: undefined,
         renderedSinceLastTick: false,
@@ -137,9 +135,9 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     zoom(fraction: number, newX: number, newY: number) {
-        const { renderedNodesContainer, renderedLinks, renderedSelectedNodes, renderedLinkLabels, renderedSearchResults } = this.state;
+        const { renderedNodesContainer, renderedLinks, renderedSelectedNodes, renderedLinkLabels, renderedHighlights } = this.state;
 
-        [renderedNodesContainer, renderedLinks, renderedSelectedNodes, renderedLinkLabels, renderedSearchResults].forEach(zoomable => {
+        [renderedNodesContainer, renderedLinks, renderedSelectedNodes, renderedLinkLabels, renderedHighlights].forEach(zoomable => {
             zoomable.scale.x = fraction;
             zoomable.scale.y = fraction;
 
@@ -427,8 +425,20 @@ class GraphPixi extends React.Component<Props, State> {
         // Can the graph also change when properties of the nodes change?
     }
 
+    getTooltipNodes(): Node[] {
+        const { nodes } = this.props;
+
+        return nodes.filter(node => node.displayTooltip);
+    }
+
+    getHighlightNodes(): Node[] {
+        const { nodes } = this.props;
+
+        return nodes.filter(node => node.highlighted);
+    }
+
     componentDidUpdate(prevProps: Props, prevState: State) {
-        const { nodes, links, tooltipNodes, searches, highlightNodes } = this.props;
+        const { nodes, links, searches } = this.props;
         const { nodesForDisplay } = this.state;
         const selectedNodes = this.getSelectedNodes();
         const prevSelected = prevProps.nodes.filter(node => node.selected);
@@ -446,7 +456,7 @@ class GraphPixi extends React.Component<Props, State> {
             });
         }
 
-        if (!isEqual(prevProps.tooltipNodes, tooltipNodes)) {
+        if (prevProps.nodes.filter(node => node.displayTooltip) !== this.getTooltipNodes()) {
             this.setState({
                 renderedSinceLastTooltip: false
             });
@@ -463,7 +473,7 @@ class GraphPixi extends React.Component<Props, State> {
             this.postNodesAndLinksToWorker();
         }
 
-        if (!isEqual(prevProps.highlightNodes, highlightNodes)) {
+        if (prevProps.nodes.filter(node => node.highlighted) !== this.getHighlightNodes()) {
             this.setState({
                 renderedSinceLastSearchResults: false
             });
@@ -508,17 +518,12 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     shouldComponentUpdate(nextProps: Props, nextState: State) {
-        const { tooltipNodes, searches, highlightNodes, nodes } = this.props;
+        const { searches, nodes } = this.props;
         const { lastDisplayedFps, nodesForDisplay } = this.state;
-        const selectedNodes = this.getSelectedNodes();
-        const nextSelected = nextProps.nodes.filter(node => node.selected);
 
         return nextProps.nodes !== nodes
             || nextState.nodesForDisplay !== nodesForDisplay
-            || !isEqual(nextProps.tooltipNodes, tooltipNodes)
-            || !isEqual(nextProps.searches, searches)
-            || !isEqual(nextSelected, selectedNodes)
-            || !isEqual(nextProps.highlightNodes, highlightNodes)
+            || nextProps.searches !== searches
             || (Date.now() - lastDisplayedFps.getTime()) > 1000;
     }
 
@@ -591,7 +596,7 @@ class GraphPixi extends React.Component<Props, State> {
 
     renderTooltip() {
         const { renderedTooltip, nodesFromWorker, transform } = this.state;
-        const { tooltipNodes } = this.props;
+        const tooltipNodes = this.getTooltipNodes();
 
         renderedTooltip.removeChildren();
 
@@ -705,10 +710,10 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     renderSearchResults() {
-        const { highlightNodes } = this.props;
-        const { nodesFromWorker, renderedSearchResults } = this.state;
+        const { nodesFromWorker, renderedHighlights } = this.state;
+        const highlightNodes = this.getHighlightNodes();
 
-        renderedSearchResults.removeChildren();
+        renderedHighlights.removeChildren();
 
         highlightNodes.forEach(searchResult => {
             const nodeFromWorker = nodesFromWorker.find(search => search.hash === searchResult.hash);
@@ -725,7 +730,7 @@ class GraphPixi extends React.Component<Props, State> {
             sprite.x = nodeFromWorker.x;
             sprite.y = nodeFromWorker.y;
 
-            renderedSearchResults.addChild(sprite);
+            renderedHighlights.addChild(sprite);
         });
     }
 
@@ -825,8 +830,8 @@ class GraphPixi extends React.Component<Props, State> {
         const renderedLinkLabels =  new PIXI.Container();
         stage.addChild(renderedLinkLabels);
 
-        const renderedSearchResults =  new PIXI.Container();
-        stage.addChild(renderedSearchResults);
+        const renderedHighlights =  new PIXI.Container();
+        stage.addChild(renderedHighlights);
 
         const renderedNodesContainer = new PIXI.Container();
         stage.addChild(renderedNodesContainer);
@@ -869,7 +874,7 @@ class GraphPixi extends React.Component<Props, State> {
             stage: stage,
             renderedLinkLabels: renderedLinkLabels,
             renderedSelectedNodes: renderedSelectedNodes,
-            renderedSearchResults: renderedSearchResults
+            renderedHighlights: renderedHighlights
         }, () => this.renderGraph(false));
     }
 
@@ -877,8 +882,6 @@ class GraphPixi extends React.Component<Props, State> {
         const { width, height } = this.pixiContainer.getBoundingClientRect();
         const { nodes, links } = this.props;
         const worker = new myWorker();
-
-        console.log(nodes);
 
         this.setState({
             worker: worker,
@@ -976,7 +979,7 @@ class GraphPixi extends React.Component<Props, State> {
         return this.findNodeFromWorker(x, y);
     }
 
-    findNodeFromWorker(x: number, y: number) {
+    findNodeFromWorker(x: number, y: number): NodeFromWorker {
         const { nodesFromWorker } = this.state;
 
         return nodesFromWorker.find(node => {
@@ -988,7 +991,7 @@ class GraphPixi extends React.Component<Props, State> {
         });
     }
 
-    findNode(x, y) {
+    findNode(x, y): Node {
         const nodeFromWorker = this.findNodeFromWorker(x, y);
 
         if (typeof nodeFromWorker === 'undefined') {
@@ -1001,7 +1004,8 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     tooltipNode(node: Node) {
-        const { tooltipNodes, dispatch } = this.props;
+        const { dispatch } = this.props;
+        const tooltipNodes = this.getTooltipNodes();
 
         if (typeof node === 'undefined' && !isEmpty(tooltipNodes)) {
             dispatch(showTooltip([]));
@@ -1030,7 +1034,7 @@ class GraphPixi extends React.Component<Props, State> {
      * Is not involved with dragging nodes, d3 handles that.
      */
     onMouseDown() {
-        const { shift, transform, nodesForDisplay } = this.state;
+        const { shift, transform } = this.state;
         const { dispatch, selectingMode } = this.props;
         const selectedNodes = this.getSelectedNodes();
 
@@ -1038,35 +1042,31 @@ class GraphPixi extends React.Component<Props, State> {
             return;
         }
 
-        if (!shift) {
-            dispatch(deselectNodes(selectedNodes));
-        }
-
         const x = transform.invertX(d3.event.layerX);
         const y = transform.invertY(d3.event.layerY);
-        const nodeFromWorker = this.findNodeFromWorker(x, y);
+        const node = this.findNode(x, y);
 
-        if (nodeFromWorker) {
-            const node = nodesForDisplay.find(search => search.hash === nodeFromWorker.hash);
-            const selectedNodesCopy = concat(selectedNodes, []);
-
-            if (!includes(selectedNodes, node)) {
-                selectedNodesCopy.push(node);
+        if (node) {
+            if (node.selected) {
+                dispatch(deselectNodes([node]));
             } else {
-                remove(selectedNodesCopy, node);
+                dispatch(nodesSelect([node]));
             }
-
-            this.selectNodes(selectedNodesCopy);
         } else {
             const selection = {x1: x, y1: y, x2: x, y2: y};
 
             this.setState({ selection: selection });
+
+            if (!shift) {
+                dispatch(deselectNodes(selectedNodes));
+            }
         }
     }
 
     onMouseMove() {
         const { transform, selection, nodesForDisplay, linksForDisplay } = this.state;
-        const { selectingMode, dispatch, tooltipNodes } = this.props;
+        const { selectingMode, dispatch } = this.props;
+        const tooltipNodes = this.getTooltipNodes();
 
         const x = transform.invertX(d3.event.layerX);
         const y = transform.invertY(d3.event.layerY);
@@ -1208,11 +1208,9 @@ const select = (state, ownProps) => {
         ...ownProps,
         nodes: state.entries.nodes,
         links: state.entries.links,
-        highlightNodes: state.entries.nodes.filter(node => node.highlighted),
         searches: state.entries.searches,
         fields: state.entries.fields,
         items: state.entries.items,
-        tooltipNodes: state.entries.nodes.filter(node => node.displayTooltip),
         version: state.entries.version,
         selectingMode: state.entries.selectingMode
     };

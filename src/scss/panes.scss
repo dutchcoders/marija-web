@@ -257,20 +257,41 @@
         }
 
         table {
-            width: 100%;
+            &.tableView {
+                width: calc(100% + 28px);
+                margin-left: -14px;
+            }
 
             th {
-                font-weight: bold;
-                list-style-type: none;
-                padding: 3px 6px;
-                letter-spacing: 0.6px;
-                font-size: 12px;
+                padding: 10px;
+
+                h1 {
+                    font-weight: bold;
+                    display: flex;
+                    letter-spacing: 0.6px;
+                    font-size: 12px;
+                    margin: 0;
+                }
 
                 i {
-                    float: right;
-                    margin-right: 15px;
                     cursor: pointer;
                     font-size: 21px;
+                    margin-top: -3px;
+                    margin-left: 5px;
+                }
+            }
+
+            tr.record {
+                > td {
+                    padding: 10px;
+                }
+
+                .itemIcons {
+                    display: flex;
+                }
+
+                &.noColumns .itemIcons {
+                    justify-content: center;
                 }
             }
 
@@ -279,35 +300,43 @@
                 position: relative;
                 font-weight: 300;
                 list-style-type: none;
-                padding: 3px 6px;
                 letter-spacing: 0.6px;
                 font-size: 12px;
 
                 &.odd {
-                    background-color: $input-background-color;
-                }
-
-                &.even {
-                    background-color: rgba(255,255,255,0.05);
+                    background-color: rgba(0,0,0,0.08);
                 }
 
                 i {
-                    font-size: 21px;
+                    font-size: 16px;
                     cursor: pointer;
-                }
-
-                > td {
-                    padding: 3px 6px;
+                    margin: 1px 3px 0 0;
                 }
             }
 
             tr.recordDetail > td {
-                padding: 10px 10px 10px 37px;
+                padding: 0 10px 10px 10px;
             }
 
             .details {
                 border-top: 1px solid rgba(255,255,255,.3);
-                padding-top: 10px;
+                padding: 20px 0 10px;
+
+                td:first-child {
+                    display: flex;
+                    justify-content: space-between;
+                    padding-right: 10px;
+
+                    .fieldButtons {
+                        display: flex;
+                        padding: 0 10px;
+
+                        i.disabled {
+                            opacity: .3;
+                            cursor: default;
+                        }
+                    }
+                }
             }
 
             .fieldValue {

@@ -10,6 +10,8 @@ import {requestCompleted} from "../actions";
 import {REQUEST_COMPLETED} from "../constants";
 import {ITEMS_RECEIVE} from "../../modules/items/constants";
 import {receiveItems} from "../../modules/items/actions";
+import {LIVE_RECEIVE} from "../../modules/live/constants";
+import {liveReceive} from "../../modules/live/actions";
 
 export const Socket = {
     ws: null,
@@ -54,6 +56,8 @@ export const Socket = {
             return dispatch(error(message.error.message));
         }
 
+        console.log(message);
+
         switch (message.type) {
             case SEARCH_RECEIVE:
                 Socket.searchReceive(message.results, message.query, dispatch);
@@ -80,6 +84,10 @@ export const Socket = {
 
             case ITEMS_RECEIVE:
                 dispatch(receiveItems(message.items));
+                break;
+
+            case LIVE_RECEIVE:
+                dispatch(liveReceive(message.datasource, message.graphs));
                 break;
         }
     },

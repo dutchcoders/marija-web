@@ -32,6 +32,11 @@ import normalizeLinks from "../helpers/normalizeLinks";
 import denormalizeNodes from "../helpers/denormalizeNodes";
 import denormalizeLinks from "../helpers/denormalizeLinks";
 import getLinksForDisplay from "../helpers/getLinksForDisplay";
+import darkenColor from "../helpers/darkenColor";
+import {Column} from "../interfaces/column";
+import {LIVE_RECEIVE} from "../modules/live/constants";
+import createField from "../helpers/createField";
+import {Field} from "../interfaces/field";
 
 interface State {
     isFetching: boolean;
@@ -41,7 +46,7 @@ interface State {
     connected: boolean;
     total: number;
     datasources: any[];
-    columns: any[];
+    columns: Column[];
     fields: any[];
     date_fields: any[];
     normalizations: Normalization[];
@@ -158,22 +163,7 @@ export default function entries(state: State = defaultState, action) {
                 return state;
             }
 
-            const firstChar = action.field.path.charAt(0).toUpperCase();
-            const fieldsWithSameChar = state.fields.filter(field => field.icon.indexOf(firstChar) === 0);
-            let icon;
-
-            if (fieldsWithSameChar.length === 0) {
-                icon = firstChar;
-            } else {
-                // Append a number to the icon if multiple fields share the same
-                // first character
-                icon = firstChar + (fieldsWithSameChar.length + 1);
-            }
-
-            let newField = {
-                path: action.field.path,
-                icon: icon
-            };
+            const newField = createField(state.fields, action.field.path, action.field.type);
 
             let dateFields = concat([], state.date_fields);
 
@@ -182,9 +172,16 @@ export default function entries(state: State = defaultState, action) {
                 dateFields.push(newField);
             }
 
+            let columns = state.columns;
+
+            if (columns.length < 3) {
+                columns = columns.concat([newField.path]);
+            }
+
             return Object.assign({}, state, {
                 fields: concat(state.fields, newField),
-                date_fields: dateFields
+                date_fields: dateFields,
+                columns: columns
             });
         case FIELD_DELETE: {
             const nodes = deleteFieldFromNodes(action.field.path, state.nodes);
@@ -351,7 +348,15 @@ export default function entries(state: State = defaultState, action) {
             let search = find(state.searches, (o) => o.q === action.query);
 
             if (!search) {
-                const color = getQueryColor(state.searches);
+                let color;
+
+                if (action.aroundNodeId === null) {
+                    color = getQueryColor(state.searches);
+                } else {
+                    const node: Node = state.nodes.find(nodeLoop => nodeLoop.id === action.aroundNodeId);
+                    const parentSearch: Search = state.searches.find(searchLoop => searchLoop.q === node.queries[0]);
+                    color = darkenColor(parentSearch.color, -.3);
+                }
 
                 search = {
                     q: action.query,
@@ -361,7 +366,8 @@ export default function entries(state: State = defaultState, action) {
                     items: [],
                     requestId: uniqueId(),
                     completed: false,
-                    aroundNodeId: action.aroundNodeId
+                    aroundNodeId: action.aroundNodeId,
+                    liveDatasource: null
                 };
 
                 searches.push(search);
@@ -411,6 +417,88 @@ export default function entries(state: State = defaultState, action) {
                 searches: newSearches
             });
         }
+        case LIVE_RECEIVE: {
+            let searches = state.searches;
+            let search: Search = searches.find(search => search.liveDatasource === action.datasource);
+
+            if (typeof search === 'undefined') {
+                search = {
+                    q: action.datasource,
+                    color: '#0055cc',
+                    total: 0,
+                    displayNodes: 500,
+                    items: [],
+                    requestId: uniqueId(),
+                    completed: false,
+                    aroundNodeId: null,
+                    liveDatasource: action.datasource
+                };
+
+                searches = searches.concat([search])
+            }
+
+            const items = action.graphs || [];
+
+            console.log(items);
+
+            search.items = concat(search.items, items);
+
+            // Save per item for which query we received it (so we can keep track of where data came from)
+            items.forEach(item => {
+                item.query = search.q;
+            });
+
+            let fields = state.fields;
+            items.forEach(item => {
+                forEach(item.fields, (value, key) => {
+                    const existing: Field = fields.find(field => field.path === key);
+
+                    if (typeof existing === 'undefined') {
+                        const field = createField(state.fields, key, 'string');
+                        console.log('add', field);
+                        fields = fields.concat([field]);
+                    }
+                });
+            });
+
+
+            // update nodes and links
+            const result = getNodesAndLinks(
+                state.nodes,
+                state.links,
+                items,
+                fields,
+                search,
+                state.normalizations,
+                search.aroundNodeId,
+                state.deletedNodes
+            );
+
+            const normalizedNodes = normalizeNodes(result.nodes, state.normalizations);
+            const normalizedLinks = normalizeLinks(result.links, state.normalizations);
+
+            result.nodes = normalizedNodes;
+            result.links = removeDeadLinks(result.nodes, normalizedLinks);
+
+            let { nodes, links } = applyVia(result.nodes, result.links, state.via);
+            nodes = getNodesForDisplay(nodes, state.searches || []);
+            links = getLinksForDisplay(nodes, links);
+
+            console.log(nodes);
+
+            return Object.assign({}, state, {
+                errors: null,
+                nodes: nodes,
+                links: links,
+                items: concat(state.items, items),
+                searches: searches,
+                isFetching: false,
+                itemsFetching: false,
+                didInvalidate: false,
+                fields: fields
+            });
+        }
+
         case SEARCH_RECEIVE: {
             const searches = concat(state.searches, []);
             const items = action.items.results === null ? [] : action.items.results;
@@ -556,12 +644,14 @@ export default function entries(state: State = defaultState, action) {
                 isFetching: false
             });
 
-        case INITIAL_STATE_RECEIVE:
+        case INITIAL_STATE_RECEIVE: {
+            console.log(action);
+
             return Object.assign({}, state, {
                 datasources: action.initial_state.datasources,
                 version: action.initial_state.version
             });
-
+        }
         case SET_SELECTING_MODE:
             return Object.assign({}, state, {
                 selectingMode: action.selectingMode

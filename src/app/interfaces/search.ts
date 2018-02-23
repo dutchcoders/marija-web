@@ -9,4 +9,5 @@ export interface Search {
     q: string;
     requestId: string;
     total: number;
+    liveDatasource: string | null;
 }

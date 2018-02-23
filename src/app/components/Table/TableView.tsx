@@ -1,20 +1,40 @@
-import React, { Component } from 'react';
-import {connect} from 'react-redux';
+import * as React from 'react';
+import {connect, Dispatch} from 'react-redux';
 import {saveAs} from 'file-saver';
 import { forEach, uniqWith, reduce, find, findIndex, pull, concat, map } from 'lodash';
 import { Record, RecordDetail, Icon } from '../index';
 import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
 import {requestItems} from "../../modules/items/actions";
+import {Item} from "../../interfaces/item";
+import {Node} from "../../interfaces/node";
+import {Normalization} from "../../interfaces/normalization";
+import {Search} from "../../interfaces/search";
+import {Field} from "../../interfaces/field";
+import {dispatch} from "d3-dispatch";
+import { fieldAdd } from '../../modules/data/index';
+import {searchFieldsUpdate} from "../../modules/search/actions";
 
-class TableView extends React.Component {
-    constructor(props) {
-        super(props);
+interface Props {
+    dispatch: Dispatch<any>;
+    selectedNodes: Node[];
+    items: Item[];
+    fields: any;
+    columns: any;
+    normalizations: Normalization[];
+    searches: Search[];
+    availableFields: Field[]
+}
 
-        this.state = {
-            items: this.getSelectedItems(),
-            expandedItems: [],
-        };
-    }
+interface State {
+    items: Item[];
+    expandedItems: any[];
+}
+
+class TableView extends React.Component<Props, State> {
+    state: State = {
+        items: this.getSelectedItems(),
+        expandedItems: [],
+    };
 
     toggleExpand(id) {
         if (findIndex(this.state.expandedItems, (o) => o === id) >= 0) {
@@ -31,18 +51,22 @@ class TableView extends React.Component {
         dispatch(tableColumnAdd(field));
     }
 
-    handleTableRemoveColumn(dispatch, field) {
+    handleTableRemoveColumn(field) {
+        const { dispatch } = this.props;
+
         dispatch(tableColumnRemove(field));
     }
 
-    handleCancelEditNode(node) {
-        const { dispatch } = this.props;
-        this.setState({editNode: null});
+    handleAddField(path: string) {
+        const { dispatch, availableFields } = this.props;
+        const field = availableFields.find(search => search.path === path);
 
+        dispatch(fieldAdd(field));
+        dispatch(searchFieldsUpdate());
     }
 
     getSelectedItems() {
-        const { selectedNodes, items, fields, columns, dispatch, normalizations } = this.props;
+        const { selectedNodes, items } = this.props;
 
         // todo(nl5887): this can be optimized
         let selectedItems = reduce(selectedNodes, (result, node) => {
@@ -99,12 +123,14 @@ class TableView extends React.Component {
     }
 
     renderBody() {
-        const { columns, searches } = this.props;
+        const { columns, searches, fields } = this.props;
         const { items } = this.state;
+
+        const activeFields = fields.map(field => field.path);
 
         return map(items, (record, i) => {
                 const expanded = (findIndex(this.state.expandedItems, function(o) { return o == record.id; }) >= 0);
-                const className = i % 2 === 0 ? 'odd' : 'even';
+                const className = (i % 2 === 0 ? 'odd' : 'even') + (columns.length ? '' : ' noColumns');
 
                 return [
                     <Record
@@ -120,22 +146,25 @@ class TableView extends React.Component {
                         record={ record }
                         onTableAddColumn={(field) => this.handleTableAddColumn(field) }
                         onTableRemoveColumn={(field) => this.handleTableRemoveColumn(field) }
+                        onAddField={field => this.handleAddField(field)}
                         expanded = { expanded }
                         className={className}
+                        activeFields={activeFields}
                     />
                 ];
         });
     }
 
     renderHeader() {
-        const { columns, dispatch } = this.props;
-        const { handleTableRemoveColumn } = this;
+        const { columns } = this.props;
 
-        return map(columns, function (value) {
+        return map(columns, (value) => {
             return (
                 <th key={ 'header_' + value }>
-                    { value }
-                    <Icon onClick={(e) => handleTableRemoveColumn(dispatch, value)} name="ion-ios-trash-outline"/>
+                    <h1>
+                        <span>{ value }</span>
+                        <Icon onClick={(e) => this.handleTableRemoveColumn(value)} name="ion-ios-close-empty"/>
+                    </h1>
                 </th>
             );
         });
@@ -180,10 +209,10 @@ class TableView extends React.Component {
             <div className="form-group">
                 <button className="btn btn-primary pull-right" onClick={this.exportCsv.bind(this)}>Export as CSV</button>
 
-                <table>
+                <table className="tableView">
                     <tbody>
                     <tr>
-                        <th width="25">
+                        <th>
                         </th>
                         { this.renderHeader() }
                     </tr>
@@ -203,7 +232,8 @@ function select(state) {
         items: state.entries.items,
         searches: state.entries.searches,
         fields: state.entries.fields,
-        columns: state.entries.columns
+        columns: state.entries.columns,
+        availableFields: state.fields.availableFields
     };
 }
 

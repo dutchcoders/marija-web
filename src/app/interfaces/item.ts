@@ -1,3 +1,5 @@
+import {Node} from "./node";
+
 export interface Item {
     id: string;
     query: string;
@@ -7,4 +9,5 @@ export interface Item {
         [key: string]: any
     };
     requestedExtraData: boolean;
+    nodes: Node[];
 }
