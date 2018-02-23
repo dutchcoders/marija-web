@@ -1,20 +1,35 @@
-import React, { Component } from 'react';
-import {connect} from 'react-redux';
+import * as React from 'react';
+import {connect, Dispatch} from 'react-redux';
 import {saveAs} from 'file-saver';
 import { forEach, uniqWith, reduce, find, findIndex, pull, concat, map } from 'lodash';
 import { Record, RecordDetail, Icon } from '../index';
 import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
 import {requestItems} from "../../modules/items/actions";
+import {Item} from "../../interfaces/item";
+import {Node} from "../../interfaces/node";
+import {Normalization} from "../../interfaces/normalization";
+import {Search} from "../../interfaces/search";
 
-class TableView extends React.Component {
-    constructor(props) {
-        super(props);
+interface Props {
+    dispatch: Dispatch<any>;
+    selectedNodes: Node[];
+    items: Item[];
+    fields: any;
+    columns: any;
+    normalizations: Normalization[];
+    searches: Search[];
+}
 
-        this.state = {
-            items: this.getSelectedItems(),
-            expandedItems: [],
-        };
-    }
+interface State {
+    items: Item[];
+    expandedItems: any[];
+}
+
+class TableView extends React.Component<Props, State> {
+    state: State = {
+        items: this.getSelectedItems(),
+        expandedItems: [],
+    };
 
     toggleExpand(id) {
         if (findIndex(this.state.expandedItems, (o) => o === id) >= 0) {
@@ -31,18 +46,14 @@ class TableView extends React.Component {
         dispatch(tableColumnAdd(field));
     }
 
-    handleTableRemoveColumn(dispatch, field) {
+    handleTableRemoveColumn(field) {
+        const { dispatch } = this.props;
+
         dispatch(tableColumnRemove(field));
     }
 
-    handleCancelEditNode(node) {
-        const { dispatch } = this.props;
-        this.setState({editNode: null});
-
-    }
-
     getSelectedItems() {
-        const { selectedNodes, items, fields, columns, dispatch, normalizations } = this.props;
+        const { selectedNodes, items } = this.props;
 
         // todo(nl5887): this can be optimized
         let selectedItems = reduce(selectedNodes, (result, node) => {
@@ -135,7 +146,7 @@ class TableView extends React.Component {
             return (
                 <th key={ 'header_' + value }>
                     { value }
-                    <Icon onClick={(e) => handleTableRemoveColumn(dispatch, value)} name="ion-ios-trash-outline"/>
+                    <Icon onClick={(e) => handleTableRemoveColumn(value)} name="ion-ios-trash-outline"/>
                 </th>
             );
         });
@@ -183,7 +194,7 @@ class TableView extends React.Component {
                 <table>
                     <tbody>
                     <tr>
-                        <th width="25">
+                        <th>
                         </th>
                         { this.renderHeader() }
                     </tr>
