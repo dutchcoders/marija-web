@@ -976,7 +976,7 @@ class GraphPixi extends React.Component<Props, State> {
         return this.findNodeFromWorker(x, y);
     }
 
-    findNodeFromWorker(x: number, y: number) {
+    findNodeFromWorker(x: number, y: number): NodeFromWorker {
         const { nodesFromWorker } = this.state;
 
         return nodesFromWorker.find(node => {
@@ -988,7 +988,7 @@ class GraphPixi extends React.Component<Props, State> {
         });
     }
 
-    findNode(x, y) {
+    findNode(x, y): Node {
         const nodeFromWorker = this.findNodeFromWorker(x, y);
 
         if (typeof nodeFromWorker === 'undefined') {
@@ -1030,7 +1030,7 @@ class GraphPixi extends React.Component<Props, State> {
      * Is not involved with dragging nodes, d3 handles that.
      */
     onMouseDown() {
-        const { shift, transform, nodesForDisplay } = this.state;
+        const { shift, transform } = this.state;
         const { dispatch, selectingMode } = this.props;
         const selectedNodes = this.getSelectedNodes();
 
@@ -1038,16 +1038,11 @@ class GraphPixi extends React.Component<Props, State> {
             return;
         }
 
-        if (!shift) {
-            dispatch(deselectNodes(selectedNodes));
-        }
-
         const x = transform.invertX(d3.event.layerX);
         const y = transform.invertY(d3.event.layerY);
-        const nodeFromWorker = this.findNodeFromWorker(x, y);
+        const node = this.findNode(x, y);
 
-        if (nodeFromWorker) {
-            const node = nodesForDisplay.find(search => search.hash === nodeFromWorker.hash);
+        if (node) {
             const selectedNodesCopy = concat(selectedNodes, []);
 
             if (!includes(selectedNodes, node)) {
@@ -1061,6 +1056,10 @@ class GraphPixi extends React.Component<Props, State> {
             const selection = {x1: x, y1: y, x2: x, y2: y};
 
             this.setState({ selection: selection });
+
+            if (!shift) {
+                dispatch(deselectNodes(selectedNodes));
+            }
         }
     }
 
