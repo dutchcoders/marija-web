@@ -11,7 +11,7 @@ import {REQUEST_COMPLETED} from "../constants";
 import {ITEMS_RECEIVE} from "../../modules/items/constants";
 import {receiveItems} from "../../modules/items/actions";
 import {LIVE_RECEIVE} from "../../modules/live/constants";
-import {liveReceive} from "../../modules/live/actions";
+import {liveReceive, preLiveReceive} from "../../modules/live/actions";
 
 export const Socket = {
     ws: null,
@@ -75,7 +75,7 @@ export const Socket = {
                 break;
 
             case LIVE_RECEIVE:
-                dispatch(liveReceive(message.datasource, message.graphs));
+                dispatch(preLiveReceive(message.datasource, message.graphs));
                 break;
         }
     },
