@@ -44,8 +44,6 @@ export const Socket = {
             return dispatch(error(message.error.message));
         }
 
-        console.log(message);
-
         switch (message.type) {
             case SEARCH_RECEIVE:
                 Socket.searchReceive(message.results, message.query, dispatch);
