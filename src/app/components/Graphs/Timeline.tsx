@@ -188,7 +188,7 @@ class Timeline extends React.Component<Props, State> {
                 margin={{top: 0, right: 0, bottom: 0, left: 0}}
                 data={chartData}>
                 <XAxis dataKey="name" stroke="white"/>
-                <YAxis stroke="white" width={25} />
+                <YAxis stroke="white" width={35} />
                 {queries.map(query =>
                     <Bar
                         key={query}
