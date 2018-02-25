@@ -1,5 +1,6 @@
 import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from './index';
 import {VIA_ADD, VIA_DELETE} from "./constants";
+import {Field} from "../../interfaces/field";
 
 export function tableColumnRemove(field) {
     return {
@@ -33,7 +34,7 @@ export function indexDelete(index) {
     };
 }
 
-export function dateFieldAdd(field) {
+export function dateFieldAdd(field: Field) {
     return {
         type: DATE_FIELD_ADD,
         receivedAt: Date.now(),
@@ -41,14 +42,13 @@ export function dateFieldAdd(field) {
     };
 }
 
-export function dateFieldDelete(field) {
+export function dateFieldDelete(field: Field) {
     return {
         type: DATE_FIELD_DELETE,
         receivedAt: Date.now(),
         field: field
     };
 }
-
 
 export function fieldAdd(field) {
     return {

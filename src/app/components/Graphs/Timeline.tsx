@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
+import {connect, Dispatch} from 'react-redux';
 import { find, map, groupBy, reduce, forEach, filter, concat } from 'lodash';
 import Dimensions from 'react-dimensions';
 import * as d3 from 'd3';
@@ -10,30 +10,37 @@ import {Field} from "../../interfaces/field";
 import {Item} from "../../interfaces/item";
 import {Node} from "../../interfaces/node";
 import {Moment} from "moment";
+import {FormEvent} from "react";
+import {dateFieldAdd, dateFieldDelete} from '../../modules/data/actions';
+import {searchFieldsUpdate} from '../../modules/search/actions';
 
 interface Props {
     normalizations: Normalization[];
+    availableFields: Field[];
     fields: Field[];
     date_fields: Field[];
     items: Item[];
     selectedNodes: Node[];
     containerWidth: number;
     containerHeight: number;
+    dispatch: Dispatch<any>;
 }
 
 interface State {
+    showAllFields: boolean;
 }
 
 class Timeline extends React.Component<Props, State> {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
-
+    state: State = {
+        showAllFields: false
+    };
 
     constructor(props) {
         super(props);
 
         this.draw = this.draw.bind(this);
-        this.state = {};
     }
 
     componentDidMount() {
@@ -90,27 +97,41 @@ class Timeline extends React.Component<Props, State> {
             }
         });
 
-        const minX: Moment = reduce(itemsCopy, (min: Moment, result) => {
-            for (var date_field of date_fields) {
-                let date = fieldLocator(result.fields, date_field.path);
+        let minX = moment();
+
+        items.forEach(item => {
+            date_fields.forEach(field => {
+                const date: any = fieldLocator(item.fields, field.path);
+
                 if (!date) {
-                    continue;
+                    return;
                 }
 
-                return (moment(date) < min ? moment(date) : min);
-            }
-        }, moment());
+                const parsed: Moment = moment(date);
 
-        const maxX: Moment = reduce(itemsCopy, (max: Moment, result) => {
-            for (var date_field of date_fields) {
-                let date = fieldLocator(result.fields, date_field.path);
+                if (parsed < minX) {
+                    minX = parsed;
+                }
+            });
+        });
+
+        let maxX = moment();
+
+        items.forEach(item => {
+            date_fields.forEach(field => {
+                const date: any = fieldLocator(item.fields, field.path);
+
                 if (!date) {
-                    continue;
+                    return;
                 }
 
-                return (moment(date) > max ? moment(date) : max);
-            }
-        }, moment());
+                const parsed: Moment = moment(date);
+
+                if (parsed > maxX) {
+                    maxX = parsed;
+                }
+            });
+        });
 
         const periods = [];
 
@@ -217,6 +238,70 @@ class Timeline extends React.Component<Props, State> {
         context.restore();
     }
 
+    handleFieldChange(event: FormEvent<HTMLInputElement>, field: Field) {
+        const { dispatch } = this.props;
+
+        if (event.currentTarget.checked) {
+            dispatch(dateFieldAdd(field));
+            dispatch(searchFieldsUpdate());
+        } else {
+            dispatch(dateFieldDelete(field));
+        }
+    }
+
+    renderDateField(field: Field) {
+        const { date_fields } = this.props;
+        const isSelected: boolean = typeof date_fields.find(search =>
+            search.path === field.path
+        ) !== 'undefined';
+
+        return (
+            <label className="dateField" key={field.path}>
+                <input
+                    type="checkbox"
+                    defaultChecked={isSelected}
+                    onChange={event => this.handleFieldChange(event, field)}
+                />
+                <span>{field.path}</span>
+            </label>
+        );
+    }
+
+    selectDateFields() {
+        const { availableFields } = this.props;
+        const { showAllFields } = this.state;
+        const availableDateFields = availableFields.filter(field => field.type === 'date');
+
+        let toggleAllFieldsButton = null;
+
+        if (availableDateFields.length > 10) {
+            toggleAllFieldsButton = (
+                <button
+                    onClick={this.toggleAllFields.bind(this)}
+                    className="toggleAllFields">
+                    {showAllFields ? 'Show less' : 'Show all'}
+                </button>
+            );
+
+            if (!showAllFields) {
+                availableDateFields.splice(10);
+            }
+        }
+
+        return (
+            <div className="dateFields">
+                {availableDateFields.map(field => this.renderDateField(field))}
+                {toggleAllFieldsButton}
+            </div>
+        );
+    }
+
+    toggleAllFields() {
+        this.setState({
+            showAllFields: !this.state.showAllFields
+        });
+    }
+
     render() {
         const { items, containerHeight, containerWidth, date_fields } = this.props;
 
@@ -235,7 +320,7 @@ class Timeline extends React.Component<Props, State> {
         return (
             <div>
                 { noitems }
-                { noDateFields }
+                { this.selectDateFields() }
                 <canvas
                     width={ containerWidth }
                     height={ containerHeight }
@@ -250,6 +335,7 @@ class Timeline extends React.Component<Props, State> {
 const select = (state, ownProps) => {
     return {
         ...ownProps,
+        availableFields: state.fields.availableFields,
         selectedNodes: state.entries.nodes.filter(node => node.selected),
         queries: state.entries.queries,
         fields: state.entries.fields,

@@ -1,0 +1,17 @@
+.timeline {
+  .dateField {
+    margin: 0 6px 0 0;
+    font-weight: 300;
+
+    input {
+      margin-right: 3px;
+    }
+  }
+
+  .toggleAllFields {
+    background: none;
+    border: none;
+    color: white;
+    text-decoration: underline;
+  }
+}

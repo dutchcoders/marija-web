@@ -47,8 +47,8 @@ interface State {
     total: number;
     datasources: any[];
     columns: Column[];
-    fields: any[];
-    date_fields: any[];
+    fields: Field[];
+    date_fields: Field[];
     normalizations: Normalization[];
     indexes: any[];
     items: Item[];
@@ -373,8 +373,8 @@ export default function entries(state: State = defaultState, action) {
                 searches.push(search);
             }
 
-            const fieldPaths = [];
-            action.fields.forEach(field => fieldPaths.push(field.path));
+            let fieldPaths = action.fields.map(field => field.path);
+            fieldPaths = fieldPaths.concat(state.date_fields.map(field => field.path))
 
             let message = {
                 datasources: action.datasources,
@@ -392,7 +392,8 @@ export default function entries(state: State = defaultState, action) {
             });
         }
         case SEARCH_FIELDS_UPDATE: {
-            const fields = state.fields.map(field => field.path);
+            let fields = state.fields.map(field => field.path);
+            fields = fields.concat(state.date_fields.map(field => field.path));
             const datasources = state.datasources.map(datasource => datasource.id);
 
             const newSearches = state.searches.map(search => {
