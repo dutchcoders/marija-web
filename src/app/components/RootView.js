@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { EventEmitter } from 'fbemitter';
 
 import {
-    Header, Record, TableView, ConfigurationView, Histogram, Queries,
+    Header, Record, TableView, ConfigurationView, Timeline, Queries,
     GraphPixi, Pane, Icon, Nodes, Navigation
 } from './index';
 import Filter from "./Graphs/Filter";
@@ -84,15 +84,15 @@ class RootView extends Component {
                     </Pane>
 
                     <Pane
-                        name="Histogram"
-                        handle="histogram"
-                        config={panes.histogram}
+                        name="Timeline"
+                        handle="timeline"
+                        config={panes.timeline}
                         dispatch={dispatch}
                         container={this.main}>
-                        <Histogram
+                        <Timeline
                             width="1600"
                             height="200"
-                            className="histogram"
+                            className="timeline"
                         />
                     </Pane>
 

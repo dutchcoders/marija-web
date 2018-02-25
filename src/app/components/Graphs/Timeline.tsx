@@ -1,14 +1,34 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import { find, map, groupBy, reduce, forEach, filter, concat } from 'lodash';
 import Dimensions from 'react-dimensions';
-
 import * as d3 from 'd3';
-import moment from 'moment';
-
+import * as moment from 'moment';
 import { normalize, fieldLocator } from '../../helpers/index';
+import {Normalization} from "../../interfaces/normalization";
+import {Field} from "../../interfaces/field";
+import {Item} from "../../interfaces/item";
+import {Node} from "../../interfaces/node";
+import {Moment} from "moment";
 
-class Histogram extends React.Component {
+interface Props {
+    normalizations: Normalization[];
+    fields: Field[];
+    date_fields: Field[];
+    items: Item[];
+    selectedNodes: Node[];
+    containerWidth: number;
+    containerHeight: number;
+}
+
+interface State {
+}
+
+class Timeline extends React.Component<Props, State> {
+    canvas: HTMLCanvasElement;
+    context: CanvasRenderingContext2D;
+
+
     constructor(props) {
         super(props);
 
@@ -17,7 +37,7 @@ class Histogram extends React.Component {
     }
 
     componentDidMount() {
-        this.canvas = this.refs.canvas;
+        this.canvas = this.refs.canvas as HTMLCanvasElement;
         this.context = this.canvas.getContext('2d');
         this.draw();
     }
@@ -70,7 +90,7 @@ class Histogram extends React.Component {
             }
         });
 
-        const minX = reduce(itemsCopy, (min, result) => {
+        const minX: Moment = reduce(itemsCopy, (min: Moment, result) => {
             for (var date_field of date_fields) {
                 let date = fieldLocator(result.fields, date_field.path);
                 if (!date) {
@@ -81,7 +101,7 @@ class Histogram extends React.Component {
             }
         }, moment());
 
-        const maxX = reduce(itemsCopy, (max, result) => {
+        const maxX: Moment = reduce(itemsCopy, (max: Moment, result) => {
             for (var date_field of date_fields) {
                 let date = fieldLocator(result.fields, date_field.path);
                 if (!date) {
@@ -90,7 +110,7 @@ class Histogram extends React.Component {
 
                 return (moment(date) > max ? moment(date) : max);
             }
-        }, 0);
+        }, moment());
 
         const periods = [];
 
@@ -144,7 +164,7 @@ class Histogram extends React.Component {
 
         context.textAlign = "right";
         context.textBaseline = "middle";
-        context.textColor = "#b5b5b5";
+        context.fillStyle = "#b5b5b5";
         yTicks.forEach((d) => {
             context.fillText(yTickFormat(d), -9, y(d));
         });
@@ -239,4 +259,4 @@ const select = (state, ownProps) => {
     };
 };
 
-export default connect(select)(Dimensions()(Histogram));
+export default connect(select)(Dimensions()(Timeline));

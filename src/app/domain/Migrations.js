@@ -20,7 +20,7 @@ export default class Migrations {
      * @returns int
      */
     static getCurrentVersion(){
-        return 8;
+        return 9;
     }
 
 
