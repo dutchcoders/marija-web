@@ -239,10 +239,15 @@ export default function entries(state: State = defaultState, action) {
                 date_fields: concat(state.date_fields, action.field)
             });
         }
-        case DATE_FIELD_DELETE:
+        case DATE_FIELD_DELETE: {
+            const dateFields: Field[] = state.date_fields.filter(field =>
+                field.path !== action.field.path
+            );
+
             return Object.assign({}, state, {
-                date_fields: without(state.date_fields, action.field)
+                date_fields: dateFields
             });
+        }
         case NODES_TOOLTIP: {
             const nodes = state.nodes.concat([]);
             const ids = action.nodes.map(node => node.id);

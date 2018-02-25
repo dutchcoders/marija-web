@@ -228,7 +228,7 @@ class Timeline extends React.Component<Props, State> {
                 }
             });
 
-            context.fillStyle = "#b5b5b5";
+            context.fillStyle = "#fac04b";
             forEach(groupedResultsSelection, (d, v) => {
                 context.fillRect(x(v), y(d.length), x.bandwidth(), height - y(d.length));
             });
@@ -311,19 +311,23 @@ class Timeline extends React.Component<Props, State> {
         }
 
         let noDateFields = null;
-        if (date_fields.length === 0 && items.length > 0) {
+        if (date_fields.length === 0) {
             noDateFields = (
-                <p>You need to select at least one field of the <strong>date</strong> type in the configuration.</p>
+                <p>Select at least one date field above.</p>
             );
         }
 
+        const showCanvas: boolean = !noDateFields && !noitems;
+
         return (
             <div>
-                { noitems }
                 { this.selectDateFields() }
+                { noitems }
+                { noDateFields }
                 <canvas
+                    className={showCanvas ? '' : 'hidden'}
                     width={ containerWidth }
-                    height={ containerHeight }
+                    height={ containerHeight - 30 }
                     ref="canvas"
                 />
             </div>
