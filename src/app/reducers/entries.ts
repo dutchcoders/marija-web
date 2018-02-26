@@ -47,8 +47,8 @@ interface State {
     total: number;
     datasources: any[];
     columns: Column[];
-    fields: any[];
-    date_fields: any[];
+    fields: Field[];
+    date_fields: Field[];
     normalizations: Normalization[];
     indexes: any[];
     items: Item[];
@@ -239,10 +239,15 @@ export default function entries(state: State = defaultState, action) {
                 date_fields: concat(state.date_fields, action.field)
             });
         }
-        case DATE_FIELD_DELETE:
+        case DATE_FIELD_DELETE: {
+            const dateFields: Field[] = state.date_fields.filter(field =>
+                field.path !== action.field.path
+            );
+
             return Object.assign({}, state, {
-                date_fields: without(state.date_fields, action.field)
+                date_fields: dateFields
             });
+        }
         case NODES_TOOLTIP: {
             const nodes = state.nodes.concat([]);
             const ids = action.nodes.map(node => node.id);
@@ -373,8 +378,8 @@ export default function entries(state: State = defaultState, action) {
                 searches.push(search);
             }
 
-            const fieldPaths = [];
-            action.fields.forEach(field => fieldPaths.push(field.path));
+            let fieldPaths = action.fields.map(field => field.path);
+            fieldPaths = fieldPaths.concat(state.date_fields.map(field => field.path))
 
             let message = {
                 datasources: action.datasources,
@@ -392,7 +397,8 @@ export default function entries(state: State = defaultState, action) {
             });
         }
         case SEARCH_FIELDS_UPDATE: {
-            const fields = state.fields.map(field => field.path);
+            let fields = state.fields.map(field => field.path);
+            fields = fields.concat(state.date_fields.map(field => field.path));
             const datasources = state.datasources.map(datasource => datasource.id);
 
             const newSearches = state.searches.map(search => {
@@ -418,6 +424,8 @@ export default function entries(state: State = defaultState, action) {
             });
         }
         case LIVE_RECEIVE: {
+            console.log(state.indexes);
+
             let searches = state.searches;
             let search: Search = searches.find(search => search.liveDatasource === action.datasource);
 
@@ -461,7 +469,6 @@ export default function entries(state: State = defaultState, action) {
                 });
             });
 
-
             // update nodes and links
             const result = getNodesAndLinks(
                 state.nodes,
@@ -483,8 +490,6 @@ export default function entries(state: State = defaultState, action) {
             let { nodes, links } = applyVia(result.nodes, result.links, state.via);
             nodes = getNodesForDisplay(nodes, state.searches || []);
             links = getLinksForDisplay(nodes, links);
-
-            console.log(nodes);
 
             return Object.assign({}, state, {
                 errors: null,

@@ -6,7 +6,7 @@ export { default as RecordDetail } from './Table/RecordDetail';
 export { default as TableView } from './Table/TableView';
 export { default as Nodes } from './Table/Nodes';
 
-export { default as Histogram } from './Graphs/Histogram';
+export { default as Timeline } from './Graphs/Timeline';
 export { default as GraphPixi } from './Graphs/GraphPixi.tsx';
 export { default as Query } from './Graphs/Query';
 

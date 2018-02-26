@@ -74,9 +74,9 @@ class Navigation extends React.Component {
                     )}
                     {this.getButton(
                         'ion-ios-clock',
-                        'Histogram',
-                        () => this.togglePane('histogram'),
-                        this.isActive('histogram')
+                        'Timeline',
+                        () => this.togglePane('timeline'),
+                        this.isActive('timeline')
                     )}
                 </ul>
                 <ul className="mapControls">

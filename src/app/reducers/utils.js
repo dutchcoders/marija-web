@@ -55,9 +55,9 @@ export const defaultUtilsState = {
             y: 300,
             alignRight: true,
             alignBottom: true,
-            minWidth: 300
+            minWidth: 430
         }),
-        histogram: Object.assign({}, defaultPane, {
+        timeline: Object.assign({}, defaultPane, {
             width: 300,
             height: 300,
             alignBottom: true,

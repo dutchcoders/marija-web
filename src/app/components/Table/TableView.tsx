@@ -13,6 +13,7 @@ import {Field} from "../../interfaces/field";
 import {dispatch} from "d3-dispatch";
 import { fieldAdd } from '../../modules/data/index';
 import {searchFieldsUpdate} from "../../modules/search/actions";
+import { EventEmitter } from 'fbemitter';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -22,7 +23,8 @@ interface Props {
     columns: any;
     normalizations: Normalization[];
     searches: Search[];
-    availableFields: Field[]
+    availableFields: Field[];
+    exportEvents: EventEmitter;
 }
 
 interface State {
@@ -119,7 +121,17 @@ class TableView extends React.Component<Props, State> {
     }
 
     componentDidMount() {
+        const { exportEvents } = this.props;
+
         this.requestData();
+
+        exportEvents.addListener('export', this.exportCsv.bind(this));
+    }
+
+    componentWillUnmount() {
+        const { exportEvents } = this.props;
+
+        exportEvents.removeAllListeners();
     }
 
     renderBody() {
@@ -202,13 +214,11 @@ class TableView extends React.Component<Props, State> {
         const { items } = this.state;
 
         if (!items.length) {
-            return <p>Select some nodes first</p>;
+            return <p className="noNodes">Select some nodes first</p>;
         }
 
         return (
             <div className="form-group">
-                <button className="btn btn-primary pull-right" onClick={this.exportCsv.bind(this)}>Export as CSV</button>
-
                 <table className="tableView">
                     <tbody>
                     <tr>

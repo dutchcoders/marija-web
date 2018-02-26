@@ -3,13 +3,14 @@ import { connect } from 'react-redux';
 import { EventEmitter } from 'fbemitter';
 
 import {
-    Header, Record, TableView, ConfigurationView, Histogram, Queries,
+    Header, Record, TableView, ConfigurationView, Timeline, Queries,
     GraphPixi, Pane, Icon, Nodes, Navigation
 } from './index';
 import Filter from "./Graphs/Filter";
 
 class RootView extends Component {
     zoomEvents = new EventEmitter();
+    exportTableEvents = new EventEmitter();
 
     constructor(props) {
         super(props);
@@ -73,23 +74,25 @@ class RootView extends Component {
                     <Pane
                         name="Table"
                         description={'data for ' + selectedNodes + ' selected nodes'}
+                        buttonText="Export as CSV"
+                        onButtonClick={() => this.exportTableEvents.emit('export')}
                         handle="table"
                         config={panes.table}
                         dispatch={dispatch}
                         container={this.main}>
-                        <TableView />
+                        <TableView exportEvents={this.exportTableEvents} />
                     </Pane>
 
                     <Pane
-                        name="Histogram"
-                        handle="histogram"
-                        config={panes.histogram}
+                        name="Timeline"
+                        handle="timeline"
+                        config={panes.timeline}
                         dispatch={dispatch}
                         container={this.main}>
-                        <Histogram
+                        <Timeline
                             width="1600"
                             height="200"
-                            className="histogram"
+                            className="timeline"
                         />
                     </Pane>
 
