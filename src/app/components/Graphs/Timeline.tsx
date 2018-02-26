@@ -214,8 +214,7 @@ class Timeline extends React.Component<Props, State> {
                 <Tooltip
                     isAnimationActive={false}
                     wrapperStyle={{background: '#425269'}}
-                    // itemStyle={{background: 'rgba(0,0,0,.1)'}}
-                    cursor={{fill: 'rgba(0,0,0,.1)'}}
+                    cursor={{fill: 'transparent'}}
                 />
                 {queries.map(query =>
                     <Bar
