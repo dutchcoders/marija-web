@@ -1,5 +1,5 @@
 export default function fieldLocator(document, field) {
-    if (!field) {return false;}
+    if (!field) {return undefined;}
 
     /*
     const field_levels = field.split('.');
