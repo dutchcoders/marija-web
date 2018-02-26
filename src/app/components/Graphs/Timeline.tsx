@@ -14,7 +14,7 @@ import {FormEvent} from "react";
 import {dateFieldAdd, dateFieldDelete} from '../../modules/data/actions';
 import {searchFieldsUpdate} from '../../modules/search/actions';
 import {highlightNodes, nodesSelect} from '../../modules/graph/actions';
-import {BarChart, XAxis, YAxis, Bar} from 'recharts';
+import {BarChart, XAxis, YAxis, Bar, Tooltip} from 'recharts';
 import {Search} from "../../interfaces/search";
 
 interface Props {
@@ -211,6 +211,12 @@ class Timeline extends React.Component<Props, State> {
                 data={chartData}>
                 <XAxis dataKey="name" stroke="white"/>
                 <YAxis stroke="white" width={35} />
+                <Tooltip
+                    isAnimationActive={false}
+                    wrapperStyle={{background: '#425269'}}
+                    // itemStyle={{background: 'rgba(0,0,0,.1)'}}
+                    cursor={{fill: 'rgba(0,0,0,.1)'}}
+                />
                 {queries.map(query =>
                     <Bar
                         key={query}
