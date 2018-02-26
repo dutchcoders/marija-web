@@ -45,7 +45,7 @@ class Timeline extends React.Component<Props, State> {
         periods: []
     };
 
-    setGroupsAndPeriods(items) {
+    setGroupsAndPeriods(items: Item[]) {
         const { date_fields } = this.props;
         const times: Moment[] = [];
 
@@ -87,6 +87,10 @@ class Timeline extends React.Component<Props, State> {
         if (nextProps.items !== this.props.items) {
             this.setGroupsAndPeriods(nextProps.items);
         }
+    }
+
+    componentDidMount() {
+        this.setGroupsAndPeriods(this.props.items);
     }
 
     handleFieldChange(event: FormEvent<HTMLInputElement>, field: Field) {
