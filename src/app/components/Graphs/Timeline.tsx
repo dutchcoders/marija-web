@@ -215,6 +215,7 @@ class Timeline extends React.Component<Props, State> {
                     isAnimationActive={false}
                     wrapperStyle={{background: '#425269'}}
                     cursor={{fill: 'transparent'}}
+                    formatter={value => value + ' nodes'}
                 />
                 {queries.map(query =>
                     <Bar
