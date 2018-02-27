@@ -68,6 +68,9 @@ export default function getNodesAndLinks(
                         sourceValue = (sourceValue?"true":"false");
                 }
 
+                // Convert to string
+                sourceValue += '';
+
                 if (sourceValue === "" || typeof sourceValue === 'undefined') {
                     return;
                 }
@@ -136,6 +139,9 @@ export default function getNodesAndLinks(
                             case "boolean":
                                 targetValue = (targetValue?"true":"false");
                         }
+
+                        // Convert to string
+                        targetValue += '';
 
                         const normalizedTargetValue = normalize(normalizations, targetValue);
                         if (normalizedTargetValue === ""  || typeof normalizedTargetValue === 'undefined') {
