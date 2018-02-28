@@ -86,7 +86,8 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
                     const label: string = getLinkLabel(step2Node.name);
 
                     const existing = links.find(link =>
-                        link.target === step1Node.id && link.source === step3Node.id && link.label === label
+                        (link.target === step1Node.id && link.source === step3Node.id && link.label === label)
+                        || (link.source === step1Node.id && link.target === step3Node.id && link.label === label)
                     );
 
                     if (typeof existing === 'undefined') {

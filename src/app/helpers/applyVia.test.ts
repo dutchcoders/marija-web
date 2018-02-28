@@ -174,6 +174,43 @@ test('should not mess up when multiple via configs are present', () => {
     expect(links).toBeDefined();
     expect(links.length).toBe(3);
 });
+
+
+test('should not add multiple links with the same label between the same 2 nodes (1 link per label)', () => {
+    const via = [{
+        endpoints: ['client', 'server'],
+        label: 'port',
+        id: '1'
+    }];
+
+    const inputNodes = [
+        generateNode('80', ['port']),
+        generateNode('1', ['client']),
+        generateNode('2', ['server'])
+    ];
+
+    const inputLinks = [
+        generateLink('80', '1'),
+        generateLink('80', '2'),
+        generateLink('1', '2'),
+    ];
+
+    const result1 = applyVia(inputNodes, inputLinks, via);
+
+    // Now we've applied via config to the first nodes
+    expect(result1.nodes.length).toBe(2);
+    expect(result1.links.length).toBe(1);
+
+    // Add the second set of nodes
+    result1.nodes.push(generateNode('80', ['port']));
+    result1.links.push(generateLink('80', '1'));
+    result1.links.push(generateLink('80', '2'));
+
+    const result2 = applyVia(result1.nodes, result1.links, via);
+
+    expect(result2.nodes.length).toBe(2);
+    expect(result2.links.length).toBe(1);
+});
 //
 // test('should generate labeled links between endpoints of the same type', () => {
 //     const previousNodes = [];
