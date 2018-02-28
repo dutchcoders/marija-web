@@ -202,10 +202,16 @@ export default function entries(state: State = defaultState, action) {
                 links: links
             });
         }
-        case VIA_ADD:
+        case VIA_ADD: {
+            const via = state.via.concat([action.via]);
+            const { nodes, links } = applyVia(state.nodes, state.links, via);
+
             return Object.assign({}, state, {
-                via: concat(state.via, action.via)
+                via: via,
+                nodes: nodes,
+                links: links
             });
+        }
         case VIA_DELETE:
             return Object.assign({}, state, {
                 via: without(state.via, action.via)
@@ -428,6 +434,10 @@ export default function entries(state: State = defaultState, action) {
             }
 
             const items = action.graphs || [];
+
+            // if (items[0].fields.port !== 1337) {
+            //     return state;
+            // }
 
             search.items = concat(search.items, items);
 

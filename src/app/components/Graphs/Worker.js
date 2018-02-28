@@ -119,6 +119,8 @@ onmessage = function(event) {
             });
         });
 
+
+
         for (let i=0; i < links.length; i++) {
             let link = links[i];
 
@@ -127,19 +129,21 @@ onmessage = function(event) {
             });
             
             if (n) {
-                link.color = n.color;
+                Object.assign(n, link);
                 continue;
             }
             
             // todo(nl5887): why?
-            that.links.push({
+            const add = {
                 source: link.source,
                 target: link.target,
                 color: link.color,
                 label: link.label,
                 total: link.total,
                 current: link.current
-            });
+            };
+
+            that.links.push(add);
         }
 
         simulation
