@@ -466,7 +466,7 @@ export default function entries(state: State = defaultState, action) {
                     const existing: Field = fields.find(field => field.path === key);
 
                     if (typeof existing === 'undefined') {
-                        const field = createField(state.fields, key, 'string');
+                        const field = createField(fields, key, 'string');
                         fields = fields.concat([field]);
                     }
                 });
