@@ -14,7 +14,6 @@ class SearchBox extends Component {
 
         this.state = {
             query: '',
-            selectValue: this.props.indexes[0],
             editSearchValue: null,
             searchAroundOpen: false
         };
@@ -30,7 +29,7 @@ class SearchBox extends Component {
         }
 
         this.setState({query: ''});
-        this.props.onSubmit(query, this.state.selectValue);
+        this.props.onSubmit(query);
     }
 
     handleQueryChange(e) {

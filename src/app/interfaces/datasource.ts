@@ -1,1 +1,5 @@
-export type Datasource = string;
+export interface Datasource {
+    id: string;
+    name: string;
+    active: boolean;
+}

@@ -1,6 +1,5 @@
 import {FlowWS, error} from '../../utils/index';
 import {searchReceive, SEARCH_RECEIVE} from '../../modules/search/index';
-import {receiveIndices, INDICES_RECEIVE} from '../../modules/indices/index';
 import {receiveFields, FIELDS_RECEIVE} from '../../modules/fields/index';
 import {
     receiveInitialState,
@@ -11,7 +10,7 @@ import {REQUEST_COMPLETED} from "../constants";
 import {ITEMS_RECEIVE} from "../../modules/items/constants";
 import {receiveItems} from "../../modules/items/actions";
 import {LIVE_RECEIVE} from "../../modules/live/constants";
-import {liveReceive, preLiveReceive} from "../../modules/live/actions";
+import {liveReceive} from "../../modules/live/actions";
 
 export const Socket = {
     ws: null,
@@ -49,10 +48,6 @@ export const Socket = {
                 Socket.searchReceive(message.results, message.query, dispatch);
                 break;
 
-            case INDICES_RECEIVE:
-                dispatch(receiveIndices(message.indices));
-                break;
-
             case FIELDS_RECEIVE:
                 dispatch(receiveFields(message.fields));
                 break;
@@ -73,7 +68,7 @@ export const Socket = {
                 break;
 
             case LIVE_RECEIVE:
-                dispatch(preLiveReceive(message.datasource, message.graphs));
+                dispatch(liveReceive(message.datasource, message.graphs));
                 break;
         }
     },

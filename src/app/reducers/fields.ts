@@ -23,12 +23,16 @@ export default function fields(state = defaultState, action) {
 
         case FIELDS_REQUEST:
             if (action.payload.indexes.length === 0) {
-                return Object.assign({}, state, { availableFields: defaultState.availableFields });
+                return Object.assign({}, state, {
+                    availableFields: defaultState.availableFields
+                });
             }
+
+            const datasources: string[] =  action.payload.indexes.map(datasource => datasource.id)
 
             Socket.ws.postMessage(
                 {
-                    datasources: action.payload.indexes
+                    datasources: datasources
                 },
                 FIELDS_REQUEST
             );
@@ -39,7 +43,6 @@ export default function fields(state = defaultState, action) {
 
         case FIELDS_CLEAR:
             return Object.assign({}, state, { availableFields: defaultState.availableFields });
-            break;
 
         default:
             return state;

@@ -15,12 +15,13 @@ import { createBrowserHistory } from 'history';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import { Intl }  from 'react-intl-es6';
 import { RootView, StateCapturer, Websocket } from './components/index';
-import { entries, enableBatching, utils, servers, indices, fields, defaultState, root } from './reducers/index';
+import { entries, enableBatching, utils, servers, datasources, fields, defaultState, root } from './reducers/index';
 import { persistState } from './helpers/index';
 import { i18n } from './config';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import thunk from 'redux-thunk';
 import {defaultUtilsState} from "./reducers/utils";
+import {defaultDatasourcesState} from './reducers/datasources';
 
 function configureStore() {
     return createStore(
@@ -31,9 +32,7 @@ function configureStore() {
             entries: {
                     ...defaultState
             },
-            indices: {
-                activeIndices: []
-            },
+            datasources: defaultDatasourcesState,
             fields: {
                 availableFields: []
             },

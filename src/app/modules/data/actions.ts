@@ -1,4 +1,4 @@
-import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from './index';
+import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from './index';
 import {VIA_ADD, VIA_DELETE} from "./constants";
 import {Field} from "../../interfaces/field";
 
@@ -15,22 +15,6 @@ export function tableColumnAdd(field) {
         type: TABLE_COLUMN_ADD,
         receivedAt: Date.now(),
         field: field
-    };
-}
-
-export function indexAdd(index) {
-    return {
-        type: INDEX_ADD,
-        receivedAt: Date.now(),
-        index: index
-    };
-}
-
-export function indexDelete(index) {
-    return {
-        type: INDEX_DELETE,
-        receivedAt: Date.now(),
-        index: index
     };
 }
 

@@ -2,21 +2,20 @@ import {LIVE_RECEIVE} from "./constants";
 import {Item} from "../../interfaces/item";
 import {Datasource} from "../../interfaces/datasource";
 
-export function liveReceive(datasource: Datasource, graphs: Item[]) {
-    return {
-        type: LIVE_RECEIVE,
-        datasource: datasource,
-        graphs: graphs
-    };
-}
-
-export function preLiveReceive(datasource: Datasource, graphs: Item[]) {
+export function liveReceive(datasourceId: string, graphs: Item[]) {
     return (dispatch, getState) => {
-        const datasources = getState().indices.activeIndices;
+        const datasources: Datasource[] = getState().datasources.datasources;
+        const datasource = datasources.find(search => search.id === datasourceId);
 
         // Only do something with the data if the datasource is active
-        if (datasources.indexOf(datasource) !== -1) {
-            dispatch(liveReceive(datasource, graphs));
+        if (!datasource.active) {
+            return;
         }
+
+        dispatch({
+            type: LIVE_RECEIVE,
+            datasource: datasource,
+            graphs: graphs
+        });
     };
 }
