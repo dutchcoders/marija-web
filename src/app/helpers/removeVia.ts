@@ -21,6 +21,21 @@ const getLink = (source: string, target: string): Link => {
 export default function removeVia(nodes: Node[], links: Link[], remove: Via): {nodes: Node[], links: Link[]} {
     const removed: Link[] = [];
 
+    const linkExists = (source: string, target: string): boolean => {
+        const link = links.find(search =>
+            ((search.source === source && search.target === target)
+            || (search.target === source && search.source === target))
+            && !search.label
+        );
+
+        return typeof link !== 'undefined';
+    };
+
+    const nodeExists = (id: string): boolean => {
+        const node = nodes.find(search => search.id === id);
+        return typeof node !== 'undefined';
+    };
+
     links = links.filter(link => {
         const willRemove: boolean = link.viaId === remove.id;
 
@@ -36,10 +51,21 @@ export default function removeVia(nodes: Node[], links: Link[], remove: Via): {n
     removed.forEach(link => {
         const node: Node = link.replacedNode;
 
-        nodes.push(node);
-        links.push(getLink(link.source, node.id));
-        links.push(getLink(link.target, node.id));
-        links.push(getLink(link.source, link.target));
+        if (!nodeExists(node.id)) {
+            nodes.push(node);
+        }
+
+        if (!linkExists(link.source, node.id)) {
+            links.push(getLink(link.source, node.id));
+        }
+
+        if (!linkExists(link.target, node.id)) {
+            links.push(getLink(link.target, node.id));
+        }
+
+        if (!linkExists(link.source, link.target)) {
+            links.push(getLink(link.source, link.target));
+        }
     });
 
     return {
