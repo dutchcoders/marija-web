@@ -45,8 +45,9 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
     const removeUnlabeledLinks = (sourceId, targetId) => {
         links = links.filter(link => {
             const remove =
-                (link.source === sourceId && link.target === targetId)
-                || (link.source === targetId && link.target === sourceId);
+                ((link.source === sourceId && link.target === targetId)
+                || (link.source === targetId && link.target === sourceId))
+                && !link.label;
 
             return !remove;
         });
@@ -54,10 +55,9 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
 
     const nodesToRemove = [];
     const linksToRemove = [];
-    const newLinks: Link[] = [];
 
     via.forEach(viaItem => {
-        const step1Nodes = nodes.filter(node =>
+        const step1Nodes: Node[] = nodes.filter(node =>
             node.fields.length === 1
             && node.fields[0] === viaItem.endpoints[0]
         );
@@ -65,13 +65,13 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
         step1Nodes.forEach(step1Node => {
             const connected = getConnectedNodes(step1Node, nodes, links);
 
-            const step2Nodes = connected.filter(search =>
+            const step2Nodes: Node[] = connected.filter(search =>
                 search.fields.length === 1
                 && search.fields[0] === viaItem.label
             );
 
             step2Nodes.forEach(step2Node => {
-                const connected = getConnectedNodes(step2Node, nodes, links);
+                const connected: Node[] = getConnectedNodes(step2Node, nodes, links);
 
                 const step3Nodes = connected.filter(search =>
                     search.fields.length === 1
@@ -83,15 +83,17 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
                     // Now we found something that can be replaced by a labeled link
                     // but first check if we didn't already do that, but then
                     // the other way around
-                    const existing = newLinks.find(link =>
-                        link.target === step1Node.id && link.source === step3Node.id
+                    const label: string = getLinkLabel(step2Node.name);
+
+                    const existing = links.find(link =>
+                        link.target === step1Node.id && link.source === step3Node.id && link.label === label
                     );
 
                     if (typeof existing === 'undefined') {
-                        newLinks.push({
+                        links.push({
                             source: step1Node.id,
                             target: step3Node.id,
-                            label: getLinkLabel(step2Node.name),
+                            label: label,
                             viaId: viaItem.id,
                             display: true,
                             normalizationId: null,
@@ -120,18 +122,21 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
 
     const counter = {};
 
-    newLinks.forEach(link => {
+    links = links.map(link => {
         const key = link.source + link.target;
         const current = counter[key] ? counter[key] + 1 : 1;
 
-        link.current = current;
         counter[key] = current;
 
-        links.push(link);
+        return Object.assign({}, link, {
+            current: current
+        });
     });
 
-    newLinks.forEach(link => {
-        link.total = counter[link.source + link.target];
+    links = links.map(link => {
+        return Object.assign({}, link, {
+            total: counter[link.source + link.target]
+        });
     });
 
     return {

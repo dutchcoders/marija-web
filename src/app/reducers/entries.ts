@@ -449,7 +449,7 @@ export default function entries(state: State = defaultState, action) {
 
             const items = action.graphs || [];
 
-            // if (items[0].fields.port !== 1337) {
+            // if (items[0].fields.port !== 1337 && items[0].fields.port !== 2337 ) {
             //     return state;
             // }
 
