@@ -30,5 +30,9 @@ test('should restore to how it was', () => {
     const normalized = normalizeNodes(nodes, [normalization]);
     const restored = denormalizeNodes(normalized, normalization);
 
-    expect(nodes).toEqual(restored);
+    expect(nodes.length).toEqual(restored.length);
+
+    for (let i = 0; i < nodes.length; i ++) {
+        expect(nodes[i].id).toEqual(restored[i].id);
+    }
 });

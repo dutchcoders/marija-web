@@ -54,6 +54,7 @@ export default function getNodesAndLinks(
     forEach(items, (d, i) => {
         forEach(fields, (source) => {
             let sourceValues = fieldLocator(d.fields, source.path);
+
             if (sourceValues === null) {
                 return;
             }
@@ -71,7 +72,7 @@ export default function getNodesAndLinks(
                 // Convert to string
                 sourceValue += '';
 
-                if (sourceValue === "" || typeof sourceValue === 'undefined') {
+                if (sourceValue === '') {
                     return;
                 }
 
@@ -143,16 +144,15 @@ export default function getNodesAndLinks(
                         // Convert to string
                         targetValue += '';
 
-                        const normalizedTargetValue = normalize(normalizations, targetValue);
-                        if (normalizedTargetValue === ""  || typeof normalizedTargetValue === 'undefined') {
+                        if (targetValue === '') {
                             return;
                         }
 
-                        if (isDeleted(normalizedTargetValue)) {
+                        if (isDeleted(targetValue)) {
                             return;
                         }
 
-                        let n = nodeCache[normalizedTargetValue];
+                        let n = nodeCache[targetValue];
                         if (n) {
                             if (n.items.indexOf(d.id) === -1){
                                 n.items.push(d.id);
@@ -167,16 +167,16 @@ export default function getNodesAndLinks(
                             }
                         } else {
                             let n: Node = {
-                                id: normalizedTargetValue,
+                                id: targetValue,
                                 queries: [query],
                                 items: [d.id],
                                 count: d.count,
-                                name: normalizedTargetValue,
-                                abbreviated: abbreviateNodeName(normalizedTargetValue, query, 40),
+                                name: targetValue,
+                                abbreviated: abbreviateNodeName(targetValue, query, 40),
                                 description: '',
                                 icon: target.icon,
                                 fields: [target.path],
-                                hash: getHash(normalizedTargetValue),
+                                hash: getHash(targetValue),
                                 normalizationId: null,
                                 display: true,
                                 selected: false,
@@ -197,12 +197,12 @@ export default function getNodesAndLinks(
                         }
 
                         // Dont create links from a node to itself
-                        if (sourceValue === normalizedTargetValue) {
+                        if (sourceValue === targetValue) {
                             return;
                         }
 
-                        let linkCacheRef = sourceValue + normalizedTargetValue;
-                        let oppositeLinkCacheRef = normalizedTargetValue + sourceValue;
+                        let linkCacheRef = sourceValue + targetValue;
+                        let oppositeLinkCacheRef = targetValue + sourceValue;
 
                         // check if link already exists
                         if ((linkCache[linkCacheRef]
@@ -212,7 +212,7 @@ export default function getNodesAndLinks(
 
                         const link: Link = {
                             source: sourceValue,
-                            target: normalizedTargetValue,
+                            target: targetValue,
                             color: '#ccc',
                             total: 1,
                             current: 1,
