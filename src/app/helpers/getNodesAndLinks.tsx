@@ -69,6 +69,10 @@ export default function getNodesAndLinks(
                         sourceValue = (sourceValue?"true":"false");
                 }
 
+                if (typeof sourceValue === 'undefined') {
+                    return;
+                }
+
                 // Convert to string
                 sourceValue += '';
 
@@ -139,6 +143,10 @@ export default function getNodesAndLinks(
                         switch (typeof targetValue) {
                             case "boolean":
                                 targetValue = (targetValue?"true":"false");
+                        }
+
+                        if (typeof targetValue === 'undefined') {
+                            return;
                         }
 
                         // Convert to string

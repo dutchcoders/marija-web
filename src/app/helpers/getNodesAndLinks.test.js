@@ -226,3 +226,31 @@ test('should not filter nodes that are directly related when searching around a 
     expect(nodes.length).toBe(3);
     expect(links.length).toBe(2);
 });
+
+test('should not not create nodes for empty field values', () => {
+    const previousNodes = [];
+    const previousLinks = [];
+
+    const items = [
+        {
+            id: 'vndfnvdfj',
+            fields: {
+                client: 1,
+                server: 3
+            }
+        }
+    ];
+
+    const fields = [
+        generateField('client'),
+        generateField('server'),
+        generateField('nonExisting')
+    ];
+
+    const query = generateQuery(items);
+
+    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, []);
+
+    expect(nodes.length).toBe(2);
+    expect(links.length).toBe(1);
+});
