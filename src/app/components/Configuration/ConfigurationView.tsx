@@ -524,14 +524,18 @@ class ConfigurationView extends React.Component<Props, State> {
         const options = map(sortBy(datasources, ["name"]), (datasource) => {
             const indexName = datasource.name;
 
+            let live = null;
+            if (datasource.type === 'live') {
+                live = <span className="liveDatasource">Live</span>
+            }
+
             return (
                 <li key={ datasource.id } value={ indexName }>
-                    <div className="index-name" title={indexName }>
+                    <div className="datasourceName" title={indexName }>
                         { indexName }
+                        {live}
                     </div>
-
                     <input type="checkbox" defaultChecked={datasource.active} onChange={(event) => this.handleDatasourceChange(event, datasource.id)} />
-
                 </li>
             );
         });
