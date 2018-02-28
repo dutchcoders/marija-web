@@ -1,5 +1,7 @@
 import { concat } from 'lodash';
 import {Link} from "../interfaces/link";
+import {Via} from "../interfaces/via";
+import {Node} from "../interfaces/node";
 
 function getConnectedNodes(node, nodes, links) {
     const connected = [];
@@ -29,7 +31,7 @@ function getLinkLabel(label) {
     return shortened + '...';
 }
 
-export default function applyVia(nodes, links, via) {
+export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
     links = concat([], links);
     nodes = concat([], nodes);
 
@@ -90,12 +92,14 @@ export default function applyVia(nodes, links, via) {
                             source: step1Node.id,
                             target: step3Node.id,
                             label: getLinkLabel(step2Node.name),
+                            viaId: viaItem.id,
                             display: true,
                             normalizationId: null,
                             isNormalizationParent: false,
                             total: 1,
                             current: 1,
-                            color: ''
+                            color: '',
+                            replacedNode: step2Node
                         });
                     }
 

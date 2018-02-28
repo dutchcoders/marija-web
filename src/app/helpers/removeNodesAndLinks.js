@@ -1,5 +1,4 @@
 import { slice, concat, without, pull } from 'lodash';
-import {fieldLocator, normalize} from "./index";
 
 const removeNodes = (nodes, removedQuery) => {
     nodes.forEach((node, index) => {
@@ -15,6 +14,14 @@ const removeNodes = (nodes, removedQuery) => {
     return nodes;
 };
 
+/**
+ * Remove nodes by query
+ *
+ * @param previousNodes
+ * @param previousLinks
+ * @param removedQuery
+ * @returns {{nodes: ConcatArray<*>[], links: ConcatArray<*>[]}}
+ */
 export default function removeNodesAndLinks(previousNodes, previousLinks, removedQuery) {
     let nodes = concat(previousNodes, []);
     let links = concat(previousLinks, []);

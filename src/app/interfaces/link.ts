@@ -1,3 +1,5 @@
+import {Node} from "./node";
+
 export interface Link {
     source: string;
     target: string;
@@ -24,4 +26,14 @@ export interface Link {
      * The id of this link would be the 'replaceWith' value of the normalization.
      */
     isNormalizationParent: boolean;
+
+    /**
+     * When the link is created because of a 'via configuration' (meaning it
+     * has a label), we also need to store the id of the via configuration. This
+     * is useful if we later delete the via config, because we can then rebuild
+     * the original links (without labels).
+     */
+    viaId: string | null;
+
+    replacedNode: Node;
 }
