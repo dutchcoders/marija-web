@@ -14,13 +14,13 @@ export default class Workspaces {
             const { state, version } = current_workspace;
 
             const compatible = Workspaces.checkVersions(version);
-            if(!compatible){
+
+            if (compatible) {
                 return Workspaces.migrate(version, state);
             }
-
-            return Workspaces.actual(version, state);
         }
 
+        console.log('Workspace version found in local storage not compatible. Using initial state instead.');
         return initialState;
     }
 
