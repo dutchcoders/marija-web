@@ -30,7 +30,8 @@ test('should output links with labels when via info is specified', () => {
     const via = [
         {
             endpoints: ['client', 'server'],
-            label: 'port'
+            label: 'port',
+            id: '1'
         }
     ];
 
@@ -61,7 +62,8 @@ test('should output links with labels when via info is specified', () => {
 test('should be able to draw multiple labeled lines between 2 nodes', () => {
     const via = [{
         endpoints: ['client', 'server'],
-        label: 'port'
+        label: 'port',
+        id: '1'
     }];
 
     const inputNodes = [
@@ -87,6 +89,53 @@ test('should be able to draw multiple labeled lines between 2 nodes', () => {
     expect(links.find(link => link.label === '1337')).toBeDefined();
 });
 
+test('should be able to draw multiple labeled lines between 2 nodes, when the second set arrives later', () => {
+    const via = [{
+        endpoints: ['client', 'server'],
+        label: 'port',
+        id: '1'
+    }];
+
+    const inputNodes = [
+        generateNode('80', ['port']),
+        generateNode('1', ['client']),
+        generateNode('2', ['server'])
+    ];
+
+    const inputLinks = [
+        generateLink('80', '1'),
+        generateLink('80', '2'),
+        generateLink('1', '2'),
+    ];
+
+    const result1 = applyVia(inputNodes, inputLinks, via);
+
+    // Now we've applied via config to the first nodes
+    expect(result1.nodes.length).toBe(2);
+    expect(result1.links.length).toBe(1);
+
+    // Add the second set of nodes
+    inputNodes.push(generateNode('1337', ['port']));
+    inputLinks.push(generateLink('1337', '1'));
+    inputLinks.push(generateLink('1337', '2'));
+
+    const result2 = applyVia(inputNodes, inputLinks, via);
+
+    expect(result2.nodes.length).toBe(2);
+    expect(result2.links.length).toBe(2);
+});
+
+test('should add labeled links between nodes that already have labeled links (from real world problem)', () => {
+    const inputNodes = JSON.parse('[{"id":"23.129.3492.1","queries":["wodan"],"items":["09a9015e1919eb58de1f086ad51c41ea"],"count":1,"name":"23.129.3492.1","abbreviated":"23.129.3492.1","description":"","icon":"S","fields":["source-ip"],"hash":-1828723008,"normalizationId":null,"display":true,"selected":false,"highlighted":false,"displayTooltip":false,"isNormalizationParent":false},{"id":"127.0.0.1","queries":["wodan"],"items":["09a9015e1919eb58de1f086ad51c41ea"],"count":1,"name":"127.0.0.1","abbreviated":"127.0.0.1","description":"","icon":"D3","fields":["dest-ip"],"hash":1505998205,"normalizationId":null,"display":true,"selected":false,"highlighted":false,"displayTooltip":false,"isNormalizationParent":false},{"id":"1337","queries":["wodan"],"items":["09a9015e1919eb58de1f086ad51c41ea"],"count":1,"name":"1337","abbreviated":"1337","description":"","icon":"P","fields":["port"],"hash":1510406,"normalizationId":null,"display":true,"selected":false,"highlighted":false,"displayTooltip":false,"isNormalizationParent":false}]');
+    const inputLinks = JSON.parse('[{"source":"23.129.3492.1","target":"127.0.0.1","label":"2337","viaId":"11","display":true,"normalizationId":null,"isNormalizationParent":false,"total":1,"current":1,"color":"","replacedNode":{"id":"2337","queries":["wodan"],"items":["09a9015e1919eb58de1f086ad51c41ea"],"count":1,"name":"2337","abbreviated":"2337","description":"","icon":"P","fields":["port"],"hash":1540197,"normalizationId":null,"display":true,"selected":false,"highlighted":false,"displayTooltip":false,"isNormalizationParent":false}},{"source":"23.129.3492.1","target":"1337","color":"#ccc","total":1,"current":1,"normalizationId":null,"display":true,"isNormalizationParent":false,"viaId":null,"replacedNode":null},{"source":"127.0.0.1","target":"1337","color":"#ccc","total":1,"current":1,"normalizationId":null,"display":true,"isNormalizationParent":false,"viaId":null,"replacedNode":null}]');
+    const via = JSON.parse('[{"endpoints":["source-ip","dest-ip"],"label":"port","id":"11"}]');
+
+    const result2 = applyVia(inputNodes, inputLinks, via);
+
+    expect(result2.nodes.length).toBe(2);
+    expect(result2.links.length).toBe(2);
+});
+
 test('should not mess up when multiple via configs are present', () => {
     const inputNodes = [
         generateNode('80', ['port']),
@@ -109,11 +158,13 @@ test('should not mess up when multiple via configs are present', () => {
     const via = [
         {
             endpoints: ['source', 'target'],
-            label: 'port'
+            label: 'port',
+            id: '1'
         },
         {
             endpoints: ['source2', 'target2'],
-            label: 'port'
+            label: 'port',
+            id: '2'
         }
     ];
 
@@ -122,6 +173,43 @@ test('should not mess up when multiple via configs are present', () => {
     expect(nodes.length).toBe(4);
     expect(links).toBeDefined();
     expect(links.length).toBe(3);
+});
+
+
+test('should not add multiple links with the same label between the same 2 nodes (1 link per label)', () => {
+    const via = [{
+        endpoints: ['client', 'server'],
+        label: 'port',
+        id: '1'
+    }];
+
+    const inputNodes = [
+        generateNode('80', ['port']),
+        generateNode('1', ['client']),
+        generateNode('2', ['server'])
+    ];
+
+    const inputLinks = [
+        generateLink('80', '1'),
+        generateLink('80', '2'),
+        generateLink('1', '2'),
+    ];
+
+    const result1 = applyVia(inputNodes, inputLinks, via);
+
+    // Now we've applied via config to the first nodes
+    expect(result1.nodes.length).toBe(2);
+    expect(result1.links.length).toBe(1);
+
+    // Add the second set of nodes
+    result1.nodes.push(generateNode('80', ['port']));
+    result1.links.push(generateLink('80', '1'));
+    result1.links.push(generateLink('80', '2'));
+
+    const result2 = applyVia(result1.nodes, result1.links, via);
+
+    expect(result2.nodes.length).toBe(2);
+    expect(result2.links.length).toBe(1);
 });
 //
 // test('should generate labeled links between endpoints of the same type', () => {

@@ -226,7 +226,9 @@ export default function getNodesAndLinks(
                             current: 1,
                             normalizationId: null,
                             display: true,
-                            isNormalizationParent: false
+                            isNormalizationParent: false,
+                            viaId: null,
+                            replacedNode: null
                         };
 
                         links.push(link);

@@ -418,8 +418,9 @@ class GraphPixi extends React.Component<Props, State> {
         return nodes.filter(node => node.selected);
     }
 
-    shouldPostToWorker(prevNodes: Node[], nextNodes: Node[]): boolean {
-        return prevNodes.length !== nextNodes.length;
+    shouldPostToWorker(prevNodes: Node[], nextNodes: Node[], prevLinks: Link[], nextLinks: Link[]): boolean {
+        return prevNodes.length !== nextNodes.length
+            || prevLinks.length !== nextLinks.length;
 
         // Todo: make this more intelligent than only looking at array length
         // Can the graph also change when properties of the nodes change?
@@ -439,11 +440,11 @@ class GraphPixi extends React.Component<Props, State> {
 
     componentDidUpdate(prevProps: Props, prevState: State) {
         const { nodes, links, searches } = this.props;
-        const { nodesForDisplay } = this.state;
+        const { nodesForDisplay, linksForDisplay } = this.state;
         const selectedNodes = this.getSelectedNodes();
         const prevSelected = prevProps.nodes.filter(node => node.selected);
 
-        if (!isEqual(prevProps.nodes, nodes)) {
+        if (!isEqual(prevProps.nodes, nodes) || !isEqual(prevProps.links, links)) {
             this.setState({
                 nodesForDisplay: nodes.filter(node => displayFilter(node)),
                 linksForDisplay: links.filter(link => displayFilter(link))
@@ -469,7 +470,7 @@ class GraphPixi extends React.Component<Props, State> {
             });
         }
 
-        if (this.shouldPostToWorker(prevState.nodesForDisplay, nodesForDisplay)) {
+        if (this.shouldPostToWorker(prevState.nodesForDisplay, nodesForDisplay, prevState.linksForDisplay, linksForDisplay)) {
             this.postNodesAndLinksToWorker();
         }
 
@@ -518,12 +519,14 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     shouldComponentUpdate(nextProps: Props, nextState: State) {
-        const { searches, nodes } = this.props;
-        const { lastDisplayedFps, nodesForDisplay } = this.state;
+        const { searches, nodes, links } = this.props;
+        const { lastDisplayedFps, nodesForDisplay, linksForDisplay } = this.state;
 
         return nextProps.nodes !== nodes
             || nextState.nodesForDisplay !== nodesForDisplay
             || nextProps.searches !== searches
+            || nextProps.links !== links
+            || nextState.linksForDisplay !== linksForDisplay
             || (Date.now() - lastDisplayedFps.getTime()) > 1000;
     }
 

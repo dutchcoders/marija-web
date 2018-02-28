@@ -35,6 +35,8 @@ import {Column} from "../interfaces/column";
 import {LIVE_RECEIVE} from "../modules/live/constants";
 import createField from "../helpers/createField";
 import {Field} from "../interfaces/field";
+import {Via} from "../interfaces/via";
+import removeVia from "../helpers/removeVia";
 
 interface State {
     isFetching: boolean;
@@ -54,7 +56,7 @@ interface State {
     links: Link[]; // relations between nodes
     deletedNodes: Node[];
     errors: any;
-    via: any[];
+    via: Via[];
     version: string;
     selectingMode: boolean;
 }
@@ -203,7 +205,13 @@ export default function entries(state: State = defaultState, action) {
             });
         }
         case VIA_ADD: {
-            const via = state.via.concat([action.via]);
+            const newVia: Via = {
+                endpoints: action.via.endpoints,
+                label: action.via.label,
+                id: uniqueId()
+            };
+
+            const via: Via[] = state.via.concat([newVia]);
             const { nodes, links } = applyVia(state.nodes, state.links, via);
 
             return Object.assign({}, state, {
@@ -212,10 +220,16 @@ export default function entries(state: State = defaultState, action) {
                 links: links
             });
         }
-        case VIA_DELETE:
+        case VIA_DELETE: {
+            const via: Via[] = state.via.filter(search => search.id !== action.via.id);
+            const { nodes, links } = removeVia(state.nodes, state.links, action.via);
+
             return Object.assign({}, state, {
-                via: without(state.via, action.via)
+                via: via,
+                nodes: nodes,
+                links: links
             });
+        }
         case DATE_FIELD_ADD: {
             const existing = state.date_fields.find(search => search.path === action.field.path);
 
@@ -435,7 +449,7 @@ export default function entries(state: State = defaultState, action) {
 
             const items = action.graphs || [];
 
-            // if (items[0].fields.port !== 1337) {
+            // if (items[0].fields.port !== 1337 && items[0].fields.port !== 2337 ) {
             //     return state;
             // }
 
@@ -452,7 +466,7 @@ export default function entries(state: State = defaultState, action) {
                     const existing: Field = fields.find(field => field.path === key);
 
                     if (typeof existing === 'undefined') {
-                        const field = createField(state.fields, key, 'string');
+                        const field = createField(fields, key, 'string');
                         fields = fields.concat([field]);
                     }
                 });
