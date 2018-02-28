@@ -15,13 +15,13 @@ class Header extends Component {
     }
 
     onSearchSubmit(q, index) {
-        const { dispatch, activeIndices, fields } = this.props;
+        const { dispatch, datasources, fields } = this.props;
 
         Url.addQueryParam('search', q);
 
         dispatch(searchRequest({
             query: q,
-            datasources: activeIndices,
+            datasources: datasources.filter(datasource => datasource.active),
             fields: fields
         }));
     }
@@ -32,7 +32,7 @@ class Header extends Component {
     }
 
     render() {
-        const { connected, total, indexes, fields, activeIndices } = this.props;
+        const { connected, total, fields, datasources } = this.props;
 
         let errors = null;
 
@@ -46,8 +46,8 @@ class Header extends Component {
                     total={total}
                     onSubmit={(q, index) => this.onSearchSubmit(q, index)}
                     connected={connected}
-                    indexes={indexes}
-                    enabled={fields.length > 0 && activeIndices.length > 0}
+                    indexes={datasources}
+                    enabled={fields.length > 0 && datasources.length > 0}
                 />
                 { errors }
             </header>
@@ -61,8 +61,7 @@ function select(state) {
         itemsFetching: state.entries.itemsFetching,
         connected: state.entries.connected,
         errors: state.entries.errors,
-        indexes: state.entries.indexes,
-        activeIndices: state.indices.activeIndices,
+        datasources: state.datasources.datasources.filter(datasource => datasource.active),
         queries: state.entries.searches,
         total: state.entries.total,
         fields: state.entries.fields

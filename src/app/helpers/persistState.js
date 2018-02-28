@@ -14,8 +14,10 @@ export default function persistState() {
         }
 
         // Add datasources to url to keep local storage and url in sync
-        initialState.indices.activeIndices.forEach(datasource => {
-            Url.addQueryParam('datasources', datasource);
+        initialState.datasources.datasources.forEach(datasource => {
+            if (datasource.active) {
+                Url.addQueryParam('datasources', datasource.id);
+            }
         });
 
         // Add datasources to url to keep local storage and url in sync

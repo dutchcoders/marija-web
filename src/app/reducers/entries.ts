@@ -1,12 +1,10 @@
 import { slice, concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy, uniqueId, intersection } from 'lodash';
 
 import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
-
-import {  INDICES_RECEIVE, INDICES_REQUEST } from '../modules/indices/index';
 import {  FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index';
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
 import {  SEARCH_DELETE, SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_EDIT } from '../modules/search/index';
-import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, INDEX_ADD, INDEX_DELETE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
+import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
 import {
     normalize, fieldLocator, getNodesForDisplay,
@@ -50,7 +48,6 @@ interface State {
     fields: Field[];
     date_fields: Field[];
     normalizations: Normalization[];
-    indexes: any[];
     items: Item[];
     searches: Search[];
     nodes: Node[];
@@ -73,8 +70,7 @@ export const defaultState: State = {
     columns: [],
     fields: [],
     date_fields: [],
-    normalizations: [], 
-    indexes: [],
+    normalizations: [],
     items: [],
     searches: [],
     nodes: [], // all nodes
@@ -88,15 +84,6 @@ export const defaultState: State = {
 
 export default function entries(state: State = defaultState, action) {
     switch (action.type) {
-        case INDEX_DELETE:
-            const index = find(state.indexes, (i) => {
-                return (i.id == action.index);
-            });
-
-            var indexes = without(state.indexes, index);
-            return Object.assign({}, state, {
-                indexes: indexes,
-            });
         case NODES_DELETE: {
             const items = concat([], state.items);
             const nodes = concat([], state.nodes);
@@ -127,12 +114,7 @@ export default function entries(state: State = defaultState, action) {
 
             if (!action.search.completed) {
                 // Tell the server it can stop sending results for this query
-                Socket.ws.postMessage(
-                    {
-                        'request-id': action.search['request-id']
-                    },
-                    INDICES_REQUEST
-                );
+                cancelRequest(action.search['request-id']);
             }
 
             items = items.filter(item => item.query !== action.search.q);
@@ -378,11 +360,13 @@ export default function entries(state: State = defaultState, action) {
                 searches.push(search);
             }
 
-            let fieldPaths = action.fields.map(field => field.path);
-            fieldPaths = fieldPaths.concat(state.date_fields.map(field => field.path))
+            let fieldPaths: string[] = action.fields.map(field => field.path);
+            fieldPaths = fieldPaths.concat(state.date_fields.map(field => field.path));
+
+            const datasources: string[] = action.datasources.map(datasource => datasource.id);
 
             let message = {
-                datasources: action.datasources,
+                datasources: datasources,
                 query: action.query,
                 fields: fieldPaths,
                 'request-id': search.requestId
@@ -424,14 +408,12 @@ export default function entries(state: State = defaultState, action) {
             });
         }
         case LIVE_RECEIVE: {
-            console.log(state.indexes);
-
             let searches = state.searches;
-            let search: Search = searches.find(search => search.liveDatasource === action.datasource);
+            let search: Search = searches.find(search => search.liveDatasource === action.datasource.id);
 
             if (typeof search === 'undefined') {
                 search = {
-                    q: action.datasource,
+                    q: action.datasource.name,
                     color: '#0055cc',
                     total: 0,
                     displayNodes: 500,
@@ -439,15 +421,13 @@ export default function entries(state: State = defaultState, action) {
                     requestId: uniqueId(),
                     completed: false,
                     aroundNodeId: null,
-                    liveDatasource: action.datasource
+                    liveDatasource: action.datasource.id
                 };
 
                 searches = searches.concat([search])
             }
 
             const items = action.graphs || [];
-
-            console.log(items);
 
             search.items = concat(search.items, items);
 
@@ -463,7 +443,6 @@ export default function entries(state: State = defaultState, action) {
 
                     if (typeof existing === 'undefined') {
                         const field = createField(state.fields, key, 'string');
-                        console.log('add', field);
                         fields = fields.concat([field]);
                     }
                 });
@@ -612,32 +591,6 @@ export default function entries(state: State = defaultState, action) {
 
             return Object.assign({}, state, updates);
         }
-        case INDICES_REQUEST:
-            Socket.ws.postMessage(
-                {
-                    host: [action.payload.server]
-                },
-                INDICES_REQUEST
-            );
-
-            return Object.assign({}, state, {
-                isFetching: true,
-                didInvalidate: false
-            });
-
-        case INDICES_RECEIVE:
-            const indices = uniqBy(union(state.indexes, action.payload.indices.map((index) => {
-                return {
-                    id: `${action.payload.server}${index}`,
-                    server: action.payload.server,
-                    name: index
-                };
-            })), (i) => i.id);
-
-            return Object.assign({}, state, {
-                indexes: indices,
-                isFetching: false
-            });
 
         case FIELDS_REQUEST:
             return Object.assign({}, state, {
@@ -650,10 +603,7 @@ export default function entries(state: State = defaultState, action) {
             });
 
         case INITIAL_STATE_RECEIVE: {
-            console.log(action);
-
             return Object.assign({}, state, {
-                datasources: action.initial_state.datasources,
                 version: action.initial_state.version
             });
         }

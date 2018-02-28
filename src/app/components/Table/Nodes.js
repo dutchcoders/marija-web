@@ -263,7 +263,7 @@ class Nodes extends React.Component {
     }
 
     searchAround() {
-        const { dispatch, activeIndices, fields, nodes } = this.props;
+        const { dispatch, datasources, fields, nodes } = this.props;
         const selectedNodes = nodes.filter(node => node.selected);
 
         selectedNodes.forEach(node => {
@@ -272,7 +272,7 @@ class Nodes extends React.Component {
                 aroundNodeId: node.id,
                 from: 0,
                 size: 500,
-                datasources: activeIndices,
+                datasources: datasources,
                 fields: fields
             }));
         });
@@ -353,7 +353,7 @@ function select(state) {
         links: state.entries.links,
         queries: state.entries.searches,
         fields: state.entries.fields,
-        activeIndices: state.indices.activeIndices,
+        datasources: state.datasources.datasources,
         normalizations: state.entries.normalizations
     };
 }

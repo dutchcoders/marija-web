@@ -1,12 +1,9 @@
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 import { find, sortBy, map, slice, uniq, concat, isEqual } from 'lodash';
-import { requestIndices } from '../../modules/indices/index';
-import { fieldAdd, fieldDelete, dateFieldAdd, dateFieldDelete, normalizationAdd, normalizationDelete, indexAdd, indexDelete, viaDelete, viaAdd } from '../../modules/data/index';
-import { serverAdd, serverRemove } from '../../modules/servers/index';
-import { activateIndex, deActivateIndex } from '../../modules/indices/index';
-import { batchActions } from '../../modules/batch/index';
-import { getFields, clearAllFields, Field } from '../../modules/fields/index';
+import { fieldAdd, fieldDelete, normalizationAdd, normalizationDelete, viaDelete, viaAdd } from '../../modules/data/index';
+import { activateDatasource, deActivateDatasource } from '../../modules/datasources/index';
+import { Field } from '../../modules/fields/index';
 import { Icon } from '../index';
 import Url from "../../domain/Url";
 import Loader from "../Misc/Loader";
@@ -18,6 +15,7 @@ import {searchFieldsUpdate} from "../../modules/search/actions";
 import {highlightNodes} from "../../modules/graph/actions";
 import {Node} from "../../interfaces/node";
 import {Normalization} from "../../interfaces/normalization";
+import {Datasource} from "../../interfaces/datasource";
 
 interface State {
     normalization_error: string;
@@ -38,8 +36,7 @@ interface Props {
     date_fields: any;
     normalizations: Normalization[];
     via: any;
-    activeIndices: any;
-    datasources: any;
+    datasources: Datasource[];
     fieldsFetching: boolean;
     nodes: Node[];
 }
@@ -200,42 +197,6 @@ class ConfigurationView extends React.Component<Props, State> {
         dispatch(viaDelete(viaData));
     }
 
-    handleAddIndex(e) {
-        e.preventDefault();
-        const { index } = this.refs;
-        const { dispatch } = this.props;
-
-        if (index.value === '') {
-            return;
-        }
-
-        dispatch(batchActions(
-            indexAdd(index.value),
-            activateIndex(index.value)
-        ));
-    }
-
-    handleAddServer(e) {
-        e.preventDefault();
-
-        const { server } = this.refs;
-        const { dispatch } = this.props;
-
-        if (server.value === '') {
-            return;
-        }
-
-        dispatch(batchActions(
-            serverAdd(server.value),
-            requestIndices(server.value)
-        ));
-    }
-
-    handleDeleteServer(server) {
-        const { dispatch } = this.props;
-        dispatch(serverRemove(server));
-    }
-
     handleDeleteField(field) {
         const { dispatch } = this.props;
 
@@ -244,40 +205,19 @@ class ConfigurationView extends React.Component<Props, State> {
         dispatch(fieldDelete(field));
     }
 
-    handleDeleteDateField(field) {
-        const { dispatch } = this.props;
-
-        Url.removeQueryParam('date-fields', field.path);
-
-        dispatch(dateFieldDelete(field));
-    }
-
     handleDeleteNormalization(normalization) {
         const { dispatch } = this.props;
         dispatch(normalizationDelete(normalization));
-    }
-
-    handleDeleteIndex(index) {
-        const { dispatch } = this.props;
-        dispatch(batchActions(
-            indexDelete(index.id),
-            deActivateIndex(index.id)
-        ));
-    }
-
-    handleRequestIndices(server) {
-        const { dispatch } = this.props;
-        dispatch(requestIndices(server));
     }
 
     handleDatasourceChange(event, id) {
         const { dispatch } = this.props;
 
         if (event.target.checked) {
-            dispatch(activateIndex(id));
+            dispatch(activateDatasource(id));
             Url.addQueryParam('datasources', id);
         } else {
-            dispatch(deActivateIndex(id));
+            dispatch(deActivateDatasource(id));
             Url.removeQueryParam('datasources', id);
         }
     }
@@ -578,12 +518,11 @@ class ConfigurationView extends React.Component<Props, State> {
         );
     }
 
-    renderDatasources(datasources) {
-        const { dispatch, activeIndices } = this.props;
+    renderDatasources() {
+        const { datasources } = this.props;
 
         const options = map(sortBy(datasources, ["name"]), (datasource) => {
             const indexName = datasource.name;
-            const active = find(activeIndices, (a) => a === datasource.id);
 
             return (
                 <li key={ datasource.id } value={ indexName }>
@@ -591,7 +530,7 @@ class ConfigurationView extends React.Component<Props, State> {
                         { indexName }
                     </div>
 
-                    <input type="checkbox" defaultChecked={active} onChange={(event) => this.handleDatasourceChange(event, datasource.id)} />
+                    <input type="checkbox" defaultChecked={datasource.active} onChange={(event) => this.handleDatasourceChange(event, datasource.id)} />
 
                 </li>
             );
@@ -756,23 +695,23 @@ class ConfigurationView extends React.Component<Props, State> {
     }
 
     render() {
-        const { fields, normalizations, datasources, availableFields, activeIndices, fieldsFetching } = this.props;
+        const { fields, normalizations, datasources, availableFields, fieldsFetching } = this.props;
 
         return (
             <div>
                 <div className="form-group">
                     <h2>
                         Datasources
-                        {activeIndices.length === 0 ? this.getAtLeastOneAlert() : null}
+                        {datasources.filter(datasource => datasource.active).length === 0 ? this.getAtLeastOneAlert() : null}
                     </h2>
-                    { this.renderDatasources(datasources) }
+                    { this.renderDatasources() }
                 </div>
 
                 <div className="form-group">
                     <h2>
                         Fields
                         <Loader show={fieldsFetching} />
-                        {activeIndices.length > 0 && fields.length === 0 ? this.getAtLeastOneAlert() : null}
+                        {datasources.length > 0 && fields.length === 0 ? this.getAtLeastOneAlert() : null}
                     </h2>
 
                     { this.renderFields(fields, availableFields) }
@@ -812,8 +751,7 @@ function select(state) {
         date_fields: state.entries.date_fields,
         normalizations: state.entries.normalizations,
         via: state.entries.via,
-        activeIndices: state.indices.activeIndices,
-        datasources: state.entries.datasources,
+        datasources: state.datasources.datasources,
         fieldsFetching: state.fields.fieldsFetching,
         nodes: state.entries.nodes
     };

@@ -1,5 +1,4 @@
 const defaultState = {
-    activeIndices: []
 };
 
 export default function enableBatching(reducer) {

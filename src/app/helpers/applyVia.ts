@@ -1,4 +1,5 @@
 import { concat } from 'lodash';
+import {Link} from "../interfaces/link";
 
 function getConnectedNodes(node, nodes, links) {
     const connected = [];
@@ -51,7 +52,7 @@ export default function applyVia(nodes, links, via) {
 
     const nodesToRemove = [];
     const linksToRemove = [];
-    const newLinks = [];
+    const newLinks: Link[] = [];
 
     via.forEach(viaItem => {
         const step1Nodes = nodes.filter(node =>
@@ -88,7 +89,13 @@ export default function applyVia(nodes, links, via) {
                         newLinks.push({
                             source: step1Node.id,
                             target: step3Node.id,
-                            label: getLinkLabel(step2Node.name)
+                            label: getLinkLabel(step2Node.name),
+                            display: true,
+                            normalizationId: null,
+                            isNormalizationParent: false,
+                            total: 1,
+                            current: 1,
+                            color: ''
                         });
                     }
 

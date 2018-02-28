@@ -20,6 +20,12 @@ export function searchRequest(opts) {
     };
 }
 
+export function preSearchRequest() {
+    return (dispatch, getState) => {
+        // todo: get datasources
+    };
+}
+
 export function searchReceive(items, opts = {from: 0}) {
     return {
         type: SEARCH_RECEIVE,
