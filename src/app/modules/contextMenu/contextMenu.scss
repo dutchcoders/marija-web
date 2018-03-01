@@ -12,20 +12,20 @@
     border: none;
     color: white;
     padding: 5px;
-}
 
-.button i {
-    font-size: 20px;
-    display: inline-block;
-    width: 30px;
-    text-align: center;
-    margin-right: 5px;
-}
+    &:hover {
+        background: #689DE5;
+    }
 
-.button span {
-    font-size: 1.2em;
-}
+    i {
+        font-size: 20px;
+        display: inline-block;
+        width: 30px;
+        text-align: center;
+        margin-right: 5px;
+    }
 
-.button:hover {
-    background: #689DE5;
+    span {
+        font-size: 1.2em;
+    }
 }

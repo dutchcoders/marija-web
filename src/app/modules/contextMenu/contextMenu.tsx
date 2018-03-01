@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Node} from "../../interfaces/node";
-const styles = require('./contextMenu.css');
+import * as styles from './contextMenu.scss';
 import { Icon } from '../../components/index';
 import {connect, Dispatch} from "react-redux";
 import {deleteNodes, nodesSelect} from "../graph";

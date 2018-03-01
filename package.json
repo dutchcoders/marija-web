@@ -12,7 +12,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "autoprefixer": "^8.0.0",
     "babel-core": "^6.5.2",
     "babel-loader": "^6.2.4",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
@@ -42,8 +41,6 @@
     "marked": "^0.3.2",
     "node-sass": "^3.10.1",
     "null-loader": "^0.1.0",
-    "postcss": "^4.0.2",
-    "postcss-custom-properties": "3.0.1",
     "react-docgen": "^1.2.0",
     "react-router": "4.2.0",
     "react-tools": "^0.12.2",
@@ -86,9 +83,6 @@
     "node-sass": "^3.10.1",
     "pixi-multistyle-text": "^0.6.0",
     "pixi.js": "^4.6.2",
-    "postcss-import": "^11.1.0",
-    "postcss-loader": "^2.1.1",
-    "precss": "^3.1.2",
     "query-string": "^5.0.1",
     "rc-tooltip": "^3.7.0",
     "react": "^15.3.2",
@@ -115,7 +109,6 @@
     "source-map-loader": "^0.2.3",
     "ts-jest": "^22.0.4",
     "typescript": "^2.7.2",
-    "typings-for-css-modules-loader": "^1.7.0",
     "worker-loader": "^0.7.1"
   }
 }

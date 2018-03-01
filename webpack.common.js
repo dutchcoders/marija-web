@@ -32,7 +32,7 @@ module.exports = {
         })
     ],
     resolve: {
-        extensions: ['.js', '.scss', '.ts', '.tsx', '.css']
+        extensions: ['.js', '.ts', '.tsx', '.scss', '.css']
     },
     module: {
         rules: [
@@ -51,10 +51,9 @@ module.exports = {
                 loader: 'url-loader?limit=100000'
             },
             {
-                // Css files in src/app/ are loaded with postcss.
-                // This is the new standard and takes preference over css files
-                // in src/css/ or src/scss/
-                test: /\.css$/,
+                // Css files in src/app/ are modular (module: true in the css-loader config)
+                // This means that the class names are prefixed and suffixed with a hash to make them scoped
+                test: /\.(scss|css)$/,
                 exclude: [
                     path.join(__dirname, 'src', 'css'),
                     path.join(__dirname, 'src', 'scss'),
@@ -71,12 +70,12 @@ module.exports = {
                         }
                     },
                     {
-                        loader: 'postcss-loader'
+                        loader: 'sass-loader'
                     }
                 ]
             },
             {
-                // Other css files are loaded with the sass loader etc.
+                // Css files that are not in src/app/ are not modular, so they're not prefixed or suffixed
                 test: /\.(scss|css)$/,
                 exclude: [
                     path.join(__dirname, 'src', 'app')
