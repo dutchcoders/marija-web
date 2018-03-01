@@ -11,6 +11,10 @@ import {Link} from "../../interfaces/link";
 import {NodeFromWorker} from "../../interfaces/nodeFromWorker";
 import {LinkFromWorker} from "../../interfaces/linkFromWorker";
 import displayFilter from "../../helpers/displayFilter";
+import {
+    hideContextMenu,
+    showContextMenu
+} from "../../modules/contextMenu/contextMenuActions";
 const myWorker = require("worker-loader!./Worker");
 
 interface TextureMap {
@@ -1188,6 +1192,33 @@ class GraphPixi extends React.Component<Props, State> {
         this.zoom(transform.k, undefined, undefined);
     }
 
+    onContextMenu(event) {
+        const { transform } = this.state;
+        const { dispatch } = this.props;
+
+        event.preventDefault();
+
+        const rect: ClientRect = this.pixiContainer.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const transformedX = transform.invertX(x);
+        const transformedY = transform.invertY(y);
+        const node = this.findNode(transformedX, transformedY);
+
+        if (node) {
+            dispatch(showContextMenu(node, x, y));
+
+            // Hide tooltip, because it looks weird to have both active at the
+            // same time
+            dispatch(showTooltip([]));
+        }
+    }
+
+    hideContextMenu() {
+        const { dispatch } = this.props;
+        dispatch(hideContextMenu());
+    }
+
     render() {
         const { version } = this.props;
         const { frameTime } = this.state;
@@ -1195,7 +1226,12 @@ class GraphPixi extends React.Component<Props, State> {
 
         return (
             <div className="graphComponent">
-                <div className="graphContainer" ref={pixiContainer => this.pixiContainer = pixiContainer} />
+                <div
+                    className="graphContainer"
+                    ref={pixiContainer => this.pixiContainer = pixiContainer}
+                    onContextMenu={this.onContextMenu.bind(this)}
+                    onClick={this.hideContextMenu.bind(this)}
+                />
                 <p className="stats">
                     {(1000/frameTime).toFixed(1)} FPS<br />
                     SERVER VERSION: {version}<br />

@@ -1,28 +1,25 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import { EventEmitter } from 'fbemitter';
 
 import {
-    Header, Record, TableView, ConfigurationView, Timeline, Queries,
+    Header, Record, TableView, ConfigurationView, Timeline,
     GraphPixi, Pane, Icon, Nodes, Navigation
 } from './index';
 import Filter from "./Graphs/Filter";
+import ContextMenu from '../modules/contextMenu/contextMenu';
 
-class RootView extends Component {
+class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();
     exportTableEvents = new EventEmitter();
+    main: any;
 
     constructor(props) {
         super(props);
 
         this.state = {
-            currentNode: null,
             mounted: false
         };
-    }
-
-    handleMouseOver(node) {
-        this.setState({currentNode: node});
     }
 
     componentDidMount() {
@@ -49,8 +46,9 @@ class RootView extends Component {
                     <GraphPixi
                         className="graph"
                         zoomEvents={this.zoomEvents}
-                        handleMouseOver={ () => this.handleMouseOver() }
                     />
+
+                    <ContextMenu />
 
                     <Pane
                         name="Configuration"

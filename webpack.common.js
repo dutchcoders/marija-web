@@ -32,8 +32,7 @@ module.exports = {
         })
     ],
     resolve: {
-        // modules: ['node_modules', 'src'],
-        extensions: ['.js', '.scss', '.ts', '.tsx']
+        extensions: ['.js', '.scss', '.ts', '.tsx', '.css']
     },
     module: {
         rules: [
@@ -48,16 +47,58 @@ module.exports = {
                 loader: "source-map-loader"
             },
             {
+                test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+                loader: 'url-loader?limit=100000'
+            },
+            {
+                // Css files in src/app/ are loaded with postcss.
+                // This is the new standard and takes preference over css files
+                // in src/css/ or src/scss/
+                test: /\.css$/,
+                exclude: [
+                    path.join(__dirname, 'src', 'css'),
+                    path.join(__dirname, 'src', 'scss'),
+                ],
+                use: [
+                    {
+                        loader: 'style-loader',
+                    },
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            modules: true,
+                            localIdentName: '[name]__[local]--[hash:base64:5]'
+                        }
+                    },
+                    {
+                        loader: 'postcss-loader'
+                    }
+                ]
+            },
+            {
+                // Other css files are loaded with the sass loader etc.
                 test: /\.(scss|css)$/,
-                loaders: ['style-loader','css-loader','sass-loader']
+                exclude: [
+                    path.join(__dirname, 'src', 'app')
+                ],
+                use: [
+                    {
+                        loader: 'style-loader',
+                    },
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            importLoaders: 1,
+                        }
+                    },
+                    {
+                        loader: 'sass-loader'
+                    }
+                ]
             },
             {
                 test: /\.(html)$/i,
                 loader: 'file-loader?name=/[name].[ext]'
-            },
-            {
-                test: /\.(eot|svg|ttf|woff|woff2)([\?]?.*)$/,
-                loader: 'file-loader?name=fonts/[name].[ext]'
             },
             {
                 test: /\.(png|jpg|jpeg)$/,

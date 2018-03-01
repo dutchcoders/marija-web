@@ -7,7 +7,6 @@ import { Field } from '../../modules/fields/index';
 import { Icon } from '../index';
 import Url from "../../domain/Url";
 import Loader from "../Misc/Loader";
-import 'rc-tooltip/assets/bootstrap.css';
 import {Workspaces} from "../../domain/index";
 import {saveAs} from 'file-saver';
 import {exportData, importData} from "../../modules/import/actions";

@@ -20,9 +20,15 @@ export function searchRequest(opts) {
     };
 }
 
-export function preSearchRequest() {
+export function preSearchRequest(opts) {
     return (dispatch, getState) => {
-        // todo: get datasources
+        const state = getState();
+
+        dispatch(searchRequest({
+            query: opts.query,
+            aroundNodeId: opts.aroundNodeId,
+            datasources: state.datasources.datasources
+        }));
     };
 }
 

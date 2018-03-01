@@ -1,0 +1,31 @@
+.contextMenu {
+    position: absolute;
+    background: #50637D;
+    padding: 10px 0;
+}
+
+.button {
+    display: flex;
+    align-items: center;
+    width: 200px;
+    background: none;
+    border: none;
+    color: white;
+    padding: 5px;
+}
+
+.button i {
+    font-size: 20px;
+    display: inline-block;
+    width: 30px;
+    text-align: center;
+    margin-right: 5px;
+}
+
+.button span {
+    font-size: 1.2em;
+}
+
+.button:hover {
+    background: #689DE5;
+}

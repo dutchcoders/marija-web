@@ -1,8 +1,9 @@
 import { entries, enableBatching, utils, servers, datasources, fields, defaultState } from './';
-import { dispatch, compose, createStore, combineReducers, applyMiddleware } from 'redux';
+import { compose, createStore, combineReducers, applyMiddleware } from 'redux';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import {EXPORT_DATA, IMPORT_DATA} from "../modules/import/constants";
 import exportJson from "../helpers/exportJson";
+import contextMenuReducer from '../modules/contextMenu/contextMenuReducer';
 
 const appReducer = enableBatching(
     combineReducers({
@@ -11,6 +12,7 @@ const appReducer = enableBatching(
         servers,
         datasources,
         fields,
+        contextMenu: contextMenuReducer,
         routing: routerReducer
     })
 );

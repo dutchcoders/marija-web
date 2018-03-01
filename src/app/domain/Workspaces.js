@@ -46,8 +46,9 @@ export default class Workspaces {
                         nodes: [],
                         links: [],
                         searches: [],
-                        deletedNodes: []
-                    }
+                        deletedNodes: [],
+                    },
+                    contextMenu: {}
                 }
             });
 

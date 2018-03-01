@@ -22,6 +22,7 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import thunk from 'redux-thunk';
 import {defaultUtilsState} from "./reducers/utils";
 import {defaultDatasourcesState} from './reducers/datasources';
+import {initialContextMenuState} from './modules/contextMenu/contextMenuReducer';
 
 function configureStore() {
     return createStore(
@@ -33,6 +34,7 @@ function configureStore() {
                     ...defaultState
             },
             datasources: defaultDatasourcesState,
+            contextMenu: initialContextMenuState,
             fields: {
                 availableFields: []
             },
