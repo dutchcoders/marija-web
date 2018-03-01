@@ -9,7 +9,7 @@ import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
 import { fieldLocator, getRelatedNodes } from '../../helpers/index';
 
 import SkyLight from 'react-skylight';
-import {searchRequest} from "../../modules/search/actions";
+import {searchAround} from '../../modules/search/actions';
 import {showTooltip} from "../../modules/graph/actions";
 import {normalizationAdd} from "../../modules/data";
 import displayFilter from "../../helpers/displayFilter";
@@ -263,18 +263,11 @@ class Nodes extends React.Component {
     }
 
     searchAround() {
-        const { dispatch, datasources, fields, nodes } = this.props;
+        const { dispatch, nodes } = this.props;
         const selectedNodes = nodes.filter(node => node.selected);
 
         selectedNodes.forEach(node => {
-            dispatch(searchRequest({
-                query: node.name,
-                aroundNodeId: node.id,
-                from: 0,
-                size: 500,
-                datasources: datasources,
-                fields: fields
-            }));
+            dispatch(searchAround(node));
         });
     }
 
@@ -352,8 +345,6 @@ function select(state) {
         nodes: state.entries.nodes,
         links: state.entries.links,
         queries: state.entries.searches,
-        fields: state.entries.fields,
-        datasources: state.datasources.datasources,
         normalizations: state.entries.normalizations
     };
 }

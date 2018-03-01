@@ -7,7 +7,7 @@ import {deleteNodes, nodesSelect} from "../graph";
 import getDirectlyRelatedNodes from "../../helpers/getDirectlyRelatedNodes";
 import {Link} from "../../interfaces/link";
 import {hideContextMenu} from "./contextMenuActions";
-import {preSearchRequest} from "../search/actions";
+import {searchAround} from "../search/actions";
 
 interface Props {
     node: Node;
@@ -42,11 +42,7 @@ class ContextMenu extends React.Component<Props, State> {
     searchAround() {
         const { dispatch, node } = this.props;
 
-        dispatch(preSearchRequest({
-            query: node.name,
-            aroundNodeId: node.id
-        }));
-
+        dispatch(searchAround(node));
         this.close();
     }
 

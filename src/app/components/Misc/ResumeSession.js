@@ -94,13 +94,7 @@ class ResumeSession extends Component {
             }
 
             terms.forEach(term => {
-                dispatch(searchRequest({
-                    query: term,
-                    datasources: datasources,
-                    from: 0,
-                    size: 500,
-                    fields: fields
-                }));
+                dispatch(searchRequest(term));
             });
         });
     }

@@ -1,34 +1,34 @@
-import { SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_DELETE, DISPLAY_LESS, SEARCH_EDIT } from './index';
+import { SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_DELETE, SEARCH_EDIT } from './index';
 import {SEARCH_FIELDS_UPDATE} from "./constants";
+import {Node} from "../../interfaces/node";
 
-const defaultOpts = {
-    displayNodes: 500,
-    index: '',
-    query: '',
-    fields: [],
-    completed: false,
-    aroundNodeId: null
-};
-
-export function searchRequest(opts) {
-    const newOpts = Object.assign({}, defaultOpts, opts);
-
-    return {
-        type: SEARCH_REQUEST,
-        receivedAt: Date.now(),
-        ...newOpts
-    };
-}
-
-export function preSearchRequest(opts) {
+export function searchRequest(query: string) {
     return (dispatch, getState) => {
         const state = getState();
 
-        dispatch(searchRequest({
-            query: opts.query,
-            aroundNodeId: opts.aroundNodeId,
+        dispatch({
+            type: SEARCH_REQUEST,
+            receivedAt: Date.now(),
+            query: query,
+            aroundNodeId: null,
+            displayNodes: 500,
             datasources: state.datasources.datasources
-        }));
+        });
+    };
+}
+
+export function searchAround(node: Node) {
+    return (dispatch, getState) => {
+        const state = getState();
+
+        dispatch({
+            type: SEARCH_REQUEST,
+            receivedAt: Date.now(),
+            query: node.name,
+            aroundNodeId: node.id,
+            displayNodes: 500,
+            datasources: state.datasources.datasources
+        });
     };
 }
 
