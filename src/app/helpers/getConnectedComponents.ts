@@ -73,5 +73,9 @@ export default function getConnectedComponents(nodes, links) {
         groupId ++;
     });
 
-    return Object.values(groups);
+    const values = Object.keys(groups).map((key) => {
+        return groups[key];
+    });
+
+    return values;
 }
