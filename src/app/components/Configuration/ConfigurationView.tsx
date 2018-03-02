@@ -213,11 +213,11 @@ class ConfigurationView extends React.Component<Props, State> {
         const { dispatch } = this.props;
 
         if (event.target.checked) {
-            dispatch(activateDatasource(id));
             Url.addQueryParam('datasources', id);
+            dispatch(activateDatasource(id));
         } else {
-            dispatch(deActivateDatasource(id));
             Url.removeQueryParam('datasources', id);
+            dispatch(deActivateDatasource(id));
         }
     }
 
