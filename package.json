@@ -63,7 +63,7 @@
     "react-dom": "^16.2.0",
     "react-intl": "^2.4.0",
     "react-intl-es6": "^1.0.2-beta1",
-    "react-redux": "^4.4.1",
+    "react-redux": "^5.0.7",
     "react-rnd": "^7.3.0",
     "react-router-dom": "^4.2.2",
     "react-router-redux": "^4.0.0",
