@@ -929,10 +929,9 @@ class GraphPixi extends React.PureComponent<Props, State> {
         const y = this.transform.invertY(d3.event.layerY);
 
         if (selectingMode && this.selection) {
-            this.selection = assign({}, this.selection, {
-                x2: x,
-                y2: y
-            });
+            this.selection.x2 = x;
+            this.selection.y2 = y;
+            this.renderedSince.lastSelection = false;
         }
 
         const tooltip = this.findNode(x, y);
