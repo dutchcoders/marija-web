@@ -7,7 +7,6 @@ import { Field } from '../../modules/fields/index';
 import { Icon } from '../index';
 import Url from "../../domain/Url";
 import Loader from "../Misc/Loader";
-import 'rc-tooltip/assets/bootstrap.css';
 import {Workspaces} from "../../domain/index";
 import {saveAs} from 'file-saver';
 import {exportData, importData} from "../../modules/import/actions";
@@ -214,11 +213,11 @@ class ConfigurationView extends React.Component<Props, State> {
         const { dispatch } = this.props;
 
         if (event.target.checked) {
-            dispatch(activateDatasource(id));
             Url.addQueryParam('datasources', id);
+            dispatch(activateDatasource(id));
         } else {
-            dispatch(deActivateDatasource(id));
             Url.removeQueryParam('datasources', id);
+            dispatch(deActivateDatasource(id));
         }
     }
 

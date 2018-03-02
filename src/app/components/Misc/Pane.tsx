@@ -1,11 +1,13 @@
-import React from 'react';
+import * as React from 'react';
 import Rnd from 'react-rnd';
 import { Icon } from '../index';
 import { closePane, openPane } from '../../utils/index';
 import {movePaneToTop, setPaneConfig} from "../../utils/actions";
 import { debounce } from 'lodash';
 
-class Pane extends React.Component {
+class Pane extends React.Component<any, any> {
+    rnd: any;
+
     close() {
         const { dispatch, handle } = this.props;
 
@@ -144,12 +146,12 @@ class Pane extends React.Component {
             descriptionEl = <span className="description">{description}</span>;
         }
 
-        let style = {};
+        let style: any = {};
         if (top) {
             style.top = top + 'px';
         }
 
-        let rndStyle = {};
+        let rndStyle: any = {};
         if (!isOpen) {
             rndStyle.display = 'none';
         }

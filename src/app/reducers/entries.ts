@@ -380,7 +380,7 @@ export default function entries(state: State = defaultState, action) {
                 searches.push(search);
             }
 
-            let fieldPaths: string[] = action.fields.map(field => field.path);
+            let fieldPaths: string[] = state.fields.map(field => field.path);
             fieldPaths = fieldPaths.concat(state.date_fields.map(field => field.path));
 
             const datasources: string[] = action.datasources.map(datasource => datasource.id);

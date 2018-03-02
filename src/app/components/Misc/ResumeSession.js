@@ -52,9 +52,12 @@ class ResumeSession extends Component {
     }
 
     addDatasources(existingDatasources) {
-        const { dispatch, location } = this.props;
+        const { dispatch } = this.props;
 
-        const parsed = queryString.parse(location.search);
+        // Hack: get the query string from the window object, because our react history
+        // object might be out of date (should fix, but spent too much time on it already).
+        const myQueryString = window.location.href.replace(/.+\?/, '');
+        const parsed = queryString.parse(myQueryString);
 
         if (!parsed.datasources) {
             return;
@@ -94,13 +97,7 @@ class ResumeSession extends Component {
             }
 
             terms.forEach(term => {
-                dispatch(searchRequest({
-                    query: term,
-                    datasources: datasources,
-                    from: 0,
-                    size: 500,
-                    fields: fields
-                }));
+                dispatch(searchRequest(term));
             });
         });
     }

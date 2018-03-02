@@ -11,8 +11,7 @@
     "tsx"
   ],
   "transform": {
-    "^.+\\.jsx?$": "<rootDir>/node_modules/babel-jest",
-    "^.+\\.tsx?$": "ts-jest"
+    "^.+\\.(ts|tsx|js|jsx)$": "ts-jest"
   },
   "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$"
 }
