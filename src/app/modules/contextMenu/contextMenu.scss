@@ -1,7 +1,10 @@
+@import "../../../scss/mixins/shadow";
+
 .contextMenu {
     position: absolute;
     background: #50637D;
     padding: 10px 0;
+    @include shadow();
 }
 
 .button {

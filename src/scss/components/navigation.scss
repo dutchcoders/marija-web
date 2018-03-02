@@ -14,6 +14,7 @@
     padding: 2px 7px;
     display: flex;
     margin: 0 5px;
+    @include shadow();
 
     li {
       list-style: none;
