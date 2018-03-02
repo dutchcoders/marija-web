@@ -48,7 +48,7 @@ interface RenderedSince {
     lastSearchResults: boolean;
 }
 
-class GraphPixi extends React.Component<Props, State> {
+class GraphPixi extends React.PureComponent<Props, State> {
     pixiContainer: HTMLElement;
     state: State = {};
     renderedSince: RenderedSince = {
@@ -60,23 +60,23 @@ class GraphPixi extends React.Component<Props, State> {
         lastQueries: true,
         lastSearchResults: true
     };
-    nodesFromWorker: NodeFromWorker[];
+    nodesFromWorker: NodeFromWorker[] = [];
     nodeTextures: TextureMap = {};
-    renderedNodesContainer: PIXI.Container;
-    linksFromWorker: LinkFromWorker[];
-    renderedLinks: PIXI.Graphics;
-    renderedLinkLabels: PIXI.Container;
+    renderedNodesContainer: PIXI.Container = new PIXI.Container();
+    linksFromWorker: LinkFromWorker[] = [];
+    renderedLinks: PIXI.Graphics = new PIXI.Graphics();
+    renderedLinkLabels: PIXI.Container = new PIXI.Container();
     selection: any;
-    renderedSelection: PIXI.Graphics;
+    renderedSelection: PIXI.Graphics = new PIXI.Graphics();
     renderer: PIXI.WebGLRenderer;
-    renderedTooltip: PIXI.Container;
-    renderedSelectedNodes: PIXI.Container;
+    renderedTooltip: PIXI.Container = new PIXI.Graphics();
+    renderedSelectedNodes: PIXI.Container = new PIXI.Graphics();
     selectedNodeTextures: TextureMap = {};
     searchResultTextures: TextureMap = {};
-    renderedHighlights: PIXI.Container;
-    stage: PIXI.Container;
+    renderedHighlights: PIXI.Container = new PIXI.Container();
+    stage: PIXI.Container = new PIXI.Container();
     worker: Worker;
-    transform: any; // d3.ZoomTransform gives error saying that 'k' is readonly
+    transform: any = d3.zoomIdentity;
     shift: boolean;
     lastLoopTimestamp: number;
     frameTime: number;
@@ -454,15 +454,6 @@ class GraphPixi extends React.Component<Props, State> {
         });
     }
 
-    shouldComponentUpdate(nextProps: Props, nextState: State) {
-        const { searches, nodesForDisplay, linksForDisplay } = this.props;
-
-        return nextProps.nodesForDisplay !== nodesForDisplay
-            || nextProps.linksForDisplay !== linksForDisplay
-            || nextProps.searches !== searches
-            // || (Date.now() - lastDisplayedFps.getTime()) > 1000;
-    }
-
     renderSelection() {
         this.renderedSelection.clear();
 
@@ -724,7 +715,7 @@ class GraphPixi extends React.Component<Props, State> {
     initGraph() {
         const { width, height } = this.pixiContainer.getBoundingClientRect();
 
-        const renderer = new PIXI.WebGLRenderer({
+        this.renderer = new PIXI.WebGLRenderer({
             antialias: true,
             transparent: false,
             resolution: 1,
@@ -732,36 +723,21 @@ class GraphPixi extends React.Component<Props, State> {
             height: height
         });
 
-        renderer.backgroundColor = 0x3D4B5D;
+        this.renderer.backgroundColor = 0x3D4B5D;
 
-        this.pixiContainer.appendChild(renderer.view);
+        this.pixiContainer.appendChild(this.renderer.view);
 
-        const stage = new PIXI.Container();
-
-        const renderedLinks =  new PIXI.Graphics();
-        stage.addChild(renderedLinks);
-
-        const renderedLinkLabels =  new PIXI.Container();
-        stage.addChild(renderedLinkLabels);
-
-        const renderedHighlights =  new PIXI.Container();
-        stage.addChild(renderedHighlights);
-
-        const renderedNodesContainer = new PIXI.Container();
-        stage.addChild(renderedNodesContainer);
-
-        const renderedSelection = new PIXI.Graphics();
-        stage.addChild(renderedSelection);
-
-        const renderedSelectedNodes = new PIXI.Container();
-        stage.addChild(renderedSelectedNodes);
-
-        const renderedTooltip = new PIXI.Container();
-        stage.addChild(renderedTooltip);
+        this.stage.addChild(this.renderedLinks);
+        this.stage.addChild(this.renderedLinkLabels);
+        this.stage.addChild(this.renderedHighlights);
+        this.stage.addChild(this.renderedNodesContainer);
+        this.stage.addChild(this.renderedSelection);
+        this.stage.addChild(this.renderedSelectedNodes);
+        this.stage.addChild(this.renderedTooltip);
 
         const dragging = d3.drag()
             .filter(() => this.isMoving())
-            .container(renderer.view)
+            .container(this.renderer.view)
             .subject(this.dragsubject.bind(this))
             .on('start', this.dragstarted.bind(this))
             .on('drag', this.dragged.bind(this))
@@ -772,22 +748,12 @@ class GraphPixi extends React.Component<Props, State> {
             .scaleExtent([.3, 3])
             .on("zoom", this.zoomed.bind(this));
 
-        d3.select(renderer.view)
+        d3.select(this.renderer.view)
             .call(dragging)
             .call(zooming)
             .on('mousedown', this.onMouseDown.bind(this))
             .on('mousemove', this.onMouseMove.bind(this))
             .on('mouseup', this.onMouseUp.bind(this));
-
-        this.renderedNodesContainer = renderedNodesContainer;
-        this.renderedLinks = renderedLinks;
-        this.renderedSelection = renderedSelection;
-        this.renderer = renderer;
-        this.renderedTooltip = renderedTooltip;
-        this.stage = stage;
-        this.renderedLinkLabels = renderedLinkLabels;
-        this.renderedSelectedNodes = renderedSelectedNodes;
-        this.renderedHighlights = renderedHighlights;
 
         this.renderGraph(false);
     }
@@ -956,37 +922,34 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     onMouseMove() {
-        // const { selectingMode, dispatch, nodesForDisplay, linksForDisplay } = this.props;
-        // const tooltipNodes = this.getTooltipNodes();
-        //
-        //
-        // this.transform = d3.event.transform;
-        //
-        // const x = this.transform.invertX(d3.event.layerX);
-        // const y = this.transform.invertY(d3.event.layerY);
-        //
-        // if (selectingMode && this.selection) {
-        //     this.selection = assign({}, this.selection, {
-        //         x2: x,
-        //         y2: y
-        //     });
-        // }
-        //
-        // const tooltip = this.findNode(x, y);
-        //
-        // if (tooltipNodes[0] === tooltip) {
-        //     // Nothing changed
-        //     return;
-        // }
-        //
-        // this.tooltipNode(tooltip);
-        // let related = [];
-        //
-        // if (tooltip) {
-        //     related = getDirectlyRelatedNodes([tooltip], nodesForDisplay, linksForDisplay);
-        // }
-        //
-        // dispatch(highlightNodes(related));
+        const { selectingMode, dispatch, nodesForDisplay, linksForDisplay } = this.props;
+        const tooltipNodes = this.getTooltipNodes();
+
+        const x = this.transform.invertX(d3.event.layerX);
+        const y = this.transform.invertY(d3.event.layerY);
+
+        if (selectingMode && this.selection) {
+            this.selection = assign({}, this.selection, {
+                x2: x,
+                y2: y
+            });
+        }
+
+        const tooltip = this.findNode(x, y);
+
+        if (tooltipNodes[0] === tooltip) {
+            // Nothing changed
+            return;
+        }
+
+        this.tooltipNode(tooltip);
+        let related = [];
+
+        if (tooltip) {
+            related = getDirectlyRelatedNodes([tooltip], nodesForDisplay, linksForDisplay);
+        }
+
+        dispatch(highlightNodes(related));
     }
 
     onMouseUp() {
