@@ -61,16 +61,16 @@ class ContextMenu extends React.Component<Props, State> {
         return (
             <nav className={styles.contextMenu} style={{top: y, left: x}}>
                 <button onClick={this.selectRelated.bind(this)} className={styles.button}>
-                    <Icon name="ion-qr-scanner" />
-                    <span>Select related</span>
+                    <Icon name={'ion-qr-scanner ' + styles.icon} />
+                    <span className={styles.title}>Select related</span>
                 </button>
                 <button onClick={this.searchAround.bind(this)} className={styles.button}>
-                    <Icon name="ion-ios-search" />
-                    <span>Search around</span>
+                    <Icon name={'ion-ios-search ' + styles.icon} />
+                    <span className={styles.title}>Search around</span>
                 </button>
                 <button onClick={this.delete.bind(this)} className={styles.button}>
-                    <Icon name="ion-ios-trash" />
-                    <span>Delete</span>
+                    <Icon name={'ion-ios-trash ' + styles.icon} />
+                    <span className={styles.title}>Delete</span>
                 </button>
             </nav>
         );

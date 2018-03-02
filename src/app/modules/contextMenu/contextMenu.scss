@@ -19,16 +19,16 @@
     &:hover {
         background: #689DE5;
     }
+}
 
-    i {
-        font-size: 20px;
-        display: inline-block;
-        width: 30px;
-        text-align: center;
-        margin-right: 5px;
-    }
+.icon {
+    font-size: 20px;
+    display: inline-block;
+    width: 30px;
+    text-align: center;
+    margin-right: 5px;
+}
 
-    span {
-        font-size: 1.2em;
-    }
+.title {
+    font-size: 1.2em;
 }

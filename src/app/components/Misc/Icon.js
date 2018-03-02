@@ -8,7 +8,3 @@ export default class Icon extends Component {
         );
     }
 }
-
-Icon.propTypes = {
-    name: React.PropTypes.string.isRequired
-};

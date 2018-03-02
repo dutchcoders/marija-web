@@ -1,28 +1,24 @@
 const webpack = require('webpack');
 const path = require('path');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const dotenv = require('dotenv');
 const { gitDescribeSync } = require('git-describe');
-
 dotenv.config();
 
 const gitInfo = gitDescribeSync();
 
-const BUILD_DIR = path.resolve(__dirname, 'build');
 const SRC_DIR = path.resolve(__dirname, 'src');
 
 module.exports = {
     entry: {
-        index: [SRC_DIR + '/app/main.js']
+        vendor: SRC_DIR + '/app/vendor.ts',
+        app: SRC_DIR + '/app/main.js'
     },
-    target: 'web',
-    output: {
-        path: BUILD_DIR,
-        filename: 'bundle.js'
-    },
-    devtool: 'source-map',
+    devtool: 'eval',
     plugins: [
-        new ExtractTextPlugin('../dist/app.css'),
+        new webpack.optimize.CommonsChunkPlugin({
+            name: 'vendor',
+            filename: 'vendor.js'
+        }),
         new webpack.DefinePlugin({
             "process.env": { 
                 NODE_ENV: JSON.stringify(process.env.NODE_ENV || "development"),
@@ -75,7 +71,7 @@ module.exports = {
                 ]
             },
             {
-                // Css files that are not in src/app/ are not modular, so they're not prefixed or suffixed
+                // Css files that are not in src/app/ are not modular, so the css classes not prefixed or suffixed
                 test: /\.(scss|css)$/,
                 exclude: [
                     path.join(__dirname, 'src', 'app')
