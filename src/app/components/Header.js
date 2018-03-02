@@ -14,16 +14,12 @@ class Header extends Component {
         return generateColour(str);
     }
 
-    onSearchSubmit(q, index) {
-        const { dispatch, datasources, fields } = this.props;
+    onSearchSubmit(q) {
+        const { dispatch } = this.props;
 
         Url.addQueryParam('search', q);
 
-        dispatch(searchRequest({
-            query: q,
-            datasources: datasources.filter(datasource => datasource.active),
-            fields: fields
-        }));
+        dispatch(searchRequest(q));
     }
 
     openPane() {
@@ -46,7 +42,6 @@ class Header extends Component {
                     total={total}
                     onSubmit={(q, index) => this.onSearchSubmit(q, index)}
                     connected={connected}
-                    indexes={datasources}
                     enabled={fields.length > 0 && datasources.length > 0}
                 />
                 { errors }
