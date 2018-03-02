@@ -12,7 +12,6 @@ import 'react-color';
 import 'react-dimensions';
 import 'react-dom';
 import 'react-intl';
-import 'react-intl-es6';
 import 'react-redux';
 import 'react-rnd';
 import 'react-router-dom';

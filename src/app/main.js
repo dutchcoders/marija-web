@@ -5,7 +5,7 @@ require('../scss/app.scss');
 require('../images/logo.png');
 require('../images/favicon.png');
 
-import React, { Component } from 'react';
+import * as React from 'react';
 import { render } from 'react-dom';
 import { dispatch, compose, createStore, combineReducers, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
@@ -13,7 +13,6 @@ import { connect } from 'react-redux';
 import { Router, Route } from 'react-router';
 import { createBrowserHistory } from 'history';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
-import { Intl }  from 'react-intl-es6';
 import { RootView, StateCapturer, Websocket } from './components/index';
 import { entries, enableBatching, utils, servers, datasources, fields, defaultState, root } from './reducers/index';
 import { persistState } from './helpers/index';
@@ -52,13 +51,7 @@ function configureStore() {
 const store = configureStore();
 const history = syncHistoryWithStore(createBrowserHistory(), store);
 
-class App extends Intl {
-    constructor() {
-        super(i18n.locales, i18n.messages);
-    }
-
-    componentDidMount() {}
-
+class App extends React.Component {
     render() {
         return (
             <div className="applicationWrapper">
