@@ -10,11 +10,14 @@ import {Node} from "../../interfaces/node";
 import {Link} from "../../interfaces/link";
 import {NodeFromWorker} from "../../interfaces/nodeFromWorker";
 import {LinkFromWorker} from "../../interfaces/linkFromWorker";
-import displayFilter from "../../helpers/displayFilter";
 import {
     hideContextMenu,
     showContextMenu
 } from "../../modules/contextMenu/contextMenuActions";
+import {
+    getLinksForDisplay,
+    getNodesForDisplay
+} from "../../reducers/entriesSelectors";
 const myWorker = require("worker-loader!./Worker");
 
 interface TextureMap {
@@ -24,16 +27,14 @@ interface TextureMap {
 interface Props {
     selectingMode: boolean;
     searches: Search[];
-    nodes: Node[];
-    links: Link[];
+    nodesForDisplay: Node[];
+    linksForDisplay: Link[];
     zoomEvents: any;
     dispatch: Dispatch<any>;
     version: string;
 }
 
 interface State {
-    nodesForDisplay: Node[];
-    linksForDisplay: Link[];
     nodesFromWorker: NodeFromWorker[];
     nodeTextures: TextureMap;
     renderedNodesContainer: PIXI.Container;
@@ -50,13 +51,6 @@ interface State {
     renderedHighlights: PIXI.Container;
     stage: PIXI.Container;
     worker: Worker;
-    renderedSinceLastTick: boolean;
-    renderedSinceLastZoom: boolean;
-    renderedSinceLastTooltip: boolean;
-    renderedSinceLastSelection: boolean;
-    renderedSinceLastSelectedNodes: boolean;
-    renderedSinceLastQueries: boolean;
-    renderedSinceLastSearchResults: boolean;
     transform: any; // d3.ZoomTransform gives error saying that 'k' is readonly
     shift: boolean;
     lastLoopTimestamp: number;
@@ -66,11 +60,19 @@ interface State {
     tooltipTextures: TextureMap;
 }
 
+interface RenderedSince {
+    lastTick: boolean;
+    lastZoom: boolean;
+    lastTooltip: boolean;
+    lastSelection: boolean;
+    lastSelectedNodes: boolean;
+    lastQueries: boolean;
+    lastSearchResults: boolean;
+}
+
 class GraphPixi extends React.Component<Props, State> {
     pixiContainer: HTMLElement;
     state: State = {
-        nodesForDisplay: [],
-        linksForDisplay: [],
         nodesFromWorker: [],
         nodeTextures: {},
         renderedNodesContainer: undefined,
@@ -87,13 +89,6 @@ class GraphPixi extends React.Component<Props, State> {
         renderedHighlights: undefined,
         stage: undefined,
         worker: undefined,
-        renderedSinceLastTick: false,
-        renderedSinceLastZoom: true,
-        renderedSinceLastTooltip: false,
-        renderedSinceLastSelection: false,
-        renderedSinceLastSelectedNodes: false,
-        renderedSinceLastQueries: false,
-        renderedSinceLastSearchResults: true,
         transform: d3.zoomIdentity as any,
         shift: false,
         lastLoopTimestamp: 0,
@@ -101,6 +96,15 @@ class GraphPixi extends React.Component<Props, State> {
         lastDisplayedFps: new Date(),
         labelTextures: {},
         tooltipTextures: {}
+    };
+    renderedSince: RenderedSince = {
+        lastTick: false,
+        lastZoom: false,
+        lastTooltip: false,
+        lastSelection: false,
+        lastSelectedNodes: false,
+        lastQueries: false,
+        lastSearchResults: false
     };
 
     isMoving() {
@@ -133,9 +137,10 @@ class GraphPixi extends React.Component<Props, State> {
 
         this.setState({
             nodesFromWorker: data.nodes,
-            linksFromWorker: data.links,
-            renderedSinceLastTick: false
+            linksFromWorker: data.links
         });
+
+        this.renderedSince.lastTick = false;
     }
 
     zoom(fraction: number, newX: number, newY: number) {
@@ -154,9 +159,7 @@ class GraphPixi extends React.Component<Props, State> {
             }
         });
 
-        this.setState({
-            renderedSinceLastZoom: false
-        });
+        this.renderedSince.lastZoom = false;
     }
 
     zoomed() {
@@ -417,9 +420,9 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     getSelectedNodes() {
-        const { nodes } = this.props;
+        const { nodesForDisplay } = this.props;
 
-        return nodes.filter(node => node.selected);
+        return nodesForDisplay.filter(node => node.selected);
     }
 
     shouldPostToWorker(prevNodes: Node[], nextNodes: Node[], prevLinks: Link[], nextLinks: Link[]): boolean {
@@ -431,66 +434,46 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     getTooltipNodes(): Node[] {
-        const { nodes } = this.props;
+        const { nodesForDisplay } = this.props;
 
-        return nodes.filter(node => node.displayTooltip);
+        return nodesForDisplay.filter(node => node.displayTooltip);
     }
 
     getHighlightNodes(): Node[] {
-        const { nodes } = this.props;
+        const { nodesForDisplay } = this.props;
 
-        return nodes.filter(node => node.highlighted);
+        return nodesForDisplay.filter(node => node.highlighted);
     }
 
-    componentDidUpdate(prevProps: Props, prevState: State) {
-        const { nodes, links, searches } = this.props;
-        const { nodesForDisplay, linksForDisplay } = this.state;
+    componentWillReceiveProps(nextProps: Props) {
+        const { searches, nodesForDisplay, linksForDisplay } = this.props;
         const selectedNodes = this.getSelectedNodes();
-        const prevSelected = prevProps.nodes.filter(node => node.selected);
-
-        if (!isEqual(prevProps.nodes, nodes) || !isEqual(prevProps.links, links)) {
-            this.setState({
-                nodesForDisplay: nodes.filter(node => displayFilter(node)),
-                linksForDisplay: links.filter(link => displayFilter(link))
-            });
-        }
+        const prevSelected = nextProps.nodesForDisplay.filter(node => node.selected);
 
         if (!isEqual(prevSelected, selectedNodes)) {
-            this.setState({
-                renderedSinceLastSelectedNodes: false
-            });
+            this.renderedSince.lastSelectedNodes = false;
         }
 
-        if (prevProps.nodes.filter(node => node.displayTooltip) !== this.getTooltipNodes()) {
-            this.setState({
-                renderedSinceLastTooltip: false
-            });
+        if (nextProps.nodesForDisplay.filter(node => node.displayTooltip) !== this.getTooltipNodes()) {
+            this.renderedSince.lastTooltip = false;
         }
 
-        if (!isEqual(prevProps.searches, searches)) {
+        if (!isEqual(nextProps.searches, searches)) {
             this.setState({
-                renderedSinceLastQueries: false,
                 nodeTextures: {}
-            });
+            }, () => this.renderedSince.lastQueries = false);
         }
 
-        if (this.shouldPostToWorker(prevState.nodesForDisplay, nodesForDisplay, prevState.linksForDisplay, linksForDisplay)) {
-            this.postNodesAndLinksToWorker();
+        if (this.shouldPostToWorker(nextProps.nodesForDisplay, nodesForDisplay, nextProps.linksForDisplay, linksForDisplay)) {
+            this.postNodesAndLinksToWorker(nextProps.nodesForDisplay, nextProps.linksForDisplay);
         }
 
-        if (prevProps.nodes.filter(node => node.highlighted) !== this.getHighlightNodes()) {
-            this.setState({
-                renderedSinceLastSearchResults: false
-            });
+        if (nextProps.nodesForDisplay.filter(node => node.highlighted) !== this.getHighlightNodes()) {
+            this.renderedSince.lastSearchResults = false;
         }
-
-        this.setState({
-            lastDisplayedFps: new Date()
-        });
     }
 
-    postNodesAndLinksToWorker() {
-        const { nodesForDisplay, linksForDisplay } = this.state;
+    postNodesAndLinksToWorker(nodesForDisplay: Node[], linksForDisplay: Link[]) {
         const nodesToPost = [];
 
         nodesForDisplay.forEach(node => {
@@ -523,15 +506,13 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     shouldComponentUpdate(nextProps: Props, nextState: State) {
-        const { searches, nodes, links } = this.props;
-        const { lastDisplayedFps, nodesForDisplay, linksForDisplay } = this.state;
+        const { searches, nodesForDisplay, linksForDisplay } = this.props;
+        const { lastDisplayedFps,  } = this.state;
 
-        return nextProps.nodes !== nodes
-            || nextState.nodesForDisplay !== nodesForDisplay
+        return nextProps.nodesForDisplay !== nodesForDisplay
+            || nextProps.linksForDisplay !== linksForDisplay
             || nextProps.searches !== searches
-            || nextProps.links !== links
-            || nextState.linksForDisplay !== linksForDisplay
-            || (Date.now() - lastDisplayedFps.getTime()) > 1000;
+            // || (Date.now() - lastDisplayedFps.getTime()) > 1000;
     }
 
     renderSelection() {
@@ -749,55 +730,60 @@ class GraphPixi extends React.Component<Props, State> {
         }
 
         const shouldRender = (key) => {
-            return !this.state[key];
+            return !this.renderedSince[key];
         };
 
         const stateUpdates: any = {};
 
-        if (shouldRender('renderedSinceLastTick')
-            || shouldRender('renderedSinceLastZoom')
-            || shouldRender('renderedSinceLastQueries')) {
+        if (shouldRender('lastTick')
+            || shouldRender('lastZoom')
+            || shouldRender('lastQueries')) {
             this.renderNodes();
             this.renderLinks();
             this.renderTooltip();
 
-            stateUpdates.renderedSinceLastTick = true;
-            stateUpdates.renderedSinceLastZoom = true;
-            stateUpdates.renderedSinceLastQueries = true;
+            stateUpdates.lastTick = true;
+            stateUpdates.lastZoom = true;
+            stateUpdates.lastQueries = true;
         }
 
-        if (shouldRender('renderedSinceLastSelection')) {
+        if (shouldRender('lastSelection')) {
             this.renderSelection();
 
-            stateUpdates.renderedSinceLastSelection = true;
+            stateUpdates.lastSelection = true;
         }
 
-        if (shouldRender('renderedSinceLastTooltip')) {
+        if (shouldRender('lastTooltip')) {
             this.renderTooltip();
 
-            stateUpdates.renderedSinceLastTooltip = true;
+            stateUpdates.lastTooltip = true;
         }
 
-        if (shouldRender('renderedSinceLastSelectedNodes')
-            || shouldRender('renderedSinceLastTick')
-            || shouldRender('renderedSinceLastZoom')) {
+        if (shouldRender('lastSelectedNodes')
+            || shouldRender('lastTick')
+            || shouldRender('lastZoom')) {
             this.renderSelectedNodes();
 
-            stateUpdates.renderedSinceLastSelectedNodes = true;
+            stateUpdates.lastSelectedNodes = true;
         }
 
-        if (shouldRender('renderedSinceLastSearchResults')
-            || shouldRender('renderedSinceLastZoom')
-            || shouldRender('renderedSinceLastTick')) {
+        if (shouldRender('lastSearchResults')
+            || shouldRender('lastZoom')
+            || shouldRender('lastTick')) {
             this.renderSearchResults();
 
-            stateUpdates.renderedSinceLastSearchResults = true;
+            stateUpdates.lastSearchResults = true;
         }
 
-        this.setState(stateUpdates);
-        this.measureFps();
+        const hasStateUpdates: boolean = !isEmpty(stateUpdates);
 
-        requestAnimationFrame(() => this.renderGraph(!isEmpty(stateUpdates)));
+        if (hasStateUpdates) {
+            Object.assign(this.renderedSince, stateUpdates);
+        }
+
+        // this.measureFps();
+
+        requestAnimationFrame(() => this.renderGraph(hasStateUpdates));
     }
 
     measureFps() {
@@ -887,13 +873,11 @@ class GraphPixi extends React.Component<Props, State> {
 
     initWorker() {
         const { width, height } = this.pixiContainer.getBoundingClientRect();
-        const { nodes, links } = this.props;
+        const { nodesForDisplay, linksForDisplay } = this.props;
         const worker = new myWorker();
 
         this.setState({
-            worker: worker,
-            nodesForDisplay: nodes.filter(node => displayFilter(node)),
-            linksForDisplay: links.filter(link => displayFilter(link)),
+            worker: worker
         }, () => {
             worker.onmessage = (event) => this.onWorkerMessage(event);
 
@@ -903,7 +887,7 @@ class GraphPixi extends React.Component<Props, State> {
                 clientHeight: height
             });
 
-            this.postNodesAndLinksToWorker();
+            this.postNodesAndLinksToWorker(nodesForDisplay, linksForDisplay);
         });
     }
 
@@ -932,9 +916,7 @@ class GraphPixi extends React.Component<Props, State> {
 
         renderer.resize(width, height);
 
-        this.setState({
-            renderedSinceLastZoom: false
-        });
+        this.renderedSince.lastZoom = false;
     }, 500);
 
     dragstarted() {
@@ -1005,7 +987,7 @@ class GraphPixi extends React.Component<Props, State> {
             return;
         }
 
-        const { nodesForDisplay } = this.state;
+        const { nodesForDisplay } = this.props;
 
         return nodesForDisplay.find(node => node.hash === nodeFromWorker.hash);
     }
@@ -1032,8 +1014,7 @@ class GraphPixi extends React.Component<Props, State> {
         const { dispatch } = this.props;
 
         dispatch(nodesSelect(nodes));
-
-        this.setState({ renderedSinceLastSelectedNodes: false });
+        this.renderedSince.lastSelectedNodes = false;
     }
 
     /**
@@ -1071,8 +1052,8 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     onMouseMove() {
-        const { transform, selection, nodesForDisplay, linksForDisplay } = this.state;
-        const { selectingMode, dispatch } = this.props;
+        const { transform, selection } = this.state;
+        const { selectingMode, dispatch, nodesForDisplay, linksForDisplay } = this.props;
         const tooltipNodes = this.getTooltipNodes();
 
         const x = transform.invertX(d3.event.layerX);
@@ -1085,9 +1066,8 @@ class GraphPixi extends React.Component<Props, State> {
             });
 
             this.setState({
-                renderedSinceLastSelection: false,
                 selection: newSelection
-            });
+            }, () => this.renderedSince.lastSelection = false);
         }
 
         const tooltip = this.findNode(x, y);
@@ -1108,7 +1088,8 @@ class GraphPixi extends React.Component<Props, State> {
     }
 
     onMouseUp() {
-        const { selection, nodesFromWorker, nodesForDisplay } = this.state;
+        const { selection, nodesFromWorker } = this.state;
+        const { nodesForDisplay } = this.props;
         const selectedNodes = this.getSelectedNodes();
 
         if (!selection) {
@@ -1140,9 +1121,8 @@ class GraphPixi extends React.Component<Props, State> {
         this.selectNodes(newSelectedNodes);
 
         this.setState({
-            selection: null,
-            renderedSinceLastSelection: false
-        });
+            selection: null
+        }, () => this.renderedSince.lastSelection = false);
     }
 
     handleKeyDown(event) {
@@ -1245,11 +1225,10 @@ class GraphPixi extends React.Component<Props, State> {
 const select = (state, ownProps) => {
     return {
         ...ownProps,
-        nodes: state.entries.nodes,
-        links: state.entries.links,
+        nodesForDisplay: getNodesForDisplay(state),
+        linksForDisplay: getLinksForDisplay(state),
         searches: state.entries.searches,
         fields: state.entries.fields,
-        items: state.entries.items,
         version: state.entries.version,
         selectingMode: state.entries.selectingMode
     };
