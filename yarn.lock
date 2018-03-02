@@ -37,8 +37,8 @@
   resolved "https://registry.yarnpkg.com/@types/d3-chord/-/d3-chord-1.0.6.tgz#0589eb97a3191f4edaf17b7bde498462890ce1ec"
 
 "@types/d3-collection@*":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@types/d3-collection/-/d3-collection-1.0.5.tgz#bb1f3aa97cdc8d881645541b9d6cf87edfee9bc3"
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@types/d3-collection/-/d3-collection-1.0.6.tgz#0a5a87fe241fcbd253a637d024b4d8c55f84a369"
 
 "@types/d3-color@*":
   version "1.0.5"
@@ -5700,10 +5700,6 @@ react-draggable@^3.0.3:
   dependencies:
     classnames "^2.2.5"
     prop-types "^15.6.0"
-
-react-intl-es6@^1.0.2-beta1:
-  version "1.0.2-beta1"
-  resolved "https://registry.yarnpkg.com/react-intl-es6/-/react-intl-es6-1.0.2-beta1.tgz#1e1b41fb84fab03bce4db42e624b374f5f548883"
 
 react-intl@^2.4.0:
   version "2.4.0"
