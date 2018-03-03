@@ -16,17 +16,29 @@ export const Socket = {
     ws: null,
     searchResults: {},
     searchTimeouts: {},
-    searchReceive: (results, query, dispatch) => {
-        if (results === null) {
+    searchReceive: (newResults, query, dispatch) => {
+        if (newResults === null) {
             return;
         }
 
-        let prevResults = [];
-        if (Socket.searchResults[query]) {
-            prevResults = Socket.searchResults[query];
-        }
+        let results = Socket.searchResults[query] || [];
 
-        Socket.searchResults[query] = prevResults.concat(results);
+        for ( var i = 0; i < newResults.length; i++ ) {
+            let result = newResults[i];
+
+            let index = results.findIndex((item) => (item.id == result.id));
+
+            if (index == -1) {
+                results.push(result);
+                continue;
+            }
+
+            // already exists, update count
+            results[index].count = result.count;
+        };
+
+        Socket.searchResults[query] = results;
+
         clearTimeout(Socket.searchTimeouts[query]);
 
         Socket.searchTimeouts[query] = setTimeout(() => {
@@ -86,6 +98,8 @@ export const Socket = {
             url = ((location.protocol === "https:") ? "wss://" : "ws://") + location.host + "/ws";
         }
 
+        console.log('%cMarija', 'font-size:40px;color:#blue;text-shadow:0 1px 0 #ccc,0 2px 0 #c9c9c9,0 3px 0 #bbb,0 4px 0 #b9b9b9,0 5px 0 #aaa,0 6px 1px rgba(0,0,0,.1),0 0 5px rgba(0,0,0,.1),0 1px 3px rgba(0,0,0,.3),0 3px 5px rgba(0,0,0,.2),0 5px 10px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.2),0 20px 20px rgba(0,0,0,.15);');
+        console.log(`Using backend: ${ url }`);
         try {
             Socket.ws = new FlowWS(url, null, Socket.wsDispatcher, dispatch);
         } catch (e) {
