@@ -8,7 +8,7 @@
     "jsx": "react",
     "allowJs": true,
     "noImplicitAny": false,
-    "lib": ["es2015", "es2017", "dom"],
+    "lib": ["webworker", "es2015", "es2017", "dom"],
     "types": ["jest", "node"]
   },
   "include": [

@@ -1,4 +1,3 @@
-import { concat } from 'lodash';
 import {Link} from "../interfaces/link";
 import {Via} from "../interfaces/via";
 import {Node} from "../interfaces/node";
@@ -32,8 +31,8 @@ function getLinkLabel(label) {
 }
 
 export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
-    links = concat([], links);
-    nodes = concat([], nodes);
+    links = links.concat([]);
+    nodes = nodes.concat([]);
 
     const removeNode = (node) => {
         links = links.filter(link =>

@@ -22,6 +22,11 @@ import thunk from 'redux-thunk';
 import {defaultUtilsState} from "./reducers/utils";
 import {defaultDatasourcesState} from './reducers/datasources';
 import {initialContextMenuState} from './modules/contextMenu/contextMenuReducer';
+import createWorkerMiddleware from 'redux-worker-middleware';
+
+const GraphWorker = require('worker-loader!./modules/graph/graphWorker');
+const graphWorker = new GraphWorker();
+const graphWorkerMiddleware = createWorkerMiddleware(graphWorker);
 
 function configureStore() {
     return createStore(
@@ -43,7 +48,7 @@ function configureStore() {
         },
         composeWithDevTools(
             persistState(),
-            applyMiddleware(thunk)
+            applyMiddleware(thunk, graphWorkerMiddleware)
         )
     );
 }

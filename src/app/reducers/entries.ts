@@ -3,6 +3,7 @@ import { slice, concat, without, reduce, remove, assign, find, forEach, union, f
 import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
 import {  FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index';
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
+import {  GRAPH_RECEIVE } from '../modules/graph/constants';
 import {  SEARCH_DELETE, SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_EDIT } from '../modules/search/index';
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
@@ -506,72 +507,12 @@ export default function entries(state: State = defaultState, action) {
                 fields: fields
             });
         }
-
-        case SEARCH_RECEIVE: {
-            const searches = concat(state.searches, []);
-            const items = action.items.results === null ? [] : action.items.results;
-
-            // should we update existing search, or add new, do we still need items?
-            let search = find(state.searches, (o) => o.q === action.items.query);
-            if (search) {
-                search.items = concat(search.items, action.items.results);
-            } else {
-                console.error('received items for a query we were not searching for: ' + action.items.query);
-                return state;
-            }
-
-            // Save per item for which query we received it (so we can keep track of where data came from)
-            items.forEach(item => {
-                item.query = search.q;
-            });
-
-            // todo(nl5887): should we start a webworker here, the webworker can have its own permanent cache?
-
-            // update nodes and links
-            const result = getNodesAndLinks(
-                state.nodes,
-                state.links,
-                items,
-                state.fields,
-                search,
-                state.normalizations,
-                search.aroundNodeId,
-                state.deletedNodes
-            );
-
-            const normalizedNodes = normalizeNodes(result.nodes, state.normalizations);
-            const normalizedLinks = normalizeLinks(result.links, state.normalizations);
-
-            result.nodes = normalizedNodes;
-            result.links = removeDeadLinks(result.nodes, normalizedLinks);
-
-            const components = getConnectedComponents(result.nodes, result.links);
-            const filtered = filterBoringComponents(components);
-            result.nodes = filtered.reduce((prev, current) => prev.concat(current), []);
-            result.links = removeDeadLinks(result.nodes, result.links);
-
-            if (state.searches.length > 1) {
-                // If there is more than 1 query, all nodes for subsequent queries
-                // need to be linked to nodes from the first query
-                // If some results are not linked, they will not be displayed as nodes
-
-                const components = getConnectedComponents(result.nodes, result.links);
-                const primaryQuery = state.searches[0].q;
-                const filtered = filterSecondaryComponents(primaryQuery, components);
-                result.nodes = filtered.reduce((prev, current) => prev.concat(current), []);
-                result.links = removeDeadLinks(result.nodes, result.links);
-            }
-
-            let { nodes, links } = applyVia(result.nodes, result.links, state.via);
-            nodes = getNodesForDisplay(nodes, state.searches || []);
-            links = getLinksForDisplay(nodes, links);
-
+        case GRAPH_RECEIVE: {
             return Object.assign({}, state, {
                 errors: null,
-                nodes: nodes,
-                links: links,
-                items: concat(state.items, items),
-                searches: searches,
+                nodes: action.nodes,
+                links: action.links,
+                items: action.items,
                 isFetching: false,
                 itemsFetching: false,
                 didInvalidate: false

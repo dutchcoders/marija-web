@@ -1,5 +1,5 @@
-import { slice, concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy } from 'lodash';
-import {abbreviateNodeName, fieldLocator, normalize} from "./index";
+import fieldLocator from "./fieldLocator";
+import abbreviateNodeName from "./abbreviateNodeName";
 import {Node} from "../interfaces/node";
 import {Link} from "../interfaces/link";
 import {Item} from "../interfaces/item";
@@ -33,8 +33,8 @@ export default function getNodesAndLinks(
     nodes: Node[],
     links: Link[]
 } {
-    let nodes: Node[] = concat(previousNodes, []);
-    let links: Link[] = concat(previousLinks, []);
+    let nodes: Node[] = previousNodes.concat([]);
+    let links: Link[] = previousLinks.concat([]);
 
     let nodeCache = {};
     for (let node of nodes) {
@@ -51,8 +51,8 @@ export default function getNodesAndLinks(
 
     query = query.q;
 
-    forEach(items, (d, i) => {
-        forEach(fields, (source) => {
+    items.forEach(d => {
+        fields.forEach(source => {
             let sourceValues = fieldLocator(d.fields, source.path);
 
             if (sourceValues === null) {
@@ -125,7 +125,7 @@ export default function getNodesAndLinks(
                     nodes.push(n);
                 }
 
-                forEach(fields, (target) => {
+                fields.forEach(target => {
                     let targetValues = fieldLocator(d.fields, target.path);
                     if (targetValues === null) {
                         return;

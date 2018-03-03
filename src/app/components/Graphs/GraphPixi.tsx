@@ -2,7 +2,7 @@ import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
 import * as d3 from 'd3';
 import { concat, debounce, remove, includes, assign, isEqual, isEmpty, isEqualWith } from 'lodash';
-import { nodesSelect, highlightNodes, deselectNodes, showTooltip, setSelectingMode } from '../../modules/graph/actions.js';
+import { nodesSelect, highlightNodes, deselectNodes, showTooltip, setSelectingMode } from '../../modules/graph/actions';
 import { getArcParams, getDirectlyRelatedNodes } from '../../helpers/index.js';
 import * as PIXI from 'pixi.js';
 import {Search} from "../../interfaces/search";
@@ -18,7 +18,7 @@ import {
     getLinksForDisplay,
     getNodesForDisplay
 } from "../../reducers/entriesSelectors";
-const myWorker = require("worker-loader!./Worker");
+const myWorker = require("worker-loader!./d3Worker");
 
 interface TextureMap {
     [hash: string]: PIXI.RenderTexture;

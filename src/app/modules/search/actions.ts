@@ -33,11 +33,27 @@ export function searchAround(node: Node) {
 }
 
 export function searchReceive(items, opts = {from: 0}) {
-    return {
-        type: SEARCH_RECEIVE,
-        items: items,
-        receivedAt: Date.now()
-    };
+    return (dispatch, getState) => {
+        const state = getState();
+
+        dispatch({
+            type: SEARCH_RECEIVE,
+            meta: {
+                WebWorker: true
+            },
+            payload: {
+                prevNodes: state.entries.nodes,
+                prevLinks: state.entries.links,
+                items: items,
+                fields: state.entries.fields,
+                normalizations: state.entries.normalizations,
+                receivedAt: Date.now(),
+                searches: state.entries.searches,
+                deletedNodes: state.entries.deletedNodes,
+                via: state.entries.via,
+            }
+        });
+    }
 }
 
 export function deleteSearch(opts) {

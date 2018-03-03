@@ -1,4 +1,9 @@
 import { NODES_DESELECT, NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, SELECTION_CLEAR, SET_SELECTING_MODE, NODES_TOOLTIP } from './index';
+import { GRAPH_RECEIVE } from './constants';
+import {Node} from "../../interfaces/node";
+import {Link} from "../../interfaces/link";
+import {Item} from "../../interfaces/item";
+import {Search} from "../../interfaces/search";
 
 export function deselectNodes(opts) {
     return {
@@ -62,4 +67,13 @@ export function setSelectingMode(enable) {
         type: SET_SELECTING_MODE,
         selectingMode: enable
     };
+}
+
+export function graphReceive(nodes: Node[], links: Link[], items: Item[]) {
+    return {
+        type: GRAPH_RECEIVE,
+        nodes: nodes,
+        links: links,
+        items: items
+    }
 }
