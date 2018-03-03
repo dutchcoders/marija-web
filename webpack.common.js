@@ -2,16 +2,23 @@ const webpack = require('webpack');
 const path = require('path');
 const dotenv = require('dotenv');
 const { gitDescribeSync } = require('git-describe');
+
 dotenv.config();
 
 const gitInfo = gitDescribeSync();
 
+const BUILD_DIR = path.resolve(__dirname, 'build');
 const SRC_DIR = path.resolve(__dirname, 'src');
 
 module.exports = {
     entry: {
         vendor: SRC_DIR + '/app/vendor.ts',
         app: SRC_DIR + '/app/main.js'
+    },
+    target: 'web',
+    output: {
+        path: BUILD_DIR,
+        filename: 'bundle.js'
     },
     devtool: 'eval',
     plugins: [
