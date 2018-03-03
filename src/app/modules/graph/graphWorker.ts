@@ -9,9 +9,16 @@ import getLinksForDisplay from "../../helpers/getLinksForDisplay";
 import normalizeLinks from "../../helpers/normalizeLinks";
 import normalizeNodes from "../../helpers/normalizeNodes";
 import filterBoringComponents from "../../helpers/filterBoringComponents";
+import {SEARCH_RECEIVE} from "../search/constants";
 
 onmessage = (event: MessageEvent) => {
     const action = event.data;
+
+    if (action.type !== SEARCH_RECEIVE) {
+        // This is the only action type we currently support in this worker
+        return;
+    }
+
     const payload = action.payload;
     const items = payload.items.results === null ? [] : payload.items.results;
 
