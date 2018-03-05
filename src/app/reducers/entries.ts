@@ -3,7 +3,10 @@ import { slice, concat, without, reduce, remove, assign, find, forEach, union, f
 import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
 import {  FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index';
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
-import {  GRAPH_WORKER_OUTPUT } from '../modules/graph/constants';
+import {
+    FIELD_NODES_HIGHLIGHT,
+    GRAPH_WORKER_OUTPUT
+} from '../modules/graph/constants';
 import {  SEARCH_DELETE, SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_EDIT } from '../modules/search/index';
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
@@ -39,12 +42,9 @@ import {Via} from "../interfaces/via";
 import removeVia from "../helpers/removeVia";
 import {DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED} from "../modules/datasources/constants";
 import {Datasource} from "../interfaces/datasource";
+import markHighlightedNodes from "../helpers/markHighlightedNodes";
 
 interface State {
-    isFetching: boolean;
-    itemsFetching: boolean;
-    noMoreHits: boolean;
-    didInvalidate: boolean;
     connected: boolean;
     total: number;
     datasources: any[];
@@ -63,10 +63,6 @@ interface State {
 }
 
 export const defaultState: State = {
-    isFetching: false,
-    itemsFetching: false,
-    noMoreHits: false,
-    didInvalidate: false,
     connected: false,
     total: 0,
     datasources: [],
@@ -343,8 +339,6 @@ export default function entries(state: State = defaultState, action) {
             });
         case AUTH_CONNECTED:
             return Object.assign({}, state, {
-                isFetching: false,
-                didInvalidate: false,
                 ...action
             });
         case SEARCH_REQUEST: {
@@ -394,9 +388,6 @@ export default function entries(state: State = defaultState, action) {
             Socket.ws.postMessage(message);
 
             return Object.assign({}, state, {
-                isFetching: true,
-                itemsFetching: true,
-                didInvalidate: false,
                 searches: searches
             });
         }
@@ -429,13 +420,9 @@ export default function entries(state: State = defaultState, action) {
         }
         case GRAPH_WORKER_OUTPUT: {
             const updates: any = {
-                errors: null,
                 nodes: action.nodes,
                 links: action.links,
-                items: action.items,
-                isFetching: false,
-                itemsFetching: false,
-                didInvalidate: false
+                items: action.items
             };
 
             // Fields are only updated by the graph worker if it was a live search
@@ -486,45 +473,31 @@ export default function entries(state: State = defaultState, action) {
             return Object.assign({}, state, updates);
         }
 
-        case FIELDS_REQUEST:
-            return Object.assign({}, state, {
-                isFetching: true
-            });
-
-        case FIELDS_RECEIVE:
-            return Object.assign({}, state, {
-                isFetching: false
-            });
-
         case SET_SELECTING_MODE:
             return Object.assign({}, state, {
                 selectingMode: action.selectingMode
             });
 
         case NODES_HIGHLIGHT: {
-            const nodes = state.nodes.concat([]);
-            const ids = action.nodes.map(node => node.id);
-
-            nodes.forEach((node, index) => {
-                const shouldHighlight = ids.indexOf(node.id) !== -1;
-
-                if (shouldHighlight && !node.highlighted) {
-                    // Add new highlight
-                    nodes[index] = Object.assign({}, node, {
-                        highlighted: true
-                    });
-                } else if (!shouldHighlight && node.highlighted) {
-                    // Remove previous highlight
-                    nodes[index] = Object.assign({}, node, {
-                        highlighted: false
-                    });
-                }
-            });
+            const nodes = markHighlightedNodes(state.nodes, action.nodes);
 
             return Object.assign({}, state, {
                 nodes: nodes
             });
         }
+
+        case FIELD_NODES_HIGHLIGHT: {
+            const toHighlight: Node[] = state.nodes.filter(node =>
+                node.fields.indexOf(action.payload.fieldPath) !== -1
+            );
+
+            const nodes = markHighlightedNodes(state.nodes, toHighlight);
+
+            return Object.assign({}, state, {
+                nodes: nodes
+            });
+        }
+
         case ITEMS_REQUEST: {
             const message = {
                 'request-id': uniqueId(),

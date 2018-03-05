@@ -11,7 +11,7 @@ import {Workspaces} from "../../domain/index";
 import {saveAs} from 'file-saver';
 import {exportData, importData} from "../../modules/import/actions";
 import {searchFieldsUpdate} from "../../modules/search/actions";
-import {highlightNodes} from "../../modules/graph/actions";
+import {fieldNodesHighlight, highlightNodes} from "../../modules/graph/actions";
 import {Node} from "../../interfaces/node";
 import {Normalization} from "../../interfaces/normalization";
 import {Datasource} from "../../interfaces/datasource";
@@ -37,7 +37,6 @@ interface Props {
     via: any;
     datasources: Datasource[];
     fieldsFetching: boolean;
-    nodes: Node[];
 }
 
 class ConfigurationView extends React.Component<Props, State> {
@@ -289,14 +288,10 @@ class ConfigurationView extends React.Component<Props, State> {
         });
     }
 
-    highlightNodes(field) {
-        const { nodes, dispatch } = this.props;
+    highlightNodes(field: string) {
+        const { dispatch } = this.props;
 
-        const highlight: Node[] = nodes.filter(node =>
-            node.fields.indexOf(field) !== -1
-        );
-
-        dispatch(highlightNodes(highlight));
+        dispatch(fieldNodesHighlight(field));
     }
 
     removeHighlightNodes() {
@@ -701,6 +696,8 @@ class ConfigurationView extends React.Component<Props, State> {
     render() {
         const { fields, normalizations, datasources, availableFields, fieldsFetching } = this.props;
 
+        console.log('render');
+
         return (
             <div>
                 <div className="form-group">
@@ -756,8 +753,7 @@ function select(state) {
         normalizations: state.entries.normalizations,
         via: state.entries.via,
         datasources: state.datasources.datasources,
-        fieldsFetching: state.fields.fieldsFetching,
-        nodes: state.entries.nodes
+        fieldsFetching: state.fields.fieldsFetching
     };
 }
 
