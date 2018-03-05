@@ -5,6 +5,10 @@
     background: #50637D;
     padding: 10px 0;
     @include shadow();
+
+    > li {
+        list-style: none;
+    }
 }
 
 .button {
@@ -18,6 +22,16 @@
 
     &:hover {
         background: #689DE5;
+    }
+}
+
+.inputWrapper {
+    width: 200px;
+    padding: 3px 5px;
+
+    > input {
+        color: black;
+        width: 150px;
     }
 }
 
