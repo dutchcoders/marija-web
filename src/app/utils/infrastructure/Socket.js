@@ -14,6 +14,18 @@ export const Socket = {
     ws: null,
     searchResults: {},
     searchTimeouts: {},
+
+    /**
+     * Sometimes we receive many items from the server in quick succession of
+     * each other. This is not good, because then we would need to calculate the
+     * graph for each time we receive it (so multiple times per second).
+     *
+     * Instead, we wait for 500ms and bundle all of the items together.
+     *
+     * @param newResults
+     * @param query
+     * @param dispatch
+     */
     searchReceive: (newResults, query, dispatch) => {
         if (newResults === null) {
             return;
