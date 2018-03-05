@@ -16,6 +16,7 @@ import {searchFieldsUpdate} from '../../modules/search/actions';
 import {highlightNodes, nodesSelect} from '../../modules/graph/actions';
 import {BarChart, XAxis, YAxis, Bar, Tooltip} from 'recharts';
 import {Search} from "../../interfaces/search";
+import {getNodesForDisplay} from "../../reducers/entriesSelectors";
 
 interface Props {
     normalizations: Normalization[];
@@ -299,7 +300,7 @@ const select = (state, ownProps) => {
     return {
         ...ownProps,
         availableFields: state.fields.availableFields,
-        nodes: state.entries.nodes,
+        nodes: getNodesForDisplay(state),
         queries: state.entries.queries,
         fields: state.entries.fields,
         normalizations: state.entries.normalizations,
