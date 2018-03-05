@@ -611,26 +611,6 @@ export default function entries(state: State = defaultState, action) {
             });
         }
 
-        case DATASOURCE_DEACTIVATED: {
-            const datasource: Datasource = action.payload.datasource;
-
-            if (datasource.id !== 'wodan') {
-                return state;
-            }
-
-            const newSearches: Search[] = state
-                .searches
-                .filter(search => search.liveDatasource !== datasource.id);
-
-            if (newSearches.length === state.searches.length) {
-                return state;
-            }
-
-            return Object.assign({}, state, {
-                searches: newSearches
-            });
-        }
-
         default:
             return state;
     }

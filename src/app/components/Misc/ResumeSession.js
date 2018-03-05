@@ -68,7 +68,7 @@ class ResumeSession extends Component {
         ids.forEach(id => {
             const datasource = existingDatasources.find(search => search.id === id);
 
-            if (datasource && !datasource.active) {
+            if (datasource) {
                 dispatch(activateDatasource(datasource));
             }
         });

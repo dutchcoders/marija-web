@@ -1,6 +1,7 @@
 import { DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED } from './index'
 import {getFields} from "../fields/actions";
 import {Datasource} from "../../interfaces/datasource";
+import {deleteSearch} from "../search/actions";
 
 function datasourceActivated(datasource: Datasource) {
     return {
@@ -37,6 +38,17 @@ function datasourceDeactivated(datasource) {
 
 export function deActivateDatasource(datasource: Datasource) {
     return (dispatch, getState) => {
+        // If live datasources are deactived, their associated queries also
+        // need to be deleted
+        if (datasource.id === 'wodan') {
+            const search = getState()
+                .entries
+                .searches
+                .find(search => search.liveDatasource === datasource.id);
+
+            dispatch(deleteSearch(search))
+        }
+
         dispatch(datasourceDeactivated(datasource));
 
         // Get the updated datasources
