@@ -18,6 +18,7 @@ import {
     getLinksForDisplay,
     getNodesForDisplay
 } from "../../reducers/entriesSelectors";
+import {setFps} from "../../modules/stats/statsActions";
 const myWorker = require("worker-loader!./d3Worker");
 
 interface TextureMap {
@@ -79,8 +80,8 @@ class GraphPixi extends React.PureComponent<Props, State> {
     transform: any = d3.zoomIdentity;
     shift: boolean;
     lastLoopTimestamp: number;
-    frameTime: number;
-    lastDisplayedFps: Date;
+    frameTime: number = 0;
+    lastDispatchedFpsTimestamp: number = 0;
     labelTextures: TextureMap = {};
     tooltipTextures: TextureMap = {};
 
@@ -695,21 +696,34 @@ class GraphPixi extends React.PureComponent<Props, State> {
             Object.assign(this.renderedSince, stateUpdates);
         }
 
-        // this.measureFps();
+        this.measureFps();
 
         requestAnimationFrame(() => this.renderGraph(hasStateUpdates));
     }
 
     measureFps() {
-        const filterStrength = 20;
-        const thisLoopTimestamp = (new Date()).getTime();
-        const thisFrameTime = thisLoopTimestamp - this.lastLoopTimestamp;
-        const newFrameTime = this.frameTime + (thisFrameTime - this.frameTime) / filterStrength;
+        const { dispatch } = this.props;
 
-        this.setState({
-            lastLoopTimestamp: thisLoopTimestamp,
-            frameTime: newFrameTime
-        });
+        if (!this.lastLoopTimestamp) {
+            this.lastLoopTimestamp = Date.now() - 16000;
+        }
+
+        const filterStrength = 10;
+        const thisLoopTimestamp = Date.now();
+        const thisFrameTime = thisLoopTimestamp - this.lastLoopTimestamp;
+
+        this.frameTime = this.frameTime + (thisFrameTime - this.frameTime) / filterStrength;
+        this.lastLoopTimestamp = thisLoopTimestamp;
+
+        const msSinceDispatched: number = Date.now() - this.lastDispatchedFpsTimestamp;
+        const twoSeconds = 2000;
+
+        if (msSinceDispatched > twoSeconds) {
+            const fps: number = 1000 / this.frameTime;
+
+            dispatch(setFps(fps));
+            this.lastDispatchedFpsTimestamp = Date.now();
+        }
     }
 
     initGraph() {
@@ -1058,9 +1072,6 @@ class GraphPixi extends React.PureComponent<Props, State> {
     }
 
     render() {
-        const { version } = this.props;
-        const clientVersion = process.env.CLIENT_VERSION;
-
         return (
             <div className="graphComponent">
                 <div
@@ -1069,11 +1080,6 @@ class GraphPixi extends React.PureComponent<Props, State> {
                     onContextMenu={this.onContextMenu.bind(this)}
                     onClick={this.hideContextMenu.bind(this)}
                 />
-                <p className="stats">
-                    {/*{(1000/frameTime).toFixed(1)} FPS<br />*/}
-                    SERVER VERSION: {version}<br />
-                    CLIENT VERSION: {clientVersion}
-                </p>
             </div>
         );
     }
@@ -1085,8 +1091,6 @@ const select = (state, ownProps) => {
         nodesForDisplay: getNodesForDisplay(state),
         linksForDisplay: getLinksForDisplay(state),
         searches: state.entries.searches,
-        fields: state.entries.fields,
-        version: state.entries.version,
         selectingMode: state.entries.selectingMode
     };
 };

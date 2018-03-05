@@ -1,0 +1,1 @@
+export const SET_FPS = 'SET_FPS';

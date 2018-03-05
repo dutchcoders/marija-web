@@ -34,6 +34,8 @@ export default class Workspaces {
         try {
             const state = Object.assign({}, oldState);
             delete state.panes;
+            delete state.stats;
+            delete state.contextMenu;
 
             const persistedState = Object.assign({}, {state: state}, {
                 version: Migrations.getCurrentVersion(),
@@ -47,8 +49,7 @@ export default class Workspaces {
                         links: [],
                         searches: [],
                         deletedNodes: [],
-                    },
-                    contextMenu: {}
+                    }
                 }
             });
 

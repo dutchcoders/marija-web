@@ -23,6 +23,7 @@ import {defaultUtilsState} from "./reducers/utils";
 import {defaultDatasourcesState} from './reducers/datasources';
 import {initialContextMenuState} from './modules/contextMenu/contextMenuReducer';
 import createWorkerMiddleware from 'redux-worker-middleware';
+import {defaultStatsState} from './modules/stats/statsReducer';
 
 const GraphWorker = require('worker-loader!./modules/graph/graphWorker');
 const graphWorker = new GraphWorker();
@@ -34,17 +35,14 @@ function configureStore() {
             servers: [
                 "http://127.0.0.1:9200/"
             ],
-            entries: {
-                    ...defaultState
-            },
+            entries: defaultState,
             datasources: defaultDatasourcesState,
             contextMenu: initialContextMenuState,
             fields: {
                 availableFields: []
             },
-            utils: {
-                ...defaultUtilsState
-            }
+            utils: defaultUtilsState,
+            stats: defaultStatsState
         },
         composeWithDevTools(
             persistState(),

@@ -8,5 +8,4 @@ export const DATE_FIELD_ADD = "DATE_FIELD_ADD";
 export const DATE_FIELD_DELETE = "DATE_FIELD_DELETE";
 export const VIA_ADD = "VIA_ADD";
 export const VIA_DELETE = "VIA_DELETE";
-
 export const INITIAL_STATE_RECEIVE = "INITIAL_STATE_RECEIVE";

@@ -8,6 +8,7 @@ import {
 } from './index';
 import Filter from "./Graphs/Filter";
 import ContextMenu from '../modules/contextMenu/contextMenu';
+import Stats from '../modules/stats/stats';
 
 class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();
@@ -47,6 +48,8 @@ class RootView extends React.Component<any, any> {
                         className="graph"
                         zoomEvents={this.zoomEvents}
                     />
+
+                    <Stats />
 
                     <ContextMenu />
 

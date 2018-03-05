@@ -4,6 +4,7 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import {EXPORT_DATA, IMPORT_DATA} from "../modules/import/constants";
 import exportJson from "../helpers/exportJson";
 import contextMenuReducer from '../modules/contextMenu/contextMenuReducer';
+import statsReducer from "../modules/stats/statsReducer";
 
 const appReducer = enableBatching(
     combineReducers({
@@ -13,7 +14,8 @@ const appReducer = enableBatching(
         datasources,
         fields,
         contextMenu: contextMenuReducer,
-        routing: routerReducer
+        routing: routerReducer,
+        stats: statsReducer
     })
 );
 

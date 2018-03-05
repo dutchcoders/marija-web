@@ -59,7 +59,6 @@ interface State {
     deletedNodes: Node[];
     errors: any;
     via: Via[];
-    version: string;
     selectingMode: boolean;
 }
 
@@ -82,7 +81,6 @@ export const defaultState: State = {
     deletedNodes: [],
     errors: null,
     via: [],
-    version: '',
     selectingMode: false
 };
 
@@ -498,11 +496,6 @@ export default function entries(state: State = defaultState, action) {
                 isFetching: false
             });
 
-        case INITIAL_STATE_RECEIVE: {
-            return Object.assign({}, state, {
-                version: action.initial_state.version
-            });
-        }
         case SET_SELECTING_MODE:
             return Object.assign({}, state, {
                 selectingMode: action.selectingMode
