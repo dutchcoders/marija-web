@@ -38,6 +38,8 @@ import createField from "../helpers/createField";
 import {Field} from "../interfaces/field";
 import {Via} from "../interfaces/via";
 import removeVia from "../helpers/removeVia";
+import {DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED} from "../modules/datasources/constants";
+import {Datasource} from "../interfaces/datasource";
 
 interface State {
     isFetching: boolean;
@@ -111,27 +113,29 @@ export default function entries(state: State = defaultState, action) {
                 deletedNodes: state.deletedNodes.concat(action.nodes)
             });
         }
-        case SEARCH_DELETE:
-            const searches = without(state.searches, action.search);
-            var items = concat(state.items);
+        case SEARCH_DELETE: {
+            const toDelete: Search = action.payload.search;
+            const searches = state.searches.filter(search => search.q !== toDelete.q);
+            let items = concat(state.items);
 
-            if (!action.search.completed) {
+            if (!toDelete.completed) {
                 // Tell the server it can stop sending results for this query
-                cancelRequest(action.search['request-id']);
+                cancelRequest(toDelete['request-id']);
             }
 
-            items = items.filter(item => item.query !== action.search.q);
+            items = items.filter(item => item.query !== toDelete.q);
 
-            // todo(nl5887): remove related nodes and links
-            const result = removeNodesAndLinks(state.nodes, state.links, action.search.q);
+            const { nodes, links } = removeNodesAndLinks(state.nodes, state.links, toDelete.q);
+
+            console.log(searches);
 
             return Object.assign({}, state, {
                 searches: searches,
                 items: items,
-                nodes: result.nodes,
-                links: result.links,
-                tooltipNodes: []
+                nodes: nodes,
+                links: links
             });
+        }
         case TABLE_COLUMN_ADD:
             return Object.assign({}, state, {
                 columns: concat(state.columns, action.field),
@@ -647,6 +651,56 @@ export default function entries(state: State = defaultState, action) {
             return Object.assign({}, state, {
                 nodes: nodes,
                 items: state.items.concat(action.items)
+            });
+        }
+
+        case DATASOURCE_ACTIVATED: {
+            const datasource: Datasource = action.payload.datasource;
+
+            if (datasource.id !== 'wodan') {
+                return state;
+            }
+
+            const search: Search = state.searches.find(search => search.liveDatasource === action.datasource.id);
+
+            if (typeof search !== 'undefined') {
+                return state;
+            }
+
+            const newSearch = {
+                q: action.payload.datasource.name,
+                color: '#0055cc',
+                total: 0,
+                displayNodes: 500,
+                items: [],
+                requestId: uniqueId(),
+                completed: false,
+                aroundNodeId: null,
+                liveDatasource: action.payload.datasource.id
+            };
+
+            return Object.assign({}, state, {
+                searches: state.searches.concat([newSearch])
+            });
+        }
+
+        case DATASOURCE_DEACTIVATED: {
+            const datasource: Datasource = action.payload.datasource;
+
+            if (datasource.id !== 'wodan') {
+                return state;
+            }
+
+            const newSearches: Search[] = state
+                .searches
+                .filter(search => search.liveDatasource !== datasource.id);
+
+            if (newSearches.length === state.searches.length) {
+                return state;
+            }
+
+            return Object.assign({}, state, {
+                searches: newSearches
             });
         }
 

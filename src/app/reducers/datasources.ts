@@ -3,6 +3,8 @@ import { union, without, uniqBy } from 'lodash';
 import {Datasource} from "../interfaces/datasource";
 import {INITIAL_STATE_RECEIVE} from "../modules/data/index";
 import {Socket} from "../utils";
+import {SEARCH_DELETE} from '../modules/search/constants';
+import {Search} from "../interfaces/search";
 
 interface State {
     datasources: Datasource[];
@@ -15,6 +17,8 @@ export const defaultDatasourcesState: State = {
 export default function datasources(state: State = defaultDatasourcesState, action) {
     switch (action.type) {
         case INITIAL_STATE_RECEIVE: {
+            console.log(action);
+
             const datasources: Datasource[] = action.initial_state.datasources.map(datasource => {
                 const existing = state.datasources.find(search => search.id === datasource.id);
 
@@ -30,7 +34,7 @@ export default function datasources(state: State = defaultDatasourcesState, acti
             });
         }
         case DATASOURCE_ACTIVATED: {
-            const index: number = state.datasources.findIndex(datasource => datasource.id === action.payload.datasource);
+            const index: number = state.datasources.findIndex(datasource => datasource.id === action.payload.datasource.id);
 
             // It's already active
             if (state.datasources[index].active) {
@@ -47,7 +51,7 @@ export default function datasources(state: State = defaultDatasourcesState, acti
             });
         }
         case DATASOURCE_DEACTIVATED: {
-            const index: number = state.datasources.findIndex(datasource => datasource.id === action.payload.datasource);
+            const index: number = state.datasources.findIndex(datasource => datasource.id === action.payload.datasource.id);
 
             // It's already inactive
             if (!state.datasources[index].active) {
@@ -61,6 +65,30 @@ export default function datasources(state: State = defaultDatasourcesState, acti
 
             return Object.assign({}, state, {
                 datasources: datasources
+            });
+        }
+
+        /**
+         * If a search which was actually a live datasource query gets deleted,
+         * we need to also deactivate the datasource.
+         */
+        case SEARCH_DELETE: {
+            const search: Search = action.payload.search;
+
+            if (!search.liveDatasource) {
+                // The deleted search it not a live datasource, do nothing.
+                return state;
+            }
+
+            const index: number = state.datasources.findIndex(datasource => datasource.id === search.liveDatasource);
+
+            const newDatasources = state.datasources.concat([]);
+            newDatasources[index] = Object.assign({}, newDatasources[index], {
+                active: false
+            });
+
+            return Object.assign({}, state,  {
+                datasources: newDatasources
             });
         }
 

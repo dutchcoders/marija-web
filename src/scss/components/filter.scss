@@ -12,7 +12,7 @@
     width: 127px;
     transition: width .2s;
     background: #4D657E;
-    box-shadow: 3px 3px 30px 0px rgba(0, 0, 0, 0.5);
+    @include shadow();
     border-radius: 4px;
     margin: 0 5px;
 

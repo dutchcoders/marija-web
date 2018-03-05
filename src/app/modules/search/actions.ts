@@ -1,6 +1,7 @@
 import { SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_DELETE, SEARCH_EDIT } from './index';
 import {SEARCH_FIELDS_UPDATE} from "./constants";
 import {Node} from "../../interfaces/node";
+import {Search} from "../../interfaces/search";
 
 export function searchRequest(query: string) {
     return (dispatch, getState) => {
@@ -32,7 +33,7 @@ export function searchAround(node: Node) {
     };
 }
 
-export function searchReceive(items, opts = {from: 0}) {
+export function searchReceive(items) {
     return (dispatch, getState) => {
         const state = getState();
 
@@ -56,11 +57,13 @@ export function searchReceive(items, opts = {from: 0}) {
     }
 }
 
-export function deleteSearch(opts) {
+export function deleteSearch(search: Search) {
     return {
         type: SEARCH_DELETE,
         receivedAt: Date.now(),
-        ...opts
+        payload: {
+            search: search
+        }
     };
 }
 

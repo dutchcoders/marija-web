@@ -209,15 +209,16 @@ class ConfigurationView extends React.Component<Props, State> {
         dispatch(normalizationDelete(normalization));
     }
 
-    handleDatasourceChange(event, id) {
+    handleDatasourceChange(event, datasource: Datasource) {
         const { dispatch } = this.props;
 
         if (event.target.checked) {
-            Url.addQueryParam('datasources', id);
-            dispatch(activateDatasource(id));
+            Url.addQueryParam('datasources', datasource.id);
+            dispatch(activateDatasource(datasource));
         } else {
-            Url.removeQueryParam('datasources', id);
-            dispatch(deActivateDatasource(id));
+            Url.removeQueryParam('datasources', datasource.id);
+            Url.removeQueryParam('search', datasource.id);
+            dispatch(deActivateDatasource(datasource));
         }
     }
 
@@ -534,7 +535,7 @@ class ConfigurationView extends React.Component<Props, State> {
                         { indexName }
                         {live}
                     </div>
-                    <input type="checkbox" defaultChecked={datasource.active} onChange={(event) => this.handleDatasourceChange(event, datasource.id)} />
+                    <input type="checkbox" checked={datasource.active} onChange={(event) => this.handleDatasourceChange(event, datasource)} />
                 </li>
             );
         });

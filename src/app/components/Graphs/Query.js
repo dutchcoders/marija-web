@@ -26,8 +26,9 @@ class Query extends React.Component {
             dispatch(cancelRequest(search.requestId));
         }
 
-        dispatch(deleteSearch({search: search}));
         Url.removeQueryParam('search', search.q);
+        Url.removeQueryParam('datasources', search.q);
+        dispatch(deleteSearch(search));
     }
 
     handleDisplayMore() {
