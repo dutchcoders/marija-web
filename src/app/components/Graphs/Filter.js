@@ -8,6 +8,7 @@ import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, d
 import {filterSearchResults} from "../../modules/search/actions";
 import {showTooltip} from "../../modules/graph/actions";
 import displayFilter from "../../helpers/displayFilter";
+import {getNodesForDisplay} from '../../reducers/entriesSelectors';
 
 class Filter extends React.Component {
     constructor(props) {
@@ -115,10 +116,8 @@ class Filter extends React.Component {
         return nodes.filter(node => node.selected);
     }
 
-    render() {
-        const { find_value, focused, opened } = this.state;
+    getExtra() {
         const selectedNodes = this.getSelectedNodes();
-
         const searchResults = this.getSearchResults();
         const notSelectedNodes = [];
         const selectedNodesInSearch = [];
@@ -144,6 +143,26 @@ class Filter extends React.Component {
         });
 
         return (
+            <div className="filterExtra">
+                <button className="nodeSelectButton btn btn-primary" onClick={e => this.handleSelectMultiple(e, notSelectedNodes)}>Select all ({notSelectedNodes.length})</button>
+                <button className="nodeSelectButton btn btn-primary" onClick={e => this.handleDeselectMultiple(e, selectedNodesInSearch)}>Deselect all ({selectedNodesInSearch.length})</button>
+                <ul className="nodesSearchResult" onMouseLeave={this.hideTooltip.bind(this)}>
+                    { find_nodes }
+                </ul>
+            </div>
+        );
+    }
+
+    render() {
+        const { find_value, focused, opened } = this.state;
+
+        let extra = null;
+
+        if (opened) {
+            extra = this.getExtra();
+        }
+
+        return (
             <div className="filter">
                 <div className="filterHeaderWrapper">
                     <div className={'filterHeader' + (focused ? ' focused' : '') + (opened ? ' opened' : '')}>
@@ -163,13 +182,7 @@ class Filter extends React.Component {
                     </div>
                 </div>
 
-                <div className={'filterExtra' + (opened ? '' : ' hidden')}>
-                    <button className="nodeSelectButton btn btn-primary" onClick={e => this.handleSelectMultiple(e, notSelectedNodes)}>Select all ({notSelectedNodes.length})</button>
-                    <button className="nodeSelectButton btn btn-primary" onClick={e => this.handleDeselectMultiple(e, selectedNodesInSearch)}>Deselect all ({selectedNodesInSearch.length})</button>
-                    <ul className="nodesSearchResult" onMouseLeave={this.hideTooltip.bind(this)}>
-                        { find_nodes }
-                    </ul>
-                </div>
+                {extra}
             </div>
         );
     }
@@ -177,7 +190,7 @@ class Filter extends React.Component {
 
 function select(state) {
     return {
-        nodes: state.entries.nodes.filter(node => displayFilter(node))
+        nodes: getNodesForDisplay(state)
     };
 }
 

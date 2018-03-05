@@ -696,8 +696,6 @@ class ConfigurationView extends React.Component<Props, State> {
     render() {
         const { fields, normalizations, datasources, availableFields, fieldsFetching } = this.props;
 
-        console.log('render');
-
         return (
             <div>
                 <div className="form-group">
