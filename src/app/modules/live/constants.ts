@@ -1,1 +1,0 @@
-export const LIVE_RECEIVE = 'LIVE_RECEIVE';

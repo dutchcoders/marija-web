@@ -1,9 +1,9 @@
-import { slice, concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy, uniqueId, intersection } from 'lodash';
+import { slice, concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy, uniqueId, intersection, isEqual } from 'lodash';
 
 import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
 import {  FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index';
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
-import {  GRAPH_RECEIVE } from '../modules/graph/constants';
+import {  GRAPH_WORKER_OUTPUT } from '../modules/graph/constants';
 import {  SEARCH_DELETE, SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_EDIT } from '../modules/search/index';
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
@@ -33,7 +33,6 @@ import denormalizeLinks from "../helpers/denormalizeLinks";
 import getLinksForDisplay from "../helpers/getLinksForDisplay";
 import darkenColor from "../helpers/darkenColor";
 import {Column} from "../interfaces/column";
-import {LIVE_RECEIVE} from "../modules/live/constants";
 import createField from "../helpers/createField";
 import {Field} from "../interfaces/field";
 import {Via} from "../interfaces/via";
@@ -126,8 +125,6 @@ export default function entries(state: State = defaultState, action) {
             items = items.filter(item => item.query !== toDelete.q);
 
             const { nodes, links } = removeNodesAndLinks(state.nodes, state.links, toDelete.q);
-
-            console.log(searches);
 
             return Object.assign({}, state, {
                 searches: searches,
@@ -432,87 +429,8 @@ export default function entries(state: State = defaultState, action) {
                 searches: newSearches
             });
         }
-        case LIVE_RECEIVE: {
-            let searches = state.searches;
-            let search: Search = searches.find(search => search.liveDatasource === action.datasource.id);
-
-            if (typeof search === 'undefined') {
-                search = {
-                    q: action.datasource.name,
-                    color: '#0055cc',
-                    total: 0,
-                    displayNodes: 500,
-                    items: [],
-                    requestId: uniqueId(),
-                    completed: false,
-                    aroundNodeId: null,
-                    liveDatasource: action.datasource.id
-                };
-
-                searches = searches.concat([search])
-            }
-
-            const items = action.graphs || [];
-
-            // if (items[0].fields.port !== 1337 && items[0].fields.port !== 2337 ) {
-            //     return state;
-            // }
-
-            search.items = concat(search.items, items);
-
-            // Save per item for which query we received it (so we can keep track of where data came from)
-            items.forEach(item => {
-                item.query = search.q;
-            });
-
-            let fields = state.fields;
-            items.forEach(item => {
-                forEach(item.fields, (value, key) => {
-                    const existing: Field = fields.find(field => field.path === key);
-
-                    if (typeof existing === 'undefined') {
-                        const field = createField(fields, key, 'string');
-                        fields = fields.concat([field]);
-                    }
-                });
-            });
-
-            // update nodes and links
-            const result = getNodesAndLinks(
-                state.nodes,
-                state.links,
-                items,
-                fields,
-                search,
-                state.normalizations,
-                search.aroundNodeId,
-                state.deletedNodes
-            );
-
-            const normalizedNodes = normalizeNodes(result.nodes, state.normalizations);
-            const normalizedLinks = normalizeLinks(result.links, state.normalizations);
-
-            result.nodes = normalizedNodes;
-            result.links = removeDeadLinks(result.nodes, normalizedLinks);
-
-            let { nodes, links } = applyVia(result.nodes, result.links, state.via);
-            nodes = getNodesForDisplay(nodes, state.searches || []);
-            links = getLinksForDisplay(nodes, links);
-
-            return Object.assign({}, state, {
-                errors: null,
-                nodes: nodes,
-                links: links,
-                items: concat(state.items, items),
-                searches: searches,
-                isFetching: false,
-                itemsFetching: false,
-                didInvalidate: false,
-                fields: fields
-            });
-        }
-        case GRAPH_RECEIVE: {
-            return Object.assign({}, state, {
+        case GRAPH_WORKER_OUTPUT: {
+            const updates: any = {
                 errors: null,
                 nodes: action.nodes,
                 links: action.links,
@@ -520,7 +438,16 @@ export default function entries(state: State = defaultState, action) {
                 isFetching: false,
                 itemsFetching: false,
                 didInvalidate: false
-            });
+            };
+
+            // Fields are only updated by the graph worker if it was a live search
+            // In a live search all fields present in the items are automatically
+            // added
+            if (!isEqual(action.fields, state.fields)) {
+                updates.fields = action.fields;
+            }
+
+            return Object.assign({}, state, updates);
         }
         case REQUEST_COMPLETED: {
             const index = state.searches.findIndex(search => search.requestId === action.requestId);
@@ -661,7 +588,7 @@ export default function entries(state: State = defaultState, action) {
                 return state;
             }
 
-            const search: Search = state.searches.find(search => search.liveDatasource === action.datasource.id);
+            const search: Search = state.searches.find(search => search.liveDatasource === datasource.id);
 
             if (typeof search !== 'undefined') {
                 return state;

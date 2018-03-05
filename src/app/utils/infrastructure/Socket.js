@@ -9,8 +9,6 @@ import {requestCompleted} from "../actions";
 import {REQUEST_COMPLETED} from "../constants";
 import {ITEMS_RECEIVE} from "../../modules/items/constants";
 import {receiveItems} from "../../modules/items/actions";
-import {LIVE_RECEIVE} from "../../modules/live/constants";
-import {liveReceive} from "../../modules/live/actions";
 
 export const Socket = {
     ws: null,
@@ -60,6 +58,10 @@ export const Socket = {
                 Socket.searchReceive(message.results, message.query, dispatch);
                 break;
 
+            case 'LIVE_RECEIVE':
+                Socket.searchReceive(message.graphs, message.datasource, dispatch);
+                break;
+
             case FIELDS_RECEIVE:
                 dispatch(receiveFields(message.fields));
                 break;
@@ -77,10 +79,6 @@ export const Socket = {
 
             case ITEMS_RECEIVE:
                 dispatch(receiveItems(message.items));
-                break;
-
-            case LIVE_RECEIVE:
-                dispatch(liveReceive(message.datasource, message.graphs));
                 break;
         }
     },
