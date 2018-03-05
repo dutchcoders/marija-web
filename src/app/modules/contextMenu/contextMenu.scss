@@ -3,22 +3,26 @@
 .contextMenu {
     position: absolute;
     background: #50637D;
-    padding: 10px 0;
+    padding: 0 0 10px 0;
     @include shadow();
+    width: 200px;
 
-    > li {
+    > ul {
         list-style: none;
+        margin: 0;
+        padding: 0;
     }
 }
 
 .button {
     display: flex;
     align-items: center;
-    width: 200px;
+    width: 100%;
     background: none;
     border: none;
     color: white;
     padding: 5px;
+    box-sizing: border-box;
 
     &:hover {
         background: #689DE5;
@@ -43,6 +47,14 @@
     margin-right: 5px;
 }
 
+.buttonText {
+    font-size: 1.1em;
+}
+
 .title {
-    font-size: 1.2em;
+    font-size: 1.1em;
+    font-weight: 300;
+    background-color: rgba(255, 255, 255, .1);
+    margin: 0 0 5px;
+    padding: 10px;
 }

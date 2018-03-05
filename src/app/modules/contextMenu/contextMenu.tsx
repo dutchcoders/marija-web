@@ -94,7 +94,7 @@ class ContextMenu extends React.Component<Props, State> {
                 abbreviated: abbreviateNodeName(renameTo, node.queries[0], 20)
             }));
 
-            this.close();
+            // this.close();
         } else if (event.key === 'Escape') {
             this.setState({
                 renameOpened: false,
@@ -137,35 +137,38 @@ class ContextMenu extends React.Component<Props, State> {
             rename = (
                 <button onClick={this.openRename.bind(this)} className={styles.button}>
                     <Icon name={'ion-ios-compose ' + styles.icon} />
-                    <span className={styles.title}>Rename</span>
+                    <span className={styles.buttonText}>Rename</span>
                 </button>
             );
         }
 
         return (
-            <ul className={styles.contextMenu} style={{top: y, left: x}}>
-                <li>
-                    <button onClick={this.selectRelated.bind(this)} className={styles.button}>
-                        <Icon name={'ion-qr-scanner ' + styles.icon} />
-                        <span className={styles.title}>Select related</span>
-                    </button>
-                </li>
-                <li>
-                    <button onClick={this.searchAround.bind(this)} className={styles.button}>
-                        <Icon name={'ion-ios-search ' + styles.icon} />
-                        <span className={styles.title}>Search around</span>
-                    </button>
-                </li>
-                <li>
-                    {rename}
-                </li>
-                <li>
-                    <button onClick={this.delete.bind(this)} className={styles.button}>
-                        <Icon name={'ion-ios-trash ' + styles.icon} />
-                        <span className={styles.title}>Delete</span>
-                    </button>
-                </li>
-            </ul>
+            <div className={styles.contextMenu} style={{top: y, left: x}}>
+                <h1 className={styles.title}>{node.name}</h1>
+                <ul>
+                    <li>
+                        <button onClick={this.selectRelated.bind(this)} className={styles.button}>
+                            <Icon name={'ion-qr-scanner ' + styles.icon} />
+                            <span className={styles.buttonText}>Select related</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button onClick={this.searchAround.bind(this)} className={styles.button}>
+                            <Icon name={'ion-ios-search ' + styles.icon} />
+                            <span className={styles.buttonText}>Search around</span>
+                        </button>
+                    </li>
+                    <li>
+                        {rename}
+                    </li>
+                    <li>
+                        <button onClick={this.delete.bind(this)} className={styles.button}>
+                            <Icon name={'ion-ios-trash ' + styles.icon} />
+                            <span className={styles.buttonText}>Delete</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
         );
     }
 }
