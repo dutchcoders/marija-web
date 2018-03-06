@@ -13,6 +13,7 @@ import {searchAround} from '../../modules/search/actions';
 import {showTooltip} from "../../modules/graph/actions";
 import {normalizationAdd} from "../../modules/data";
 import displayFilter from "../../helpers/displayFilter";
+import getDirectlyRelatedNodes from '../../helpers/getDirectlyRelatedNodes';
 
 class Nodes extends React.Component {
     constructor(props) {
@@ -82,7 +83,7 @@ class Nodes extends React.Component {
         const { dispatch, nodes, links } = this.props;
         const selectedNodes = nodes.filter(node => node.selected);
 
-        const relatedNodes = getRelatedNodes(selectedNodes, nodes, links);
+        const relatedNodes = getDirectlyRelatedNodes(selectedNodes, nodes, links);
         dispatch(nodesSelect(relatedNodes));
     }
 
