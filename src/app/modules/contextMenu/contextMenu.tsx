@@ -93,8 +93,6 @@ class ContextMenu extends React.Component<Props, State> {
                 name: renameTo,
                 abbreviated: abbreviateNodeName(renameTo, node.queries[0], 20)
             }));
-
-            // this.close();
         } else if (event.key === 'Escape') {
             this.setState({
                 renameOpened: false,
