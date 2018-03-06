@@ -17,15 +17,14 @@ export const defaultDatasourcesState: State = {
 export default function datasources(state: State = defaultDatasourcesState, action) {
     switch (action.type) {
         case INITIAL_STATE_RECEIVE: {
-            console.log(action);
-
             const datasources: Datasource[] = action.initial_state.datasources.map(datasource => {
                 const existing = state.datasources.find(search => search.id === datasource.id);
 
                 return {
                     id: datasource.id,
                     name: datasource.name,
-                    active: typeof existing === 'undefined' ? false : existing.active
+                    active: typeof existing === 'undefined' ? false : existing.active,
+                    type: datasource.type
                 };
             });
 

@@ -1,34 +1,55 @@
 import { FIELDS_RECEIVE, FIELDS_REQUEST, FIELDS_CLEAR } from '../modules/fields/index'
-
-import { concat, without, map, filter, union, reduce, merge } from 'lodash'
-import { Fields } from '../domain/index'
-
 import { Socket } from '../utils/index';
 import sortFields from "../helpers/sortFields";
+import {Field} from "../interfaces/field";
 
-const defaultState = {
+interface State {
+    availableFields: Field[];
+    fieldsFetching: boolean;
+}
+
+const defaultState: State = {
     availableFields: [],
     fieldsFetching: false
 };
 
-export default function fields(state = defaultState, action) {
+export default function fields(state: State = defaultState, action) {
     switch (action.type) {
-        case FIELDS_RECEIVE:
-            const newAvailableFields = Fields.extractNewFields(action.payload.fields, state.availableFields);
-
-            return Object.assign({}, state, {
-                availableFields: sortFields(state.availableFields.concat(newAvailableFields)),
-                fieldsFetching: false
-            });
-
-        case FIELDS_REQUEST:
-            if (action.payload.indexes.length === 0) {
+        case FIELDS_RECEIVE: {
+            if (action.payload.fields === null) {
                 return Object.assign({}, state, {
-                    availableFields: defaultState.availableFields
+                    fieldsFetching: false
                 });
             }
 
-            const datasources: string[] =  action.payload.indexes.map(datasource => datasource.id)
+            const exists = (path: string): boolean => {
+                const field: Field = state.availableFields.find(
+                    search => search.path === path
+                );
+
+                return typeof field !== 'undefined';
+            };
+
+            const newFields: Field[] = action
+                .payload
+                .fields
+                .filter(field => !exists(field.path))
+                .map(field => {
+                    field.datasourceId = action.payload.datasource;
+                    return field;
+                });
+
+            let fields = state.availableFields.concat(newFields);
+            fields = sortFields(fields);
+
+            return Object.assign({}, state, {
+                availableFields: fields,
+                fieldsFetching: false
+            });
+        }
+
+        case FIELDS_REQUEST:
+            const datasources: string[] =  action.payload.indexes.map(datasource => datasource.id);
 
             Socket.ws.postMessage(
                 {
@@ -41,8 +62,15 @@ export default function fields(state = defaultState, action) {
                 fieldsFetching: true
             });
 
-        case FIELDS_CLEAR:
-            return Object.assign({}, state, { availableFields: defaultState.availableFields });
+        case FIELDS_CLEAR: {
+            const fields = state.availableFields.filter(field =>
+                field.datasourceId !== action.payload.datasource
+            );
+
+            return Object.assign({}, state, {
+                availableFields: fields
+            });
+        }
 
         default:
             return state;

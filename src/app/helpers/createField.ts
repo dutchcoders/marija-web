@@ -1,6 +1,6 @@
 import {Field} from "../interfaces/field";
 
-export default function createField(existing: Field[], path: string, type: string): Field {
+export default function createField(existing: Field[], path: string, type: string, datasource: string): Field {
     const firstChar = path.charAt(0).toUpperCase();
     const fieldsWithSameChar = existing.filter(field => field.icon.indexOf(firstChar) === 0);
     let icon;
@@ -16,6 +16,7 @@ export default function createField(existing: Field[], path: string, type: strin
     return {
         path: path,
         type: type,
-        icon: icon
+        icon: icon,
+        datasourceId: datasource
     };
 }

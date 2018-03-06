@@ -43,6 +43,7 @@ import removeVia from "../helpers/removeVia";
 import {DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED} from "../modules/datasources/constants";
 import {Datasource} from "../interfaces/datasource";
 import markHighlightedNodes from "../helpers/markHighlightedNodes";
+import datasources from "./datasources";
 
 interface State {
     connected: boolean;
@@ -143,7 +144,7 @@ export default function entries(state: State = defaultState, action) {
                 return state;
             }
 
-            const newField = createField(state.fields, action.field.path, action.field.type);
+            const newField = createField(state.fields, action.field.path, action.field.type, action.field.datasourceId);
 
             let dateFields = concat([], state.date_fields);
 
@@ -377,7 +378,10 @@ export default function entries(state: State = defaultState, action) {
             let fieldPaths: string[] = state.fields.map(field => field.path);
             fieldPaths = fieldPaths.concat(state.date_fields.map(field => field.path));
 
-            const datasources: string[] = action.datasources.map(datasource => datasource.id);
+            const datasources: string[] = action
+                .datasources
+                .filter(datasource => datasource.active)
+                .map(datasource => datasource.id);
 
             let message = {
                 datasources: datasources,

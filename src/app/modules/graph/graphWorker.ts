@@ -52,7 +52,7 @@ onmessage = (event: MessageEvent) => {
                 const existing: Field = fields.find(field => field.path === key);
 
                 if (typeof existing === 'undefined') {
-                    const field = createField(fields, key, 'string');
+                    const field = createField(fields, key, 'string', search.liveDatasource);
                     fields = fields.concat([field]);
                 }
             });

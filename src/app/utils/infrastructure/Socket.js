@@ -75,7 +75,7 @@ export const Socket = {
                 break;
 
             case FIELDS_RECEIVE:
-                dispatch(receiveFields(message.fields));
+                dispatch(receiveFields(message.fields, message.datasource));
                 break;
 
             case INITIAL_STATE_RECEIVE:

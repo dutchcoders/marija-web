@@ -1,5 +1,5 @@
 import { DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED } from './index'
-import {getFields} from "../fields/actions";
+import {getFields, clearFields} from "../fields/actions";
 import {Datasource} from "../../interfaces/datasource";
 import {deleteSearch} from "../search/actions";
 
@@ -51,10 +51,7 @@ export function deActivateDatasource(datasource: Datasource) {
 
         dispatch(datasourceDeactivated(datasource));
 
-        // Get the updated datasources
-        const datasources = getState().datasources.datasources;
-
-        // Update the fields based on the new datasources
-        dispatch(getFields(datasources));
+        // Delete the datasource's fields
+        dispatch(clearFields(datasource.id));
     };
 }
