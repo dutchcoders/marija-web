@@ -2,6 +2,7 @@ import { FIELDS_RECEIVE, FIELDS_REQUEST, FIELDS_CLEAR } from '../modules/fields/
 import { Socket } from '../utils/index';
 import sortFields from "../helpers/sortFields";
 import {Field} from "../interfaces/field";
+import {uniqueId} from 'lodash';
 
 interface State {
     availableFields: Field[];
@@ -53,7 +54,8 @@ export default function fields(state: State = defaultState, action) {
 
             Socket.ws.postMessage(
                 {
-                    datasources: datasources
+                    datasources: datasources,
+                    'request-id': uniqueId()
                 },
                 FIELDS_REQUEST
             );
