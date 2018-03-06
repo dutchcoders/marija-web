@@ -236,7 +236,7 @@ class ConfigurationView extends React.Component<Props, State> {
         },
         {
             label: 'number',
-            types: ['long', 'double']
+            types: ['long', 'double', 'int']
         },
         {
             label: 'location',

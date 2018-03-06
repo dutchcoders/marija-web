@@ -92,6 +92,10 @@ export const Socket = {
             case ITEMS_RECEIVE:
                 dispatch(receiveItems(message.items));
                 break;
+
+            case 'ERROR':
+                dispatch(error(message.message));
+
         }
     },
     startWS: (dispatch) => {

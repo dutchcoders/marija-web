@@ -130,6 +130,18 @@ body,
     }
 }
 
+.alert-danger {
+    position: relative;
+
+    .ion-ios-close {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        font-size: 22px;
+        cursor: pointer;
+    }
+}
+
 
 @import 'components/field';
 @import 'components/graph';

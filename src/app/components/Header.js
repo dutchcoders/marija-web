@@ -7,6 +7,7 @@ import { Icon } from '../components/index';
 import { generateColour } from '../helpers/index';
 import { openPane } from '../utils/index';
 import Url from "../domain/Url";
+import {error} from '../utils';
 
 class Header extends Component {
 
@@ -27,13 +28,24 @@ class Header extends Component {
         dispatch(openPane('configuration'));
     }
 
+    closeError() {
+        const { dispatch } = this.props;
+        dispatch(error(null));
+    }
+
     render() {
         const { connected, total, fields, datasources } = this.props;
 
         let errors = null;
 
         if (this.props.errors) {
-            errors = <div className="alert alert-danger"><strong>Error executing query: </strong>{ this.props.errors }</div>;
+            errors = (
+                <div className="alert alert-danger">
+                    <strong>Error executing query: </strong>
+                    { this.props.errors }
+                    <Icon name="ion-ios-close" onClick={this.closeError.bind(this)} />
+                </div>
+            );
         }
 
         return (
