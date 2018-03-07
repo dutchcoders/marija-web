@@ -43,7 +43,6 @@ import removeVia from "../helpers/removeVia";
 import {DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED} from "../modules/datasources/constants";
 import {Datasource} from "../interfaces/datasource";
 import markHighlightedNodes from "../helpers/markHighlightedNodes";
-import datasources from "./datasources";
 
 interface State {
     connected: boolean;

@@ -68,15 +68,13 @@ class TableView extends React.Component<Props, State> {
         dispatch(searchFieldsUpdate());
     }
 
-    getSelectedItems(selectedNodes: Node[]) {
-        const { items } = this.props;
-
+    getSelectedItems(selectedNodes: Node[], items: Item[]) {
         // todo(nl5887): this can be optimized
         let selectedItems = reduce(selectedNodes, (result, node) => {
             for (var itemid of node.items) {
                 const i = find(items, (i) => itemid === i.id);
                 if (!i) {
-                    console.debug("could not find ${itemid} in items?", items);
+                    console.error("could not find ", itemid, " in items?", items);
                     continue;
                 }
 
@@ -98,11 +96,11 @@ class TableView extends React.Component<Props, State> {
         });
     }
 
-    requestData(selectedNodes: Node[]) {
-        const items = this.getSelectedItems(selectedNodes);
+    requestData(selectedNodes: Node[], items: Item[]) {
+        const selectedItems = this.getSelectedItems(selectedNodes, items);
         const { dispatch } = this.props;
 
-        const request = items.filter(item => !item.requestedExtraData);
+        const request = selectedItems.filter(item => !item.requestedExtraData);
 
         if (request.length > 0) {
             dispatch(requestItems(request));
@@ -111,20 +109,20 @@ class TableView extends React.Component<Props, State> {
 
     componentWillReceiveProps(nextProps: Props) {
         if (nextProps.selectedNodes !== this.props.selectedNodes) {
-            const items = this.getSelectedItems(nextProps.selectedNodes);
+            const items = this.getSelectedItems(nextProps.selectedNodes, nextProps.items);
             this.setState({items: items});
         }
 
         if (nextProps.selectedNodes.length !== this.props.selectedNodes.length) {
             // Fetch more info about the items from the server
-            this.requestData(nextProps.selectedNodes);
+            this.requestData(nextProps.selectedNodes, nextProps.items);
         }
     }
 
     componentDidMount() {
-        const { exportEvents, selectedNodes } = this.props;
+        const { exportEvents, selectedNodes, items } = this.props;
 
-        this.requestData(selectedNodes);
+        this.requestData(selectedNodes, items);
 
         exportEvents.addListener('export', this.exportCsv.bind(this));
     }
