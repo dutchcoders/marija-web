@@ -8,9 +8,10 @@ export function requestItems(items: Item[]) {
     }
 }
 
-export function receiveItems(items: Item[]) {
+export function receiveItems(items: Item[], prevItemId: string) {
     return {
         type: ITEMS_RECEIVE,
-        items: items
+        items: items,
+        prevItemId: prevItemId
     };
 }

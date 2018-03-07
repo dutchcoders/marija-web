@@ -545,9 +545,16 @@ export default function entries(state: State = defaultState, action) {
                 });
             });
 
+            let items = state.items.concat(action.items);
+
+            // We might need to delete the previous item
+            if (action.prevItemId) {
+                items = items.filter(item => item.id !== action.prevItemId);
+            }
+
             return Object.assign({}, state, {
                 nodes: nodes,
-                items: state.items.concat(action.items)
+                items: items
             });
         }
 

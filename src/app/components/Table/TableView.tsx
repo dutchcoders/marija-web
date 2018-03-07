@@ -14,6 +14,7 @@ import {dispatch} from "d3-dispatch";
 import { fieldAdd } from '../../modules/data/index';
 import {searchFieldsUpdate} from "../../modules/search/actions";
 import { EventEmitter } from 'fbemitter';
+import {getSelectedNodes} from "../../reducers/entriesSelectors";
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -34,7 +35,7 @@ interface State {
 
 class TableView extends React.Component<Props, State> {
     state: State = {
-        items: this.getSelectedItems(),
+        items: [],
         expandedItems: [],
     };
 
@@ -67,8 +68,8 @@ class TableView extends React.Component<Props, State> {
         dispatch(searchFieldsUpdate());
     }
 
-    getSelectedItems() {
-        const { selectedNodes, items } = this.props;
+    getSelectedItems(selectedNodes: Node[]) {
+        const { items } = this.props;
 
         // todo(nl5887): this can be optimized
         let selectedItems = reduce(selectedNodes, (result, node) => {
@@ -97,8 +98,8 @@ class TableView extends React.Component<Props, State> {
         });
     }
 
-    requestData() {
-        const items = this.getSelectedItems();
+    requestData(selectedNodes: Node[]) {
+        const items = this.getSelectedItems(selectedNodes);
         const { dispatch } = this.props;
 
         const request = items.filter(item => !item.requestedExtraData);
@@ -108,22 +109,22 @@ class TableView extends React.Component<Props, State> {
         }
     }
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.selectedNodes !== this.props.selectedNodes) {
-            const items = this.getSelectedItems();
+    componentWillReceiveProps(nextProps: Props) {
+        if (nextProps.selectedNodes !== this.props.selectedNodes) {
+            const items = this.getSelectedItems(nextProps.selectedNodes);
             this.setState({items: items});
         }
 
-        if (prevProps.selectedNodes.length !== this.props.selectedNodes.length) {
+        if (nextProps.selectedNodes.length !== this.props.selectedNodes.length) {
             // Fetch more info about the items from the server
-            this.requestData();
+            this.requestData(nextProps.selectedNodes);
         }
     }
 
     componentDidMount() {
-        const { exportEvents } = this.props;
+        const { exportEvents, selectedNodes } = this.props;
 
-        this.requestData();
+        this.requestData(selectedNodes);
 
         exportEvents.addListener('export', this.exportCsv.bind(this));
     }
@@ -141,29 +142,31 @@ class TableView extends React.Component<Props, State> {
         const activeFields = fields.map(field => field.path);
 
         return map(items, (record, i) => {
-                const expanded = (findIndex(this.state.expandedItems, function(o) { return o == record.id; }) >= 0);
-                const className = (i % 2 === 0 ? 'odd' : 'even') + (columns.length ? '' : ' noColumns');
+            const expanded = (findIndex(this.state.expandedItems, function(o) { return o == record.id; }) >= 0);
+            const className = (i % 2 === 0 ? 'odd' : 'even') + (columns.length ? '' : ' noColumns');
 
-                return [
-                    <Record
-                        columns={ columns }
-                        record={ record }
-                        searches={ searches }
-                        toggleExpand = { this.toggleExpand.bind(this) }
-                        expanded = { expanded }
-                        className={className}
-                    />,
-                    <RecordDetail
-                        columns={ columns }
-                        record={ record }
-                        onTableAddColumn={(field) => this.handleTableAddColumn(field) }
-                        onTableRemoveColumn={(field) => this.handleTableRemoveColumn(field) }
-                        onAddField={field => this.handleAddField(field)}
-                        expanded = { expanded }
-                        className={className}
-                        activeFields={activeFields}
-                    />
-                ];
+            return [
+                <Record
+                    key={'record' + record.id}
+                    columns={ columns }
+                    record={ record }
+                    searches={ searches }
+                    toggleExpand = { this.toggleExpand.bind(this) }
+                    expanded = { expanded }
+                    className={className}
+                />,
+                <RecordDetail
+                    key={'recordDetail' + record.id}
+                    columns={ columns }
+                    record={ record }
+                    onTableAddColumn={(field) => this.handleTableAddColumn(field) }
+                    onTableRemoveColumn={(field) => this.handleTableRemoveColumn(field) }
+                    onAddField={field => this.handleAddField(field)}
+                    expanded = { expanded }
+                    className={className}
+                    activeFields={activeFields}
+                />
+            ];
         });
     }
 
@@ -237,7 +240,7 @@ class TableView extends React.Component<Props, State> {
 
 function select(state) {
     return {
-        selectedNodes: state.entries.nodes.filter(node => node.selected),
+        selectedNodes: getSelectedNodes(state),
         normalizations: state.entries.normalizations,
         items: state.entries.items,
         searches: state.entries.searches,

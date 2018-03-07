@@ -90,7 +90,7 @@ export const Socket = {
                 break;
 
             case ITEMS_RECEIVE:
-                dispatch(receiveItems(message.items));
+                dispatch(receiveItems(message.items, message['item-id']));
                 break;
 
             case 'ERROR':

@@ -124,7 +124,7 @@ export default class Record extends React.Component<any, any> {
         }
 
         return (
-            <tr className={className + ' recordDetail'}>
+            <tr className={className + ' recordDetail'} key={`record_detail_${record.id}`} >
                 { this.renderDetails(columns) }
             </tr>
         );
