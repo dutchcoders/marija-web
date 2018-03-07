@@ -738,6 +738,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
         });
 
         this.renderer.backgroundColor = 0x3D4B5D;
+        this.renderer.render(this.stage);
 
         this.pixiContainer.appendChild(this.renderer.view);
 
