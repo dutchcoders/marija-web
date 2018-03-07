@@ -13,6 +13,7 @@ import {Datasource} from "../../../interfaces/datasource";
 import {Field} from "../../../interfaces/field";
 import IconSelector from '../iconSelector/iconSelector';
 import * as styles from './fields.scss';
+import {FormEvent} from "react";
 
 interface State {
     currentFieldSearchValue: string;
@@ -20,6 +21,7 @@ interface State {
     searchTypes: any[],
     maxSearchResults: number;
     iconSelectorField: string | null;
+    datasourceFilter: string | null;
 }
 
 interface Props {
@@ -39,7 +41,8 @@ class Fields extends React.Component<Props, State> {
         currentDateFieldSearchValue: '',
         searchTypes: [],
         maxSearchResults: this.defaultMaxSearchResults,
-        iconSelectorField: null
+        iconSelectorField: null,
+        datasourceFilter: null
     };
 
     handleAddField(field) {
@@ -62,6 +65,14 @@ class Fields extends React.Component<Props, State> {
             currentFieldSearchValue: event.target.value,
             maxSearchResults: this.defaultMaxSearchResults
         });
+    }
+
+    componentWillReceiveProps(nextProps: Props) {
+        if (!isEqual(nextProps.datasources, this.props.datasources)) {
+            this.setState({
+                datasourceFilter: null
+            });
+        }
     }
 
     handleDeleteField(field) {
@@ -159,9 +170,103 @@ class Fields extends React.Component<Props, State> {
         });
     }
 
+    renderTypeFilter() {
+        const { availableFields } = this.props;
+        const { searchTypes } = this.state;
+
+        const types = [{
+            label: 'all types',
+            types: []
+        }].concat(this.getTypes(availableFields));
+
+        return (
+            <div className={'row ' + styles.filter}>
+                <div className="col-xs-12">
+                    <div className={styles.filterContent}>
+                        {types.map(type => {
+                            const key = 'search_types_' + type.types.join(',');
+
+                            return (
+                                <div className="form-check form-check-inline" key={key}>
+                                    <input
+                                        type="radio"
+                                        className="form-check-input"
+                                        name="type"
+                                        id={key}
+                                        checked={isEqual(type.types, searchTypes)}
+                                        onChange={(e) => this.handleTypeChange(e, type.types)}
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor={key}>
+                                        {type.label}
+                                    </label>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    handleDatasourceChange(datasource: string) {
+        this.setState({
+            datasourceFilter: datasource
+        });
+    }
+
+    renderDatasourceFilter() {
+        const { datasources } = this.props;
+        const { datasourceFilter } = this.state;
+
+        const activeDatasources = datasources.filter(datasource => datasource.active);
+
+        if (activeDatasources.length < 2) {
+            return null;
+        }
+
+        const options = [{
+            label: 'all datasources',
+            id: null
+        }].concat(activeDatasources.map(datasource => ({
+            label: datasource.name,
+            id: datasource.id
+        })));
+
+        return (
+            <div className={'row ' + styles.filter}>
+                <div className="col-xs-12">
+                    <div className={styles.filterContent}>
+                        {options.map(option=> {
+                            const key = 'datasources_' + option.id;
+
+                            return (
+                                <div className="form-check form-check-inline" key={key}>
+                                    <input
+                                        type="radio"
+                                        className="form-check-input"
+                                        name="datasource"
+                                        id={key}
+                                        checked={option.id === datasourceFilter}
+                                        onChange={() => this.handleDatasourceChange(option.id)}
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor={key}>
+                                        {option.label}
+                                    </label>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     renderFields(fields, availableFields) {
-        const { currentFieldSearchValue, searchTypes, maxSearchResults, iconSelectorField } = this.state;
-        availableFields = availableFields.concat([]);
+        const { currentFieldSearchValue, searchTypes, maxSearchResults, iconSelectorField, datasourceFilter } = this.state;
 
         const options = map(fields, (field: any) => {
             let iconSelector = null;
@@ -184,20 +289,23 @@ class Fields extends React.Component<Props, State> {
             );
         });
 
-        const types = [{
-            label: 'all types',
-            types: []
-        }].concat(this.getTypes(availableFields));
+        let filteredFields = availableFields.concat([]);
 
         // Filter by type, if we are searching on a certain type
         if (searchTypes.length > 0) {
-            availableFields = availableFields.filter(item =>
+            filteredFields = filteredFields.filter(item =>
                 searchTypes.indexOf(item.type) !== -1
             );
         }
 
+        if (datasourceFilter !== null) {
+            filteredFields = filteredFields.filter(field =>
+                field.datasourceId === datasourceFilter
+            );
+        }
+
         // Only fields that have not already been added
-        availableFields = availableFields.filter(field =>
+        filteredFields = filteredFields.filter(field =>
             typeof fields.find(search => search.path === field.path) === 'undefined'
         );
 
@@ -210,45 +318,22 @@ class Fields extends React.Component<Props, State> {
                             ref={searchInput => this.searchInput = searchInput}
                             value={this.state.currentFieldSearchValue}
                             onChange={this.handleFieldSearchChange.bind(this)} type="text"
-                            placeholder={'Search ' + availableFields.length + ' fields'} />
+                            placeholder={'Search ' + filteredFields.length + ' fields'} />
                     </div>
                 </div>
-                <div className="row">
-                    <div className="col-xs-12">
-                        <div className="selectType">
-                            {types.map(type => {
-                                const key = 'search_types_' + type.types.join(',');
-
-                                return (
-                                    <div className="form-check form-check-inline" key={key}>
-                                        <input
-                                            type="radio"
-                                            className="form-check-input"
-                                            name="type"
-                                            id={key}
-                                            checked={isEqual(type.types, searchTypes)}
-                                            onChange={(e) => this.handleTypeChange(e, type.types)}
-                                        />
-                                        <label
-                                            className="form-check-label"
-                                            htmlFor={key}>
-                                            {type.label}
-                                        </label>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </div>
+                <div className={styles.filters}>
+                    {this.renderTypeFilter()}
+                    {this.renderDatasourceFilter()}
                 </div>
             </form>
         );
 
-        let searchResults = availableFields.concat([]);
+        let searchResults = filteredFields.concat([]);
 
         if (currentFieldSearchValue) {
             searchResults = [];
 
-            availableFields.forEach((item) => {
+            filteredFields.forEach((item) => {
                 const copy = Object.assign({}, item);
                 copy.occurrenceIndex = copy.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase());
 
@@ -319,7 +404,7 @@ class Fields extends React.Component<Props, State> {
 
         let selectDatasourceMessage = null;
 
-        if (availableFields.length === 0 && fields.length === 0) {
+        if (filteredFields.length === 0 && fields.length === 0) {
             selectDatasourceMessage = <p>First select a datasource.</p>;
         }
 
