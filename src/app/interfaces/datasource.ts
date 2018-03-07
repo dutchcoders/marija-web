@@ -2,5 +2,5 @@ export interface Datasource {
     id: string;
     name: string;
     active: boolean;
-    type: string;
+    type: 'elasticsearch' | 'splunk' | 'blockchain' | 'live';
 }
