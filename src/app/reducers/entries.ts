@@ -551,10 +551,13 @@ export default function entries(state: State = defaultState, action) {
             });
         }
 
+        /**
+         * When a live datasource is activated, we create a search for it.
+         */
         case DATASOURCE_ACTIVATED: {
             const datasource: Datasource = action.payload.datasource;
 
-            if (datasource.id !== 'wodan') {
+            if (datasource.type !== 'live') {
                 return state;
             }
 

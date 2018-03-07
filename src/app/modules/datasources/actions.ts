@@ -40,7 +40,7 @@ export function deActivateDatasource(datasource: Datasource) {
     return (dispatch, getState) => {
         // If live datasources are deactived, their associated queries also
         // need to be deleted
-        if (datasource.id === 'wodan') {
+        if (datasource.type === 'live') {
             const search = getState()
                 .entries
                 .searches
