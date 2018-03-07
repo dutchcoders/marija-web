@@ -383,6 +383,15 @@
                 overflow: hidden;
                 max-height: 200px;
                 word-break: break-all;
+
+                ul {
+                    background: none;
+                }
+
+                li {
+                    background: none;
+                    padding: 0;
+                }
             }
         }
 

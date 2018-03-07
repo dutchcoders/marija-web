@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { map, mapValues, reduce, concat } from 'lodash';
+import { map, mapValues, reduce, concat, isObject, forEach } from 'lodash';
 import { fieldLocator } from '../../helpers/index';
 import { Icon } from '../../components/index';
 import Tooltip from 'rc-tooltip';
@@ -58,6 +58,46 @@ export default class Record extends React.Component<any, any> {
         });
     }
 
+    renderFieldValue(value: any) {
+        if (typeof value === 'string' || typeof value === 'number') {
+            return value;
+        } else if (typeof value === 'boolean') {
+            return value ? 'yes' : 'no';
+        } else if (Array.isArray(value)) {
+            if (value.length === 1) {
+                return this.renderFieldValue(value[0]);
+            } else {
+                return (
+                    <ul>
+                        {value.map((element, i) =>
+                            <li key={i}>{this.renderFieldValue(element)}</li>
+                        )}
+                    </ul>
+                );
+            }
+        } else if (isObject(value)) {
+            const li = [];
+
+            for (let key in value) {
+                if (!value.hasOwnProperty(key)) {
+                    continue;
+                }
+
+                li.push(
+                    <li key={key}><strong>{key}:</strong> {this.renderFieldValue(value[key])}</li>
+                )
+            }
+
+            return (
+                <ul>
+                    {li}
+                </ul>
+            );
+        } else {
+            return JSON.stringify(value);
+        }
+    }
+
     renderDetails(columns) {
         const { record, activeFields } = this.props;
         const allFields = this.extractAllFields(record.fields, false);
@@ -65,10 +105,6 @@ export default class Record extends React.Component<any, any> {
         const expandedFields = map(allFields, (value: any, key) => {
             const highlight = record.highlight || {};
             let field_value = highlight[value] || fieldLocator(record.fields, value) ;
-
-            if (typeof field_value === 'object') {
-                field_value = JSON.stringify(field_value);
-            }
 
             const activeAsColumn: boolean = columns.indexOf(value) !== -1;
             const activeAsField: boolean = activeFields.indexOf(value) !== -1;
@@ -100,7 +136,7 @@ export default class Record extends React.Component<any, any> {
                             </Tooltip>
                         </div>
                     </td>
-                    <td colSpan={3} className="fieldValue">{field_value}</td>
+                    <td colSpan={3} className="fieldValue">{this.renderFieldValue(field_value)}</td>
                 </tr>
             );
         });
