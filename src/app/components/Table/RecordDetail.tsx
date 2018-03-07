@@ -76,21 +76,28 @@ export default class Record extends React.Component<any, any> {
                 );
             }
         } else if (isObject(value)) {
-            const li = [];
+            const elements = [];
 
             for (let key in value) {
                 if (!value.hasOwnProperty(key)) {
                     continue;
                 }
 
-                li.push(
-                    <li key={key}><strong>{key}:</strong> {this.renderFieldValue(value[key])}</li>
-                )
+                elements.push(
+                    <div>
+                        <strong>{key}:</strong>
+                        {this.renderFieldValue(value[key])}
+                    </div>
+                );
+            }
+
+            if (elements.length === 1) {
+                return elements[0];
             }
 
             return (
                 <ul>
-                    {li}
+                    {elements.map((element, i) => <li key={i}>{element}</li>)}
                 </ul>
             );
         } else {
