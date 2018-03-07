@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { EventEmitter } from 'fbemitter';
+import Notifications from './notifications/notifications';
 
 import {
     Header, Record, TableView, ConfigurationView, Timeline,
@@ -112,6 +113,7 @@ class RootView extends React.Component<any, any> {
         return (
             <div className="rootView">
                 <Header/>
+                <Notifications />
 
                 <main className="main" ref={main => this.main = main}>
                     {mainContent}

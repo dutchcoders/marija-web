@@ -1,0 +1,33 @@
+@import '../../../scss/mixins/shadow';
+
+.notification {
+  position: absolute;
+  width: 400px;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999999999;
+  padding: 20px;
+  color: white;
+  background: #6b8fb3;
+  @include shadow();
+
+  &.error {
+    background: #ff5252;
+  }
+}
+
+.title {
+  margin: 0 0 1em;
+  font-size: 1.4em;
+  font-weight: 300;
+}
+
+.close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 22px;
+  color: white;
+  cursor: pointer;
+}

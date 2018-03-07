@@ -23,30 +23,12 @@ class Header extends Component {
         dispatch(searchRequest(q));
     }
 
-    openPane() {
-        const { dispatch } = this.props;
-        dispatch(openPane('configuration'));
-    }
-
-    closeError() {
-        const { dispatch } = this.props;
-        dispatch(error(null));
-    }
-
     render() {
         const { connected, total, fields, datasources } = this.props;
 
         let errors = null;
 
-        if (this.props.errors) {
-            errors = (
-                <div className="alert alert-danger">
-                    <strong>Error executing query: </strong>
-                    { this.props.errors }
-                    <Icon name="ion-ios-close" onClick={this.closeError.bind(this)} />
-                </div>
-            );
-        }
+
 
         return (
             <header className="header">
@@ -67,7 +49,6 @@ function select(state) {
     return {
         itemsFetching: state.entries.itemsFetching,
         connected: state.entries.connected,
-        errors: state.entries.errors,
         datasources: state.datasources.datasources.filter(datasource => datasource.active),
         queries: state.entries.searches,
         total: state.entries.total,
