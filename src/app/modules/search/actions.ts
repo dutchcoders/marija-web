@@ -77,8 +77,18 @@ export function editSearch(query, opts) {
 }
 
 export function searchFieldsUpdate() {
-    return {
-        type: SEARCH_FIELDS_UPDATE,
-        receivedAt: Date.now()
-    };
+    return (dispatch, getState) => {
+        const datasources = getState()
+            .datasources
+            .datasources
+            .filter(datasource => datasource.active);
+
+        dispatch({
+            type: SEARCH_FIELDS_UPDATE,
+            receivedAt: Date.now(),
+            payload: {
+                datasources: datasources
+            }
+        });
+    }
 }

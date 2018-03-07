@@ -48,7 +48,6 @@ import datasources from "./datasources";
 interface State {
     connected: boolean;
     total: number;
-    datasources: any[];
     columns: Column[];
     fields: Field[];
     date_fields: Field[];
@@ -66,7 +65,6 @@ interface State {
 export const defaultState: State = {
     connected: false,
     total: 0,
-    datasources: [],
     columns: [],
     fields: [],
     date_fields: [],
@@ -428,7 +426,7 @@ export default function entries(state: State = defaultState, action) {
         case SEARCH_FIELDS_UPDATE: {
             let fields = state.fields.map(field => field.path);
             fields = fields.concat(state.date_fields.map(field => field.path));
-            const datasources = state.datasources.map(datasource => datasource.id);
+            const datasources = action.payload.datasources.map(datasource => datasource.id);
 
             const newSearches = state.searches.map(search => {
                 cancelRequest(search.requestId);
