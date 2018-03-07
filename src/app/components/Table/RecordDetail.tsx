@@ -3,6 +3,7 @@ import { map, mapValues, reduce, concat, isObject, forEach } from 'lodash';
 import { fieldLocator } from '../../helpers/index';
 import { Icon } from '../../components/index';
 import Tooltip from 'rc-tooltip';
+import Expandable from "./expandable/expandable";
 
 export default class Record extends React.Component<any, any> {
     constructor(props) {
@@ -67,7 +68,9 @@ export default class Record extends React.Component<any, any> {
             return value;
         }
         else if (typeof value === 'string') {
-            if (this.isUrl(value)) {
+            if (value.length > 200) {
+                return <Expandable content={value} />
+            } else if (this.isUrl(value)) {
                 return <a href={value} target="_blank">{value}</a>
             } else {
                 return value;
