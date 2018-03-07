@@ -58,9 +58,20 @@ export default class Record extends React.Component<any, any> {
         });
     }
 
+    isUrl(value: string): boolean {
+        return /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*$)/.test(value);
+    }
+
     renderFieldValue(value: any) {
-        if (typeof value === 'string' || typeof value === 'number') {
+        if (typeof value === 'number') {
             return value;
+        }
+        else if (typeof value === 'string') {
+            if (this.isUrl(value)) {
+                return <a href={value} target="_blank">{value}</a>
+            } else {
+                return value;
+            }
         } else if (typeof value === 'boolean') {
             return value ? 'yes' : 'no';
         } else if (Array.isArray(value)) {
@@ -85,7 +96,7 @@ export default class Record extends React.Component<any, any> {
 
                 elements.push(
                     <div>
-                        <strong>{key}:</strong>
+                        <strong>{key}: </strong>
                         {this.renderFieldValue(value[key])}
                     </div>
                 );

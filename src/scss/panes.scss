@@ -397,6 +397,15 @@
                     background: none;
                     padding: 0;
                 }
+
+                a {
+                    color: #689DE5;
+                    text-decoration: underline;
+
+                    &:hover {
+                        color: #689DE5;
+                    }
+                }
             }
         }
 
