@@ -69,7 +69,7 @@ export default class Record extends React.Component<any, any> {
         }
         else if (typeof value === 'string') {
             if (value.length > 200) {
-                return <Expandable content={value} />
+                return <Expandable content={value} maxLength={200} />
             } else if (this.isUrl(value)) {
                 return <a href={value} target="_blank">{value}</a>
             } else {

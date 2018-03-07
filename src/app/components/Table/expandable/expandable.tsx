@@ -3,6 +3,7 @@ import * as styles from './expandable.scss';
 
 interface Props {
     content: string;
+    maxLength: number;
 }
 
 interface State {
@@ -10,8 +11,6 @@ interface State {
 }
 
 export default class Expandable extends React.Component<Props, State> {
-    readonly maxLength: number = 300;
-
     state: State = {
         expanded: false
     };
@@ -26,12 +25,12 @@ export default class Expandable extends React.Component<Props, State> {
 
     render() {
         const { expanded } = this.state;
-        const { content } = this.props;
+        const { content, maxLength } = this.props;
 
         let text = content;
 
         if (!expanded) {
-            text = text.substring(0, this.maxLength);
+            text = text.substring(0, maxLength);
         }
 
         return (
