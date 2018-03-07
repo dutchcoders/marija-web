@@ -19,6 +19,7 @@ import {
     getNodesForDisplay
 } from "../../reducers/entriesSelectors";
 import {setFps} from "../../modules/stats/statsActions";
+import {Field} from "../../interfaces/field";
 const myWorker = require("worker-loader!./d3Worker");
 
 interface TextureMap {
@@ -30,13 +31,13 @@ interface Props {
     searches: Search[];
     nodesForDisplay: Node[];
     linksForDisplay: Link[];
+    fields: Field[];
     zoomEvents: any;
     dispatch: Dispatch<any>;
     version: string;
 }
 
 interface State {
-
 }
 
 interface RenderedSince {
@@ -47,6 +48,7 @@ interface RenderedSince {
     lastSelectedNodes: boolean;
     lastQueries: boolean;
     lastSearchResults: boolean;
+    lastFields: boolean;
 }
 
 class GraphPixi extends React.PureComponent<Props, State> {
@@ -59,7 +61,8 @@ class GraphPixi extends React.PureComponent<Props, State> {
         lastSelection: true,
         lastSelectedNodes: true,
         lastQueries: true,
-        lastSearchResults: true
+        lastSearchResults: true,
+        lastFields: true
     };
     nodesFromWorker: NodeFromWorker[] = [];
     nodeTextures: TextureMap = {};
@@ -189,7 +192,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
         });
 
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'italic 12px Roboto, Helvetica, Arial';
+        ctx.font = '14px Ionicons, Roboto, Helvetica, Arial';
         ctx.textAlign = 'center';
         ctx.fillText(node.icon, node.r - 1, node.r + 5);
 
@@ -397,7 +400,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
     }
 
     componentWillReceiveProps(nextProps: Props) {
-        const { searches, nodesForDisplay, linksForDisplay } = this.props;
+        const { searches, nodesForDisplay, linksForDisplay, fields } = this.props;
         const selectedNodes = this.getSelectedNodes();
         const prevSelected = nextProps.nodesForDisplay.filter(node => node.selected);
 
@@ -411,7 +414,20 @@ class GraphPixi extends React.PureComponent<Props, State> {
 
         if (!isEqual(nextProps.searches, searches)) {
             this.nodeTextures = {};
-            this.renderedSince.lastQueries
+            this.renderedSince.lastQueries = false;
+        }
+
+        if (!isEqual(nextProps.fields, fields)) {
+
+            this.nodesFromWorker.forEach(nodeFromWorker => {
+                const node = nextProps.nodesForDisplay.find(search => search.id === nodeFromWorker.id);
+
+                nodeFromWorker.icon = node.icon;
+                nodeFromWorker.textureKey = this.getNodeTextureKey(nodeFromWorker);
+            });
+
+            this.nodeTextures = {};
+            this.renderedSince.lastFields = false;
         }
 
         if (this.shouldPostToWorker(nextProps.nodesForDisplay, nodesForDisplay, nextProps.linksForDisplay, linksForDisplay)) {
@@ -652,7 +668,8 @@ class GraphPixi extends React.PureComponent<Props, State> {
 
         if (shouldRender('lastTick')
             || shouldRender('lastZoom')
-            || shouldRender('lastQueries')) {
+            || shouldRender('lastQueries')
+            || shouldRender('lastFields')) {
             this.renderNodes();
             this.renderLinks();
             this.renderTooltip();
@@ -1091,6 +1108,7 @@ const select = (state, ownProps) => {
         ...ownProps,
         nodesForDisplay: getNodesForDisplay(state),
         linksForDisplay: getLinksForDisplay(state),
+        fields: state.entries.fields,
         searches: state.entries.searches,
         selectingMode: state.entries.selectingMode
     };

@@ -8,7 +8,7 @@ import {
     GRAPH_WORKER_OUTPUT
 } from '../modules/graph/constants';
 import {  SEARCH_DELETE, SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_EDIT } from '../modules/search/index';
-import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
+import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
 import {
     normalize, fieldLocator, getNodesForDisplay,
@@ -164,6 +164,36 @@ export default function entries(state: State = defaultState, action) {
                 date_fields: dateFields,
                 columns: columns
             });
+        case FIELD_UPDATE: {
+            const index: number = state.fields.findIndex(search  => search.path === action.fieldPath);
+            const fields: Field[] = state.fields.concat([]);
+
+            fields[index] = Object.assign({}, fields[index], action.updates);
+
+            let nodes: Node[] = state.nodes;
+
+            // If the icon was updates, also delete all the icons of the affected nodes
+            if (action.updates.icon) {
+                nodes = state.nodes.map(node => {
+                    const isAffected: boolean =
+                        node.fields.length === 1
+                        && node.fields.indexOf(action.fieldPath) !== -1;
+
+                    if (isAffected) {
+                        return Object.assign({}, node, {
+                            icon: action.updates.icon
+                        });
+                    }
+
+                    return node;
+                });
+            }
+
+            return Object.assign({}, state, {
+                fields: fields,
+                nodes: nodes
+            });
+        }
         case FIELD_DELETE: {
             const nodes = deleteFieldFromNodes(action.field.path, state.nodes);
             const links = removeDeadLinks(nodes, state.links);

@@ -14,7 +14,7 @@ import {searchFieldsUpdate} from "../../modules/search/actions";
 import {fieldNodesHighlight, highlightNodes} from "../../modules/graph/actions";
 import {Normalization} from "../../interfaces/normalization";
 import {Datasource} from "../../interfaces/datasource";
-import Fields from './fields';
+import Fields from './fields/fields';
 
 interface State {
     normalization_error: string;

@@ -1,22 +1,25 @@
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 import { map, isEqual } from 'lodash';
-import { fieldAdd, fieldDelete } from '../../modules/data/index';
-import { Field as FieldComponent} from '../../modules/fields/index';
-import { Icon } from '../index';
-import Url from "../../domain/Url";
-import Loader from "../Misc/Loader";
+import { fieldAdd, fieldDelete, fieldUpdate } from '../../../modules/data/index';
+import { Field as FieldComponent} from '../../../modules/fields/index';
+import { Icon } from '../../index';
+import Url from "../../../domain/Url";
+import Loader from "../../Misc/Loader";
 import {saveAs} from 'file-saver';
-import {searchFieldsUpdate} from "../../modules/search/actions";
-import {fieldNodesHighlight, highlightNodes} from "../../modules/graph/actions";
-import {Datasource} from "../../interfaces/datasource";
-import {Field} from "../../interfaces/field";
+import {searchFieldsUpdate} from "../../../modules/search/actions";
+import {fieldNodesHighlight, highlightNodes} from "../../../modules/graph/actions";
+import {Datasource} from "../../../interfaces/datasource";
+import {Field} from "../../../interfaces/field";
+import IconSelector from '../iconSelector/iconSelector';
+import * as styles from './fields.scss';
 
 interface State {
     currentFieldSearchValue: string;
     currentDateFieldSearchValue: string;
     searchTypes: any[],
     maxSearchResults: number;
+    iconSelectorField: string | null;
 }
 
 interface Props {
@@ -35,7 +38,8 @@ class Fields extends React.Component<Props, State> {
         currentFieldSearchValue: '',
         currentDateFieldSearchValue: '',
         searchTypes: [],
-        maxSearchResults: this.defaultMaxSearchResults
+        maxSearchResults: this.defaultMaxSearchResults,
+        iconSelectorField: null
     };
 
     handleAddField(field) {
@@ -147,19 +151,35 @@ class Fields extends React.Component<Props, State> {
         dispatch(highlightNodes([]));
     }
 
+    toggleFieldSelector(fieldPath: string) {
+        const { iconSelectorField } = this.state;
+
+        this.setState({
+            iconSelectorField: fieldPath === iconSelectorField ? null : fieldPath
+        });
+    }
+
     renderFields(fields, availableFields) {
-        const { currentFieldSearchValue, searchTypes, maxSearchResults } = this.state;
+        const { currentFieldSearchValue, searchTypes, maxSearchResults, iconSelectorField } = this.state;
         availableFields = availableFields.concat([]);
 
         const options = map(fields, (field: any) => {
+            let iconSelector = null;
+
+            if (iconSelectorField === field.path) {
+                iconSelector = <IconSelector onSelectIcon={(icon: string) => this.onSelectIcon(field, icon)}/>;
+            }
+
             return (
                 <li
+                    className={styles.selectedField}
                     key={'field_' + field.path}
                     value={ field.path }
                     onMouseEnter={() => this.highlightNodes(field.path)}>
                     { field.path }
-                    <i className="fieldIcon">{ field.icon }</i>
+                    <i className={styles.fieldIcon} onClick={() => this.toggleFieldSelector(field.path)}>{ field.icon }</i>
                     <Icon onClick={() => this.handleDeleteField(field)} name="ion-ios-trash-outline"/>
+                    {iconSelector}
                 </li>
             );
         });
@@ -305,7 +325,9 @@ class Fields extends React.Component<Props, State> {
 
         return (
             <div>
-                <ul onMouseLeave={this.removeHighlightNodes.bind(this)}>{ options }</ul>
+                <ul onMouseLeave={this.removeHighlightNodes.bind(this)}>
+                    { options }
+                </ul>
                 { availableFields.length > 0 ? search : null }
                 { availableFields.length > 0 ? available : null }
                 { selectDatasourceMessage }
@@ -319,6 +341,18 @@ class Fields extends React.Component<Props, State> {
                 Select at least one
             </span>
         );
+    }
+
+    onSelectIcon(field: Field, icon: string) {
+        const { dispatch } = this.props;
+
+        dispatch(fieldUpdate(field.path, {
+            icon: icon
+        }));
+
+        this.setState({
+            iconSelectorField: null
+        });
     }
 
     render() {

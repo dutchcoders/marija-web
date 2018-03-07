@@ -1,0 +1,21 @@
+.selectedField {
+  position: relative;
+}
+
+.fieldIcon {
+  margin-right: 20px;
+  font-size: 16px !important;
+  font-family: "Ionicons", Helvetica, arial;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  background-color: rgba(255,255,255,0.2);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 20px;
+}

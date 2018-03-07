@@ -1,0 +1,39 @@
+@import '../../../../scss/mixins/shadow';
+
+.iconSelector {
+  width: 100%;
+  height: 300px;
+  background: #5C6777;
+  position: absolute;
+  right: 0;
+  overflow-y: auto;
+  padding: 5px;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  @include shadow();
+}
+
+.icon {
+  background: none !important;
+  font-size: 16px !important;
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  line-height: 22px !important;
+  cursor: pointer;
+  text-align: center;
+  font-family: "Ionicons";
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+
+  &:hover {
+    background: rgba(0,0,0,0.2);
+  }
+}
