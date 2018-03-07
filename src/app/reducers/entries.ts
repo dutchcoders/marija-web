@@ -559,27 +559,27 @@ export default function entries(state: State = defaultState, action) {
                 return state;
             }
 
-            const nodes: Node[] = state.nodes.concat([]);
-
-            action.items.forEach((item: Item) => {
-                forEach(item.fields, value => {
-                    const index = nodes.findIndex(node => node.id === value);
-
-                    if (index === -1) {
-                        return;
-                    }
-
-                    nodes[index] = Object.assign({}, nodes[index], {
-                        items: nodes[index].items.concat([item.id])
-                    });
-                });
-            });
-
+            let nodes: Node[] = state.nodes.concat([]);
             let items = state.items.concat(action.items);
 
             // We might need to delete the previous item
             if (action.prevItemId) {
                 items = items.filter(item => item.id !== action.prevItemId);
+
+                nodes = nodes.map(node => {
+                    const itemIndex = node.items.indexOf(action.prevItemId);
+
+                    if (itemIndex === -1) {
+                        return node;
+                    }
+
+                    const itemIds = node.items.concat([]);
+                    itemIds[itemIndex] = action.items[0].id;
+
+                    return Object.assign({}, node, {
+                        items: itemIds
+                    });
+                });
             }
 
             return Object.assign({}, state, {
