@@ -828,8 +828,8 @@ class GraphPixi extends React.PureComponent<Props, State> {
         this.stage.addChild(this.renderedNodesContainer);
         this.stage.addChild(this.renderedSelection);
         this.stage.addChild(this.renderedSelectedNodes);
-        this.stage.addChild(this.renderedTooltip);
         this.stage.addChild(this.renderedNodeLabels);
+        this.stage.addChild(this.renderedTooltip);
 
         const dragging = d3.drag()
             .filter(() => this.isMoving())
