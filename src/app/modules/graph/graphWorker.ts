@@ -14,6 +14,7 @@ import {Field} from "../../interfaces/field";
 import createField from "../../helpers/createField";
 import {Search} from "../../interfaces/search";
 import {forEach} from 'lodash';
+import {Item} from "../../interfaces/item";
 
 onmessage = (event: MessageEvent) => {
     const action = event.data;
@@ -24,7 +25,11 @@ onmessage = (event: MessageEvent) => {
     }
 
     const payload = action.payload;
-    const items = payload.items.results === null ? [] : payload.items.results;
+    let items: Item[] = payload.prevItems;
+
+    if (payload.items.results !== null) {
+        items = items.concat(payload.items.results);
+    }
 
     const search: Search = payload.searches.find(loop => loop.q === payload.items.query);
 

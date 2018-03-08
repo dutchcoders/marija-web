@@ -45,6 +45,7 @@ export function searchReceive(items) {
             payload: {
                 prevNodes: state.entries.nodes,
                 prevLinks: state.entries.links,
+                prevItems: state.entries.items,
                 items: items,
                 fields: state.entries.fields,
                 normalizations: state.entries.normalizations,
