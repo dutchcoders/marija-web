@@ -52,6 +52,8 @@ export default function getNodesAndLinks(
     query = query.q;
 
     items.forEach(d => {
+        const pathsDone = {};
+
         fields.forEach(source => {
             let sourceValues = fieldLocator(d.fields, source.path);
 
@@ -156,6 +158,14 @@ export default function getNodesAndLinks(
                             return;
                         }
 
+                        if (pathsDone[targetValue + sourceValue]
+                            || pathsDone[sourceValue + targetValue]
+                            || targetValue === sourceValue) {
+                            return;
+                        } else {
+                            pathsDone[sourceValue + targetValue] = true;
+                        }
+
                         if (isDeleted(targetValue)) {
                             return;
                         }
@@ -213,8 +223,34 @@ export default function getNodesAndLinks(
                         let oppositeLinkCacheRef = targetValue + sourceValue;
 
                         // check if link already exists
-                        if ((linkCache[linkCacheRef]
-                         || linkCache[oppositeLinkCacheRef])) {
+                        if (linkCache[sourceValue + targetValue]) {
+                            const index: number = links.findIndex(search =>
+                                search.source === sourceValue && search.target === targetValue
+                            );
+
+                            // Add the item id to the link
+                            if (links[index].itemIds.indexOf(d.id) === -1) {
+                                links[index] = Object.assign({}, links[index], {
+                                    itemIds: links[index].itemIds.concat([d.id])
+                                });
+                            }
+
+                            return;
+                        }
+
+                        // check if link already exists (opposite)
+                        if (linkCache[targetValue + sourceValue]) {
+                            const index: number = links.findIndex(search =>
+                                search.source === targetValue && search.target === sourceValue
+                            );
+
+                            // Add the item id to the link
+                            if (links[index].itemIds.indexOf(d.id) === -1) {
+                                links[index] = Object.assign({}, links[index], {
+                                    itemIds: links[index].itemIds.concat([d.id])
+                                });
+                            }
+
                             return;
                         }
 
@@ -228,7 +264,8 @@ export default function getNodesAndLinks(
                             display: true,
                             isNormalizationParent: false,
                             viaId: null,
-                            replacedNode: null
+                            replacedNode: null,
+                            itemIds: [d.id]
                         };
 
                         links.push(link);

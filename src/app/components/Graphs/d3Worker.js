@@ -140,7 +140,8 @@ onmessage = function(event) {
                 color: link.color,
                 label: link.label,
                 total: link.total,
-                current: link.current
+                current: link.current,
+                thickness: link.thickness
             };
 
             that.links.push(add);

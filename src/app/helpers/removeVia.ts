@@ -14,7 +14,8 @@ const getLink = (source: string, target: string): Link => {
         total: 1,
         current: 1,
         color: '',
-        replacedNode: null
+        replacedNode: null,
+        itemIds: []
     };
 };
 

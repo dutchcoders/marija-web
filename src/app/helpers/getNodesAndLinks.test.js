@@ -254,3 +254,74 @@ test('should not not create nodes for empty field values', () => {
     expect(nodes.length).toBe(2);
     expect(links.length).toBe(1);
 });
+
+test('should keep track of item ids, especially when there are multiple lines between 2 nodes', () => {
+    const previousNodes = [];
+    const previousLinks = [];
+
+    const items = [
+        {
+            id: '1',
+            fields: {
+                client: 1,
+                server: 2
+            }
+        },
+        {
+            id: '2',
+            fields: {
+                client: 1,
+                server: 2
+            }
+        }
+    ];
+
+    const fields = [
+        generateField('client'),
+        generateField('server')
+    ];
+
+    const query = generateQuery(items);
+
+    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, []);
+
+    expect(nodes.length).toBe(2);
+    expect(links.length).toBe(1);
+    expect(links[0].itemIds.length).toBe(2);
+});
+
+test('should not add the same item id multiple times when function is run twice', () => {
+    const previousNodes = [];
+    const previousLinks = [];
+
+    const items = [
+        {
+            id: '1',
+            fields: {
+                client: 1,
+                server: 2
+            }
+        },
+        {
+            id: '2',
+            fields: {
+                client: 1,
+                server: 2
+            }
+        }
+    ];
+
+    const fields = [
+        generateField('client'),
+        generateField('server')
+    ];
+
+    const query = generateQuery(items);
+
+    let result = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, []);
+    result = getNodesAndLinks(result.nodes, result.links, items, fields, query, []);
+
+    expect(result.nodes.length).toBe(2);
+    expect(result.links.length).toBe(1);
+    expect(result.links[0].itemIds.length).toBe(2);
+});

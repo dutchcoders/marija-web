@@ -228,9 +228,9 @@ class GraphPixi extends React.PureComponent<Props, State> {
     renderLinks() {
         this.renderedLinks.clear();
         this.renderedLinkLabels.removeChildren();
-        this.renderedLinks.lineStyle(1, 0xFFFFFF);
 
         this.linksFromWorker.forEach(link => {
+            this.renderedLinks.lineStyle(link.thickness, 0xFFFFFF);
             this.renderLink(link);
         });
     }
@@ -475,7 +475,8 @@ class GraphPixi extends React.PureComponent<Props, State> {
                 target: link.target,
                 label: link.label,
                 total: link.total,
-                current: link.current
+                current: link.current,
+                thickness: Math.max(1, link.itemIds.length)
             };
         });
 
