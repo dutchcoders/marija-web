@@ -8,7 +8,6 @@ import {
     getNodesForDisplay, getSelectedNodes
 } from "../../reducers/entriesSelectors";
 import {Item} from "../../interfaces/item";
-import * as dompurify from 'dompurify';
 
 interface Props {
     nodes: Node[];
