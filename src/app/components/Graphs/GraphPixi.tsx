@@ -450,29 +450,33 @@ class GraphPixi extends React.PureComponent<Props, State> {
     }
 
     postNodesAndLinksToWorker(nodesForDisplay: Node[], linksForDisplay: Link[]) {
-        const nodesToPost = [];
+        const maxLabelLength = 20;
 
-        nodesForDisplay.forEach(node => {
-            nodesToPost.push({
+        const nodesToPost = nodesForDisplay.map(node => {
+            let label = node.abbreviated;
+
+            if (label.length > maxLabelLength) {
+                label = label.substring(0, maxLabelLength) + '...';
+            }
+
+            return {
                 id: node.id,
                 count: node.count,
                 hash: node.hash,
                 queries: node.queries,
                 icon: node.icon,
-                label: node.abbreviated
-            });
+                label: label
+            };
         });
 
-        const linksToPost = [];
-
-        linksForDisplay.forEach(link => {
-            linksToPost.push({
+        const linksToPost = linksForDisplay.map(link => {
+            return {
                 source: link.source,
                 target: link.target,
                 label: link.label,
                 total: link.total,
                 current: link.current
-            });
+            };
         });
 
         this.postWorkerMessage({
@@ -677,7 +681,11 @@ class GraphPixi extends React.PureComponent<Props, State> {
         const text = new PIXI.Text(label, {
             fontFamily: 'Arial',
             fontSize: '12px',
-            fill: '#ffffff'
+            fill: '#ffffff',
+            dropShadow: true,
+            dropShadowDistance: 1,
+            dropShadowBlur: 3,
+            dropShadowAlpha: .7
         });
 
         texture = PIXI.RenderTexture.create(text.width, text.height);
