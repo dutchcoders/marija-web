@@ -701,7 +701,9 @@ class GraphPixi extends React.PureComponent<Props, State> {
 
         this.renderedNodeLabels.removeChildren();
 
-        if (!showLabels) {
+        const tooSmallToRead: boolean = this.transform.k < .75;
+
+        if (!showLabels || tooSmallToRead) {
             return;
         }
 
