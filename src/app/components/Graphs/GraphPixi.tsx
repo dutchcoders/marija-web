@@ -927,6 +927,14 @@ class GraphPixi extends React.PureComponent<Props, State> {
         const x = this.transform.invertX(d3.event.sourceEvent.layerX);
         const y = this.transform.invertY(d3.event.sourceEvent.layerY);
 
+        // If there is suddenly a large change in x and y position,
+        // the cursor is probably outside of the graph area. Cancel dragging.
+        if (Math.abs(x - d3.event.subject.fx) > 100
+            || Math.abs(y - d3.event.subject.fy) > 100) {
+            this.dragended();
+            return;
+        }
+
         d3.event.subject.fx = (x);
         d3.event.subject.fy = (y);
 
