@@ -38,9 +38,8 @@ onmessage = function(event) {
     } else if (event.data.type === 'init') {
         let { clientWidth, clientHeight } = event.data;
 
-        simulation = d3.forceSimulation()
-            .stop()
-            .force("link", d3.forceLink().distance(link => {
+        const forceLink = d3.forceLink()
+            .distance(link => {
                 if (!link.label) {
                     return 80;
                 }
@@ -52,11 +51,20 @@ onmessage = function(event) {
                 }
 
                 return label.length * 10 + 30;
-            }).id(function (d) {
-                return d.id;
-            }))
-            .force("charge", d3.forceManyBody().strength(-100).distanceMax(500))
+            })
+            .id((d) => d.id);
+
+        const forceManyBody = d3.forceManyBody()
+            .strength(-100)
+            .distanceMax(500)
+            .distanceMin(50);
+
+        simulation = d3.forceSimulation()
+            .stop()
+            .force("link", forceLink)
+            .force("charge", forceManyBody)
             .force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
+            .force('collide', d3.forceCollide(node => node.r))
             .force("vertical", d3.forceY().strength(0.018))
             .force("horizontal", d3.forceX().strength(0.006))
             .on("tick", () => {
@@ -153,6 +161,10 @@ onmessage = function(event) {
         simulation.force("link")
             .links(this.links);
 
-        simulation.alpha(0.3).restart();
+        simulation
+            .alpha(0.5)
+            // .alphaDecay(.0428)
+            // .velocityDecay(.2)
+            .restart();
     }
 }

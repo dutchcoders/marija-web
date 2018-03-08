@@ -929,8 +929,8 @@ class GraphPixi extends React.PureComponent<Props, State> {
 
         // If there is suddenly a large change in x and y position,
         // the cursor is probably outside of the graph area. Cancel dragging.
-        if (Math.abs(x - d3.event.subject.fx) > 300
-            || Math.abs(y - d3.event.subject.fy) > 300) {
+        if (Math.abs(x - d3.event.subject.fx) > 500
+            || Math.abs(y - d3.event.subject.fy) > 500) {
             this.dragended();
             return;
         }
