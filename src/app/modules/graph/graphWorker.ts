@@ -15,6 +15,24 @@ import createField from "../../helpers/createField";
 import {Search} from "../../interfaces/search";
 import {forEach} from 'lodash';
 import {Item} from "../../interfaces/item";
+import {Node} from "../../interfaces/node";
+import {Link} from "../../interfaces/link";
+import {Normalization} from "../../interfaces/normalization";
+import {Via} from "../../interfaces/via";
+
+interface Payload {
+    items: Item[];
+    query: string;
+    prevNodes: Node[];
+    prevLinks: Link[];
+    prevItems: Item[];
+    fields: Field[];
+    normalizations: Normalization[];
+    searches: Search[];
+    deletedNodes: Node[];
+    via: Via[];
+    receivedAt: number;
+}
 
 onmessage = (event: MessageEvent) => {
     const action = event.data;
@@ -24,21 +42,21 @@ onmessage = (event: MessageEvent) => {
         return;
     }
 
-    const payload = action.payload;
+    const payload: Payload = action.payload;
     let items: Item[] = payload.prevItems;
 
-    if (payload.items.results !== null) {
-        items = items.concat(payload.items.results);
+    if (payload.items !== null) {
+        items = items.concat(payload.items);
     }
 
-    const search: Search = payload.searches.find(loop => loop.q === payload.items.query);
+    const search: Search = payload.searches.find(loop => loop.q === payload.query);
 
     if (!search) {
-        console.error('received items for a query we were not searching for: ' + payload.items.query);
+        console.error('received items for a query we were not searching for: ' + payload.query);
         return;
     }
 
-    search.items = search.items.concat(payload.items.results);
+    search.items = search.items.concat(payload.items);
 
     const isLive: boolean = search.liveDatasource !== null;
 

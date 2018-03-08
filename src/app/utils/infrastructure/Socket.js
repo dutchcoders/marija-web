@@ -52,10 +52,7 @@ export const Socket = {
         clearTimeout(Socket.searchTimeouts[query]);
 
         Socket.searchTimeouts[query] = setTimeout(() => {
-            dispatch(searchReceive({
-                results: Socket.searchResults[query],
-                query: query,
-            }));
+            dispatch(searchReceive(Socket.searchResults[query], query));
 
             delete Socket.searchResults[query];
         }, 500);

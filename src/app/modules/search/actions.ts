@@ -2,6 +2,7 @@ import { SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_DELETE, SEARCH_EDIT } from './in
 import {SEARCH_FIELDS_UPDATE} from "./constants";
 import {Node} from "../../interfaces/node";
 import {Search} from "../../interfaces/search";
+import {Item} from "../../interfaces/item";
 
 export function searchRequest(query: string) {
     return (dispatch, getState) => {
@@ -33,7 +34,7 @@ export function searchAround(node: Node) {
     };
 }
 
-export function searchReceive(items) {
+export function searchReceive(items: Item[], query: string) {
     return (dispatch, getState) => {
         const state = getState();
 
@@ -43,16 +44,17 @@ export function searchReceive(items) {
                 WebWorker: true
             },
             payload: {
+                items: items,
+                query: query,
                 prevNodes: state.entries.nodes,
                 prevLinks: state.entries.links,
                 prevItems: state.entries.items,
-                items: items,
                 fields: state.entries.fields,
                 normalizations: state.entries.normalizations,
-                receivedAt: Date.now(),
                 searches: state.entries.searches,
                 deletedNodes: state.entries.deletedNodes,
                 via: state.entries.via,
+                receivedAt: Date.now()
             }
         });
     }
