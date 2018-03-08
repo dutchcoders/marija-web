@@ -1,15 +1,16 @@
+const baseConfig = require('./webpack-common');
+const path = require('path');
+const merge = require('webpack-merge');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const webpack = require('webpack');
-
 const { gitDescribeSync } = require('git-describe');
 const gitInfo = gitDescribeSync();
 
-const common = require('./webpack.common.js');
-const merge = require('webpack-merge');
-
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-
-module.exports = merge(common, {
-    devtool: 'cheap-module-source-map',
+module.exports = merge(baseConfig, {
+    output: {
+        path: [__dirname, 'dist'].join(path.sep),
+        filename: '[name].[hash].js'
+    },
     plugins: [
         new webpack.DefinePlugin({
             "process.env": {
@@ -21,4 +22,3 @@ module.exports = merge(common, {
         new UglifyJSPlugin(),
     ]
 });
-

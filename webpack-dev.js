@@ -4,7 +4,7 @@ const { gitDescribeSync } = require('git-describe');
 const gitInfo = gitDescribeSync();
 
 const merge = require('webpack-merge');
-const common = require('./webpack.common.js');
+const common = require('./webpack-common.js');
 
 module.exports = merge(common, {
     devtool: 'source-map',

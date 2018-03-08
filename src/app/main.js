@@ -1,6 +1,5 @@
 import ResumeSession from "./components/Misc/ResumeSession";
 
-require('../index.html');
 require('../scss/app.scss');
 require('../images/logo.png');
 require('../images/favicon.png');

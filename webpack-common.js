@@ -2,12 +2,11 @@ const webpack = require('webpack');
 const path = require('path');
 const dotenv = require('dotenv');
 const { gitDescribeSync } = require('git-describe');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 dotenv.config();
 
 const gitInfo = gitDescribeSync();
-
-const BUILD_DIR = path.resolve(__dirname, 'build');
 const SRC_DIR = path.resolve(__dirname, 'src');
 
 module.exports = {
@@ -16,15 +15,11 @@ module.exports = {
         app: SRC_DIR + '/app/main.js'
     },
     target: 'web',
-    output: {
-        path: BUILD_DIR,
-        filename: 'bundle.js'
-    },
     devtool: 'eval',
     plugins: [
         new webpack.optimize.CommonsChunkPlugin({
             name: 'vendor',
-            filename: 'vendor.js'
+            filename: 'vendor.[hash].js'
         }),
         new webpack.DefinePlugin({
             "process.env": { 
@@ -32,6 +27,10 @@ module.exports = {
                 WEBSOCKET_URI: process.env.WEBSOCKET_URI ? JSON.stringify(process.env.WEBSOCKET_URI) : null,
                 CLIENT_VERSION: JSON.stringify(gitInfo.raw)
             }
+        }),
+        new HtmlWebpackPlugin({
+            template: 'src/index.html',
+            inject: true
         })
     ],
     resolve: {
@@ -97,10 +96,6 @@ module.exports = {
                         loader: 'sass-loader'
                     }
                 ]
-            },
-            {
-                test: /\.(html)$/i,
-                loader: 'file-loader?name=/[name].[ext]'
             },
             {
                 test: /\.(png|jpg|jpeg)$/,
