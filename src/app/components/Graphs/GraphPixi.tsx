@@ -197,10 +197,12 @@ class GraphPixi extends React.PureComponent<Props, State> {
             currentAngle += anglePerQuery;
         });
 
+        const fontSize = node.r;
+
         ctx.fillStyle = '#ffffff';
-        ctx.font = '14px Ionicons, Roboto, Helvetica, Arial';
+        ctx.font = fontSize + 'px Ionicons, Roboto, Helvetica, Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(node.icon, node.r - 1, node.r + 5);
+        ctx.fillText(node.icon, node.r - 1, node.r + (fontSize / 3));
 
         texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
 
