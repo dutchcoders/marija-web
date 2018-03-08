@@ -43,12 +43,12 @@ onmessage = (event: MessageEvent) => {
     }
 
     const payload: Payload = action.payload;
-    let items: Item[] = payload.prevItems;
 
-    if (payload.items !== null) {
-        items = items.concat(payload.items);
+    if (!payload.items) {
+        return;
     }
 
+    const items: Item[] = payload.prevItems.concat(payload.items);
     const search: Search = payload.searches.find(loop => loop.q === payload.query);
 
     if (!search) {

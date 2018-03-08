@@ -1,6 +1,5 @@
-
-import React, {Component} from 'react';
-import { connect} from 'react-redux';
+import * as React from 'react';
+import {connect, Dispatch} from 'react-redux';
 import { isEqual } from 'lodash';
 import { nodesSelect } from '../../modules/graph/index';
 import { Icon } from '../../components/index';
@@ -9,15 +8,26 @@ import Url from "../../domain/Url";
 import Tooltip from 'rc-tooltip';
 import {cancelRequest} from "../../utils/actions";
 import {deselectNodes} from "../../modules/graph/actions";
+import {Search} from "../../interfaces/search";
+import {Node} from "../../interfaces/node";
+import {pauseSearch, resumeSearch} from "../../modules/search/actions";
 
-class Query extends React.Component {
-    constructor(props) {
-        super(props);
+interface Props {
+    dispatch: Dispatch<any>;
+    search: Search;
+    nodes: Node[];
+    selectedNodes: Node[];
+    handleEdit: Function;
+}
 
-        this.state = {
-            editSearchValue: null
-        };
-    }
+interface State {
+    editSearchValue: string;
+}
+
+class Query extends React.Component<Props, State> {
+    state: State = {
+        editSearchValue: null
+    };
 
     handleDelete() {
         const { dispatch, search } = this.props;
@@ -92,6 +102,18 @@ class Query extends React.Component {
         }
     }
 
+    pause() {
+        const { dispatch, search } = this.props;
+
+        dispatch(pauseSearch(search));
+    }
+
+    resume() {
+        const { dispatch, search } = this.props;
+
+        dispatch(resumeSearch(search));
+    }
+
     render() {
         const { search, handleEdit } = this.props;
 
@@ -99,7 +121,42 @@ class Query extends React.Component {
         const nodes = this.countNodes();
         const lessClass = 'ion ion-ios-minus ' + (displayNodes <= 0 ? 'disabled' : '');
         const moreClass = 'ion ion-ios-plus ' + (displayNodes === nodes ? 'disabled' : '');
-        const itemClass = 'query ' + (search.completed ? '' : 'loading');
+        const loading: boolean = !search.completed && !search.paused;
+        const itemClass = 'query ' + (loading ? 'loading' : '');
+
+        let pause = null;
+
+        if (!search.completed && !search.paused) {
+            pause = (
+                <Tooltip
+                    overlay="Pause"
+                    placement="bottom"
+                    mouseLeaveDelay={0}
+                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                    <Icon
+                        onClick={() => this.pause() }
+                        name="ion-ios-pause"
+                    />
+                </Tooltip>
+            );
+        }
+
+        let resume = null;
+
+        if (!search.completed && search.paused) {
+            resume = (
+                <Tooltip
+                    overlay="Resume"
+                    placement="bottom"
+                    mouseLeaveDelay={0}
+                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                    <Icon
+                        onClick={() => this.resume() }
+                        name="ion-ios-play"
+                    />
+                </Tooltip>
+            );
+        }
 
         return (
             <div key={search.q} style={{backgroundColor: search.color}} className={itemClass}>
@@ -107,6 +164,9 @@ class Query extends React.Component {
                 <span className="count">
                     {displayNodes}/{nodes}
                 </span>
+
+                {pause}
+                {resume}
 
                 <div className="actions">
                     <Tooltip

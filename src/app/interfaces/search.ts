@@ -10,4 +10,5 @@ export interface Search {
     requestId: string;
     total: number;
     liveDatasource: string | null;
+    paused: boolean;
 }

@@ -396,7 +396,8 @@ export default function entries(state: State = defaultState, action) {
                     requestId: uniqueId(),
                     completed: false,
                     aroundNodeId: action.aroundNodeId,
-                    liveDatasource: null
+                    liveDatasource: null,
+                    paused: false
                 };
 
                 searches.push(search);
@@ -601,7 +602,7 @@ export default function entries(state: State = defaultState, action) {
                 return state;
             }
 
-            const newSearch = {
+            const newSearch: Search = {
                 q: action.payload.datasource.name,
                 color: '#0055cc',
                 total: 0,
@@ -610,7 +611,8 @@ export default function entries(state: State = defaultState, action) {
                 requestId: uniqueId(),
                 completed: false,
                 aroundNodeId: null,
-                liveDatasource: action.payload.datasource.id
+                liveDatasource: action.payload.datasource.id,
+                paused: false
             };
 
             return Object.assign({}, state, {

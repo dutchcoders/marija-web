@@ -3,6 +3,9 @@ import {SEARCH_FIELDS_UPDATE} from "./constants";
 import {Node} from "../../interfaces/node";
 import {Search} from "../../interfaces/search";
 import {Item} from "../../interfaces/item";
+import {cancelRequest} from '../../reducers/utils';
+import {Socket} from "../../utils";
+import {uniqueId} from 'lodash';
 
 export function searchRequest(query: string) {
     return (dispatch, getState) => {
@@ -94,4 +97,52 @@ export function searchFieldsUpdate() {
             }
         });
     }
+}
+
+export function pauseSearch(search: Search) {
+    cancelRequest(search.requestId);
+
+    return {
+        type: SEARCH_EDIT,
+        receivedAt: Date.now(),
+        query: search.q,
+        opts: {
+            paused: true
+        }
+    };
+}
+
+export function resumeSearch(search: Search) {
+    return (dispatch, getState) => {
+        const state = getState();
+        const datasources: string[] = state
+            .datasources
+            .datasources
+            .filter(datasource => datasource.active)
+            .map(datasource => datasource.id);
+
+        const fields: string[] = state
+            .entries
+            .fields
+            .map(field => field.path);
+
+        const requestId = uniqueId();
+
+        Socket.ws.postMessage({
+            datasources: datasources,
+            query: search.q,
+            fields: fields,
+            'request-id': requestId
+        });
+
+        dispatch({
+            type: SEARCH_EDIT,
+            receivedAt: Date.now(),
+            query: search.q,
+            opts: {
+                paused: false,
+                requestId: requestId
+            }
+        });
+    };
 }
