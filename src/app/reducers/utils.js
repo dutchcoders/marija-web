@@ -66,6 +66,10 @@ export const defaultUtilsState = {
         filter: Object.assign({}, defaultPane, {
             width: 300,
             height: 300,
+        }),
+        circle: Object.assign({}, defaultPane, {
+            width: 500,
+            height: 500,
         })
     }
 };

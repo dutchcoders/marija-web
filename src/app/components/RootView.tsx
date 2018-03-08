@@ -10,6 +10,7 @@ import {
 import Filter from "./Graphs/Filter";
 import ContextMenu from '../modules/contextMenu/contextMenu';
 import Stats from '../modules/stats/stats';
+import Circle from '../modules/circle/circle';
 
 class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();
@@ -105,6 +106,15 @@ class RootView extends React.Component<any, any> {
                         dispatch={dispatch}
                         container={this.main}>
                         <Filter />
+                    </Pane>
+
+                    <Pane
+                        name="Circle"
+                        handle="circle"
+                        config={panes.circle}
+                        dispatch={dispatch}
+                        container={this.main}>
+                        <Circle />
                     </Pane>
                 </div>
             );

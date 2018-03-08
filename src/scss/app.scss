@@ -135,3 +135,48 @@ body,
 @import 'components/navigation';
 @import 'components/filter';
 @import 'components/timeline';
+
+.node {
+    font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    fill: #bbb;
+}
+
+.node:hover {
+    //font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    //fill: #000;
+}
+
+.link {
+    stroke: steelblue;
+    stroke-opacity: 0.4;
+    fill: none;
+    pointer-events: none;
+}
+
+.node:hover,
+.node--source,
+.node--target {
+    //font-weight: 700;
+}
+
+.node--source {
+    fill: #de79f2;
+}
+
+.node--target {
+    fill: #de79f2;
+}
+
+.link--source,
+.link--target {
+    stroke-opacity: 1;
+    stroke-width: 2px;
+}
+
+.link--source {
+    stroke: #de79f2;
+}
+
+.link--target {
+    stroke: #de79f2;
+}
