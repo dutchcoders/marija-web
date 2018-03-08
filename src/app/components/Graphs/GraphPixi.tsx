@@ -711,8 +711,6 @@ class GraphPixi extends React.PureComponent<Props, State> {
             const texture = this.getNodeLabelTexture(node.label);
             const sprite = new PIXI.Sprite(texture);
 
-            // sprite.x = this.transform.applyX(node.x - (texture.width / 2));
-            // sprite.y = this.transform.applyY(node.y + node.r);
             sprite.x = node.x - (texture.width / 2);
             sprite.y = node.y + node.r;
 

@@ -87,7 +87,7 @@ class Navigation extends React.Component {
                 </ul>
                 <ul className="mapControls">
                     {this.getButton(
-                        'ion-ios-drag',
+                        'ion-ios-pricetag',
                         'Show labels',
                         () => this.toggleLabels(),
                         showLabels
