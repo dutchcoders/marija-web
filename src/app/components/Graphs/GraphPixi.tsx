@@ -35,6 +35,7 @@ interface Props {
     zoomEvents: any;
     dispatch: Dispatch<any>;
     version: string;
+    showLabels: boolean;
 }
 
 interface State {
@@ -49,6 +50,7 @@ interface RenderedSince {
     lastQueries: boolean;
     lastSearchResults: boolean;
     lastFields: boolean;
+    lastNodeLableToggle: boolean;
 }
 
 class GraphPixi extends React.PureComponent<Props, State> {
@@ -62,7 +64,8 @@ class GraphPixi extends React.PureComponent<Props, State> {
         lastSelectedNodes: true,
         lastQueries: true,
         lastSearchResults: true,
-        lastFields: true
+        lastFields: true,
+        lastNodeLableToggle: true
     };
     nodesFromWorker: NodeFromWorker[] = [];
     nodeTextures: TextureMap = {};
@@ -78,6 +81,8 @@ class GraphPixi extends React.PureComponent<Props, State> {
     selectedNodeTextures: TextureMap = {};
     searchResultTextures: TextureMap = {};
     renderedHighlights: PIXI.Container = new PIXI.Container();
+    nodeLabelTextures: TextureMap = {};
+    renderedNodeLabels: PIXI.Container = new PIXI.Container();
     stage: PIXI.Container = new PIXI.Container();
     worker: Worker;
     transform: any = d3.zoomIdentity;
@@ -85,7 +90,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
     lastLoopTimestamp: number;
     frameTime: number = 0;
     lastDispatchedFpsTimestamp: number = 0;
-    labelTextures: TextureMap = {};
+    linkLabelTextures: TextureMap = {};
     tooltipTextures: TextureMap = {};
 
     isMoving() {
@@ -125,7 +130,8 @@ class GraphPixi extends React.PureComponent<Props, State> {
             this.renderedLinks,
             this.renderedSelectedNodes,
             this.renderedLinkLabels,
-            this.renderedHighlights
+            this.renderedHighlights,
+            this.renderedNodeLabels
         ].forEach(zoomable => {
             zoomable.scale.x = fraction;
             zoomable.scale.y = fraction;
@@ -293,7 +299,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
     }
 
     renderTextAlongStraightLine(string: string, x1: number, y1: number, x2: number, y2: number) {
-        const texture = this.getLabelTexture(string);
+        const texture = this.getLinkLabelTexture(string);
         const text = new PIXI.Sprite(texture);
         const averageX = (x1 + x2) / 2;
         const averageY = (y1 + y2) / 2;
@@ -313,8 +319,8 @@ class GraphPixi extends React.PureComponent<Props, State> {
         this.renderedLinkLabels.addChild(text);
     }
 
-    getLabelTexture(label: string) {
-        let texture = this.labelTextures[label];
+    getLinkLabelTexture(label: string) {
+        let texture = this.linkLabelTextures[label];
 
         if (typeof texture !== 'undefined') {
             return texture;
@@ -331,7 +337,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
         texture = PIXI.RenderTexture.create(metrics.width, metrics.height);
         this.renderer.render(text, texture);
 
-        this.labelTextures[label] = texture;
+        this.linkLabelTextures[label] = texture;
 
         return texture;
     }
@@ -362,7 +368,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
             string += '';
         }
 
-        const texture = this.getLabelTexture(string);
+        const texture = this.getLinkLabelTexture(string);
         const totalAngle = texture.width / radius;
         const coordinates = this.getRopeCoordinates(angle - totalAngle / 2, angle + totalAngle / 2, radius);
         const rope = new PIXI.mesh.Rope(texture, coordinates);
@@ -400,7 +406,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
     }
 
     componentWillReceiveProps(nextProps: Props) {
-        const { searches, nodesForDisplay, linksForDisplay, fields } = this.props;
+        const { searches, nodesForDisplay, linksForDisplay, fields, showLabels } = this.props;
         const selectedNodes = this.getSelectedNodes();
         const prevSelected = nextProps.nodesForDisplay.filter(node => node.selected);
 
@@ -437,6 +443,10 @@ class GraphPixi extends React.PureComponent<Props, State> {
         if (nextProps.nodesForDisplay.filter(node => node.highlighted) !== this.getHighlightNodes()) {
             this.renderedSince.lastSearchResults = false;
         }
+
+        if (nextProps.showLabels !== showLabels) {
+            this.renderedSince.lastNodeLableToggle = false;
+        }
     }
 
     postNodesAndLinksToWorker(nodesForDisplay: Node[], linksForDisplay: Link[]) {
@@ -448,7 +458,8 @@ class GraphPixi extends React.PureComponent<Props, State> {
                 count: node.count,
                 hash: node.hash,
                 queries: node.queries,
-                icon: node.icon
+                icon: node.icon,
+                label: node.abbreviated
             });
         });
 
@@ -655,6 +666,50 @@ class GraphPixi extends React.PureComponent<Props, State> {
         });
     }
 
+    getNodeLabelTexture(label: string): PIXI.Texture {
+        const key = label;
+        let texture = this.tooltipTextures[key];
+
+        if (typeof texture !== 'undefined') {
+            return texture;
+        }
+
+        const text = new PIXI.Text(label, {
+            fontFamily: 'Arial',
+            fontSize: '12px',
+            fill: '#ffffff'
+        });
+
+        texture = PIXI.RenderTexture.create(text.width, text.height);
+        this.renderer.render(text, texture);
+
+        this.tooltipTextures[key] = texture;
+
+        return texture;
+    }
+
+    renderNodeLabels() {
+        const { showLabels } = this.props;
+
+        this.renderedNodeLabels.removeChildren();
+
+        if (!showLabels) {
+            return;
+        }
+
+        this.nodesFromWorker.forEach(node => {
+            const texture = this.getNodeLabelTexture(node.label);
+            const sprite = new PIXI.Sprite(texture);
+
+            // sprite.x = this.transform.applyX(node.x - (texture.width / 2));
+            // sprite.y = this.transform.applyY(node.y + node.r);
+            sprite.x = node.x - (texture.width / 2);
+            sprite.y = node.y + node.r;
+
+            this.renderedNodeLabels.addChild(sprite);
+        });
+    }
+
     renderGraph(renderStage: boolean) {
         if (renderStage) {
             this.renderer.render(this.stage);
@@ -673,10 +728,18 @@ class GraphPixi extends React.PureComponent<Props, State> {
             this.renderNodes();
             this.renderLinks();
             this.renderTooltip();
+            this.renderNodeLabels();
 
             stateUpdates.lastTick = true;
             stateUpdates.lastZoom = true;
             stateUpdates.lastQueries = true;
+            stateUpdates.lastNodeLableToggle = true;
+        }
+
+        if (shouldRender('lastNodeLableToggle')) {
+            this.renderNodeLabels();
+
+            stateUpdates.lastNodeLableToggle = true;
         }
 
         if (shouldRender('lastSelection')) {
@@ -766,6 +829,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
         this.stage.addChild(this.renderedSelection);
         this.stage.addChild(this.renderedSelectedNodes);
         this.stage.addChild(this.renderedTooltip);
+        this.stage.addChild(this.renderedNodeLabels);
 
         const dragging = d3.drag()
             .filter(() => this.isMoving())
@@ -1110,7 +1174,8 @@ const select = (state, ownProps) => {
         linksForDisplay: getLinksForDisplay(state),
         fields: state.entries.fields,
         searches: state.entries.searches,
-        selectingMode: state.entries.selectingMode
+        selectingMode: state.entries.selectingMode,
+        showLabels: state.entries.showLabels
     };
 };
 

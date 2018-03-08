@@ -14,7 +14,7 @@ import { getNodesForDisplay,
 } from '../helpers/index';
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
 import {VIA_ADD, VIA_DELETE} from "../modules/data/constants";
-import {NODES_TOOLTIP, SET_SELECTING_MODE} from "../modules/graph/constants";
+import {NODES_TOOLTIP, SET_SELECTING_MODE, TOGGLE_LABELS} from "../modules/graph/constants";
 import {REQUEST_COMPLETED} from "../utils/constants";
 import {SEARCH_FIELDS_UPDATE} from "../modules/search/constants";
 import {cancelRequest} from "./utils";
@@ -54,6 +54,7 @@ interface State {
     errors: any;
     via: Via[];
     selectingMode: boolean;
+    showLabels: boolean;
 }
 
 export const defaultState: State = {
@@ -70,7 +71,8 @@ export const defaultState: State = {
     deletedNodes: [],
     errors: null,
     via: [],
-    selectingMode: false
+    selectingMode: false,
+    showLabels: false
 };
 
 export default function entries(state: State = defaultState, action) {
@@ -618,6 +620,12 @@ export default function entries(state: State = defaultState, action) {
 
             return Object.assign({}, state, {
                 searches: state.searches.concat([newSearch])
+            });
+        }
+
+        case TOGGLE_LABELS: {
+            return Object.assign({}, state, {
+                showLabels: action.payload.show
             });
         }
 

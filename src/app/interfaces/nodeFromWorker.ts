@@ -12,4 +12,5 @@ export interface NodeFromWorker {
     queries: string[];
     icon: string;
     textureKey?: string;
+    label: string;
 }

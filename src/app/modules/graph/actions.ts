@@ -1,5 +1,5 @@
 import { NODES_DESELECT, NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, SELECTION_CLEAR, SET_SELECTING_MODE, NODES_TOOLTIP } from './index';
-import { GRAPH_WORKER_OUTPUT, FIELD_NODES_HIGHLIGHT } from './constants';
+import { GRAPH_WORKER_OUTPUT, FIELD_NODES_HIGHLIGHT, TOGGLE_LABELS } from './constants';
 import {Node} from "../../interfaces/node";
 import {Link} from "../../interfaces/link";
 import {Item} from "../../interfaces/item";
@@ -86,5 +86,14 @@ export function graphWorkerOutput(nodes: Node[], links: Link[], items: Item[], f
         links: links,
         items: items,
         fields: fields
+    }
+}
+
+export function toggleLabels(show: boolean) {
+    return {
+        type: TOGGLE_LABELS,
+        payload: {
+            show: show
+        }
     }
 }

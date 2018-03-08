@@ -3,7 +3,7 @@ import { connect} from 'react-redux';
 import {Icon} from "../index";
 import {closePane, openPane} from "../../utils/actions";
 import Tooltip from 'rc-tooltip';
-import {setSelectingMode} from "../../modules/graph/actions";
+import {setSelectingMode, toggleLabels} from '../../modules/graph/actions';
 import Filter from "../Graphs/Filter";
 
 class Navigation extends React.Component {
@@ -33,6 +33,12 @@ class Navigation extends React.Component {
         return panes[name].open;
     }
 
+    toggleLabels() {
+        const { dispatch, showLabels } = this.props;
+
+        dispatch(toggleLabels(!showLabels));
+    }
+
     getButton(icon, tooltip, clickHandler, active) {
         return (
             <li className={active ? 'active': ''}>
@@ -48,7 +54,7 @@ class Navigation extends React.Component {
     }
 
     render() {
-        const { selectingMode, zoomIn, zoomOut } = this.props;
+        const { selectingMode, zoomIn, zoomOut, showLabels } = this.props;
 
         return (
             <nav className="navigation">
@@ -80,6 +86,12 @@ class Navigation extends React.Component {
                     )}
                 </ul>
                 <ul className="mapControls">
+                    {this.getButton(
+                        'ion-ios-drag',
+                        'Show labels',
+                        () => this.toggleLabels(),
+                        showLabels
+                    )}
                     {this.getButton(
                         'ion-arrow-move',
                         'Move',
@@ -114,7 +126,8 @@ const select = (state, ownProps) => {
     return {
         ...ownProps,
         panes: state.utils.panes,
-        selectingMode: state.entries.selectingMode
+        selectingMode: state.entries.selectingMode,
+        showLabels: state.entries.showLabels
     };
 };
 
