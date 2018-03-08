@@ -1,7 +1,6 @@
-import { slice, concat, without, reduce, remove, assign, find, forEach, union, filter, uniqBy, uniqueId, intersection, isEqual } from 'lodash';
+import { concat, without, remove, assign, find, uniqueId, isEqual, chunk } from 'lodash';
 
 import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
-import {  FIELDS_RECEIVE, FIELDS_REQUEST } from '../modules/fields/index';
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
 import {
     FIELD_NODES_HIGHLIGHT,
@@ -10,20 +9,16 @@ import {
 import {  SEARCH_DELETE, SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_EDIT } from '../modules/search/index';
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
-import {
-    normalize, fieldLocator, getNodesForDisplay,
-    removeDeadLinks, applyVia, getQueryColor, getConnectedComponents,
-    filterSecondaryComponents, deleteFieldFromNodes
+import { getNodesForDisplay,
+    removeDeadLinks, applyVia, getQueryColor, deleteFieldFromNodes
 } from '../helpers/index';
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
 import {VIA_ADD, VIA_DELETE} from "../modules/data/constants";
 import {NODES_TOOLTIP, SET_SELECTING_MODE} from "../modules/graph/constants";
 import {REQUEST_COMPLETED} from "../utils/constants";
-import filterBoringComponents from "../helpers/filterBoringComponents";
 import {SEARCH_FIELDS_UPDATE} from "../modules/search/constants";
 import {cancelRequest} from "./utils";
 import {Node} from '../interfaces/node';
-import getNodesAndLinks from '../helpers/getNodesAndLinks';
 import {Link} from "../interfaces/link";
 import {Item} from "../interfaces/item";
 import {Search} from "../interfaces/search";
@@ -40,7 +35,7 @@ import createField from "../helpers/createField";
 import {Field} from "../interfaces/field";
 import {Via} from "../interfaces/via";
 import removeVia from "../helpers/removeVia";
-import {DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED} from "../modules/datasources/constants";
+import {DATASOURCE_ACTIVATED} from "../modules/datasources/constants";
 import {Datasource} from "../interfaces/datasource";
 import markHighlightedNodes from "../helpers/markHighlightedNodes";
 
@@ -531,12 +526,18 @@ export default function entries(state: State = defaultState, action) {
         }
 
         case ITEMS_REQUEST: {
-            const message = {
-                'request-id': uniqueId(),
-                items: action.items.map(item => item.id)
-            };
+            const ids: string[] = action.items.map(item => item.id);
 
-            Socket.ws.postMessage(message, ITEMS_REQUEST);
+            const chunks = chunk(ids, 10);
+
+            chunks.forEach(batch => {
+                const message = {
+                    'request-id': uniqueId(),
+                    items: batch
+                };
+
+                Socket.ws.postMessage(message, ITEMS_REQUEST);
+            });
 
             const newItems = state.items.concat([]);
 
