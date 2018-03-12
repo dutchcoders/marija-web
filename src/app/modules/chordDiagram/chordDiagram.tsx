@@ -44,10 +44,10 @@ class ChordDiagram extends React.Component<Props, State> {
 
         this.svg = d3.select("#svgContainer")
             .append("svg")
-            .attr("width", diameter)
-            .attr("height", diameter)
+            .attr("width", rect.width)
+            .attr("height", rect.height)
             .append("g")
-            .attr("transform", "translate(" + radius + "," + radius + ")");
+            .attr("transform", "translate(" + (rect.width / 2) + "," + (rect.height / 2) + ")");
 
         this.link = this.svg.append("g").selectAll(".link");
         this.node = this.svg.append("g").selectAll(".node");
