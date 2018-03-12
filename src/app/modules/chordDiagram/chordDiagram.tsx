@@ -35,13 +35,17 @@ class ChordDiagram extends React.Component<Props, State> {
             return;
         }
 
+        // Clear previous data
+        d3.select("#svgContainer > *").remove();
+
+        if (nodes.length === 0) {
+            return;
+        }
+
         const rect = this.svgContainer.getBoundingClientRect();
         const diameter = Math.min(rect.width, rect.height);
         const radius = diameter / 2;
         const innerRadius = radius - 120;
-
-        // Clear previous data
-        d3.select("#svgContainer > *").remove();
 
         this.line = d3.radialLine()
             .curve(d3.curveBundle.beta(0.85))
