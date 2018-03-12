@@ -9,11 +9,56 @@ import {requestCompleted} from "../actions";
 import {REQUEST_COMPLETED} from "../constants";
 import {ITEMS_RECEIVE} from "../../modules/items/constants";
 import {receiveItems} from "../../modules/items/actions";
+import {Item} from "../../interfaces/item";
+import {Dispatch} from "react-redux";
+import Timer = NodeJS.Timer;
 
-export const Socket = {
+interface SearchTimeout {
+    /**
+     * Resets every time we receive new results, so that we bundle results that
+     * are received in quick succession of each other.
+     *
+     * When the timeout completes, results are dispatched.
+     *
+     */
+    bundleTimeout: Timer;
+
+    /**
+     * Does not reset when we receive new results. Used for solving the problem
+     * of the above timeout: imagine that we keep on getting results quickly
+     * forever -> the above timeout would never complete.
+     *
+     * When the timeout completes, results are dispatched.
+     *
+     */
+    maxTimeout: Timer;
+}
+
+interface SocketInterface {
+    ws: any;
+    searchResults: {
+        [query: string]: Item[]
+    };
+    searchTimeouts: {
+        [query: string]: SearchTimeout
+    };
+    /**
+     * Maximum age in ms for search results. We never wait longer than this with
+     * dispatching search results.
+     */
+    bundleTimeoutMs: number;
+    maxTimeoutMs: number;
+    searchReceive: Function;
+    wsDispatcher: Function;
+    startWS: Function;
+}
+
+export const Socket: SocketInterface = {
     ws: null,
     searchResults: {},
     searchTimeouts: {},
+    bundleTimeoutMs: 500,
+    maxTimeoutMs: 2000,
 
     /**
      * Sometimes we receive many items from the server in quick succession of
@@ -22,40 +67,54 @@ export const Socket = {
      *
      * Instead, we wait for 500ms and bundle all of the items together.
      *
-     * @param newResults
+     * @param newItems
      * @param query
      * @param dispatch
      */
-    searchReceive: (newResults, query, dispatch) => {
-        if (newResults === null) {
+    searchReceive: (newItems: Item[], query: string, dispatch: Dispatch<any>) => {
+        if (newItems === null) {
             return;
         }
 
         let results = Socket.searchResults[query] || [];
 
-        for ( var i = 0; i < newResults.length; i++ ) {
-            let result = newResults[i];
+        for (let i = 0; i < newItems.length; i++ ) {
+            let result = newItems[i];
+            let index = results.findIndex((item) => item.id === result.id);
 
-            let index = results.findIndex((item) => (item.id == result.id));
-
-            if (index == -1) {
+            if (index === -1) {
                 results.push(result);
                 continue;
             }
 
             // already exists, update count
             results[index].count = result.count;
-        };
+        }
 
         Socket.searchResults[query] = results;
 
-        clearTimeout(Socket.searchTimeouts[query]);
+        const searchTimeout: any = Socket.searchTimeouts[query] || {};
 
-        Socket.searchTimeouts[query] = setTimeout(() => {
+        const timeoutFinished = () => {
+            clearTimeout(searchTimeout.bundleTimeout);
+            clearTimeout(searchTimeout.maxTimeout);
+
             dispatch(searchReceive(Socket.searchResults[query], query));
-
             delete Socket.searchResults[query];
-        }, 500);
+        };
+
+        // Dispatch when we haven't received any new items for 500 ms.
+        clearTimeout(searchTimeout.bundleTimeout);
+        searchTimeout.bundleTimeout = setTimeout(timeoutFinished, Socket.bundleTimeoutMs);
+
+        // Only set the max timeout if it wasn't set already. It does not get
+        // cleared when new items are received.
+        if (!searchTimeout.maxTimeout) {
+            // Dispatch also when the max timeout is finished
+            searchTimeout.maxTimeout = setTimeout(timeoutFinished, Socket.maxTimeoutMs);
+        }
+
+        Socket.searchTimeouts[query] = searchTimeout;
     },
     wsDispatcher: (message, dispatch) => {
         if (message.error) {
