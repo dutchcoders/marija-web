@@ -9,11 +9,13 @@ import {
 } from "../../reducers/entriesSelectors";
 import {Item} from "../../interfaces/item";
 import {Selection} from "d3-selection";
+import {EventEmitter} from "fbemitter";
 
 interface Props {
     nodes: Node[];
     links: Link[];
     items: Item[];
+    onPaneEvent?: EventEmitter;
 }
 
 interface State {
@@ -24,9 +26,11 @@ class ChordDiagram extends React.Component<Props, State> {
     node: Selection<any, any, any, any>;
     line: d3.RadialLine<any>;
     svg: Selection<any, any, any, any>;
+    svgContainer: HTMLDivElement;
 
-    setDiagramData(nodes: Node[], links: Link[]) {
-        const diameter = 560;
+    renderDiagram(nodes: Node[], links: Link[]) {
+        const rect = this.svgContainer.getBoundingClientRect();
+        const diameter = Math.min(rect.width, rect.height);
         const radius = diameter / 2;
         const innerRadius = radius - 120;
 
@@ -84,16 +88,28 @@ class ChordDiagram extends React.Component<Props, State> {
     }
 
     componentDidMount() {
+        const { nodes, links, onPaneEvent } = this.props;
+
+        this.renderDiagram(nodes, links);
+        onPaneEvent.addListener('resized', this.onResized.bind(this));
+    }
+
+    componentWillUnmount() {
+        const { onPaneEvent } = this.props;
+        onPaneEvent.removeAllListeners();
+    }
+
+    onResized() {
         const { nodes, links } = this.props;
 
-        this.setDiagramData(nodes, links);
+        this.renderDiagram(nodes, links);
     }
 
     componentWillReceiveProps(nextProps: Props) {
         const { nodes } = this.props;
 
         if (nextProps.nodes.length !== nodes.length) {
-            this.setDiagramData(nextProps.nodes, nextProps.links);
+            this.renderDiagram(nextProps.nodes, nextProps.links);
         }
     }
 
@@ -198,7 +214,7 @@ class ChordDiagram extends React.Component<Props, State> {
     }
 
     render() {
-        return <div id="svgContainer" />;
+        return <div id="svgContainer" ref={svgContainer => this.svgContainer = svgContainer} />;
     }
 }
 

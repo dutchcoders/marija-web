@@ -136,6 +136,12 @@ body,
 @import 'components/filter';
 @import 'components/timeline';
 
+#svgContainer {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+}
+
 .node {
     font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
     fill: white;

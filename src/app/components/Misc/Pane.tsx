@@ -4,9 +4,11 @@ import { Icon } from '../index';
 import { closePane, openPane } from '../../utils/index';
 import {movePaneToTop, setPaneConfig} from "../../utils/actions";
 import { debounce } from 'lodash';
+import { EventEmitter } from 'fbemitter';
 
 class Pane extends React.Component<any, any> {
     rnd: any;
+    onPaneEvent = new EventEmitter();
 
     close() {
         const { dispatch, handle } = this.props;
@@ -35,6 +37,7 @@ class Pane extends React.Component<any, any> {
     onResizeStop(e, dir, refToElement, delta, position) {
         const rect = refToElement.getBoundingClientRect();
         this.updatePositionToStore(position.x, position.y, rect.width, rect.height);
+        this.onPaneEvent.emit('resized');
     }
 
     onDragStart() {
@@ -184,6 +187,12 @@ class Pane extends React.Component<any, any> {
             y = config.y;
         }
 
+        const childrenWithProps = React.Children.map(children, (child: any) =>
+            React.cloneElement(child, {
+                onPaneEvent: this.onPaneEvent
+            })
+        );
+
         return (
             <Rnd
                 default={{
@@ -215,7 +224,7 @@ class Pane extends React.Component<any, any> {
                         <div className="row">
                             <div className="col-md-12 pane-holder">
                                 <div className="col-md-12 pane-content">
-                                    {isOpen ? children : null}
+                                    {isOpen ? childrenWithProps : null}
                                 </div>
                             </div>
                         </div>
