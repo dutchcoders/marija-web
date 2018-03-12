@@ -138,7 +138,7 @@ body,
 
 .node {
     font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
-    fill: #bbb;
+    fill: white;
 }
 
 .node:hover {
@@ -147,7 +147,7 @@ body,
 }
 
 .link {
-    stroke: steelblue;
+    stroke: #689DE5;
     stroke-opacity: 0.4;
     fill: none;
     pointer-events: none;
