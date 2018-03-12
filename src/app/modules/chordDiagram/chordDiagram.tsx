@@ -223,6 +223,7 @@ class ChordDiagram extends React.Component<Props, State> {
         const { nodes } = this.props;
 
         let tooManyNodes = null;
+        let selectNodes = null;
 
         if (nodes.length > this.maxNodes) {
             tooManyNodes = (
@@ -232,11 +233,16 @@ class ChordDiagram extends React.Component<Props, State> {
                     nodes to continue.
                 </p>
             );
+        } else if (nodes.length === 0) {
+            selectNodes = (
+                <p>Select some nodes to display their chord diagram.</p>
+            );
         }
 
         return (
             <div className={styles.chordDiagram}>
                 {tooManyNodes}
+                {selectNodes}
                 <div
                     className={nodes.length > this.maxNodes ? 'hidden' : ''}
                     id="svgContainer"
