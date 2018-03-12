@@ -281,7 +281,7 @@ class Nodes extends React.Component {
         const selectedNodes = nodes.filter(node => node.selected);
 
         const ids = selectedNodes.map(node => this.escapeRegExp(node.id));
-        const regex = ids.join('|');
+        const regex = '^' + ids.join('$|^') + '$';
 
         dispatch(normalizationAdd({
             regex: regex,
