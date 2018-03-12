@@ -127,8 +127,6 @@ onmessage = function(event) {
             });
         });
 
-
-
         for (let i=0; i < links.length; i++) {
             let link = links[i];
 
@@ -158,7 +156,41 @@ onmessage = function(event) {
         simulation
             .nodes(this.nodes);
 
-        simulation.force("link")
+        const connectivity = links.length / nodes.length;
+
+        // Links are longer in graphs with a high connectivity
+        const baseLength = connectivity * 30;
+
+        // Nodes are further apart in graphs with a high connectivity
+        const baseStrength = -100;
+        const dynamicStrength = connectivity * -60;
+
+        const forceManyBody = d3.forceManyBody()
+            .strength(baseStrength + dynamicStrength)
+            .distanceMax(500)
+            .distanceMin(50);
+
+        simulation.force('charge', forceManyBody);
+
+        const forceLink = d3.forceLink()
+            .distance(link => {
+                if (!link.label) {
+                    return 80 + baseLength;
+                }
+
+                let label = link.label;
+
+                if (Array.isArray(label)) {
+                    label = label.join('');
+                }
+
+                return label.length * 10 + 60 + baseLength;
+            })
+            .id((d) => d.id);
+
+        simulation.force("link", forceLink);
+
+        simulation.force('link')
             .links(this.links);
 
         simulation
