@@ -10,6 +10,7 @@ import {
 import {Item} from "../../interfaces/item";
 import {Selection} from "d3-selection";
 import {EventEmitter} from "fbemitter";
+import * as styles from './chordDiagram.scss';
 
 interface Props {
     nodes: Node[];
@@ -22,6 +23,7 @@ interface State {
 }
 
 class ChordDiagram extends React.Component<Props, State> {
+    readonly maxNodes: number = 100;
     link: Selection<any, any, any, any>;
     node: Selection<any, any, any, any>;
     line: d3.RadialLine<any>;
@@ -29,6 +31,10 @@ class ChordDiagram extends React.Component<Props, State> {
     svgContainer: HTMLDivElement;
 
     renderDiagram(nodes: Node[], links: Link[]) {
+        if (nodes.length > this.maxNodes) {
+            return;
+        }
+
         const rect = this.svgContainer.getBoundingClientRect();
         const diameter = Math.min(rect.width, rect.height);
         const radius = diameter / 2;
@@ -214,7 +220,30 @@ class ChordDiagram extends React.Component<Props, State> {
     }
 
     render() {
-        return <div id="svgContainer" ref={svgContainer => this.svgContainer = svgContainer} />;
+        const { nodes } = this.props;
+
+        let tooManyNodes = null;
+
+        if (nodes.length > this.maxNodes) {
+            tooManyNodes = (
+                <p>
+                    You have selected {nodes.length} nodes, but the maximum
+                    for the chord diagram is {this.maxNodes}. Deselect some
+                    nodes to continue.
+                </p>
+            );
+        }
+
+        return (
+            <div className={styles.chordDiagram}>
+                {tooManyNodes}
+                <div
+                    className={nodes.length > this.maxNodes ? 'hidden' : ''}
+                    id="svgContainer"
+                    ref={svgContainer => this.svgContainer = svgContainer}
+                />
+            </div>
+        );
     }
 }
 
