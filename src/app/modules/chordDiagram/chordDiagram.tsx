@@ -58,10 +58,6 @@ class ChordDiagram extends React.Component<Props, State> {
         this.link = this.svg.append("g").selectAll(".link");
         this.node = this.svg.append("g").selectAll(".node");
 
-        if (!nodes.length) {
-            return;
-        }
-
         const items = this.buildData(nodes, links);
 
         const root = this.packageHierarchy(items)
@@ -78,7 +74,8 @@ class ChordDiagram extends React.Component<Props, State> {
             .append("path")
             .each(function(d: any) { d.source = d[0], d.target = d[d.length - 1]; })
             .attr("class", "link")
-            .attr("d", this.line);
+            .attr("d", this.line)
+            .attr('stroke-width', (d) => this.getThickness(links, d.source.data.id, d.target.data.id));
 
         this.node = this.node
             .data(root.leaves())
@@ -91,6 +88,15 @@ class ChordDiagram extends React.Component<Props, State> {
             .text(function(d: any) { return d.data.key; })
             .on("mouseover", this.mouseovered.bind(this))
             .on("mouseout", this.mouseouted.bind(this));
+    }
+
+    getThickness(links: Link[], source: string, target: string): number {
+        const link = links.find(search =>
+            (search.source === source && search.target === target)
+            || (search.target === source && search.source === target)
+        );
+
+        return link.itemIds.length;
     }
 
     componentDidMount() {
