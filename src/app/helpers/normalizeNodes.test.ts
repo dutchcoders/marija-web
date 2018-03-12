@@ -58,3 +58,17 @@ test('should work when applying normalizations to already normalized nodes', () 
     expect(result3.filter(node => node.normalizationId === normalization1.id).length).toBe(3);
     expect(result3.filter(node => node.normalizationId === normalization2.id).length).toBe(2);
 });
+
+test('should be case-insensitive', () => {
+    const nodes = [
+        generateNode('hello'),
+        generateNode('Bello')
+    ];
+
+    const normalization = generateNormalization('^[bh]ello$', 'hello');
+    const result = normalizeNodes(nodes, [normalization]);
+
+    expect(result.length).toBe(3);
+    expect(result.filter(node => node.isNormalizationParent).length).toBe(1);
+    expect(result.filter(node => node.normalizationId === normalization.id).length).toBe(3);
+});
