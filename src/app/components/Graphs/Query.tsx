@@ -126,7 +126,7 @@ class Query extends React.Component<Props, State> {
 
         let pause = null;
 
-        if (!search.completed && !search.paused) {
+        if (!search.completed && !search.paused && !search.liveDatasource) {
             pause = (
                 <Tooltip
                     overlay="Pause"
@@ -143,7 +143,7 @@ class Query extends React.Component<Props, State> {
 
         let resume = null;
 
-        if (!search.completed && search.paused) {
+        if (!search.completed && search.paused && !search.liveDatasource) {
             resume = (
                 <Tooltip
                     overlay="Resume"
