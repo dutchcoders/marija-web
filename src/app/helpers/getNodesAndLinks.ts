@@ -141,7 +141,7 @@ export default function getNodesAndLinks(
                     // for example we don't want to have the first name only as name.
                     //
                     // we need to keep track of the fields the value is in as well.
-                    targetValues.forEach(targetValue => {
+                    targetValues.forEach((targetValue, i) => {
                         switch (typeof targetValue) {
                             case "boolean":
                                 targetValue = (targetValue?"true":"false");
@@ -158,12 +158,12 @@ export default function getNodesAndLinks(
                             return;
                         }
 
-                        if (pathsDone[targetValue + sourceValue]
-                            || pathsDone[sourceValue + targetValue]
+                        if (pathsDone[targetValue + i + sourceValue]
+                            || pathsDone[sourceValue + targetValue + i]
                             || targetValue === sourceValue) {
-                            return;
+                            // return;
                         } else {
-                            pathsDone[sourceValue + targetValue] = true;
+                            pathsDone[sourceValue + targetValue + i] = true;
                         }
 
                         if (isDeleted(targetValue)) {

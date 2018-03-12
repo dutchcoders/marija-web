@@ -325,3 +325,30 @@ test('should not add the same item id multiple times when function is run twice'
     expect(result.links.length).toBe(1);
     expect(result.links[0].itemIds.length).toBe(2);
 });
+
+test('should build links between array values', () => {
+    const previousNodes = [];
+    const previousLinks = [];
+
+    const items = [
+        {
+            id: '1',
+            fields: {
+                client: [1, 2, 3],
+                server: 4
+            }
+        }
+    ];
+
+    const fields = [
+        generateField('client'),
+        generateField('server')
+    ];
+
+    const query = generateQuery(items);
+
+    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, []);
+
+    expect(nodes.length).toBe(4);
+    expect(links.length).toBe(3);
+});
