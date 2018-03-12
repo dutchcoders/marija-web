@@ -18,7 +18,7 @@ interface Props {
 interface State {
 }
 
-class Circle extends React.Component<Props, State> {
+class ChordDiagram extends React.Component<Props, State> {
     cluster;
     link;
     node;
@@ -205,4 +205,4 @@ const select = (state) => {
     };
 };
 
-export default connect(select)(Circle);
+export default connect(select)(ChordDiagram);

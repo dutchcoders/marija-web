@@ -86,9 +86,9 @@ class Navigation extends React.Component {
                     )}
                     {this.getButton(
                         'ion-ios-circle-filled',
-                        'Circle',
-                        () => this.togglePane('circle'),
-                        this.isActive('circle')
+                        'Chord diagram',
+                        () => this.togglePane('chordDiagram'),
+                        this.isActive('chordDiagram')
                     )}
                 </ul>
                 <ul className="mapControls">
