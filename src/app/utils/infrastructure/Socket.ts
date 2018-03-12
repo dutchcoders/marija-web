@@ -12,6 +12,7 @@ import {receiveItems} from "../../modules/items/actions";
 import {Item} from "../../interfaces/item";
 import {Dispatch} from "react-redux";
 import Timer = NodeJS.Timer;
+import datasources from "../../reducers/datasources";
 
 interface SearchTimeout {
     /**

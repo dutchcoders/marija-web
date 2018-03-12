@@ -8,6 +8,7 @@ import {
     getNodesForDisplay, getSelectedNodes
 } from "../../reducers/entriesSelectors";
 import {Item} from "../../interfaces/item";
+import {Selection} from "d3-selection";
 
 interface Props {
     nodes: Node[];
@@ -19,19 +20,18 @@ interface State {
 }
 
 class ChordDiagram extends React.Component<Props, State> {
-    cluster;
-    link;
-    node;
-    line;
-    svg;
+    link: Selection<any, any, any, any>;
+    node: Selection<any, any, any, any>;
+    line: d3.RadialLine<any>;
+    svg: Selection<any, any, any, any>;
 
-    componentDidMount() {
-        var diameter = 560,
-            radius = diameter / 2,
-            innerRadius = radius - 120;
+    setDiagramData(nodes: Node[], links: Link[]) {
+        const diameter = 560;
+        const radius = diameter / 2;
+        const innerRadius = radius - 120;
 
-        this.cluster = d3.cluster()
-            .size([360, innerRadius]);
+        // Clear previous data
+        d3.select("#svgContainer > *").remove();
 
         this.line = d3.radialLine()
             .curve(d3.curveBundle.beta(0.85))
@@ -47,43 +47,54 @@ class ChordDiagram extends React.Component<Props, State> {
 
         this.link = this.svg.append("g").selectAll(".link");
         this.node = this.svg.append("g").selectAll(".node");
-    }
 
-    componentWillReceiveProps(nextProps: Props) {
-        if (!nextProps.nodes.length) {
+        if (!nodes.length) {
             return;
         }
 
-        console.log(nextProps.nodes);
+        const items = this.buildData(nodes, links);
 
-        const items = this.buildData(nextProps.nodes, nextProps.links);
+        const root = this.packageHierarchy(items)
+            .sum(d => d.size);
 
-        var root = this.packageHierarchy(items)
-            .sum(function(d) { return d.size; });
+        const cluster = d3.cluster()
+            .size([360, innerRadius]);
 
-        console.log(root);
-
-        this.cluster(root);
-
-        this.link = this.link
-            .data(this.packageImports(root.leaves()));
+        cluster(root);
 
         this.link = this.link
-            .enter().append("path")
+            .data(this.packageImports(root.leaves()))
+            .enter()
+            .append("path")
             .each(function(d: any) { d.source = d[0], d.target = d[d.length - 1]; })
             .attr("class", "link")
             .attr("d", this.line);
 
         this.node = this.node
             .data(root.leaves())
-            .enter().append("text")
+            .enter()
+            .append("text")
             .attr("class", "node")
             .attr("dy", "0.31em")
             .attr("transform", function(d: any) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
             .attr("text-anchor", function(d: any) { return d.x < 180 ? "start" : "end"; })
-            .text(function(d: any) { console.log(d.data.key); return d.data.key; })
+            .text(function(d: any) { return d.data.key; })
             .on("mouseover", this.mouseovered.bind(this))
             .on("mouseout", this.mouseouted.bind(this));
+    }
+
+    componentDidMount() {
+        const { nodes, links } = this.props;
+
+        this.setDiagramData(nodes, links);
+    }
+
+    componentWillReceiveProps(nextProps: Props) {
+        const { nodes } = this.props;
+
+        if (nextProps.nodes.length !== nodes.length) {
+            this.setDiagramData(nextProps.nodes, nextProps.links);
+        }
     }
 
     mouseovered(d) {
@@ -164,12 +175,6 @@ class ChordDiagram extends React.Component<Props, State> {
 
     sanitize(string) {
         return string;
-
-
-
-        // return string.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
-        //     return '&#'+i.charCodeAt(0)+';';
-        // });
     }
 
     buildData(nodes: Node[], links: Link[]) {
