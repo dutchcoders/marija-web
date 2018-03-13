@@ -14,6 +14,7 @@ import {showTooltip} from "../../modules/graph/actions";
 import {normalizationAdd} from "../../modules/data";
 import displayFilter from "../../helpers/displayFilter";
 import getDirectlyRelatedNodes from '../../helpers/getDirectlyRelatedNodes';
+import {normalizationDelete} from '../../modules/data/actions';
 
 class Nodes extends React.Component {
     constructor(props) {
@@ -230,6 +231,14 @@ class Nodes extends React.Component {
             .map(node => this.renderNode(node));
     }
 
+    undoMerge(normalizationId) {
+        const { normalizations, dispatch } = this.props;
+
+        const normalization = normalizations.find(search => search.id === normalizationId);
+
+        dispatch(normalizationDelete(normalization));
+    }
+
     renderSelected() {
         const { nodes } = this.props;
         const selectedNodes = nodes.filter(node => node.selected && displayFilter(node));
@@ -243,6 +252,12 @@ class Nodes extends React.Component {
                         merged = (
                             <div className="merged">
                                 {this.getMergedNodes(i_node.normalizationId)}
+                                <button
+                                    className="undoMerge"
+                                    onClick={() => this.undoMerge(i_node.normalizationId)}>
+                                    <Icon name="ion-ios-undo"/>
+                                    Undo merge
+                                </button>
                             </div>
                         );
                     }
