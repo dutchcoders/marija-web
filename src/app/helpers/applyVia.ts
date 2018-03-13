@@ -125,7 +125,12 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
 
     links = links.map(link => {
         const key = link.source + link.target;
-        const current = counter[key] ? counter[key] + 1 : 1;
+        let current = counter[key] ? counter[key] : 0;
+
+        // Don't count links that won't be rendered
+        if (link.isNormalizationParent || link.normalizationId === null) {
+            current += 1;
+        }
 
         counter[key] = current;
 

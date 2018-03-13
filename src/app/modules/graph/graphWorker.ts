@@ -94,12 +94,6 @@ onmessage = (event: MessageEvent) => {
         payload.deletedNodes
     );
 
-    const normalizedNodes = normalizeNodes(result.nodes, payload.normalizations);
-    const normalizedLinks = normalizeLinks(result.links, payload.normalizations);
-
-    result.nodes = normalizedNodes;
-    result.links = removeDeadLinks(result.nodes, normalizedLinks);
-
     // For live searches we display everything, we don't filter boring components etc.
     if (!isLive) {
         const components = getConnectedComponents(result.nodes, result.links);
@@ -120,9 +114,16 @@ onmessage = (event: MessageEvent) => {
         }
     }
 
+    result.nodes = getNodesForDisplay(result.nodes, payload.searches || []);
+    result.links = getLinksForDisplay(result.nodes, result.links);
+
+    const normalizedNodes = normalizeNodes(result.nodes, payload.normalizations);
+    const normalizedLinks = normalizeLinks(result.links, payload.normalizations);
+
+    result.nodes = normalizedNodes;
+    result.links = removeDeadLinks(result.nodes, normalizedLinks);
+
     let { nodes, links } = applyVia(result.nodes, result.links, payload.via);
-    nodes = getNodesForDisplay(nodes, payload.searches || []);
-    links = getLinksForDisplay(nodes, links);
 
     postMessage(graphWorkerOutput(
         nodes,
