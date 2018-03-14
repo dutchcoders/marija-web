@@ -411,13 +411,13 @@ class ConfigurationView extends React.Component<Props, State> {
 
         return (
             <div>
-                <div className="form-group">
-                    <h2>
-                        Datasources
-                        {datasources.filter(datasource => datasource.active).length === 0 ? this.getAtLeastOneAlert() : null}
-                    </h2>
-                    { this.renderDatasources() }
-                </div>
+                {/*<div className="form-group">*/}
+                    {/*<h2>*/}
+                        {/*Datasources*/}
+                        {/*{datasources.filter(datasource => datasource.active).length === 0 ? this.getAtLeastOneAlert() : null}*/}
+                    {/*</h2>*/}
+                    {/*{ this.renderDatasources() }*/}
+                {/*</div>*/}
 
                 <Fields />
 

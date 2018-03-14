@@ -1,5 +1,7 @@
 import { FIELDS_RECEIVE, FIELDS_REQUEST, FIELDS_CLEAR } from './index';
-
+import {Datasource} from "../../interfaces/datasource";
+import {Socket} from "../../utils";
+import {uniqueId} from 'lodash';
 
 export function clearFields(datasource){
     return {
@@ -20,11 +22,21 @@ export function receiveFields(fields, datasource) {
     };
 }
 
-export function getFields(indexes) {
+export function getFields(datasources: Datasource[]) {
+    const datasourceIds: string[] = datasources.map(datasource => datasource.id);
+
+    Socket.ws.postMessage(
+        {
+            datasources: datasourceIds,
+            'request-id': uniqueId()
+        },
+        FIELDS_REQUEST
+    );
+
     return {
         type: FIELDS_REQUEST,
         payload: {
-            indexes: indexes
+            datasources: datasources
         }
     };
 }

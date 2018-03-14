@@ -50,16 +50,6 @@ export default function fields(state: State = defaultState, action) {
         }
 
         case FIELDS_REQUEST:
-            const datasources: string[] =  action.payload.indexes.map(datasource => datasource.id);
-
-            Socket.ws.postMessage(
-                {
-                    datasources: datasources,
-                    'request-id': uniqueId()
-                },
-                FIELDS_REQUEST
-            );
-
             return Object.assign({}, state, {
                 fieldsFetching: true
             });

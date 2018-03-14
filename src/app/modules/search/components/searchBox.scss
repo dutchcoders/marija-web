@@ -1,0 +1,57 @@
+@import '../../../../scss/variables';
+
+.form {
+  position: relative;
+  background: url(../../../../images/search-icon.png) center left no-repeat;
+  background-size: 22px 21px;
+  padding-left: 30px;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 48px;
+}
+
+.queryInput {
+  box-sizing: border-box;
+  height: 26px;
+  background-color: $input-background-color;
+  outline: none;
+  border: none;
+  font-size: 15px;
+  color: #fff;
+  margin: 0;
+  padding: 0 5px;
+  border-radius: 3px;
+  width: 100%;
+
+  &:focus {
+    color: $input-color-focus;
+    outline: none;
+    box-shadow: none;
+    border-color: $input-border-color-focus;
+  }
+
+  &::placeholder {
+    color: #fff;
+  }
+}
+
+.datasources {
+  display: flex;
+}
+
+.datasourceLabel {
+  margin: 0 6px 0 0;
+  font-weight: 300;
+  display: block;
+
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+.datasourceCheckbox[type=checkbox] {
+  margin-right: 2px;
+}

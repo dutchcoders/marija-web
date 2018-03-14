@@ -7,6 +7,14 @@ import {Query, Icon, Loader} from "../../../components/index";
 import {editSearch} from "../actions";
 import {Search} from "../../../interfaces/search";
 import {Node} from "../../../interfaces/node";
+import {Datasource} from "../../../interfaces/datasource";
+import * as styles from './searchBox.scss';
+import {FormEvent} from "react";
+import {
+    datasourceActivated,
+    datasourceDeactivated
+} from "../../datasources/actions";
+import {Field} from "../../../interfaces/field";
 
 interface Props {
     onSubmit: Function;
@@ -15,21 +23,50 @@ interface Props {
     enabled: boolean;
     searches: Search[];
     nodes: Node[];
+    datasources: Datasource[];
+    fields: Field[];
 }
 
 interface State {
     query: string;
     editSearchValue: Search;
     searchAroundOpen: boolean;
+    formExpanded: boolean;
 }
 
 class SearchBox extends React.Component<Props, State> {
     state: State = {
         query: '',
+        formExpanded: false,
         editSearchValue: null,
         searchAroundOpen: false
     };
     refs: any;
+    searchForm: HTMLFormElement;
+    clickHandlerRef;
+
+    onInputFocus() {
+        this.setState({
+            formExpanded: true
+        });
+
+        this.clickHandlerRef = this.collapseForm.bind(this);
+
+        window.addEventListener('click', this.clickHandlerRef)
+    }
+
+    collapseForm(e) {
+        console.log('clicked');
+
+        if (!this.searchForm.contains(e.target)) {
+            // User clicked outside the search form, close it
+            this.setState({
+                formExpanded: false
+            });
+
+            window.removeEventListener('click', this.clickHandlerRef);
+        }
+    }
 
     handleSubmit(e) {
         e.preventDefault();
@@ -53,6 +90,16 @@ class SearchBox extends React.Component<Props, State> {
         this.refs.editDialog.show();
     }
 
+    handleDatasourceChange(event: FormEvent<HTMLInputElement>, datasource: Datasource) {
+        const { dispatch } = this.props;
+
+        if (event.currentTarget.checked) {
+            dispatch(datasourceActivated(datasource))
+        } else {
+            dispatch(datasourceDeactivated(datasource))
+        }
+    }
+
     handleChangeQueryColorComplete(color) {
         const { dispatch } = this.props;
         const search: any = Object.assign({}, this.state.editSearchValue);
@@ -74,15 +121,60 @@ class SearchBox extends React.Component<Props, State> {
         });
     }
 
+    renderDatasourceForm() {
+        const { datasources, fields } = this.props;
+        const { formExpanded } = this.state;
+
+        const className = styles.datasources + ' ' +
+            (formExpanded ? '' : 'hidden');
+
+        const queryDatasources = datasources.filter(datasource => datasource.type !== 'live');
+
+        return (
+            <div className={className}>
+                {queryDatasources.map(datasource => {
+                    const datasourceFields = fields.filter(field => field.datasourceId === datasource.id);
+                    const disabled = datasourceFields.length === 0;
+
+                    let content = (
+                        <div>
+                            <input
+                                name="datasource"
+                                type="checkbox"
+                                className={styles.datasourceCheckbox}
+                                checked={datasource.active}
+                                onChange={event => this.handleDatasourceChange(event, datasource)}
+                                disabled={disabled}
+                            />
+                            {datasource.name}
+                        </div>
+                    );
+
+                    if (disabled) {
+                        content = (
+                            <Tooltip
+                                overlay={'First select fields for this datasource in the configuration'}
+                                placement="bottom"
+                                mouseLeaveDelay={0}
+                                arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                                {content}
+                            </Tooltip>
+                        );
+                    }
+
+                    return (
+                        <label key={datasource.id} className={styles.datasourceLabel}>
+                            {content}
+                        </label>
+                    );
+                })}
+            </div>
+        );
+    }
+
     render() {
-        const { connected, enabled, searches, nodes } = this.props;
+        const { connected, searches, nodes } = this.props;
         const { query, editSearchValue, searchAroundOpen } = this.state;
-
-        let tooltipStyles: any = {};
-
-        if (enabled) {
-            tooltipStyles.visibility = 'hidden';
-        }
 
         const editQueryDialogStyles = {
             backgroundColor: '#fff',
@@ -153,20 +245,15 @@ class SearchBox extends React.Component<Props, State> {
                     {searchAroundContainer}
                     {userQueries}
 
-                    <form onSubmit={this.handleSubmit.bind(this)}>
-                        <Tooltip
-                            overlay="Select at least one datasource and one field"
-                            placement="bottomLeft"
-                            overlayStyle={tooltipStyles}
-                            arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                            <input
-                                className="queryInput"
-                                placeholder="Search"
-                                value={ query }
-                                onChange={this.handleQueryChange.bind(this)}
-                                disabled={ !enabled }
-                            />
-                        </Tooltip>
+                    <form onSubmit={this.handleSubmit.bind(this)} className={styles.form} ref={form => this.searchForm = form}>
+                        <input
+                            className={styles.queryInput}
+                            placeholder="Search"
+                            value={ query }
+                            onChange={this.handleQueryChange.bind(this)}
+                            onFocus={this.onInputFocus.bind(this)}
+                        />
+                        {this.renderDatasourceForm()}
                     </form>
                 </div>
                 <SkyLight dialogStyles={editQueryDialogStyles} hideOnOverlayClicked ref="editDialog" title="Update query" >
@@ -181,7 +268,9 @@ const select = (state, ownProps) => {
     return {
         ...ownProps,
         searches: state.entries.searches,
-        nodes: state.entries.nodes.filter(node => node.isNormalizationParent || node.normalizationId === null)
+        datasources: state.datasources.datasources,
+        nodes: state.entries.nodes.filter(node => node.isNormalizationParent || node.normalizationId === null),
+        fields: state.entries.fields
     };
 };
 

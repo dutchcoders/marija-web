@@ -3,7 +3,9 @@ import {getFields, clearFields} from "../fields/actions";
 import {Datasource} from "../../interfaces/datasource";
 import {deleteSearch} from "../search/actions";
 
-function datasourceActivated(datasource: Datasource) {
+export function datasourceActivated(datasource: Datasource) {
+    console.log('activate');
+
     return {
         type: DATASOURCE_ACTIVATED,
         payload: {
@@ -13,6 +15,8 @@ function datasourceActivated(datasource: Datasource) {
 }
 
 export function activateDatasource(datasource: Datasource) {
+    console.log('activateDatasource');
+
     return (dispatch, getState) => {
         dispatch(datasourceActivated(datasource));
 
@@ -27,7 +31,7 @@ export function activateDatasource(datasource: Datasource) {
     };
 }
 
-function datasourceDeactivated(datasource) {
+export function datasourceDeactivated(datasource) {
     return {
         type: DATASOURCE_DEACTIVATED,
         payload: {

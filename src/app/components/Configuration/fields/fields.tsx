@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 import { map, isEqual } from 'lodash';
 import { fieldAdd, fieldDelete, fieldUpdate } from '../../../modules/data/index';
-import { Field as FieldComponent} from '../../../modules/fields/index';
+import FieldRow from '../../../modules/fields/components/fieldRow/fieldRow';
 import { Icon } from '../../index';
 import Url from "../../../domain/Url";
 import Loader from "../../Misc/Loader";
@@ -13,7 +13,6 @@ import {Datasource} from "../../../interfaces/datasource";
 import {Field} from "../../../interfaces/field";
 import IconSelector from '../iconSelector/iconSelector';
 import * as styles from './fields.scss';
-import {FormEvent} from "react";
 
 interface State {
     currentFieldSearchValue: string;
@@ -45,21 +44,6 @@ class Fields extends React.Component<Props, State> {
         datasourceFilter: null
     };
 
-    handleAddField(field) {
-        const { dispatch } = this.props;
-
-        Url.addQueryParam('fields', field.path);
-
-        dispatch(fieldAdd({
-            path: field.path,
-            type: field.type
-        }));
-
-        dispatch(searchFieldsUpdate());
-
-        this.searchInput.focus();
-    }
-
     handleFieldSearchChange(event) {
         this.setState({
             currentFieldSearchValue: event.target.value,
@@ -73,14 +57,6 @@ class Fields extends React.Component<Props, State> {
                 datasourceFilter: null
             });
         }
-    }
-
-    handleDeleteField(field) {
-        const { dispatch } = this.props;
-
-        Url.removeQueryParam('fields', field.path);
-
-        dispatch(fieldDelete(field));
     }
 
     types = [
@@ -150,24 +126,10 @@ class Fields extends React.Component<Props, State> {
         });
     }
 
-    highlightNodes(field: string) {
-        const { dispatch } = this.props;
-
-        dispatch(fieldNodesHighlight(field));
-    }
-
     removeHighlightNodes() {
         const { dispatch } = this.props;
 
         dispatch(highlightNodes([]));
-    }
-
-    toggleFieldSelector(fieldPath: string) {
-        const { iconSelectorField } = this.state;
-
-        this.setState({
-            iconSelectorField: fieldPath === iconSelectorField ? null : fieldPath
-        });
     }
 
     renderTypeFilter() {
@@ -220,16 +182,16 @@ class Fields extends React.Component<Props, State> {
         const { datasources } = this.props;
         const { datasourceFilter } = this.state;
 
-        const activeDatasources = datasources.filter(datasource => datasource.active);
+        const normalDatasources = datasources.filter(datasource => datasource.type !== 'live');
 
-        if (activeDatasources.length < 2) {
+        if (normalDatasources.length < 2) {
             return null;
         }
 
         const options = [{
             label: 'all datasources',
             id: null
-        }].concat(activeDatasources.map(datasource => ({
+        }].concat(normalDatasources.map(datasource => ({
             label: datasource.name,
             id: datasource.id
         })));
@@ -267,27 +229,6 @@ class Fields extends React.Component<Props, State> {
 
     renderFields(fields, availableFields) {
         const { currentFieldSearchValue, searchTypes, maxSearchResults, iconSelectorField, datasourceFilter } = this.state;
-
-        const options = map(fields, (field: any) => {
-            let iconSelector = null;
-
-            if (iconSelectorField === field.path) {
-                iconSelector = <IconSelector onSelectIcon={(icon: string) => this.onSelectIcon(field, icon)}/>;
-            }
-
-            return (
-                <li
-                    className={styles.selectedField}
-                    key={'field_' + field.path}
-                    value={ field.path }
-                    onMouseEnter={() => this.highlightNodes(field.path)}>
-                    { field.path }
-                    <i className={styles.fieldIcon} onClick={() => this.toggleFieldSelector(field.path)}>{ field.icon }</i>
-                    <Icon onClick={() => this.handleDeleteField(field)} name="ion-ios-trash-outline"/>
-                    {iconSelector}
-                </li>
-            );
-        });
 
         let filteredFields = availableFields.concat([]);
 
@@ -383,17 +324,25 @@ class Fields extends React.Component<Props, State> {
 
         const firstX = searchResults.slice(0, maxSearchResults);
         const available = ([
-            <ul key={1}>
-                {firstX.map((item, i) => {
-                    return (
-                        <FieldComponent
+            <table key={1} className={styles.fieldTable}>
+                <thead>
+                    <tr>
+                        <td className={styles.fieldHead}>Type</td>
+                        <td className={styles.fieldHead}>Field</td>
+                        <td className={styles.fieldHead}>Datasource</td>
+                        <td />
+                    </tr>
+                </thead>
+                <tbody>
+                    {firstX.map((item, i) =>
+                        <FieldRow
                             key={'available_fields_' + item.path + i}
-                            item={item} handler={() => this.handleAddField(item)}
-                            icon={'ion-ios-plus'}
+                            field={item}
+                            isActive={false}
                         />
-                    );
-                })}
-            </ul>,
+                    )}
+                </tbody>
+            </table>,
             <div className="searchResultsFooter" key={2}>
                 {numMore}
                 {showMore}
@@ -410,9 +359,28 @@ class Fields extends React.Component<Props, State> {
 
         return (
             <div>
-                <ul onMouseLeave={this.removeHighlightNodes.bind(this)}>
-                    { options }
-                </ul>
+                <table
+                    onMouseLeave={this.removeHighlightNodes.bind(this)}
+                    className={styles.fieldTable}>
+                    <thead>
+                        <tr>
+                            <td className={styles.fieldHead}>Type</td>
+                            <td className={styles.fieldHead}>Field</td>
+                            <td className={styles.fieldHead}>Datasource</td>
+                            <td />
+                            <td />
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {fields.map(field =>
+                            <FieldRow
+                                key={field.path}
+                                isActive={true}
+                                field={field}
+                            />
+                        )}
+                    </tbody>
+                </table>
                 { availableFields.length > 0 ? search : null }
                 { availableFields.length > 0 ? available : null }
                 { selectDatasourceMessage }
@@ -428,25 +396,12 @@ class Fields extends React.Component<Props, State> {
         );
     }
 
-    onSelectIcon(field: Field, icon: string) {
-        const { dispatch } = this.props;
-
-        dispatch(fieldUpdate(field.path, {
-            icon: icon
-        }));
-
-        this.setState({
-            iconSelectorField: null
-        });
-    }
-
     render() {
         const { fields, datasources, availableFields, fieldsFetching } = this.props;
 
         return (
             <div className="form-group">
                 <h2>
-                    Fields
                     <Loader show={fieldsFetching} />
                     {datasources.length > 0 && fields.length === 0 ? this.getAtLeastOneAlert() : null}
                 </h2>

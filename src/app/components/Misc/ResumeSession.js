@@ -69,7 +69,7 @@ class ResumeSession extends Component {
             const datasource = existingDatasources.find(search => search.id === id);
 
             if (datasource && (!datasource.active || datasource.type === 'live')) {
-                dispatch(activateDatasource(datasource));
+                // dispatch(activateDatasource(datasource));
             }
         });
     }

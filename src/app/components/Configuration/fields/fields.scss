@@ -2,25 +2,6 @@
   position: relative;
 }
 
-.fieldIcon {
-  margin-right: 20px;
-  font-size: 14px !important;
-  letter-spacing: -1px;
-  font-family: "Ionicons", Roboto, Helvetica, arial;
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  text-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  background-color: rgba(255,255,255,0.2);
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  text-align: center;
-  line-height: 20px;
-}
-
 .filterContent {
   padding: 3px 5px 5px;
   background: rgba(255,255,255,.9);
@@ -36,4 +17,13 @@
     border-top-right-radius: 0;
     border-top-left-radius: 0;
   }
+}
+
+.fieldTable {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.fieldHead {
+  font-weight: 500;
 }

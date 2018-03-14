@@ -48,7 +48,7 @@ i.settings {
 .queriesContainer {
     display: flex;
     flex-wrap: wrap;
-    padding-top: 10px;
+    padding: 5px;
 }
 
 .searchAroundContainer {
@@ -127,54 +127,12 @@ i.settings {
             display: inline-block;
         }
     }
-
-    .queries {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        padding: 5px;
-        border-radius: 4px;
-        border-top-left-radius: 0;
-        max-height: 300px;
-        overflow-y: auto;
-        background: #455B71;
-
-        .query {
-            margin: 0 0 2px;
-        }
-    }
-}
-
-.queryInput {
-    box-sizing: border-box;
-    height: 38px;
-    background-color: $input-background-color;
-    outline: none;
-    border: none;
-    font-size: 18px;
-    background: url(../images/search-icon.png) center left no-repeat;
-    background-size: 22px 21px;
-    padding-left: 30px;
-    color: #fff;
-    margin: 0 0 10px 20px;
-    width: 200px;
-
-    &:focus {
-        color: $input-color-focus;
-        outline: none;
-        box-shadow: none;
-        border-color: $input-border-color-focus;
-    }
-
-    &::placeholder {
-        color: #fff;
-    }
 }
 
 .query {
     border-radius: 4px;
     padding: 10px;
-    margin: 0 0 10px 10px;
+    margin: 5px;
     display: flex;
     align-items: center;
     justify-content: space-between;

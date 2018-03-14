@@ -1,6 +1,8 @@
 import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from './index';
 import {VIA_ADD, VIA_DELETE} from "./constants";
 import {Field} from "../../interfaces/field";
+import {getFields} from '../fields/actions';
+import {Datasource} from "../../interfaces/datasource";
 
 export function tableColumnRemove(field) {
     return {
@@ -75,11 +77,22 @@ export function normalizationDelete(normalization) {
     };
 }
 
-export function receiveInitialState(initial_state) {
-    return {
-        type: INITIAL_STATE_RECEIVE,
-        receivedAt: Date.now(),
-        initial_state: initial_state
+export function receiveInitialState(initialState) {
+    return (dispatch, getState) => {
+        dispatch({
+            type: INITIAL_STATE_RECEIVE,
+            receivedAt: Date.now(),
+            initial_state: initialState
+        });
+
+        console.log(initialState.datasources);
+
+        const datasources = initialState.datasources.filter((datasource: Datasource) =>
+            datasource.type !== 'live'
+            && datasource.type !== 'elasticsearch'
+        );
+
+        dispatch(getFields(datasources));
     };
 }
 

@@ -3,28 +3,26 @@ import React from 'react';
 import { Icon } from '../../../components/index';
 
 const fieldTypes = {
-    string: 'ion-ios-text-outline',
-    byte: 'ion-ios-information',
-    short: 'ion-ios-text-outline',
+    string: 'ion-document-text',
     integer: 'ion-ios-information',
     long: 'ion-ios-information',
     float: 'ion-ios-information',
     double: 'ion-ios-information',
-    boolean: 'ion-ios-checkmark',
+    boolean: 'ion-ios-checkmark-empty',
     date: 'ion-ios-calendar-outline',
-    geo_point: 'ion-ios-navigate-outline',
-    ip: 'ion-ios-locate-outline'
+    geo_point: 'ion-navigate',
+    ip: 'ion-android-laptop'
 };
 
 const unknownType = 'ion-ios-help';
 
 /**
  * FieldType
- * @param props
+ * @param type
  * @returns {XML}
  * @constructor
  */
 export default function FieldType(props) {
-    const icon = fieldTypes[props.field.type] || unknownType;
-    return <Icon name={`${icon} type-indicator`} title={props.field.type} />
+    const icon = fieldTypes[props.type] || unknownType;
+    return <Icon name={`${icon} type-indicator`} title={props.type} />
 }
