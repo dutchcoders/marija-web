@@ -6,7 +6,7 @@ import {Item} from "../../interfaces/item";
 import {cancelRequest} from '../../reducers/utils';
 import {Socket} from "../../utils";
 import {uniqueId} from 'lodash';
-import {ADD_LIVE_DATASOURCE_SEARCH} from './constants';
+import {ADD_LIVE_DATASOURCE_SEARCH, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DATASOURCE} from './constants';
 import {Datasource} from "../../interfaces/datasource";
 
 export function searchRequest(query: string) {
@@ -119,6 +119,25 @@ export function addLiveDatasourceSearch(datasource: Datasource) {
         type: ADD_LIVE_DATASOURCE_SEARCH,
         payload: {
             datasource: datasource
+        }
+    };
+}
+
+
+export function activateLiveDatasource(datasourceId: string) {
+    return {
+        type: ACTIVATE_LIVE_DATASOURCE,
+        payload: {
+            datasourceId: datasourceId
+        }
+    };
+}
+
+export function deactivateLiveDatasource(datasourceId: string) {
+    return {
+        type: DEACTIVATE_LIVE_DATASOURCE,
+        payload: {
+            datasourceId: datasourceId
         }
     };
 }

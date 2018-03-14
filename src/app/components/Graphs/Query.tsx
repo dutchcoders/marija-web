@@ -10,7 +10,10 @@ import {cancelRequest} from "../../utils/actions";
 import {deselectNodes} from "../../modules/graph/actions";
 import {Search} from "../../interfaces/search";
 import {Node} from "../../interfaces/node";
-import {pauseSearch, resumeSearch} from "../../modules/search/actions";
+import {
+    activateLiveDatasource, deactivateLiveDatasource, pauseSearch,
+    resumeSearch
+} from "../../modules/search/actions";
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -114,6 +117,18 @@ class Query extends React.Component<Props, State> {
         dispatch(resumeSearch(search));
     }
 
+    activateLiveDatasource() {
+        const { search, dispatch } = this.props;
+
+        dispatch(activateLiveDatasource(search.liveDatasource));
+    }
+
+    deactivateLiveDatasource() {
+        const { search, dispatch } = this.props;
+
+        dispatch(deactivateLiveDatasource(search.liveDatasource));
+    }
+
     render() {
         const { search, handleEdit } = this.props;
 
@@ -124,11 +139,22 @@ class Query extends React.Component<Props, State> {
         const loading: boolean = !search.completed && !search.paused;
         const itemClass = 'query ' + (loading ? 'loading' : '');
 
-        let pause = null;
+        let count = null;
+
+        if (!search.liveDatasource || !search.paused) {
+            count = (
+                <span className="count">
+                    {displayNodes}/{nodes}
+                </span>
+            );
+        }
+
+        let actions = [];
 
         if (!search.completed && !search.paused && !search.liveDatasource) {
-            pause = (
+            actions.push(
                 <Tooltip
+                    key="pause"
                     overlay="Pause"
                     placement="bottom"
                     mouseLeaveDelay={0}
@@ -141,10 +167,8 @@ class Query extends React.Component<Props, State> {
             );
         }
 
-        let resume = null;
-
         if (!search.completed && search.paused && !search.liveDatasource) {
-            resume = (
+            actions.push(
                 <Tooltip
                     overlay="Resume"
                     placement="bottom"
@@ -158,65 +182,113 @@ class Query extends React.Component<Props, State> {
             );
         }
 
+        if (!search.liveDatasource || !search.paused) {
+            actions.push(
+                <Tooltip
+                    key="less"
+                    overlay="Show less"
+                    placement="bottom"
+                    mouseLeaveDelay={0}
+                    arrowContent={<div className="rc-tooltip-arrow-inner"/>}>
+                    <Icon
+                        onClick={() => this.handleDisplayLess()}
+                        name="ion-ios-minus"
+                        className={lessClass}
+                    />
+                </Tooltip>
+            );
+
+            actions.push(
+                <Tooltip
+                    key="more"
+                    overlay="Show more"
+                    placement="bottom"
+                    mouseLeaveDelay={0}
+                    arrowContent={<div className="rc-tooltip-arrow-inner"/>}>
+                    <Icon
+                        onClick={() => this.handleDisplayMore()}
+                        name="ion-ios-plus"
+                        className={moreClass}
+                    />
+                </Tooltip>
+            );
+
+            actions.push(
+                <Tooltip
+                    key="color"
+                    overlay="Change color"
+                    placement="bottom"
+                    mouseLeaveDelay={0}
+                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                    <Icon onClick={() => handleEdit()} name="ion-ios-gear"/>
+                </Tooltip>
+            );
+
+            actions.push(
+                <Tooltip
+                    key="select"
+                    overlay="Select nodes"
+                    placement="bottom"
+                    mouseLeaveDelay={0}
+                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                    <Icon onClick={this.selectNodes.bind(this)} name="ion-ios-color-wand"/>
+                </Tooltip>
+            );
+        }
+
+        if (!search.liveDatasource) {
+            actions.push(
+                <Tooltip
+                    key="delete"
+                    overlay="Delete"
+                    placement="bottom"
+                    mouseLeaveDelay={0}
+                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                    <Icon onClick={(e) => this.handleDelete() }
+                          name="ion-ios-close"/>
+                </Tooltip>
+            );
+        }
+
+        if (search.liveDatasource && search.paused) {
+            actions.push([
+                <Tooltip
+                    key="activate"
+                    overlay="Activate"
+                    placement="bottom"
+                    mouseLeaveDelay={0}
+                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                    <Icon
+                        onClick={() => this.activateLiveDatasource() }
+                        name="ion-ios-play"
+                    />
+                </Tooltip>
+            ]);
+        }
+
+        if (search.liveDatasource && !search.paused) {
+            actions.push([
+                <Tooltip
+                    key="deactivate"
+                    overlay="Deactivate"
+                    placement="bottom"
+                    mouseLeaveDelay={0}
+                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                    <Icon
+                        onClick={() => this.deactivateLiveDatasource() }
+                        name="ion-ios-pause"
+                    />
+                </Tooltip>
+            ]);
+        }
+
         return (
             <div key={search.q} style={{backgroundColor: search.color}} className={itemClass}>
                 {search.q}&nbsp;
-                <span className="count">
-                    {displayNodes}/{nodes}
-                </span>
-
-                {pause}
-                {resume}
+                {count}
 
                 <div className="actions">
-                    <Tooltip
-                        overlay="Show less"
-                        placement="bottom"
-                        mouseLeaveDelay={0}
-                        arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                        <Icon
-                            onClick={() => this.handleDisplayLess() }
-                            name="ion-ios-minus"
-                            className={lessClass}
-                        />
-                    </Tooltip>
-
-                    <Tooltip
-                        overlay="Show more"
-                        placement="bottom"
-                        mouseLeaveDelay={0}
-                        arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                        <Icon
-                            onClick={() => this.handleDisplayMore() }
-                            name="ion-ios-plus"
-                            className={moreClass}
-                        />
-                    </Tooltip>
-
-                    <Tooltip
-                        overlay="Change color"
-                        placement="bottom"
-                        mouseLeaveDelay={0}
-                        arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                        <Icon onClick={() => handleEdit()} name="ion-ios-gear"/>
-                    </Tooltip>
-
-                    <Tooltip
-                        overlay="Select nodes"
-                        placement="bottom"
-                        mouseLeaveDelay={0}
-                        arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                        <Icon onClick={this.selectNodes.bind(this)} name="ion-ios-color-wand"/>
-                    </Tooltip>
-
-                    <Tooltip
-                        overlay="Delete"
-                        placement="bottom"
-                        mouseLeaveDelay={0}
-                        arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                        <Icon onClick={(e) => this.handleDelete() }
-                              name="ion-ios-close"/>
-                    </Tooltip>
+                    {actions}
                 </div>
             </div>
         );

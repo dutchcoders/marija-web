@@ -6,7 +6,7 @@ import {
     FIELD_NODES_HIGHLIGHT,
     GRAPH_WORKER_OUTPUT
 } from '../modules/graph/constants';
-import {  SEARCH_DELETE, SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_EDIT } from '../modules/search/index';
+import {  SEARCH_DELETE, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DATASOURCE, SEARCH_REQUEST, SEARCH_EDIT } from '../modules/search/constants';
 import {  ADD_LIVE_DATASOURCE_SEARCH } from '../modules/search/constants';
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
@@ -28,15 +28,12 @@ import {Normalization} from "../interfaces/normalization";
 import normalizeLinks from "../helpers/normalizeLinks";
 import denormalizeNodes from "../helpers/denormalizeNodes";
 import denormalizeLinks from "../helpers/denormalizeLinks";
-import getLinksForDisplay from "../helpers/markLinksForDisplay";
 import darkenColor from "../helpers/darkenColor";
 import {Column} from "../interfaces/column";
 import createField from "../helpers/createField";
 import {Field} from "../interfaces/field";
 import {Via} from "../interfaces/via";
 import removeVia from "../helpers/removeVia";
-import {DATASOURCE_ACTIVATED} from "../modules/datasources/constants";
-import {Datasource} from "../interfaces/datasource";
 import markHighlightedNodes from "../helpers/markHighlightedNodes";
 import markLinksForDisplay from "../helpers/markLinksForDisplay";
 import markNodesForDisplay from "../helpers/markNodesForDisplay";
@@ -611,12 +608,42 @@ export default function entries(state: State = defaultState, action) {
                 completed: false,
                 aroundNodeId: null,
                 liveDatasource: action.payload.datasource.id,
-                paused: false,
+                paused: true,
                 datasources: [action.payload.datasource.id]
             };
 
             return Object.assign({}, state, {
                 searches: state.searches.concat([newSearch])
+            });
+        }
+
+        case ACTIVATE_LIVE_DATASOURCE: {
+            const index = state.searches.findIndex(search =>
+                search.liveDatasource === action.payload.datasourceId
+            );
+
+            const searches = state.searches.concat([]);
+            searches[index] = Object.assign({}, searches[index], {
+                paused: false
+            });
+
+            return Object.assign({}, state, {
+                searches: searches
+            });
+        }
+
+        case DEACTIVATE_LIVE_DATASOURCE: {
+            const index = state.searches.findIndex(search =>
+                search.liveDatasource === action.payload.datasourceId
+            );
+
+            const searches = state.searches.concat([]);
+            searches[index] = Object.assign({}, searches[index], {
+                paused: true
+            });
+
+            return Object.assign({}, state, {
+                searches: searches
             });
         }
 

@@ -49,7 +49,7 @@ onmessage = (event: MessageEvent) => {
     }
 
     const items: Item[] = payload.prevItems.concat(payload.items);
-    const search: Search = payload.searches.find(loop => loop.q === payload.query);
+    const search: Search = payload.searches.find(loop => loop.q === payload.query && !loop.paused);
 
     if (!search) {
         console.error('received items for a query we were not searching for: ' + payload.query);
