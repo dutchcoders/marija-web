@@ -37,7 +37,7 @@ class Pane extends React.Component<any, any> {
     onResizeStop(e, dir, refToElement, delta, position) {
         const rect = refToElement.getBoundingClientRect();
         this.updatePositionToStore(position.x, position.y, rect.width, rect.height);
-        this.onPaneEvent.emit('resized');
+        this.onPaneEvent.emit('resized')
     }
 
     onDragStart() {

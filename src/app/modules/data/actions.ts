@@ -3,6 +3,7 @@ import {VIA_ADD, VIA_DELETE} from "./constants";
 import {Field} from "../../interfaces/field";
 import {getFields} from '../fields/actions';
 import {Datasource} from "../../interfaces/datasource";
+import {datasourceDeactivated} from "../datasources/actions";
 
 export function tableColumnRemove(field) {
     return {
@@ -54,10 +55,32 @@ export function fieldUpdate(fieldPath: string, updates: any) {
 }
 
 export function fieldDelete(field) {
-    return {
-        type: FIELD_DELETE,
-        receivedAt: Date.now(),
-        field: field
+    return (dispatch, getState) => {
+        dispatch({
+            type: FIELD_DELETE,
+            receivedAt: Date.now(),
+            field: field
+        });
+
+        const state = getState();
+        const fields: Field[] = state.entries.fields;
+        const datasources: Datasource[] = state.datasources.datasources;
+
+        datasources.forEach(datasource => {
+            if (!datasource.active) {
+                return;
+            }
+
+            const datasourceFields = fields.filter(field =>
+                field.datasourceId === datasource.id
+            );
+
+            if (datasourceFields.length === 0) {
+                // If there are no more active fields for this datasource,
+                // deactivate the datasource
+                dispatch(datasourceDeactivated(datasource));
+            }
+        });
     };
 }
 

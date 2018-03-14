@@ -28,6 +28,18 @@ export default function datasources(state: State = defaultDatasourcesState, acti
                 };
             });
 
+            datasources.sort((a, b) => {
+                if (a.name < b.name) {
+                    return -1;
+                }
+
+                if (a.name > b.name) {
+                    return 1;
+                }
+
+                return 0;
+            });
+
             return Object.assign({}, state, {
                 datasources: datasources
             });

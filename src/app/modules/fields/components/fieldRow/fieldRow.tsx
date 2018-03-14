@@ -118,7 +118,7 @@ class FieldRow extends React.Component<Props, State> {
         }
 
         return (
-            <tr className="field"
+            <tr className={styles.tr}
                 onMouseEnter={this.highlightNodes.bind(this)}>
 
                 <td className={styles.td}><FieldType type={field.type} /></td>
