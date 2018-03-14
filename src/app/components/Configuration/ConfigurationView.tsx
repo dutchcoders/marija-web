@@ -1,17 +1,11 @@
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 import { find, sortBy, map, slice, uniq, concat, isEqual } from 'lodash';
-import { fieldAdd, fieldDelete, normalizationAdd, normalizationDelete, viaDelete, viaAdd } from '../../modules/data/index';
-import { activateDatasource, deActivateDatasource } from '../../modules/datasources/index';
-import { Field } from '../../modules/fields/index';
+import { normalizationAdd, normalizationDelete, viaDelete, viaAdd } from '../../modules/data/index';
 import { Icon } from '../index';
-import Url from "../../domain/Url";
-import Loader from "../Misc/Loader";
 import {Workspaces} from "../../domain/index";
 import {saveAs} from 'file-saver';
 import {exportData, importData} from "../../modules/import/actions";
-import {searchFieldsUpdate} from "../../modules/search/actions";
-import {fieldNodesHighlight, highlightNodes} from "../../modules/graph/actions";
 import {Normalization} from "../../interfaces/normalization";
 import {Datasource} from "../../interfaces/datasource";
 import Fields from './fields/fields';
@@ -166,19 +160,6 @@ class ConfigurationView extends React.Component<Props, State> {
         dispatch(normalizationDelete(normalization));
     }
 
-    handleDatasourceChange(event, datasource: Datasource) {
-        const { dispatch } = this.props;
-
-        if (event.target.checked) {
-            Url.addQueryParam('datasources', datasource.id);
-            dispatch(activateDatasource(datasource));
-        } else {
-            Url.removeQueryParam('datasources', datasource.id);
-            Url.removeQueryParam('search', datasource.id);
-            dispatch(deActivateDatasource(datasource));
-        }
-    }
-
     renderNormalizations(normalizations: Normalization[]) {
         const { normalization_error } = this.state;
 
@@ -222,41 +203,6 @@ class ConfigurationView extends React.Component<Props, State> {
                         </div>
                     </div>
                 </form>
-            </div>
-        );
-    }
-
-    renderDatasources() {
-        const { datasources } = this.props;
-
-        const options = map(sortBy(datasources, ["name"]), (datasource) => {
-            const indexName = datasource.name;
-
-            let live = null;
-            if (datasource.type === 'live') {
-                live = <span className="liveDatasource">Live</span>
-            }
-
-            return (
-                <li key={ datasource.id } value={ indexName }>
-                    <div className="datasourceName" title={indexName }>
-                        { indexName }
-                        {live}
-                    </div>
-                    <input type="checkbox" checked={datasource.active} onChange={(event) => this.handleDatasourceChange(event, datasource)} />
-                </li>
-            );
-        });
-
-        let no_datasources = null;
-        if (datasources.length == 0) {
-            no_datasources = <div className='text-warning'>No datasources configured.</div>;
-        }
-
-        return (
-            <div>
-                <ul>{options}</ul>
-                { no_datasources }
             </div>
         );
     }
@@ -368,14 +314,6 @@ class ConfigurationView extends React.Component<Props, State> {
         );
     }
 
-    getAtLeastOneAlert() {
-        return (
-            <span className="heading-alert">
-                Select at least one
-            </span>
-        );
-    }
-
     resetConfig() {
         Workspaces.deleteWorkspace();
         // Remove all data from url and refresh the page for simplicity
@@ -407,18 +345,10 @@ class ConfigurationView extends React.Component<Props, State> {
     }
 
     render() {
-        const { normalizations, datasources } = this.props;
+        const { normalizations } = this.props;
 
         return (
             <div>
-                {/*<div className="form-group">*/}
-                    {/*<h2>*/}
-                        {/*Datasources*/}
-                        {/*{datasources.filter(datasource => datasource.active).length === 0 ? this.getAtLeastOneAlert() : null}*/}
-                    {/*</h2>*/}
-                    {/*{ this.renderDatasources() }*/}
-                {/*</div>*/}
-
                 <Fields />
 
                 <div className="form-group">

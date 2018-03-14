@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import queryString from 'query-string';
 import {dateFieldAdd, fieldAdd} from "../../modules/data/actions";
-import {activateDatasource} from "../../modules/datasources/actions";
 import {searchRequest} from "../../modules/search/actions";
 import Url from "../../domain/Url";
+import {datasourceActivated} from '../../modules/datasources/actions';
 
 class ResumeSession extends Component {
     componentDidMount() {
@@ -69,7 +69,7 @@ class ResumeSession extends Component {
             const datasource = existingDatasources.find(search => search.id === id);
 
             if (datasource && (!datasource.active || datasource.type === 'live')) {
-                // dispatch(activateDatasource(datasource));
+                dispatch(datasourceActivated(datasource));
             }
         });
     }

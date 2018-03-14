@@ -227,8 +227,9 @@ class Fields extends React.Component<Props, State> {
         );
     }
 
-    renderFields(fields, availableFields) {
+    renderFields() {
         const { currentFieldSearchValue, searchTypes, maxSearchResults, iconSelectorField, datasourceFilter } = this.state;
+        const { fields, availableFields } = this.props;
 
         let filteredFields = availableFields.concat([]);
 
@@ -275,7 +276,7 @@ class Fields extends React.Component<Props, State> {
             searchResults = [];
 
             filteredFields.forEach((item) => {
-                const copy = Object.assign({}, item);
+                const copy: any = Object.assign({}, item);
                 copy.occurrenceIndex = copy.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase());
 
                 if (copy.occurrenceIndex !== -1) {
@@ -284,7 +285,7 @@ class Fields extends React.Component<Props, State> {
             });
 
             // Sort by when the search term occurs in the field name (the earlier the better)
-            searchResults.sort((a, b) => a.occurrenceIndex - b.occurrenceIndex);
+            searchResults.sort((a: any, b: any) => a.occurrenceIndex - b.occurrenceIndex);
         }
 
         let numMore = null;
@@ -359,32 +360,38 @@ class Fields extends React.Component<Props, State> {
 
         return (
             <div>
-                <table
-                    onMouseLeave={this.removeHighlightNodes.bind(this)}
-                    className={styles.fieldTable}>
-                    <thead>
-                        <tr>
-                            <td className={styles.fieldHead}>Type</td>
-                            <td className={styles.fieldHead}>Field</td>
-                            <td className={styles.fieldHead}>Datasource</td>
-                            <td />
-                            <td />
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {fields.map(field =>
-                            <FieldRow
-                                key={field.path}
-                                isActive={true}
-                                field={field}
-                            />
-                        )}
-                    </tbody>
-                </table>
+                { fields.length > 0 ? this.renderSelectedFields(fields) : null }
                 { availableFields.length > 0 ? search : null }
                 { availableFields.length > 0 ? available : null }
                 { selectDatasourceMessage }
             </div>
+        );
+    }
+
+    renderSelectedFields(fields: Field[]) {
+        return (
+            <table
+                onMouseLeave={this.removeHighlightNodes.bind(this)}
+                className={styles.fieldTable}>
+                <thead>
+                <tr>
+                    <td className={styles.fieldHead}>Type</td>
+                    <td className={styles.fieldHead}>Field</td>
+                    <td className={styles.fieldHead}>Datasource</td>
+                    <td />
+                    <td />
+                </tr>
+                </thead>
+                <tbody>
+                {fields.map(field =>
+                    <FieldRow
+                        key={field.path}
+                        isActive={true}
+                        field={field}
+                    />
+                )}
+                </tbody>
+            </table>
         );
     }
 
@@ -397,16 +404,17 @@ class Fields extends React.Component<Props, State> {
     }
 
     render() {
-        const { fields, datasources, availableFields, fieldsFetching } = this.props;
+        const { fields, datasources, fieldsFetching } = this.props;
 
         return (
             <div className="form-group">
                 <h2>
+                    Fields
                     <Loader show={fieldsFetching} />
                     {datasources.length > 0 && fields.length === 0 ? this.getAtLeastOneAlert() : null}
                 </h2>
 
-                { this.renderFields(fields, availableFields) }
+                { this.renderFields() }
             </div>
         );
     }

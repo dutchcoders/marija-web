@@ -15,6 +15,7 @@ import {
     datasourceDeactivated
 } from "../../datasources/actions";
 import {Field} from "../../../interfaces/field";
+import Url from "../../../domain/Url";
 
 interface Props {
     onSubmit: Function;
@@ -56,8 +57,6 @@ class SearchBox extends React.Component<Props, State> {
     }
 
     collapseForm(e) {
-        console.log('clicked');
-
         if (!this.searchForm.contains(e.target)) {
             // User clicked outside the search form, close it
             this.setState({
@@ -94,8 +93,10 @@ class SearchBox extends React.Component<Props, State> {
         const { dispatch } = this.props;
 
         if (event.currentTarget.checked) {
+            Url.addQueryParam('datasources', datasource.id);
             dispatch(datasourceActivated(datasource))
         } else {
+            Url.removeQueryParam('datasources', datasource.id);
             dispatch(datasourceDeactivated(datasource))
         }
     }
