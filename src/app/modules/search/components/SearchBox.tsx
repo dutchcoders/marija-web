@@ -1,23 +1,35 @@
-import React, { Component } from 'react';
-import { connect} from 'react-redux';
+import * as React from 'react';
+import {connect, Dispatch} from 'react-redux';
 import Tooltip from 'rc-tooltip';
 import SkyLight from 'react-skylight';
 import SketchPicker from 'react-color';
 import {Query, Icon, Loader} from "../../../components/index";
 import {editSearch} from "../actions";
+import {Search} from "../../../interfaces/search";
+import {Node} from "../../../interfaces/node";
 
-class SearchBox extends Component {
-    constructor(props) {
-        super(props);
+interface Props {
+    onSubmit: Function;
+    dispatch: Dispatch<any>;
+    connected: boolean;
+    enabled: boolean;
+    searches: Search[];
+    nodes: Node[];
+}
 
-        this.handleSubmit = this.handleSubmit.bind(this);
+interface State {
+    query: string;
+    editSearchValue: Search;
+    searchAroundOpen: boolean;
+}
 
-        this.state = {
-            query: '',
-            editSearchValue: null,
-            searchAroundOpen: false
-        };
-    }
+class SearchBox extends React.Component<Props, State> {
+    state: State = {
+        query: '',
+        editSearchValue: null,
+        searchAroundOpen: false
+    };
+    refs: any;
 
     handleSubmit(e) {
         e.preventDefault();
@@ -43,7 +55,7 @@ class SearchBox extends Component {
 
     handleChangeQueryColorComplete(color) {
         const { dispatch } = this.props;
-        const search = Object.assign({}, this.state.editSearchValue);
+        const search: any = Object.assign({}, this.state.editSearchValue);
 
         search.color = color.hex;
 
@@ -66,7 +78,7 @@ class SearchBox extends Component {
         const { connected, enabled, searches, nodes } = this.props;
         const { query, editSearchValue, searchAroundOpen } = this.state;
 
-        let tooltipStyles = {};
+        let tooltipStyles: any = {};
 
         if (enabled) {
             tooltipStyles.visibility = 'hidden';
