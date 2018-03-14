@@ -23,24 +23,18 @@ export default function fields(state: State = defaultState, action) {
                 });
             }
 
-            const exists = (path: string): boolean => {
-                const field: Field = state.availableFields.find(
-                    search => search.path === path
-                );
-
-                return typeof field !== 'undefined';
-            };
-
             const newFields: Field[] = action
                 .payload
                 .fields
-                .filter(field => !exists(field.path))
                 .map(field => {
                     field.datasourceId = action.payload.datasource;
                     return field;
                 });
 
-            let fields = state.availableFields.concat(newFields);
+            let fields = state.availableFields
+                .filter(field => field.datasourceId !== action.payload.datasource)
+                .concat(newFields);
+
             fields = sortFields(fields);
 
             return Object.assign({}, state, {
