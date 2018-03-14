@@ -71,8 +71,13 @@ class SearchBox extends React.Component<Props, State> {
         e.preventDefault();
 
         const { query } = this.state;
+        const { datasources } = this.props;
 
-        if (query === '') {
+        const activeDatasources = datasources.filter(datasource =>
+            datasource.active
+        );
+
+        if (query === '' || activeDatasources.length === 0) {
             return;
         }
 
