@@ -101,7 +101,7 @@ onmessage = (event: MessageEvent) => {
         result.nodes = filtered.reduce((prev, current) => prev.concat(current), []);
         result.links = removeDeadLinks(result.nodes, result.links);
 
-        const normalSearches = payload.searches.filter(search => search.liveDatasource === null);
+        const normalSearches = payload.searches.filter(search => !search.liveDatasource);
 
         if (normalSearches.length > 1) {
             // If there is more than 1 query, all nodes for subsequent queries
