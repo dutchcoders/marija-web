@@ -6,6 +6,8 @@ import {Item} from "../../interfaces/item";
 import {cancelRequest} from '../../reducers/utils';
 import {Socket} from "../../utils";
 import {uniqueId} from 'lodash';
+import {ADD_LIVE_DATASOURCE_SEARCH} from './constants';
+import {Datasource} from "../../interfaces/datasource";
 
 export function searchRequest(query: string) {
     return (dispatch, getState) => {
@@ -112,15 +114,18 @@ export function pauseSearch(search: Search) {
     };
 }
 
+export function addLiveDatasourceSearch(datasource: Datasource) {
+    return {
+        type: ADD_LIVE_DATASOURCE_SEARCH,
+        payload: {
+            datasource: datasource
+        }
+    };
+}
+
 export function resumeSearch(search: Search) {
     return (dispatch, getState) => {
         const state = getState();
-        const datasources: string[] = state
-            .datasources
-            .datasources
-            .filter(datasource => datasource.active)
-            .map(datasource => datasource.id);
-
         const fields: string[] = state
             .entries
             .fields
@@ -129,7 +134,7 @@ export function resumeSearch(search: Search) {
         const requestId = uniqueId();
 
         Socket.ws.postMessage({
-            datasources: datasources,
+            datasources: search.datasources,
             query: search.q,
             fields: fields,
             'request-id': requestId

@@ -4,6 +4,7 @@ import {Field} from "../../interfaces/field";
 import {getFields} from '../fields/actions';
 import {Datasource} from "../../interfaces/datasource";
 import {datasourceDeactivated} from "../datasources/actions";
+import {addLiveDatasourceSearch} from "../search/actions";
 
 export function tableColumnRemove(field) {
     return {
@@ -119,7 +120,7 @@ export function receiveInitialState(initialState) {
         );
 
         live.forEach(datasource => {
-            console.log(datasource);
+            dispatch(addLiveDatasourceSearch(datasource));
         })
     };
 }

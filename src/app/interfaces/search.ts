@@ -11,4 +11,5 @@ export interface Search {
     total: number;
     liveDatasource: string | null;
     paused: boolean;
+    datasources: string[];
 }

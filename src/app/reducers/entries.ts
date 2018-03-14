@@ -7,6 +7,7 @@ import {
     GRAPH_WORKER_OUTPUT
 } from '../modules/graph/constants';
 import {  SEARCH_DELETE, SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_EDIT } from '../modules/search/index';
+import {  ADD_LIVE_DATASOURCE_SEARCH } from '../modules/search/constants';
 import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
 import { removeDeadLinks, applyVia, getQueryColor, deleteFieldFromNodes
@@ -390,6 +391,11 @@ export default function entries(state: State = defaultState, action) {
                     color = darkenColor(parentSearch.color, -.3);
                 }
 
+                const datasources: string[] = action
+                    .datasources
+                    .filter(datasource => datasource.active)
+                    .map(datasource => datasource.id);
+
                 search = {
                     q: action.query,
                     color: color,
@@ -400,7 +406,8 @@ export default function entries(state: State = defaultState, action) {
                     completed: false,
                     aroundNodeId: action.aroundNodeId,
                     liveDatasource: null,
-                    paused: false
+                    paused: false,
+                    datasources: datasources
                 };
 
                 searches.push(search);
@@ -409,13 +416,8 @@ export default function entries(state: State = defaultState, action) {
             let fieldPaths: string[] = state.fields.map(field => field.path);
             fieldPaths = fieldPaths.concat(state.date_fields.map(field => field.path));
 
-            const datasources: string[] = action
-                .datasources
-                .filter(datasource => datasource.active)
-                .map(datasource => datasource.id);
-
             let message = {
-                datasources: datasources,
+                datasources: search.datasources,
                 query: action.query,
                 fields: fieldPaths,
                 'request-id': search.requestId
@@ -596,21 +598,9 @@ export default function entries(state: State = defaultState, action) {
         }
 
         /**
-         * When a live datasource is activated, we create a search for it.
+         * When a live datasource is found, we create a search for it.
          */
-        case DATASOURCE_ACTIVATED: {
-            const datasource: Datasource = action.payload.datasource;
-
-            if (datasource.type !== 'live') {
-                return state;
-            }
-
-            const search: Search = state.searches.find(search => search.liveDatasource === datasource.id);
-
-            if (typeof search !== 'undefined') {
-                return state;
-            }
-
+        case ADD_LIVE_DATASOURCE_SEARCH: {
             const newSearch: Search = {
                 q: action.payload.datasource.name,
                 color: '#0055cc',
@@ -621,7 +611,8 @@ export default function entries(state: State = defaultState, action) {
                 completed: false,
                 aroundNodeId: null,
                 liveDatasource: action.payload.datasource.id,
-                paused: false
+                paused: false,
+                datasources: [action.payload.datasource.id]
             };
 
             return Object.assign({}, state, {
