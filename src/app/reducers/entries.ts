@@ -210,10 +210,6 @@ export default function entries(state: State = defaultState, action) {
             const nodes = normalizeNodes(state.nodes, normalizations);
             const links = normalizeLinks(state.links, normalizations);
 
-            console.log('===== add');
-            console.log(nodes.filter(node => node.normalizationId));
-            console.log(nodes.filter(node => node.isNormalizationParent));
-
             return Object.assign({}, state, {
                 normalizations: normalizations,
                 nodes: nodes,
