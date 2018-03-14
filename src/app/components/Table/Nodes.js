@@ -293,10 +293,11 @@ class Nodes extends React.Component {
 
         const ids = selectedNodes.map(node => this.escapeRegExp(node.id));
         const regex = '^' + ids.join('$|^') + '$';
+        const name = selectedNodes.map(node => node.name).join('+');
 
         dispatch(normalizationAdd({
             regex: regex,
-            replaceWith: selectedNodes[0].id
+            replaceWith: name
         }));
     }
 
