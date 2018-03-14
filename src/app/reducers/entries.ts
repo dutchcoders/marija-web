@@ -431,6 +431,10 @@ export default function entries(state: State = defaultState, action) {
             const datasources = action.payload.datasources.map(datasource => datasource.id);
 
             const newSearches = state.searches.map(search => {
+                if (search.liveDatasource) {
+                    return search;
+                }
+
                 cancelRequest(search.requestId);
 
                 const newRequestId = uniqueId();

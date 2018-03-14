@@ -89,7 +89,9 @@ export function searchFieldsUpdate() {
         const datasources = getState()
             .datasources
             .datasources
-            .filter(datasource => datasource.active);
+            .filter((datasource: Datasource) =>
+                datasource.active && datasource.type !== 'live'
+            );
 
         dispatch({
             type: SEARCH_FIELDS_UPDATE,
