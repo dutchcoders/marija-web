@@ -69,3 +69,47 @@ test('should work when both source and target get normalized', () => {
     expect(parent.source).toBe('hello');
     expect(parent.target).toBe('something');
 });
+
+// todo: this is complicated. also think about denormalizing in different order
+test('should work when applying multiple normalizations', () => {
+    /**
+     * input:
+     *
+     * bello ------ cello
+     * |            |
+     * |            |
+     * |            |
+     * hoy ------- boy
+     *
+     * expected result:
+     *
+     * hello
+     * |
+     * |
+     * |
+     * hoy
+     */
+
+    const links = [
+        generateLink('bello', 'cello'),
+        generateLink('bello', 'hoy'),
+        generateLink('cello', 'boy'),
+        generateLink('boy', 'hoy'),
+    ];
+
+    const normalizations = [
+        generateNormalization('^[bhc]ello$', 'hello'),
+        generateNormalization('^[hb]oy$', 'hoy'),
+    ];
+
+    let result = normalizeLinks(links, normalizations);
+
+    const linksForDisplay = result.filter(link => link.isNormalizationParent || link.normalizationId === null);
+
+    expect(linksForDisplay.length).toBe(1);
+    //
+    // const parent = result.find(link => link.isNormalizationParent);
+    //
+    // expect(parent.source).toBe('hello');
+    // expect(parent.target).toBe('hoy');
+});
