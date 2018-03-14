@@ -108,14 +108,19 @@ export function receiveInitialState(initialState) {
             initial_state: initialState
         });
 
-        console.log(initialState.datasources);
-
-        const datasources = initialState.datasources.filter((datasource: Datasource) =>
+        const normal: Datasource[] = initialState.datasources.filter((datasource: Datasource) =>
             datasource.type !== 'live'
-            && datasource.type !== 'elasticsearch'
         );
 
-        dispatch(getFields(datasources));
+        dispatch(getFields(normal));
+
+        const live: Datasource[] = initialState.datasources.filter((datasource: Datasource) =>
+            datasource.type === 'live'
+        );
+
+        live.forEach(datasource => {
+            console.log(datasource);
+        })
     };
 }
 

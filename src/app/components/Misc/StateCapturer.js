@@ -48,13 +48,9 @@ function select(state, ownProps) {
         searches: state.entries.searches,
         entries_fields: state.entries.fields,
         date_fields: state.entries.date_fields,
-        indexes: state.entries.indexes,
         datasources: state.entries.datasources,
         normalizations: state.entries.normalizations,
-
-        indices: state.indices,
         utils: state.utils,
-        servers: state.servers,
         fields: state.fields,
     };
 }
