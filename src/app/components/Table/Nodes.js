@@ -5,14 +5,10 @@ import { map, uniq, filter, concat, without, find, differenceWith, sortBy, forEa
 
 import { Icon } from '../index';
 import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
-import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
-import { fieldLocator, getRelatedNodes } from '../../helpers/index';
-
 import SkyLight from 'react-skylight';
 import {searchAround} from '../../modules/search/actions';
 import {showTooltip} from "../../modules/graph/actions";
 import {normalizationAdd} from "../../modules/data";
-import displayFilter from "../../helpers/displayFilter";
 import getDirectlyRelatedNodes from '../../helpers/getDirectlyRelatedNodes';
 import {normalizationDelete} from '../../modules/data/actions';
 
@@ -241,7 +237,7 @@ class Nodes extends React.Component {
 
     renderSelected() {
         const { nodes } = this.props;
-        const selectedNodes = nodes.filter(node => node.selected && displayFilter(node));
+        const selectedNodes = nodes.filter(node => node.selected);
 
         return (
             selectedNodes.length > 0 ?

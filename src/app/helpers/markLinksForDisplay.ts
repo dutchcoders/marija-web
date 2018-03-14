@@ -1,7 +1,14 @@
 import {Node} from "../interfaces/node";
 import {Link} from "../interfaces/link";
 
-export default function getLinksForDisplay(nodes: Node[], links: Link[]): Link[] {
+/**
+ * Sets the property display of the links to true or false.
+ *
+ * @param {Node[]} nodes
+ * @param {Link[]} links
+ * @returns {Link[]}
+ */
+export default function markLinksForDisplay(nodes: Node[], links: Link[]): Link[] {
     const linksForDisplay: Link[] = [];
 
     links.forEach(link => {

@@ -2,7 +2,10 @@ import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
 import * as d3 from 'd3';
 import { concat, debounce, remove, includes, assign, isEqual, isEmpty, isEqualWith } from 'lodash';
-import { nodesSelect, highlightNodes, deselectNodes, showTooltip, setSelectingMode } from '../../modules/graph/actions';
+import {
+    nodesSelect, highlightNodes, deselectNodes, showTooltip,
+    setSelectingMode, clearSelection
+} from '../../modules/graph/actions';
 import { getArcParams, getDirectlyRelatedNodes } from '../../helpers/index.js';
 import * as PIXI from 'pixi.js';
 import {Search} from "../../interfaces/search";
@@ -410,9 +413,9 @@ class GraphPixi extends React.PureComponent<Props, State> {
     componentWillReceiveProps(nextProps: Props) {
         const { searches, nodesForDisplay, linksForDisplay, fields, showLabels } = this.props;
         const selectedNodes = this.getSelectedNodes();
-        const prevSelected = nextProps.nodesForDisplay.filter(node => node.selected);
+        const nextSelected = nextProps.nodesForDisplay.filter(node => node.selected);
 
-        if (!isEqual(prevSelected, selectedNodes)) {
+        if (!isEqual(nextSelected, selectedNodes)) {
             this.renderedSince.lastSelectedNodes = false;
         }
 
@@ -426,7 +429,6 @@ class GraphPixi extends React.PureComponent<Props, State> {
         }
 
         if (!isEqual(nextProps.fields, fields)) {
-
             this.nodesFromWorker.forEach(nodeFromWorker => {
                 const node = nextProps.nodesForDisplay.find(search => search.id === nodeFromWorker.id);
 
@@ -1031,7 +1033,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
             this.selection = {x1: x, y1: y, x2: x, y2: y};
 
             if (!this.shift) {
-                dispatch(deselectNodes(selectedNodes));
+                dispatch(clearSelection());
             }
         }
     }

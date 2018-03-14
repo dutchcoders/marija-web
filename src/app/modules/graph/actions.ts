@@ -47,11 +47,10 @@ export function showTooltip(nodes) {
     };
 }
 
-export function clearSelection(opts) {
+export function clearSelection() {
     return {
         type: SELECTION_CLEAR,
-        receivedAt: Date.now(),
-        ...opts,
+        receivedAt: Date.now()
     };
 }
 

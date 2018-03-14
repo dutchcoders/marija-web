@@ -1,4 +1,11 @@
-export default function getNodesForDisplay(nodes, searches) {
+/**
+ * Sets the property display of the nodes to true or false.
+ *
+ * @param nodes
+ * @param searches
+ * @returns {Array}
+ */
+export default function markNodesForDisplay(nodes, searches) {
     const searchesCounter = {};
     const nodesForDisplay = [];
     const max = {};
