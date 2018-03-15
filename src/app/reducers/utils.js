@@ -39,9 +39,9 @@ export const defaultUtilsState = {
     panes: {
         configuration: Object.assign({}, defaultPane, {
             open: true,
-            width: 300,
+            width: 400,
             fullHeight: true,
-            minWidth: 250
+            minWidth: 300
         }),
         nodes: Object.assign({}, defaultPane, {
             width: 350,

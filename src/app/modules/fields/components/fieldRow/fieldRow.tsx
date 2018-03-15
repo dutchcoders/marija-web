@@ -81,7 +81,7 @@ class FieldRow extends React.Component<Props, State> {
 
         if (isActive) {
             deleteButton = (
-                <td className={styles.td}>
+                <td className={styles.buttonTd}>
                     <Icon
                         onClick={this.remove.bind(this)}
                         name={styles.delete + ' ion-ios-close'}
@@ -94,7 +94,7 @@ class FieldRow extends React.Component<Props, State> {
 
         if (!isActive) {
             addButton = (
-                <td className={styles.td}>
+                <td className={styles.buttonTd}>
                     <Icon
                         onClick={this.add.bind(this)}
                         name={styles.add + ' ion-ios-plus'}
