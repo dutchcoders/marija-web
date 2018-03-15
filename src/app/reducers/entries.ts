@@ -617,7 +617,7 @@ export default function entries(state: State = defaultState, action) {
             };
 
             return Object.assign({}, state, {
-                searches: state.searches.concat([newSearch])
+                searches: [newSearch].concat(state.searches)
             });
         }
 
