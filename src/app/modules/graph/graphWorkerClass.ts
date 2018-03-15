@@ -1,6 +1,6 @@
 import {graphWorkerOutput} from "./actions";
 import removeDeadLinks from '../../helpers/removeDeadLinks';
-import filterSecondaryComponents from '../../helpers/filterSecondaryComponents';
+import filterComponentsByQueries from '../../helpers/filterComponentsByQueries';
 import getConnectedComponents from '../../helpers/getConnectedComponents';
 import getNodesForDisplay from '../../helpers/markNodesForDisplay';
 import applyVia from '../../helpers/applyVia';
@@ -113,12 +113,19 @@ export default class GraphWorkerClass {
 
             if (normalSearches.length > 1) {
                 // If there is more than 1 query, all nodes for subsequent queries
-                // need to be linked to nodes from the first query
+                // need to be linked to nodes from the first query, or a live datasource
                 // If some results are not linked, they will not be displayed as nodes
 
                 const components = getConnectedComponents(result.nodes, result.links);
-                const primaryQuery = payload.searches[0].q;
-                const filtered = filterSecondaryComponents(primaryQuery, components);
+
+                const primaryQuery = normalSearches[0].q;
+                const liveDatasources = payload.searches
+                    .filter(search => search.liveDatasource)
+                    .map(search => search.liveDatasource);
+
+                const validQueries: string[] = liveDatasources.concat([primaryQuery]);
+                const filtered = filterComponentsByQueries(components, validQueries);
+
                 result.nodes = filtered.reduce((prev, current) => prev.concat(current), []);
                 result.links = removeDeadLinks(result.nodes, result.links);
             }

@@ -26,12 +26,12 @@ const getField = (name) => {
     } as Field;
 };
 
-const getSearch = (query) => {
+const getSearch = (query, liveDatasource = null) => {
     return {
         displayNodes: 500,
         aroundNodeId: null,
         q: query,
-        liveDatasource: null,
+        liveDatasource: liveDatasource,
         datasources: [],
         items: []
     } as Search;
@@ -84,11 +84,12 @@ const getEvent = (payload: GraphWorkerPayload) => {
     } as MessageEvent;
 };
 
-test('should output nodes', (done) => {
+test('should output nodes and links', (done) => {
     const graphWorker = new GraphWorkerClass();
 
     graphWorker.output.addListener('output', (output: GraphWorkerOutput) => {
         expect(output.nodes.length).toBe(3);
+        expect(output.links.length).toBe(2);
 
         done();
     });
@@ -113,6 +114,7 @@ test('should correctly output nodes when there are multiple queries', (done) => 
         const node3 = output.nodes.find(node => node.id === '3');
         const node4 = output.nodes.find(node => node.id === '4');
 
+        expect(output.nodes.length).toBe(4);
         expect(node1.queries).toEqual(['query1']);
         expect(node2.queries).toEqual(['query1', 'query2']);
         expect(node3.queries).toEqual(['query1']);
@@ -142,6 +144,46 @@ test('should correctly output nodes when there are multiple queries', (done) => 
         ],
         items: [
             getItem({client: 4, server: 2}, 'query2', 'c'),
+        ],
+        query: 'query2'
+    };
+
+    graphWorker.onMessage(getEvent(payload));
+});
+
+test('should not filter secondary components if there is 1 live datasource, and 1 normal search', (done) => {
+    const graphWorker = new GraphWorkerClass();
+
+    graphWorker.output.addListener('output', (output: GraphWorkerOutput) => {
+
+
+        expect(output.nodes.length).toBe(6);
+
+        done();
+    });
+
+    const payload: GraphWorkerPayload = {
+        ...defaultPayload,
+        searches: [
+            getSearch('live', 'live'),
+            getSearch('query2')
+        ],
+        prevNodes: [
+            getNode('1', 'live', ['a']),
+            getNode('2', 'live', ['a', 'b']),
+            getNode('3', 'live', ['b']),
+        ],
+        prevLinks: [
+            getLink('1', '2'),
+            getLink('3', '2')
+        ],
+        prevItems: [
+            getItem({client: 1, server: 2}, 'live', 'a'),
+            getItem({client: 3, server: 2}, 'live', 'b'),
+        ],
+        items: [
+            getItem({client: 4, server: 5}, 'query2', 'c'),
+            getItem({client: 6, server: 5}, 'query2', 'd'),
         ],
         query: 'query2'
     };
