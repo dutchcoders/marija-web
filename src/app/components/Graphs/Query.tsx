@@ -7,7 +7,7 @@ import { deleteSearch, editSearch } from '../../modules/search/index';
 import Url from "../../domain/Url";
 import Tooltip from 'rc-tooltip';
 import {cancelRequest} from "../../utils/actions";
-import {deselectNodes} from "../../modules/graph/actions";
+import {deleteNodes, deselectNodes} from "../../modules/graph/actions";
 import {Search} from "../../interfaces/search";
 import {Node} from "../../interfaces/node";
 import {
@@ -42,6 +42,14 @@ class Query extends React.Component<Props, State> {
         Url.removeQueryParam('search', search.q);
         Url.removeQueryParam('datasources', search.q);
         dispatch(deleteSearch(search));
+    }
+
+    handleDeleteNodes() {
+        const { dispatch, search, nodes } = this.props;
+
+        const queryNodes: Node[] = nodes.filter(node => node.queries.indexOf(search.q) !== -1);
+
+        dispatch(deleteNodes(queryNodes));
     }
 
     handleDisplayMore() {
@@ -132,8 +140,8 @@ class Query extends React.Component<Props, State> {
     render() {
         const { search, handleEdit } = this.props;
 
-        const displayNodes = this.countDisplayNodes();
-        const nodes = this.countNodes();
+        const displayNodes: number = this.countDisplayNodes();
+        const nodes: number = this.countNodes();
         const lessClass = 'ion ion-ios-minus ' + (displayNodes <= 0 ? 'disabled' : '');
         const moreClass = 'ion ion-ios-plus ' + (displayNodes === nodes ? 'disabled' : '');
         const loading: boolean = !search.completed && !search.paused;
@@ -182,7 +190,7 @@ class Query extends React.Component<Props, State> {
             );
         }
 
-        if (!search.liveDatasource || !search.paused) {
+        if (!search.liveDatasource || !search.paused || nodes > 0) {
             actions.push(
                 <Tooltip
                     key="less"
@@ -245,6 +253,20 @@ class Query extends React.Component<Props, State> {
                     mouseLeaveDelay={0}
                     arrowContent={<div className="rc-tooltip-arrow-inner" />}>
                     <Icon onClick={(e) => this.handleDelete() }
+                          name="ion-ios-close"/>
+                </Tooltip>
+            );
+        }
+
+        if (search.liveDatasource && nodes > 0) {
+            actions.push(
+                <Tooltip
+                    key="delete"
+                    overlay="Delete nodes"
+                    placement="bottom"
+                    mouseLeaveDelay={0}
+                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                    <Icon onClick={(e) => this.handleDeleteNodes() }
                           name="ion-ios-close"/>
                 </Tooltip>
             );
