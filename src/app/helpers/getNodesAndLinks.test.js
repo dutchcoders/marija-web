@@ -35,7 +35,6 @@ const generateQuery = (items) => {
 test('should output nodes', () => {
     const previousNodes = [];
     const previousLinks = [];
-    const normalizations = [];
 
     const items = [
         generateItem(),
@@ -48,7 +47,7 @@ test('should output nodes', () => {
     ];
 
     const query = generateQuery(items);
-    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations);
+    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
 
     expect(nodes.length).toBe(3);
 });
@@ -56,7 +55,6 @@ test('should output nodes', () => {
 test('should output 1 node for every field in an item', () => {
     const previousNodes = [];
     const previousLinks = [];
-    const normalizations = [];
 
     const items = [
         generateItem({
@@ -71,7 +69,7 @@ test('should output 1 node for every field in an item', () => {
     ];
 
     const query = generateQuery(items);
-    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations);
+    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
 
     expect(nodes.length).toBe(2);
 });
@@ -79,7 +77,6 @@ test('should output 1 node for every field in an item', () => {
 test('should output nodes for nested data', () => {
     const previousNodes = [];
     const previousLinks = [];
-    const normalizations = [];
 
     const items = [
         generateItem({
@@ -96,7 +93,7 @@ test('should output nodes for nested data', () => {
     ];
 
     const query = generateQuery(items);
-    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations);
+    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
 
     expect(nodes.length).toBe(2);
 });
@@ -104,7 +101,6 @@ test('should output nodes for nested data', () => {
 test('should output links between related nodes', () => {
     const previousNodes = [];
     const previousLinks = [];
-    const normalizations = [];
 
     const items = [
         generateItem({
@@ -119,7 +115,7 @@ test('should output links between related nodes', () => {
     ];
 
     const query = generateQuery(items);
-    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations);
+    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
 
     expect(links).toBeDefined();
     expect(links.length).toBe(1);
@@ -129,7 +125,6 @@ test('should output links between related nodes', () => {
 test('when nodes have exactly the same fields they should not be duplicated', () => {
     const previousNodes = [];
     const previousLinks = [];
-    const normalizations = [];
 
     const items = [
         generateItem({text: 'same'}),
@@ -141,7 +136,7 @@ test('when nodes have exactly the same fields they should not be duplicated', ()
     ];
 
     const query = generateQuery(items);
-    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, normalizations);
+    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
 
     expect(nodes.length).toBe(1);
 });
@@ -176,7 +171,7 @@ test('should filter nodes that are not directly related when searching around a 
 
     const aroundNodeId = 2;
 
-    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, [], aroundNodeId);
+    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, aroundNodeId);
 
     // Nothing should be added, because the new items were not directly related to node id 2
     expect(nodes.length).toBe(2);
@@ -220,7 +215,7 @@ test('should not filter nodes that are directly related when searching around a 
 
     const aroundNodeId = '1';
 
-    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, [], aroundNodeId);
+    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, aroundNodeId);
 
     // 1 node should be added, because the new items were directly related to node id 1
     expect(nodes.length).toBe(3);
@@ -249,7 +244,7 @@ test('should not not create nodes for empty field values', () => {
 
     const query = generateQuery(items);
 
-    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, []);
+    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
 
     expect(nodes.length).toBe(2);
     expect(links.length).toBe(1);
@@ -283,7 +278,7 @@ test('should keep track of item ids, especially when there are multiple lines be
 
     const query = generateQuery(items);
 
-    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, []);
+    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
 
     expect(nodes.length).toBe(2);
     expect(links.length).toBe(1);
@@ -318,8 +313,8 @@ test('should not add the same item id multiple times when function is run twice'
 
     const query = generateQuery(items);
 
-    let result = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, []);
-    result = getNodesAndLinks(result.nodes, result.links, items, fields, query, []);
+    let result = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
+    result = getNodesAndLinks(result.nodes, result.links, items, fields, query);
 
     expect(result.nodes.length).toBe(2);
     expect(result.links.length).toBe(1);
@@ -347,7 +342,7 @@ test('should build links between array values', () => {
 
     const query = generateQuery(items);
 
-    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, []);
+    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
 
     expect(nodes.length).toBe(4);
     expect(links.length).toBe(3);

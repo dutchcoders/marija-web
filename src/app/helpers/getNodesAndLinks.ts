@@ -3,6 +3,8 @@ import abbreviateNodeName from "./abbreviateNodeName";
 import {Node} from "../interfaces/node";
 import {Link} from "../interfaces/link";
 import {Item} from "../interfaces/item";
+import {Search} from "../interfaces/search";
+import {Field} from "../interfaces/field";
 
 function getHash(string) {
     let hash = 0, i, chr;
@@ -24,10 +26,9 @@ export default function getNodesAndLinks(
     previousNodes: Node[],
     previousLinks: Link[],
     items: Item[],
-    fields,
-    query,
-    normalizations,
-    aroundNodeId,
+    fields: Field[],
+    search: Search,
+    aroundNodeId: string,
     deletedNodes: Node[] = []
 ): {
     nodes: Node[],
@@ -49,7 +50,7 @@ export default function getNodesAndLinks(
     const isDeleted = (nodeId: string): boolean =>
         typeof deletedNodes.find(node => node.id === nodeId) !== 'undefined';
 
-    query = query.q;
+    const query: string = search.q;
 
     items.forEach(d => {
         const pathsDone = {};
