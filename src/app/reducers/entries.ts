@@ -603,6 +603,15 @@ export default function entries(state: State = defaultState, action) {
          * When a live datasource is found, we create a search for it.
          */
         case ADD_LIVE_DATASOURCE_SEARCH: {
+            const existing: Search = state.searches.find(search =>
+                search.liveDatasource === action.payload.datasource.id
+            );
+
+            if (typeof existing !== 'undefined') {
+                // It already exists
+                return state;
+            }
+
             const newSearch: Search = {
                 q: action.payload.datasource.name,
                 color: '#0055cc',
