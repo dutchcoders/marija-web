@@ -84,14 +84,18 @@ export default class GraphWorkerClass {
 
         // For live datasources we automatically add all the fields that are present in the items
         if (isLive) {
+            const fieldMap = {};
+            fields.forEach(field => fieldMap[field.path] = true);
+
             payload.items.forEach(item => {
                 forEach(item.fields, (value, key) => {
-                    const existing: Field = fields.find(field => field.path === key);
-
-                    if (typeof existing === 'undefined') {
-                        const field = createField(fields, key, 'string', search.liveDatasource);
-                        fields = fields.concat([field]);
+                    if (fieldMap[key]) {
+                        // Field already exists
+                        return;
                     }
+
+                    const field = createField(fields, key, 'string', search.liveDatasource);
+                    fields = fields.concat([field]);
                 });
             });
         }

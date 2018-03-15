@@ -13,13 +13,12 @@ export default function normalizeLinks(
     const parents = links.filter(link => link.isNormalizationParent);
     let children = links.filter(link => !link.isNormalizationParent);
 
-    const exists = (source, target): boolean => {
-        const link = parents.find(search =>
-            (search.source === source && search.target === target)
-            || (search.source === target && search.target === source)
-        );
+    const parentLinkMap = {};
+    parents.forEach(link => parentLinkMap[link.source + link.target] = true);
 
-        return typeof link !== 'undefined';
+    const exists = (source, target): boolean => {
+        return parentLinkMap[source + target]
+            || parentLinkMap[target + source];
     };
 
     normalizations.forEach((normalization, nIndex) => {
@@ -48,6 +47,7 @@ export default function normalizeLinks(
                         });
 
                         parents.push(parentLink);
+                        parentLinkMap[parentLink.source + parentLink.target] = true;
                     }
                 }
             };

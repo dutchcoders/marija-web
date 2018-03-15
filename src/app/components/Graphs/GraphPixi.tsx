@@ -1013,7 +1013,6 @@ class GraphPixi extends React.PureComponent<Props, State> {
      */
     onMouseDown() {
         const { dispatch, selectingMode } = this.props;
-        const selectedNodes = this.getSelectedNodes();
 
         if (!selectingMode) {
             return;
