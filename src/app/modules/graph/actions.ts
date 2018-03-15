@@ -5,6 +5,7 @@ import {Link} from "../../interfaces/link";
 import {Item} from "../../interfaces/item";
 import {Search} from "../../interfaces/search";
 import {Field} from "../../interfaces/field";
+import {GraphWorkerOutput} from "./graphWorkerClass";
 
 export function deselectNodes(opts) {
     return {
@@ -78,13 +79,14 @@ export function setSelectingMode(enable) {
     };
 }
 
-export function graphWorkerOutput(nodes: Node[], links: Link[], items: Item[], fields: Field[]) {
+export function graphWorkerOutput(output: GraphWorkerOutput) {
     return {
         type: GRAPH_WORKER_OUTPUT,
-        nodes: nodes,
-        links: links,
-        items: items,
-        fields: fields
+        nodes: output.nodes,
+        links: output.links,
+        items: output.items,
+        fields: output.fields,
+        searches: output.searches
     }
 }
 

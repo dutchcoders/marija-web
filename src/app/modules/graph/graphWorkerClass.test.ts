@@ -26,10 +26,10 @@ const getField = (name) => {
     } as Field;
 };
 
-const getSearch = (query, liveDatasource = null) => {
+const getSearch = (query, liveDatasource = null, aroundNodeId = null) => {
     return {
         displayNodes: 500,
-        aroundNodeId: null,
+        aroundNodeId: aroundNodeId,
         q: query,
         liveDatasource: liveDatasource,
         datasources: [],
@@ -186,6 +186,50 @@ test('should not filter secondary components if there is 1 live datasource, and 
             getItem({client: 6, server: 5}, 'query2', 'd'),
         ],
         query: 'query2'
+    };
+
+    graphWorker.onMessage(getEvent(payload));
+});
+
+
+test('should work with "search around" queries', (done) => {
+    const graphWorker = new GraphWorkerClass();
+
+    graphWorker.output.addListener('output', (output: GraphWorkerOutput) => {
+        expect(output.nodes.length).toBe(6);
+
+        done();
+    });
+
+    const payload: GraphWorkerPayload = {
+        ...defaultPayload,
+        searches: [
+            getSearch('query1'),
+            getSearch('node1', null, 'node1')
+        ],
+        prevNodes: [
+            getNode('node1', 'query1', ['a']),
+            getNode('2', 'query1', ['a', 'b']),
+            getNode('3', 'query1', ['b']),
+        ],
+        prevLinks: [
+            getLink('node1', '2'),
+            getLink('3', '2')
+        ],
+        prevItems: [
+            getItem({client: 'node1', server: 2}, 'live', 'a'),
+            getItem({client: 3, server: 2}, 'live', 'b'),
+        ],
+        items: [
+            // These items should all appear as nodes, because they're directly
+            // related to the 'searchAroundId'
+            getItem({client: 'node1', server: 4}, 'node1', 'c'),
+            getItem({client: 'node1', server: 5}, 'node1', 'd'),
+            getItem({client: 'node1', server: 6}, 'node1', 'e'),
+            // This item should not appear in the output:
+            getItem({client: 'unrelated', server: 7}, 'node1', 'f'),
+        ],
+        query: 'node1'
     };
 
     graphWorker.onMessage(getEvent(payload));

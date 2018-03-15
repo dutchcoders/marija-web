@@ -40,6 +40,7 @@ export interface GraphWorkerOutput {
     links: Link[];
     items: Item[];
     fields: Field[];
+    searches: Search[]
 }
 
 export default class GraphWorkerClass {
@@ -59,13 +60,17 @@ export default class GraphWorkerClass {
             return;
         }
 
-        const search: Search = payload.searches.find(loop => loop.q === payload.query && !loop.paused);
+        const searchIndex: number = payload.searches.findIndex(loop => loop.q === payload.query && !loop.paused);
 
-        if (!search) {
+        if (searchIndex === -1) {
             // received items for a query we were not searching for
             return;
         }
 
+        const searches = payload.searches.concat([]);
+        const search = Object.assign({}, searches[searchIndex]);
+
+        searches[searchIndex] = search;
         search.items = search.items.concat(payload.items);
 
         const isLive: boolean = search.liveDatasource !== null;
@@ -146,7 +151,8 @@ export default class GraphWorkerClass {
             nodes: nodes,
             links: links,
             items: payload.prevItems.concat(payload.items),
-            fields: fields
+            fields: fields,
+            searches: searches
         };
 
         this.output.emit('output', output);

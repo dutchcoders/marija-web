@@ -1,5 +1,5 @@
 import {graphWorkerOutput} from "./actions";
-import GraphWorkerClass from './graphWorkerClass';
+import GraphWorkerClass, {GraphWorkerOutput} from './graphWorkerClass';
 
 const graphWorker = new GraphWorkerClass();
 
@@ -7,11 +7,6 @@ onmessage = (event: MessageEvent) => {
     graphWorker.onMessage(event);
 };
 
-graphWorker.output.addListener('output', output => {
-    postMessage(graphWorkerOutput(
-        output.nodes,
-        output.links,
-        output.items,
-        output.fields
-    ));
+graphWorker.output.addListener('output', (output: GraphWorkerOutput) => {
+    postMessage(graphWorkerOutput(output));
 });

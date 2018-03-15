@@ -460,7 +460,8 @@ export default function entries(state: State = defaultState, action) {
             const updates: any = {
                 nodes: action.nodes,
                 links: action.links,
-                items: action.items
+                items: action.items,
+                searches: action.searches
             };
 
             // Fields are only updated by the graph worker if it was a live search
