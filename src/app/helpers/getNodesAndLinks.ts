@@ -54,8 +54,8 @@ export default function getNodesAndLinks(
     const query: string = search.q;
 
     items.forEach(item => {
-        fields.forEach(source => {
-            let sourceValues = fieldLocator(item.fields, source.path);
+        fields.forEach(sourceField => {
+            let sourceValues = fieldLocator(item.fields, sourceField.path);
 
             if (sourceValues === null) {
                 return;
@@ -97,8 +97,8 @@ export default function getNodesAndLinks(
                         existingSource.items.push(item.id);
                     }
 
-                    if (existingSource.fields.indexOf(source.path) === -1){
-                        existingSource.fields.push(source.path);
+                    if (existingSource.fields.indexOf(sourceField.path) === -1){
+                        existingSource.fields.push(sourceField.path);
                     }
 
                     if (existingSource.queries.indexOf(query) === -1) {
@@ -114,8 +114,8 @@ export default function getNodesAndLinks(
                         name: sourceValue,
                         abbreviated: abbreviateNodeName(sourceValue, query, 40),
                         description: '',
-                        icon: source.icon,
-                        fields: [source.path],
+                        icon: sourceField.icon,
+                        fields: [sourceField.path],
                         hash: getHash(sourceValue),
                         normalizationId: null,
                         display: true,
@@ -126,8 +126,8 @@ export default function getNodesAndLinks(
                     };
                 }
 
-                fields.forEach(target => {
-                    let targetValues = fieldLocator(item.fields, target.path);
+                fields.forEach(targetField => {
+                    let targetValues = fieldLocator(item.fields, targetField.path);
                     if (targetValues === null) {
                         return;
                     }
@@ -167,8 +167,8 @@ export default function getNodesAndLinks(
                                 existingTarget.items.push(item.id);
                             }
 
-                            if (existingTarget.fields.indexOf(target.path) === -1){
-                                existingTarget.fields.push(target.path);
+                            if (existingTarget.fields.indexOf(targetField.path) === -1){
+                                existingTarget.fields.push(targetField.path);
                             }
 
                             if (existingTarget.queries.indexOf(query) === -1) {
@@ -184,8 +184,8 @@ export default function getNodesAndLinks(
                                 name: targetValue,
                                 abbreviated: abbreviateNodeName(targetValue, query, 40),
                                 description: '',
-                                icon: target.icon,
-                                fields: [target.path],
+                                icon: targetField.icon,
+                                fields: [targetField.path],
                                 hash: getHash(targetValue),
                                 normalizationId: null,
                                 display: true,
@@ -209,7 +209,7 @@ export default function getNodesAndLinks(
                         }
 
                         const key: string = sourceValue + targetValue;
-                        const oppositeKey = targetValue + sourceValue;
+                        const oppositeKey: string = targetValue + sourceValue;
 
                         // check if link already exists
                         if (linkMap[key]) {
@@ -235,6 +235,7 @@ export default function getNodesAndLinks(
                             return;
                         }
 
+                        // Create new link
                         linkMap[key] = {
                             source: sourceValue,
                             target: targetValue,
