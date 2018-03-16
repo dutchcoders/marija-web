@@ -76,6 +76,8 @@ class GraphPixi extends React.PureComponent<Props, State> {
     linksFromWorker: LinkFromWorker[] = [];
     renderedLinks: PIXI.Graphics = new PIXI.Graphics();
     renderedLinkLabels: PIXI.Container = new PIXI.Container();
+    renderedArrows: PIXI.Container = new PIXI.Container();
+    arrowTexture: PIXI.RenderTexture;
     selection: any;
     renderedSelection: PIXI.Graphics = new PIXI.Graphics();
     renderer: PIXI.WebGLRenderer;
@@ -127,6 +129,25 @@ class GraphPixi extends React.PureComponent<Props, State> {
         this.renderedSince.lastTick = false;
     }
 
+    createArrowTexture() {
+        const width = 20;
+        const height = 20;
+        const sharpness = 10;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = '#ffffff';
+        ctx.moveTo(0, 0);
+        ctx.lineTo(width, sharpness);
+        ctx.lineTo(sharpness, height);
+        ctx.fill();
+
+        this.arrowTexture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
+    }
+
     zoom(fraction: number, newX: number, newY: number) {
         [
             this.renderedNodesContainer,
@@ -134,7 +155,8 @@ class GraphPixi extends React.PureComponent<Props, State> {
             this.renderedSelectedNodes,
             this.renderedLinkLabels,
             this.renderedHighlights,
-            this.renderedNodeLabels
+            this.renderedNodeLabels,
+            this.renderedArrows
         ].forEach(zoomable => {
             zoomable.scale.x = fraction;
             zoomable.scale.y = fraction;
@@ -233,11 +255,23 @@ class GraphPixi extends React.PureComponent<Props, State> {
     renderLinks() {
         this.renderedLinks.clear();
         this.renderedLinkLabels.removeChildren();
+        this.renderedArrows.removeChildren();
 
         this.linksFromWorker.forEach(link => {
             this.renderedLinks.lineStyle(link.thickness, 0xFFFFFF);
             this.renderLink(link);
         });
+    }
+
+    renderArrow(x: number, y: number, angle: number) {
+        const sprite = new PIXI.Sprite(this.arrowTexture);
+        const offset = 15;
+
+        sprite.x = x + Math.cos(angle) * offset;
+        sprite.y = y + Math.sin(angle) * offset;
+        sprite.rotation = angle - .79;
+
+        this.renderedArrows.addChild(sprite);
     }
 
     renderLink(link: LinkFromWorker) {
@@ -259,6 +293,12 @@ class GraphPixi extends React.PureComponent<Props, State> {
                     link.target.x,
                     link.target.y
                 );
+
+                const deltaX = link.source.x - link.target.x;
+                const deltaY = link.source.y - link.target.y;
+                const angle = Math.atan2(deltaY, deltaX);
+
+                this.renderArrow(link.target.x, link.target.y, angle);
             }
         } else {
             // When there are multiple links between 2 nodes, we need to draw arcs
@@ -843,6 +883,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
         this.stage.addChild(this.renderedSelectedNodes);
         this.stage.addChild(this.renderedNodeLabels);
         this.stage.addChild(this.renderedTooltip);
+        this.stage.addChild(this.renderedArrows);
 
         const dragging = d3.drag()
             .filter(() => this.isMoving())
@@ -885,6 +926,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
     componentDidMount() {
         const { zoomEvents } = this.props;
 
+        this.createArrowTexture();
         this.initWorker();
         this.initGraph();
 
