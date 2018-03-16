@@ -5,13 +5,15 @@ import {Node} from "../interfaces/node";
  * queries.
  *
  * @param {Node[][]} components
- * @param {string[]} queries
+ * @param {string[]} validQueries
  * @returns {Node[][]}
  */
-export default function filterComponentsByQueries(components: Node[][], queries: string[] = []) {
+export default function filterComponentsByQueries(components: Node[][], validQueries: string[]) {
     return components.filter(component => {
-        const match = component.find(node =>
-            node.queries.findIndex(query => queries.indexOf(query) !== -1) !== -1
+        const match: Node = component.find(node =>
+            node.queries.findIndex(query =>
+                validQueries.indexOf(query) !== -1
+            ) !== -1
         );
 
         return typeof match !== 'undefined';

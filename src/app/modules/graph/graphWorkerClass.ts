@@ -1,11 +1,10 @@
-import {graphWorkerOutput} from "./actions";
 import removeDeadLinks from '../../helpers/removeDeadLinks';
 import filterComponentsByQueries from '../../helpers/filterComponentsByQueries';
 import getConnectedComponents from '../../helpers/getConnectedComponents';
-import getNodesForDisplay from '../../helpers/markNodesForDisplay';
+import markNodesForDisplay from '../../helpers/markNodesForDisplay';
 import applyVia from '../../helpers/applyVia';
 import getNodesAndLinks from "../../helpers/getNodesAndLinks";
-import getLinksForDisplay from "../../helpers/markLinksForDisplay";
+import markLinksForDisplay from "../../helpers/markLinksForDisplay";
 import normalizeLinks from "../../helpers/normalizeLinks";
 import normalizeNodes from "../../helpers/normalizeNodes";
 import filterBoringComponents from "../../helpers/filterBoringComponents";
@@ -125,23 +124,26 @@ export default class GraphWorkerClass {
                 // need to be linked to nodes from the first query, or a live datasource
                 // If some results are not linked, they will not be displayed as nodes
 
-                const components = getConnectedComponents(result.nodes, result.links);
+                const components: Node[][] = getConnectedComponents(result.nodes, result.links);
 
-                const primaryQuery = normalSearches[0].q;
-                const liveDatasources = payload.searches
+                // The first query of the normal searches is the primary query
+                const primaryQuery: string = normalSearches[0].q;
+                const liveDatasources: string[] = payload.searches
                     .filter(search => search.liveDatasource)
                     .map(search => search.liveDatasource);
 
+                // Every component needs to be linked to either the primary query,
+                // or one of the live datasources
                 const validQueries: string[] = liveDatasources.concat([primaryQuery]);
-                const filtered = filterComponentsByQueries(components, validQueries);
+                const filteredComponents: Node[][] = filterComponentsByQueries(components, validQueries);
 
-                result.nodes = filtered.reduce((prev, current) => prev.concat(current), []);
+                result.nodes = filteredComponents.reduce((prev, current) => prev.concat(current), []);
                 result.links = removeDeadLinks(result.nodes, result.links);
             }
         }
 
-        result.nodes = getNodesForDisplay(result.nodes, payload.searches || []);
-        result.links = getLinksForDisplay(result.nodes, result.links);
+        result.nodes = markNodesForDisplay(result.nodes, payload.searches || []);
+        result.links = markLinksForDisplay(result.nodes, result.links);
 
         const normalizedNodes = normalizeNodes(result.nodes, payload.normalizations);
         const normalizedLinks = normalizeLinks(result.links, payload.normalizations);
