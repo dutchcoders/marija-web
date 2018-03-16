@@ -53,9 +53,9 @@ export default function getNodesAndLinks(
 
     const query: string = search.q;
 
-    items.forEach(d => {
+    items.forEach(item => {
         fields.forEach(source => {
-            let sourceValues = fieldLocator(d.fields, source.path);
+            let sourceValues = fieldLocator(item.fields, source.path);
 
             if (sourceValues === null) {
                 return;
@@ -92,8 +92,8 @@ export default function getNodesAndLinks(
 
                 let n = nodeMap[sourceValue];
                 if (n) {
-                    if (n.items.indexOf(d.id) === -1){
-                        n.items.push(d.id);
+                    if (n.items.indexOf(item.id) === -1){
+                        n.items.push(item.id);
                     }
 
                     if (n.fields.indexOf(source.path) === -1){
@@ -107,8 +107,8 @@ export default function getNodesAndLinks(
                     let n: Node = {
                         id: sourceValue,
                         queries: [query],
-                        items: [d.id],
-                        count: d.count,
+                        items: [item.id],
+                        count: item.count,
                         name: sourceValue,
                         abbreviated: abbreviateNodeName(sourceValue, query, 40),
                         description: '',
@@ -127,7 +127,7 @@ export default function getNodesAndLinks(
                 }
 
                 fields.forEach(target => {
-                    let targetValues = fieldLocator(d.fields, target.path);
+                    let targetValues = fieldLocator(item.fields, target.path);
                     if (targetValues === null) {
                         return;
                     }
@@ -163,8 +163,8 @@ export default function getNodesAndLinks(
 
                         let n = nodeMap[targetValue];
                         if (n) {
-                            if (n.items.indexOf(d.id) === -1){
-                                n.items.push(d.id);
+                            if (n.items.indexOf(item.id) === -1){
+                                n.items.push(item.id);
                             }
 
                             if (n.fields.indexOf(target.path) === -1){
@@ -178,8 +178,8 @@ export default function getNodesAndLinks(
                             let n: Node = {
                                 id: targetValue,
                                 queries: [query],
-                                items: [d.id],
-                                count: d.count,
+                                items: [item.id],
+                                count: item.count,
                                 name: targetValue,
                                 abbreviated: abbreviateNodeName(targetValue, query, 40),
                                 description: '',
@@ -215,9 +215,9 @@ export default function getNodesAndLinks(
                         // check if link already exists
                         if (linkMap[key]) {
                             // Add item to the link if it doesn't exist yet
-                            if (linkMap[key].itemIds.indexOf(d.id) === -1) {
+                            if (linkMap[key].itemIds.indexOf(item.id) === -1) {
                                 linkMap[key] = Object.assign({}, linkMap[key], {
-                                    itemIds: linkMap[key].itemIds.concat([d.id])
+                                    itemIds: linkMap[key].itemIds.concat([item.id])
                                 });
                             }
 
@@ -227,9 +227,9 @@ export default function getNodesAndLinks(
                         // check if opposite link already exists
                         if (linkMap[oppositeKey]) {
                             // Add item to the link if it doesn't exist yet
-                            if (linkMap[oppositeKey].itemIds.indexOf(d.id) === -1) {
+                            if (linkMap[oppositeKey].itemIds.indexOf(item.id) === -1) {
                                 linkMap[oppositeKey] = Object.assign({}, linkMap[oppositeKey], {
-                                    itemIds: linkMap[oppositeKey].itemIds.concat([d.id])
+                                    itemIds: linkMap[oppositeKey].itemIds.concat([item.id])
                                 });
                             }
 
@@ -247,7 +247,7 @@ export default function getNodesAndLinks(
                             isNormalizationParent: false,
                             viaId: null,
                             replacedNode: null,
-                            itemIds: [d.id]
+                            itemIds: [item.id]
                         };
                     });
                 });
