@@ -226,8 +226,9 @@ export default function entries(state: State = defaultState, action) {
         }
         case VIA_ADD: {
             const newVia: Via = {
-                endpoints: action.via.endpoints,
-                label: action.via.label,
+                from: action.via.from,
+                to: action.via.to,
+                via: action.via.via,
                 id: uniqueId()
             };
 

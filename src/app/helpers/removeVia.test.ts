@@ -24,8 +24,9 @@ const generateLink = (source: string, target: string, label?: string, viaId?: st
 test('should remove labeled links',  () => {
     const remove: Via = {
         id: '1',
-        endpoints: ['client', 'server'],
-        label: 'port'
+        from: 'client',
+        to: 'server',
+        via: 'port',
     };
 
     const inputNodes: Node[] = [

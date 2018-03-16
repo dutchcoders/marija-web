@@ -35,7 +35,7 @@ export interface Link {
 
     /**
      * When the link is created because of a 'via configuration' (meaning it
-     * has a label), we also need to store the id of the via configuration. This
+     * has a via), we also need to store the id of the via configuration. This
      * is useful if we later delete the via config, because we can then rebuild
      * the original links (without labels).
      */

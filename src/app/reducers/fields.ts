@@ -3,15 +3,18 @@ import { Socket } from '../utils/index';
 import sortFields from "../helpers/sortFields";
 import {Field} from "../interfaces/field";
 import {uniqueId} from 'lodash';
+import {DefaultConfigs} from "../interfaces/defaultConfigs";
 
 interface State {
     availableFields: Field[];
     fieldsFetching: boolean;
+    defaultConfigs: DefaultConfigs;
 }
 
 const defaultState: State = {
     availableFields: [],
-    fieldsFetching: false
+    fieldsFetching: false,
+    defaultConfigs: {}
 };
 
 export default function fields(state: State = defaultState, action) {
@@ -37,9 +40,21 @@ export default function fields(state: State = defaultState, action) {
 
             fields = sortFields(fields);
 
+            let defaultConfigs = state.defaultConfigs;
+
+            if (action.payload.defaultFields || action.payload.defaultVia) {
+                defaultConfigs = Object.assign({}, state.defaultConfigs, {
+                    [action.payload.datasource]: {
+                        fields: action.payload.defaultFields,
+                        via: action.payload.defaultVia,
+                    }
+                });
+            }
+
             return Object.assign({}, state, {
                 availableFields: fields,
-                fieldsFetching: false
+                fieldsFetching: false,
+                defaultConfigs: defaultConfigs
             });
         }
 

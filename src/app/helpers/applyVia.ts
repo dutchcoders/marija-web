@@ -58,7 +58,7 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
     via.forEach(viaItem => {
         const step1Nodes: Node[] = nodes.filter(node =>
             node.fields.length === 1
-            && node.fields[0] === viaItem.endpoints[0]
+            && node.fields[0] === viaItem.from
         );
 
         step1Nodes.forEach(step1Node => {
@@ -66,7 +66,7 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
 
             const step2Nodes: Node[] = connected.filter(search =>
                 search.fields.length === 1
-                && search.fields[0] === viaItem.label
+                && search.fields[0] === viaItem.via
             );
 
             step2Nodes.forEach(step2Node => {
@@ -75,7 +75,7 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
                 const step3Nodes = connected.filter(search =>
                     search.fields.length === 1
                     && search.id !== step1Node.id
-                    && search.fields[0] === viaItem.endpoints[1]
+                    && search.fields[0] === viaItem.to
                 );
 
                 step3Nodes.forEach(step3Node => {

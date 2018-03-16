@@ -132,7 +132,17 @@ export const Socket: SocketInterface = {
                 break;
 
             case FIELDS_RECEIVE:
-                dispatch(receiveFields(message.fields, message.datasource));
+                console.log(message);
+                const defaults = message.default;
+                let defaultFields;
+                let defaultVia;
+
+                if (defaults) {
+                    defaultFields = defaults.fields;
+                    defaultVia = defaults.via;
+                }
+
+                dispatch(receiveFields(message.fields, message.datasource, defaultFields, defaultVia));
                 break;
 
             case INITIAL_STATE_RECEIVE:

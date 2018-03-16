@@ -9,6 +9,7 @@ import {exportData, importData} from "../../modules/import/actions";
 import {Normalization} from "../../interfaces/normalization";
 import {Datasource} from "../../interfaces/datasource";
 import Fields from './fields/fields';
+import {Via} from "../../interfaces/via";
 
 interface State {
     normalization_error: string;
@@ -22,7 +23,7 @@ interface Props {
     dispatch: Dispatch<any>;
     fields: any;
     normalizations: Normalization[];
-    via: any;
+    via: Via[];
     datasources: Datasource[];
     fieldsFetching: boolean;
 }
@@ -80,41 +81,51 @@ class ConfigurationView extends React.Component<Props, State> {
     }
 
     /**
-     * Check if the label isn't also one of the endpoints, that wouldnt work.
+     * Check if the via isn't also one of the endpoints, that wouldnt work.
      *
      * @param via
      * @returns {boolean}
      */
-    checkViaUniqueFields(via) {
-        return via.endpoints.indexOf(via.label) === -1;
+    checkViaUniqueFields(via: Via): boolean {
+        return uniq([via.from, via.via, via.to]).length === 3;
     }
 
     /**
      * Check if we're not trying to configure a from/to field which is already
-     * used as a label. Returns an array of invalid fields, or an empty array
+     * used as a via. Returns an array of invalid fields, or an empty array
      * when everything is okay.
      *
      * @param viaData
      * @returns {string[]}
      */
-    getInvalidViaFields(viaData) {
+    getInvalidViaFields(viaData: Via): string[] {
         const { via } = this.props;
 
         if (!via) {
             return;
         }
 
-        const allLabels = via.map(viaItem => viaItem.label);
+        const allLabels = via.map(viaItem => viaItem.via);
+        const invalid: string[] = []
 
-        return  viaData.endpoints.filter(endpoint => allLabels.indexOf(endpoint) !== -1);
+        if (allLabels.indexOf(viaData.from) !== -1) {
+            invalid.push(viaData.from);
+        }
+
+        if (allLabels.indexOf(viaData.to) !== -1) {
+            invalid.push(viaData.to);
+        }
+
+        return invalid;
     }
 
-    checkViaExists(viaData) {
+    checkViaExists(viaData: Via): boolean {
         const { via } = this.props;
 
         const existingVia = via.find(viaItem =>
-            viaItem.label === viaData.label
-            && isEqual(concat([], viaItem.endpoints).sort(), concat([], viaData.endpoints).sort())
+            viaItem.via === viaData.via
+            && viaItem.from === viaData.from
+            && viaItem.to === viaData.to
         );
 
         return typeof existingVia !== 'undefined';
@@ -124,9 +135,10 @@ class ConfigurationView extends React.Component<Props, State> {
         const { selectedFrom, selectedVia, selectedTo } = this.state;
         const { dispatch } = this.props;
 
-        const viaData = {
-            endpoints: [selectedFrom, selectedTo],
-            label: selectedVia
+        const viaData: Via = {
+            from: selectedFrom,
+            to: selectedTo,
+            via: selectedVia
         };
 
         if (!this.checkViaUniqueFields(viaData)) {
@@ -255,13 +267,13 @@ class ConfigurationView extends React.Component<Props, State> {
         let existing;
 
         if (via && via.length > 0) {
-            const viaItems = map(via, (viaItem: any) => {
+            const viaItems = map(via, (viaItem: Via) => {
                 return (
                     <li key={JSON.stringify(viaItem)}>
                         <ol>
-                            <li>{viaItem.endpoints[0]}</li>
-                            <li>{viaItem.label}</li>
-                            <li>{viaItem.endpoints[1]}</li>
+                            <li>{viaItem.from}</li>
+                            <li>{viaItem.via}</li>
+                            <li>{viaItem.to}</li>
                         </ol>
                         <Icon onClick={() => this.handleDeleteVia(viaItem)} name="ion-ios-trash-outline"/>
                     </li>

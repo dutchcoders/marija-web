@@ -1,14 +1,11 @@
 export interface Via {
-    id: string;
+    id?: string;
 
     /**
-     * The path of the field that will be used as a link label.
+     * The path of the field that will be used as a link via.
      */
-    label: string;
+    via: string;
 
-    /**
-     * The paths of the 2 fields that are the link endpoints (source and target).
-     * Order does not matter.
-     */
-    endpoints: string[];
+    from: string;
+    to: string;
 }

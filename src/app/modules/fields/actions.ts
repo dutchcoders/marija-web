@@ -2,6 +2,8 @@ import { FIELDS_RECEIVE, FIELDS_REQUEST, FIELDS_CLEAR } from './index';
 import {Datasource} from "../../interfaces/datasource";
 import {Socket} from "../../utils";
 import {uniqueId} from 'lodash';
+import {Field} from "../../interfaces/field";
+import {Via} from "../../interfaces/via";
 
 export function clearFields(datasource){
     return {
@@ -12,12 +14,14 @@ export function clearFields(datasource){
     };
 }
 
-export function receiveFields(fields, datasource) {
+export function receiveFields(fields: Field[], datasource: string, defaultFields: Field[], defaultVia: Via[]) {
     return {
         type: FIELDS_RECEIVE,
         payload: {
             fields: fields,
-            datasource: datasource
+            datasource: datasource,
+            defaultFields: defaultFields,
+            defaultVia: defaultVia
         }
     };
 }
