@@ -136,11 +136,8 @@ export default function getNodesAndLinks(
                         targetValues = [targetValues];
                     }
 
-                    // todo(nl5887): issue with normalizing is if we want to use it as name as well.
-                    // for example we don't want to have the first name only as name.
-                    //
                     // we need to keep track of the fields the value is in as well.
-                    targetValues.forEach((targetValue, i) => {
+                    targetValues.forEach(targetValue => {
                         switch (typeof targetValue) {
                             case "boolean":
                                 targetValue = (targetValue?"true":"false");
@@ -208,30 +205,29 @@ export default function getNodesAndLinks(
                             return;
                         }
 
-                        const key: string = sourceValue + targetValue;
-                        const oppositeKey: string = targetValue + sourceValue;
+                        const linkExists = (key: string): boolean => {
+                            if (!linkMap[key]) {
+                                // Link does not exist
+                                return false;
+                            }
 
-                        // check if link already exists
-                        if (linkMap[key]) {
-                            // Add item to the link if it doesn't exist yet
+                            // If the link already exists, save the item id to the
+                            // existing link, so we can keep track of which items
+                            // are associated with which links. We can use that to
+                            // determine line thickness.
                             if (linkMap[key].itemIds.indexOf(item.id) === -1) {
                                 linkMap[key] = Object.assign({}, linkMap[key], {
                                     itemIds: linkMap[key].itemIds.concat([item.id])
                                 });
                             }
 
-                            return;
-                        }
+                            return true;
+                        };
 
-                        // check if opposite link already exists
-                        if (linkMap[oppositeKey]) {
-                            // Add item to the link if it doesn't exist yet
-                            if (linkMap[oppositeKey].itemIds.indexOf(item.id) === -1) {
-                                linkMap[oppositeKey] = Object.assign({}, linkMap[oppositeKey], {
-                                    itemIds: linkMap[oppositeKey].itemIds.concat([item.id])
-                                });
-                            }
+                        const key: string = sourceValue + targetValue;
+                        const oppositeKey: string = targetValue + sourceValue;
 
+                        if (linkExists(key) || linkExists(oppositeKey)) {
                             return;
                         }
 
@@ -255,6 +251,7 @@ export default function getNodesAndLinks(
         });
     });
 
+    // Turn maps into plain arrays
     const nodes: Node[] = Object.keys(nodeMap).map(key => nodeMap[key]);
     const links: Link[] = Object.keys(linkMap).map(key => linkMap[key]);
 
