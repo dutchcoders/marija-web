@@ -48,14 +48,12 @@ export default function getNodesAndLinks(
     const linkMap: LinkMap = {};
     previousLinks.forEach(link => linkMap[link.source + link.target] = link);
 
-    const isDeleted = (nodeId: string): boolean =>
-        typeof deletedNodes.find(node => node.id === nodeId) !== 'undefined';
+    const deletedMap = {};
+    deletedNodes.forEach(node => deletedMap[node.id] = true);
 
     const query: string = search.q;
 
     items.forEach(d => {
-        const pathsDone = {};
-
         fields.forEach(source => {
             let sourceValues = fieldLocator(d.fields, source.path);
 
@@ -84,7 +82,7 @@ export default function getNodesAndLinks(
                     return;
                 }
 
-                if (isDeleted(sourceValue)) {
+                if (deletedMap[sourceValue]) {
                     return;
                 }
 
@@ -159,15 +157,7 @@ export default function getNodesAndLinks(
                             return;
                         }
 
-                        if (pathsDone[targetValue + i + sourceValue]
-                            || pathsDone[sourceValue + targetValue + i]
-                            || targetValue === sourceValue) {
-                            // return;
-                        } else {
-                            pathsDone[sourceValue + targetValue + i] = true;
-                        }
-
-                        if (isDeleted(targetValue)) {
+                        if (deletedMap[targetValue]) {
                             return;
                         }
 
