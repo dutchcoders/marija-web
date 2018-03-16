@@ -168,7 +168,6 @@ class Query extends React.Component<Props, State> {
                     mouseLeaveDelay={0}
                     arrowContent={<div className="rc-tooltip-arrow-inner" />}>
                     <Icon
-                        onClick={() => this.pause() }
                         name="ion-cube"
                     />
                 </Tooltip>

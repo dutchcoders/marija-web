@@ -166,6 +166,10 @@ i.settings {
         &.disabled {
             opacity: .5;
         }
+
+        &.ion-cube {
+            cursor: default;
+        }
     }
 
     .count {
