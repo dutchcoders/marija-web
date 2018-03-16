@@ -615,7 +615,7 @@ export default function entries(state: State = defaultState, action) {
 
             const newSearch: Search = {
                 q: action.payload.datasource.name,
-                color: '#0055cc',
+                color: getQueryColor(state.searches),
                 total: 0,
                 displayNodes: 500,
                 items: [],
