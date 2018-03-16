@@ -90,21 +90,23 @@ export default function getNodesAndLinks(
                     return;
                 }
 
-                let n = nodeMap[sourceValue];
-                if (n) {
-                    if (n.items.indexOf(item.id) === -1){
-                        n.items.push(item.id);
+                const existingSource: Node = nodeMap[sourceValue];
+
+                if (existingSource) {
+                    if (existingSource.items.indexOf(item.id) === -1){
+                        existingSource.items.push(item.id);
                     }
 
-                    if (n.fields.indexOf(source.path) === -1){
-                        n.fields.push(source.path);
+                    if (existingSource.fields.indexOf(source.path) === -1){
+                        existingSource.fields.push(source.path);
                     }
 
-                    if (n.queries.indexOf(query) === -1) {
-                        n.queries.push(query);
+                    if (existingSource.queries.indexOf(query) === -1) {
+                        existingSource.queries.push(query);
                     }
                 } else {
-                    let n: Node = {
+                    // Create new node
+                    nodeMap[sourceValue] = {
                         id: sourceValue,
                         queries: [query],
                         items: [item.id],
@@ -122,8 +124,6 @@ export default function getNodesAndLinks(
                         displayTooltip: false,
                         isNormalizationParent: false
                     };
-
-                    nodeMap[n.id] = n;
                 }
 
                 fields.forEach(target => {
@@ -161,21 +161,22 @@ export default function getNodesAndLinks(
                             return;
                         }
 
-                        let n = nodeMap[targetValue];
-                        if (n) {
-                            if (n.items.indexOf(item.id) === -1){
-                                n.items.push(item.id);
+                        const existingTarget: Node = nodeMap[targetValue];
+                        if (existingTarget) {
+                            if (existingTarget.items.indexOf(item.id) === -1){
+                                existingTarget.items.push(item.id);
                             }
 
-                            if (n.fields.indexOf(target.path) === -1){
-                                n.fields.push(target.path);
+                            if (existingTarget.fields.indexOf(target.path) === -1){
+                                existingTarget.fields.push(target.path);
                             }
 
-                            if (n.queries.indexOf(query) === -1) {
-                                n.queries.push(query);
+                            if (existingTarget.queries.indexOf(query) === -1) {
+                                existingTarget.queries.push(query);
                             }
                         } else {
-                            let n: Node = {
+                            // Create new node
+                            nodeMap[targetValue] = {
                                 id: targetValue,
                                 queries: [query],
                                 items: [item.id],
@@ -193,8 +194,6 @@ export default function getNodesAndLinks(
                                 displayTooltip: false,
                                 isNormalizationParent: false
                             };
-
-                            nodeMap[n.id] = n;
                         }
 
                         if (sourceValues.length > 1) {
