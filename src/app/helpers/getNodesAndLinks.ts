@@ -22,6 +22,14 @@ function getHash(string) {
     return hash;
 }
 
+interface NodeMap {
+    [id: string]: Node;
+}
+
+interface LinkMap {
+    [sourceTarget: string]: Link
+}
+
 export default function getNodesAndLinks(
     previousNodes: Node[],
     previousLinks: Link[],
@@ -34,18 +42,11 @@ export default function getNodesAndLinks(
     nodes: Node[],
     links: Link[]
 } {
-    let nodes: Node[] = previousNodes.concat([]);
-    let links: Link[] = previousLinks.concat([]);
+    const nodeMap: NodeMap = {};
+    previousNodes.forEach(node => nodeMap[node.id] = node);
 
-    let nodeCache = {};
-    for (let node of nodes) {
-        nodeCache[node.id] = node;
-    }
-
-    let linkCache = {};
-    for (let link of links) {
-        linkCache[link.source + link.target] = link;
-    }
+    const linkMap: LinkMap = {};
+    previousLinks.forEach(link => linkMap[link.source + link.target] = link);
 
     const isDeleted = (nodeId: string): boolean =>
         typeof deletedNodes.find(node => node.id === nodeId) !== 'undefined';
@@ -91,7 +92,7 @@ export default function getNodesAndLinks(
                     return;
                 }
 
-                let n = nodeCache[sourceValue];
+                let n = nodeMap[sourceValue];
                 if (n) {
                     if (n.items.indexOf(d.id) === -1){
                         n.items.push(d.id);
@@ -124,8 +125,7 @@ export default function getNodesAndLinks(
                         isNormalizationParent: false
                     };
 
-                    nodeCache[n.id] = n;
-                    nodes.push(n);
+                    nodeMap[n.id] = n;
                 }
 
                 fields.forEach(target => {
@@ -171,7 +171,7 @@ export default function getNodesAndLinks(
                             return;
                         }
 
-                        let n = nodeCache[targetValue];
+                        let n = nodeMap[targetValue];
                         if (n) {
                             if (n.items.indexOf(d.id) === -1){
                                 n.items.push(d.id);
@@ -204,8 +204,7 @@ export default function getNodesAndLinks(
                                 isNormalizationParent: false
                             };
 
-                            nodeCache[n.id] = n;
-                            nodes.push(n);
+                            nodeMap[n.id] = n;
                         }
 
                         if (sourceValues.length > 1) {
@@ -220,42 +219,34 @@ export default function getNodesAndLinks(
                             return;
                         }
 
-                        let linkCacheRef = sourceValue + targetValue;
-                        let oppositeLinkCacheRef = targetValue + sourceValue;
+                        const key: string = sourceValue + targetValue;
+                        const oppositeKey = targetValue + sourceValue;
 
                         // check if link already exists
-                        if (linkCache[sourceValue + targetValue]) {
-                            const index: number = links.findIndex(search =>
-                                search.source === sourceValue && search.target === targetValue
-                            );
-
-                            // Add the item id to the link
-                            if (links[index].itemIds.indexOf(d.id) === -1) {
-                                links[index] = Object.assign({}, links[index], {
-                                    itemIds: links[index].itemIds.concat([d.id])
+                        if (linkMap[key]) {
+                            // Add item to the link if it doesn't exist yet
+                            if (linkMap[key].itemIds.indexOf(d.id) === -1) {
+                                linkMap[key] = Object.assign({}, linkMap[key], {
+                                    itemIds: linkMap[key].itemIds.concat([d.id])
                                 });
                             }
 
                             return;
                         }
 
-                        // check if link already exists (opposite)
-                        if (linkCache[targetValue + sourceValue]) {
-                            const index: number = links.findIndex(search =>
-                                search.source === targetValue && search.target === sourceValue
-                            );
-
-                            // Add the item id to the link
-                            if (links[index].itemIds.indexOf(d.id) === -1) {
-                                links[index] = Object.assign({}, links[index], {
-                                    itemIds: links[index].itemIds.concat([d.id])
+                        // check if opposite link already exists
+                        if (linkMap[oppositeKey]) {
+                            // Add item to the link if it doesn't exist yet
+                            if (linkMap[oppositeKey].itemIds.indexOf(d.id) === -1) {
+                                linkMap[oppositeKey] = Object.assign({}, linkMap[oppositeKey], {
+                                    itemIds: linkMap[oppositeKey].itemIds.concat([d.id])
                                 });
                             }
 
                             return;
                         }
 
-                        const link: Link = {
+                        linkMap[key] = {
                             source: sourceValue,
                             target: targetValue,
                             color: '#ccc',
@@ -268,17 +259,17 @@ export default function getNodesAndLinks(
                             replacedNode: null,
                             itemIds: [d.id]
                         };
-
-                        links.push(link);
-                        linkCache[linkCacheRef] = link;
                     });
                 });
             });
         });
     });
 
+    const nodes: Node[] = Object.keys(nodeMap).map(key => nodeMap[key]);
+    const links: Link[] = Object.keys(linkMap).map(key => linkMap[key]);
+
     return {
-        nodes,
-        links
+        nodes: nodes,
+        links: links
     };
 }
