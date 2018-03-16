@@ -159,6 +159,22 @@ class Query extends React.Component<Props, State> {
 
         let actions = [];
 
+        if (!search.liveDatasource) {
+            actions.push(
+                <Tooltip
+                    key="datasources"
+                    overlay={search.datasources.join(', ')}
+                    placement="bottom"
+                    mouseLeaveDelay={0}
+                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                    <Icon
+                        onClick={() => this.pause() }
+                        name="ion-cube"
+                    />
+                </Tooltip>
+            );
+        }
+
         if (!search.completed && !search.paused && !search.liveDatasource) {
             actions.push(
                 <Tooltip
