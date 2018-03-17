@@ -83,20 +83,7 @@ export default class GraphWorkerClass {
 
         // For live datasources we automatically add all the fields that are present in the items
         if (isLive) {
-            const fieldMap = {};
-            fields.forEach(field => fieldMap[field.path] = true);
-
-            payload.items.forEach(item => {
-                forEach(item.fields, (value, key) => {
-                    if (fieldMap[key]) {
-                        // Field already exists
-                        return;
-                    }
-
-                    const field = createField(fields, key, 'string', search.liveDatasource);
-                    fields = fields.concat([field]);
-                });
-            });
+            fields = GraphWorkerClass.createFieldsFromData(fields, payload.items, search.liveDatasource);
         }
 
         // update nodes and links
@@ -112,34 +99,17 @@ export default class GraphWorkerClass {
 
         // For live searches we display everything, we don't filter boring components etc.
         if (!isLive) {
-            const components = getConnectedComponents(result.nodes, result.links);
-            const filtered = filterBoringComponents(components);
-            result.nodes = filtered.reduce((prev, current) => prev.concat(current), []);
+            result.nodes = GraphWorkerClass.filterBoringNodes(result.nodes, result.links);
             result.links = removeDeadLinks(result.nodes, result.links);
 
-            const normalSearches = payload.searches.filter(search => !search.liveDatasource);
+            const secondaryFilterResult = GraphWorkerClass.filterSecondaryQueries(
+                result.nodes,
+                result.links,
+                payload.searches
+            );
 
-            if (normalSearches.length > 1) {
-                // If there is more than 1 query, all nodes for subsequent queries
-                // need to be linked to nodes from the first query, or a live datasource
-                // If some results are not linked, they will not be displayed as nodes
-
-                const components: Node[][] = getConnectedComponents(result.nodes, result.links);
-
-                // The first query of the normal searches is the primary query
-                const primaryQuery: string = normalSearches[0].q;
-                const liveDatasources: string[] = payload.searches
-                    .filter(search => search.liveDatasource)
-                    .map(search => search.liveDatasource);
-
-                // Every component needs to be linked to either the primary query,
-                // or one of the live datasources
-                const validQueries: string[] = liveDatasources.concat([primaryQuery]);
-                const filteredComponents: Node[][] = filterComponentsByQueries(components, validQueries);
-
-                result.nodes = filteredComponents.reduce((prev, current) => prev.concat(current), []);
-                result.links = removeDeadLinks(result.nodes, result.links);
-            }
+            result.nodes = secondaryFilterResult.nodes;
+            result.links = secondaryFilterResult.links;
         }
 
         result.nodes = markNodesForDisplay(result.nodes, payload.searches || []);
@@ -162,5 +132,94 @@ export default class GraphWorkerClass {
         };
 
         this.output.emit('output', output);
+    }
+
+    /**
+     * Returns only the nodes that are in connected components that contain
+     * more than 1 item.
+     *
+     * @param {Node[]} nodes
+     * @param {Link[]} links
+     * @returns {Node[]}
+     */
+    private static filterBoringNodes(nodes: Node[], links: Link[]): Node[] {
+        const components = getConnectedComponents(nodes, links);
+        const filtered = filterBoringComponents(components);
+
+        return filtered.reduce((prev, current) => prev.concat(current), []);
+    }
+
+    /**
+     * Returns only nodes that are related to the primary (first) query. Nodes
+     * that are results for a live datasource are an exception, those are never
+     * filtered.
+     *
+     * @param {Node[]} nodes
+     * @param {Link[]} links
+     * @param {Search[]} searches
+     * @returns {{nodes: Node[]; links: Link[]}}
+     */
+    private static filterSecondaryQueries(nodes: Node[], links: Link[], searches: Search[]): { nodes: Node[], links: Link[]} {
+        const normalSearches = searches.filter(search => !search.liveDatasource);
+
+        if (normalSearches.length === 0) {
+            return {
+                nodes: nodes,
+                links: links
+            };
+        }
+
+        // If there is more than 1 query, all nodes for subsequent queries
+        // need to be linked to nodes from the first query, or a live datasource
+        // If some results are not linked, they will not be displayed as nodes
+
+        const components: Node[][] = getConnectedComponents(nodes, links);
+
+        // The first query of the normal searches is the primary query
+        const primaryQuery: string = normalSearches[0].q;
+        const liveDatasources: string[] = searches
+            .filter(search => search.liveDatasource)
+            .map(search => search.liveDatasource);
+
+        // Every component needs to be linked to either the primary query,
+        // or one of the live datasources
+        const validQueries: string[] = liveDatasources.concat([primaryQuery]);
+        const filteredComponents: Node[][] = filterComponentsByQueries(components, validQueries);
+
+        const filteredNodes = filteredComponents.reduce((prev, current) => prev.concat(current), []);
+        const filteredLinks = removeDeadLinks(filteredNodes, links);
+
+        return {
+            nodes: filteredNodes,
+            links: filteredLinks
+        };
+    }
+
+    /**
+     * Automatically create fields based on all the data that is present in the
+     * items.
+     *
+     * @param {Field[]} fields
+     * @param {Item[]} items
+     * @param {string} datasource
+     * @returns {Field[]}
+     */
+    private static createFieldsFromData(fields: Field[], items: Item[], datasource: string): Field[] {
+        const fieldMap = {};
+        fields.forEach(field => fieldMap[field.path] = true);
+
+        items.forEach(item => {
+            forEach(item.fields, (value, key) => {
+                if (fieldMap[key]) {
+                    // Field already exists
+                    return;
+                }
+
+                const field = createField(fields, key, 'string', datasource);
+                fields = fields.concat([field]);
+            });
+        });
+
+        return fields;
     }
 }
