@@ -1,10 +1,10 @@
 import removeNodesAndLinks from './removeNodesAndLinks';
 import { uniqueId } from 'lodash';
 
-const generateNode = (name, queries) => {
+const generateNode = (name, searchIds) => {
     return {
         id: uniqueId(),
-        queries: queries,
+        searchIds: searchIds,
         name: 'test' + uniqueId(),
         description: 'vfnjdsvnfds',
         icon: 'a',
@@ -19,7 +19,7 @@ const generateLink = (source, target) => {
         color: '#ccc',
         source: source,
         target: target,
-        queries: []
+        searchIds: []
     };
 };
 

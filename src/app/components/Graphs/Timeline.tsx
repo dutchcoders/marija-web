@@ -182,9 +182,9 @@ class Timeline extends React.Component<Props, State> {
             return;
         }
 
-        const queries: string[] = items.reduce((previous, item: Item) => {
-            if (previous.indexOf(item.query) === -1) {
-                return previous.concat([item.query]);
+        const searchIds: string[] = items.reduce((previous, item: Item) => {
+            if (previous.indexOf(item.searchId) === -1) {
+                return previous.concat([item.searchId]);
             }
 
             return previous;
@@ -195,10 +195,10 @@ class Timeline extends React.Component<Props, State> {
                 name: period
             };
 
-            queries.forEach(query => {
-                const nodes: Node[] = groupedNodes[period].filter(node => node.queries.indexOf(query) !== -1);
+            searchIds.forEach(searchId => {
+                const nodes: Node[] = groupedNodes[period].filter(node => node.searchIds.indexOf(searchId) !== -1);
 
-                data[query] = nodes.length
+                data[searchId] = nodes.length
             });
 
             return data;
@@ -218,15 +218,15 @@ class Timeline extends React.Component<Props, State> {
                     cursor={{fill: 'transparent'}}
                     formatter={value => value + ' nodes'}
                 />
-                {queries.map(query =>
+                {searchIds.map(searchId =>
                     <Bar
-                        key={query}
-                        dataKey={query}
+                        key={searchId}
+                        dataKey={searchId}
                         onMouseEnter={this.mouseEnterBar.bind(this)}
                         onMouseLeave={this.mouseLeaveBar.bind(this)}
                         onMouseDown={this.mouseDownBar.bind(this)}
                         stackId="a"
-                        fill={this.getQueryColor(query)}
+                        fill={this.getSearchColor(searchId)}
                     />
                 )}
             </BarChart>
@@ -256,10 +256,10 @@ class Timeline extends React.Component<Props, State> {
         dispatch(nodesSelect(related));
     }
 
-    getQueryColor(query: string): string {
+    getSearchColor(searchId: string): string {
         const { searches } = this.props;
 
-        const search = searches.find(searchLoop => searchLoop.q === query);
+        const search = searches.find(searchLoop => searchLoop.searchId === searchId);
 
         return search.color;
     }
@@ -301,7 +301,7 @@ const select = (state, ownProps) => {
         ...ownProps,
         availableFields: state.fields.availableFields,
         nodes: getNodesForDisplay(state),
-        queries: state.entries.queries,
+        queries: state.entries.searchIds,
         fields: state.entries.fields,
         normalizations: state.entries.normalizations,
         date_fields: state.entries.date_fields,

@@ -112,7 +112,7 @@ class SearchBox extends React.Component<Props, State> {
 
         search.color = color.hex;
 
-        dispatch(editSearch(search.q, {
+        dispatch(editSearch(search.searchId, {
             color: color.hex
         }));
 
@@ -206,13 +206,13 @@ class SearchBox extends React.Component<Props, State> {
         const userQueries = searches
             .filter(search => search.aroundNodeId === null)
             .map(search =>
-                <Query search={search} key={search.q} nodes={nodes} handleEdit={() => this.handleEditSearch(search)}/>
+                <Query search={search} key={search.searchId} nodes={nodes} handleEdit={() => this.handleEditSearch(search)}/>
             );
 
         const searchAroundQueries = searches
             .filter(search => search.aroundNodeId !== null)
             .map(search =>
-                <Query search={search} key={search.q} nodes={nodes} handleEdit={() => this.handleEditSearch(search)}/>
+                <Query search={search} key={search.searchId} nodes={nodes} handleEdit={() => this.handleEditSearch(search)}/>
             );
 
         const searchAroundLoading = searches

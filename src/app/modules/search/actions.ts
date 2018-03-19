@@ -1,5 +1,5 @@
 import { SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_DELETE, SEARCH_EDIT } from './index';
-import {SEARCH_FIELDS_UPDATE} from "./constants";
+import {SEARCH_FIELDS_UPDATE, LIVE_RECEIVE} from "./constants";
 import {Node} from "../../interfaces/node";
 import {Search} from "../../interfaces/search";
 import {Item} from "../../interfaces/item";
@@ -40,32 +40,60 @@ export function searchAround(node: Node) {
     };
 }
 
-export function searchReceive(items: Item[], query: string) {
+function getGraphWorkerPayload(state, items: Item[], searchId: string): GraphWorkerPayload {
+    return {
+        items: items,
+        searchId: searchId,
+        prevNodes: state.entries.nodes,
+        prevLinks: state.entries.links,
+        prevItems: state.entries.items,
+        fields: state.entries.fields,
+        normalizations: state.entries.normalizations,
+        searches: state.entries.searches,
+        deletedNodes: state.entries.deletedNodes,
+        via: state.entries.via,
+        receivedAt: Date.now(),
+        sortType: state.entries.sortType,
+        sortColumn: state.entries.sortColumn
+    };
+}
+
+export function searchReceive(items: Item[], requestId: string) {
     return (dispatch, getState) => {
         const state = getState();
 
-        const payload: GraphWorkerPayload = {
-            items: items,
-            query: query,
-            prevNodes: state.entries.nodes,
-            prevLinks: state.entries.links,
-            prevItems: state.entries.items,
-            fields: state.entries.fields,
-            normalizations: state.entries.normalizations,
-            searches: state.entries.searches,
-            deletedNodes: state.entries.deletedNodes,
-            via: state.entries.via,
-            receivedAt: Date.now(),
-            sortType: state.entries.sortType,
-            sortColumn: state.entries.sortColumn
-        };
+        const search: Search = state.entries.searches.find((search: Search) =>
+            search.requestId === requestId
+        );
+
+        if (!search) {
+            // received items for a query we were not searching for
+            return;
+        }
 
         dispatch({
             type: SEARCH_RECEIVE,
             meta: {
                 WebWorker: true
             },
-            payload: payload
+            payload: getGraphWorkerPayload(state, items, search.searchId)
+        });
+    }
+}
+
+export function liveReceive(items: Item[], datasourceId: string) {
+    return (dispatch, getState) => {
+        const state = getState();
+
+        // Search id is the same as the datasource id for live_receive
+        const searchId: string = datasourceId;
+
+        dispatch({
+            type: LIVE_RECEIVE,
+            meta: {
+                WebWorker: true
+            },
+            payload: getGraphWorkerPayload(state, items, searchId)
         });
     }
 }
@@ -80,11 +108,11 @@ export function deleteSearch(search: Search) {
     };
 }
 
-export function editSearch(query, opts) {
+export function editSearch(searchId: string, opts) {
     return {
         type: SEARCH_EDIT,
         receivedAt: Date.now(),
-        query: query,
+        searchId: searchId,
         opts: opts
     };
 }
@@ -114,7 +142,7 @@ export function pauseSearch(search: Search) {
     return {
         type: SEARCH_EDIT,
         receivedAt: Date.now(),
-        query: search.q,
+        searchId: search.searchId,
         opts: {
             paused: true
         }
@@ -169,7 +197,7 @@ export function resumeSearch(search: Search) {
         dispatch({
             type: SEARCH_EDIT,
             receivedAt: Date.now(),
-            query: search.q,
+            searchId: search.searchId,
             opts: {
                 paused: false,
                 requestId: requestId

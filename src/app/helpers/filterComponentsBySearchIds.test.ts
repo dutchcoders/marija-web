@@ -1,25 +1,25 @@
-import filterComponentsByQueries from "./filterComponentsByQueries";
+import filterComponentsByQueries from "./filterComponentsBySearchIds";
 
 test('should filter out components that dont contain nodes from the primary query', () => {
     const components = [
         [
             {
                 id: 'a',
-                queries: ['first search']
+                searchIds: ['first search']
             },
             {
                 id: 'b',
-                queries: ['second search']
+                searchIds: ['second search']
             }
         ],
         [
             {
                 id: 'c',
-                queries: ['second search']
+                searchIds: ['second search']
             },
             {
                 id: 'd',
-                queries: ['second search']
+                searchIds: ['second search']
             }
         ]
     ] as any;
@@ -28,29 +28,29 @@ test('should filter out components that dont contain nodes from the primary quer
 
     expect(filtered.length).toBe(1);
     expect(filtered[0].length).toBe(2);
-    expect(filtered[0].find(node => node.queries.indexOf('first search') !== -1)).toBeDefined();
+    expect(filtered[0].find(node => node.searchIds.indexOf('first search') !== -1)).toBeDefined();
 });
 
-test('should work when specifying multiple queries', () => {
+test('should work when specifying multiple searchIds', () => {
     const components = [
         [
             {
                 id: 'a',
-                queries: ['first search']
+                searchIds: ['first search']
             },
             {
                 id: 'b',
-                queries: ['second search']
+                searchIds: ['second search']
             }
         ],
         [
             {
                 id: 'c',
-                queries: ['second search']
+                searchIds: ['second search']
             },
             {
                 id: 'd',
-                queries: ['myLive']
+                searchIds: ['myLive']
             }
         ]
     ] as any;

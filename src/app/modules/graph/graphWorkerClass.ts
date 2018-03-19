@@ -1,5 +1,5 @@
 import removeDeadLinks from '../../helpers/removeDeadLinks';
-import filterComponentsByQueries from '../../helpers/filterComponentsByQueries';
+import filterComponentsByQueries from '../../helpers/filterComponentsBySearchIds';
 import getConnectedComponents from '../../helpers/getConnectedComponents';
 import markNodesForDisplay from '../../helpers/markNodesForDisplay';
 import applyVia from '../../helpers/applyVia';
@@ -8,7 +8,7 @@ import markLinksForDisplay from "../../helpers/markLinksForDisplay";
 import normalizeLinks from "../../helpers/normalizeLinks";
 import normalizeNodes from "../../helpers/normalizeNodes";
 import filterBoringComponents from "../../helpers/filterBoringComponents";
-import {SEARCH_RECEIVE} from "../search/constants";
+import {SEARCH_RECEIVE, LIVE_RECEIVE} from "../search/constants";
 import {Field} from "../../interfaces/field";
 import createField from "../../helpers/createField";
 import {Search} from "../../interfaces/search";
@@ -25,7 +25,7 @@ import {sortItems} from "../../helpers/sortItems";
 
 export interface GraphWorkerPayload {
     items: Item[];
-    query: string;
+    searchId: string;
     prevNodes: Node[];
     prevLinks: Link[];
     prevItems: Item[];
@@ -53,18 +53,22 @@ export default class GraphWorkerClass {
     onMessage(event: MessageEvent) {
         const action = event.data;
 
-        if (action.type !== SEARCH_RECEIVE) {
-            // This is the only action type we currently support in this worker
+        if (action.type !== SEARCH_RECEIVE && action.type !== LIVE_RECEIVE) {
+            // These is the only action types we currently support in this worker
             return;
         }
 
+        const isLive: boolean = action.type === LIVE_RECEIVE;
         const payload: GraphWorkerPayload = action.payload;
 
         if (!payload.items) {
             return;
         }
 
-        const searchIndex: number = payload.searches.findIndex(loop => loop.q === payload.query && !loop.paused);
+        const searchIndex: number = payload.searches.findIndex(loop =>
+            loop.searchId === payload.searchId
+            && !loop.paused
+        );
 
         if (searchIndex === -1) {
             // received items for a query we were not searching for
@@ -77,11 +81,9 @@ export default class GraphWorkerClass {
         searches[searchIndex] = search;
         search.items = search.items.concat(payload.items);
 
-        const isLive: boolean = search.liveDatasource !== null;
-
         // Save per item for which query we received it (so we can keep track of where data came from)
         payload.items.forEach(item => {
-            item.query = search.q;
+            item.searchId = search.searchId;
         });
 
         let fields = payload.fields;
@@ -179,22 +181,22 @@ export default class GraphWorkerClass {
             };
         }
 
-        // If there is more than 1 query, all nodes for subsequent queries
+        // If there is more than 1 query, all nodes for subsequent searchIds
         // need to be linked to nodes from the first query, or a live datasource
         // If some results are not linked, they will not be displayed as nodes
 
         const components: Node[][] = getConnectedComponents(nodes, links);
 
         // The first query of the normal searches is the primary query
-        const primaryQuery: string = normalSearches[0].q;
+        const primarySearchId: string = normalSearches[0].searchId;
         const liveDatasources: string[] = searches
             .filter(search => search.liveDatasource)
-            .map(search => search.liveDatasource);
+            .map(search => search.searchId);
 
         // Every component needs to be linked to either the primary query,
         // or one of the live datasources
-        const validQueries: string[] = liveDatasources.concat([primaryQuery]);
-        const filteredComponents: Node[][] = filterComponentsByQueries(components, validQueries);
+        const validSearchIds: string[] = liveDatasources.concat([primarySearchId]);
+        const filteredComponents: Node[][] = filterComponentsByQueries(components, validSearchIds);
 
         const filteredNodes = filteredComponents.reduce((prev, current) => prev.concat(current), []);
         const filteredLinks = removeDeadLinks(filteredNodes, links);

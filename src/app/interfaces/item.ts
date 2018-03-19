@@ -2,7 +2,7 @@ import {Node} from "./node";
 
 export interface Item {
     id: string;
-    query: string;
+    searchId: string;
     highlight: null;
     count: number;
     fields: {

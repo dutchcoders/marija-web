@@ -27,6 +27,7 @@ const generateQuery = (items) => {
     return {
         color: '#aaaaaa',
         q: 'my search',
+        searchId: 'my search',
         total: 100,
         items: items
     };
@@ -184,12 +185,12 @@ test('should not filter nodes that are directly related when searching around a 
         id: 1,
         items: [],
         fields: [],
-        queries: []
+        searchIds: []
     }, {
         id: 2,
         items: [],
         fields: [],
-        queries: []
+        searchIds: []
     }];
     const previousLinks = [{
         source: 1,

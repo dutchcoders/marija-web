@@ -10,6 +10,7 @@ import {hideContextMenu} from "./contextMenuActions";
 import {searchAround} from "../search/actions";
 import {FormEvent} from "react";
 import abbreviateNodeName from '../../helpers/abbreviateNodeName';
+import {Search} from "../../interfaces/search";
 
 interface Props {
     node: Node;
@@ -17,7 +18,8 @@ interface Props {
     links: Link[];
     x: number;
     y: number;
-    dispatch: Dispatch<any>
+    dispatch: Dispatch<any>;
+    searches: Search[]
 }
 
 interface State {
@@ -85,13 +87,15 @@ class ContextMenu extends React.Component<Props, State> {
     }
 
     handleRenameEvents(event: KeyboardEvent) {
-        const { dispatch, node } = this.props;
+        const { dispatch, node, searches } = this.props;
         const { renameTo } = this.state;
 
         if (event.key === 'Enter') {
+            const search = searches.find(loop => loop.searchId === node.searchIds[0]);
+
             dispatch(nodeUpdate(node.id, {
                 name: renameTo,
-                abbreviated: abbreviateNodeName(renameTo, node.queries[0], 20)
+                abbreviated: abbreviateNodeName(renameTo, search.q, 20)
             }));
         } else if (event.key === 'Escape') {
             this.setState({
@@ -178,6 +182,7 @@ const select = (state, ownProps) => {
         node: state.contextMenu.node,
         nodes: state.entries.nodes,
         links: state.entries.links,
+        searches: state.entries.searches,
         x: state.contextMenu.x,
         y: state.contextMenu.y,
     };

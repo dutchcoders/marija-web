@@ -47,7 +47,7 @@ class Query extends React.Component<Props, State> {
     handleDeleteNodes() {
         const { dispatch, search, nodes } = this.props;
 
-        const queryNodes: Node[] = nodes.filter(node => node.queries.indexOf(search.q) !== -1);
+        const queryNodes: Node[] = nodes.filter(node => node.searchIds.indexOf(search.searchId) !== -1);
 
         dispatch(deleteNodes(queryNodes));
     }
@@ -61,7 +61,7 @@ class Query extends React.Component<Props, State> {
             return;
         }
 
-        dispatch(editSearch(search.q, {
+        dispatch(editSearch(search.searchId, {
             displayNodes: newNumber
         }));
     }
@@ -79,7 +79,7 @@ class Query extends React.Component<Props, State> {
             return;
         }
 
-        dispatch(editSearch(search.q, {
+        dispatch(editSearch(search.searchId, {
             displayNodes: newNumber
         }));
     }
@@ -87,19 +87,19 @@ class Query extends React.Component<Props, State> {
     countNodes() {
         const { nodes, search } = this.props;
 
-        return nodes.filter(node => node.queries.indexOf(search.q) !== -1).length;
+        return nodes.filter(node => node.searchIds.indexOf(search.searchId) !== -1).length;
     }
 
     countDisplayNodes() {
         const { nodes, search } = this.props;
 
-        return nodes.filter(node => node.display && node.queries.indexOf(search.q) !== -1).length;
+        return nodes.filter(node => node.display && node.searchIds.indexOf(search.searchId) !== -1).length;
     }
 
     selectNodes() {
         const { nodes, search, dispatch, selectedNodes } = this.props;
 
-        const nodesInQuery = nodes.filter(node => node.queries.indexOf(search.q) !== -1);
+        const nodesInQuery = nodes.filter(node => node.searchIds.indexOf(search.searchId) !== -1);
 
         if (nodesInQuery.length === 0) {
             return;
@@ -193,6 +193,7 @@ class Query extends React.Component<Props, State> {
         if (!search.completed && search.paused && !search.liveDatasource) {
             actions.push(
                 <Tooltip
+                    key="resume"
                     overlay="Resume"
                     placement="bottom"
                     mouseLeaveDelay={0}
@@ -320,7 +321,7 @@ class Query extends React.Component<Props, State> {
         }
 
         return (
-            <div key={search.q} style={{backgroundColor: search.color}} className={itemClass}>
+            <div key={search.searchId} style={{backgroundColor: search.color}} className={itemClass}>
                 {search.q}&nbsp;
                 {count}
 

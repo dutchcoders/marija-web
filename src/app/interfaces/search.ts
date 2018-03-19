@@ -12,4 +12,5 @@ export interface Search {
     liveDatasource: string | null;
     paused: boolean;
     datasources: string[];
+    searchId: string;
 }

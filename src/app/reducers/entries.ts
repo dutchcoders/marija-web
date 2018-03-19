@@ -39,6 +39,7 @@ import markLinksForDisplay from "../helpers/markLinksForDisplay";
 import markNodesForDisplay from "../helpers/markNodesForDisplay";
 import {sortItems} from "../helpers/sortItems";
 import {SortType} from "../interfaces/sortType";
+import datasources from "./datasources";
 
 interface State {
     connected: boolean;
@@ -108,7 +109,9 @@ export default function entries(state: State = defaultState, action) {
         }
         case SEARCH_DELETE: {
             const toDelete: Search = action.payload.search;
-            const searches = state.searches.filter(search => search.q !== toDelete.q);
+            const searches = state.searches.filter((search: Search) =>
+                search.searchId !== toDelete.searchId
+            );
             let items = concat(state.items);
 
             if (!toDelete.completed) {
@@ -116,9 +119,9 @@ export default function entries(state: State = defaultState, action) {
                 cancelRequest(toDelete['request-id']);
             }
 
-            items = items.filter(item => item.query !== toDelete.q);
+            items = items.filter(item => item.searchId !== toDelete.searchId);
 
-            const { nodes, links } = removeNodesAndLinks(state.nodes, state.links, toDelete.q);
+            const { nodes, links } = removeNodesAndLinks(state.nodes, state.links, toDelete.searchId);
 
             return Object.assign({}, state, {
                 searches: searches,
@@ -326,10 +329,10 @@ export default function entries(state: State = defaultState, action) {
             const nodes: Node[] = state.nodes.concat([]);
 
             select.forEach(node => {
-                const index = nodes.findIndex(search =>
-                    search.id === node.id
-                    && search.display
-                    && (search.normalizationId === null || search.isNormalizationParent)
+                const index = nodes.findIndex(searchNode =>
+                    searchNode.id === node.id
+                    && searchNode.display
+                    && (searchNode.normalizationId === null || searchNode.isNormalizationParent)
                 );
 
                 if (!nodes[index].selected) {
@@ -400,44 +403,50 @@ export default function entries(state: State = defaultState, action) {
                 ...action
             });
         case SEARCH_REQUEST: {
-            // if we searched before, just retrieve extra results for query
-            // const search = find(state.searches, (o) => o.q == action.query) || { items: [] };
-            const searches = concat(state.searches, []);
+            const searches = state.searches.concat([]);
 
-            let search = find(state.searches, (o) => o.q === action.query);
+            const datasources: string[] = action
+                .datasources
+                .filter(datasource => datasource.active)
+                .map(datasource => datasource.id)
+                .sort();
 
-            if (!search) {
-                let color;
+            let search: Search = state.searches.find((search: Search) =>
+                search.q === action.query
+                && isEqual(search.datasources.sort(), datasources)
+            );
 
-                if (action.aroundNodeId === null) {
-                    color = getQueryColor(state.searches);
-                } else {
-                    const node: Node = state.nodes.find(nodeLoop => nodeLoop.id === action.aroundNodeId);
-                    const parentSearch: Search = state.searches.find(searchLoop => searchLoop.q === node.queries[0]);
-                    color = darkenColor(parentSearch.color, -.3);
-                }
-
-                const datasources: string[] = action
-                    .datasources
-                    .filter(datasource => datasource.active)
-                    .map(datasource => datasource.id);
-
-                search = {
-                    q: action.query,
-                    color: color,
-                    total: 0,
-                    displayNodes: action.displayNodes,
-                    items: [],
-                    requestId: uniqueId(),
-                    completed: false,
-                    aroundNodeId: action.aroundNodeId,
-                    liveDatasource: null,
-                    paused: false,
-                    datasources: datasources
-                };
-
-                searches.push(search);
+            if (search) {
+                // This exact search already exists
+                return state;
             }
+
+            let color;
+
+            if (action.aroundNodeId === null) {
+                color = getQueryColor(state.searches);
+            } else {
+                const node: Node = state.nodes.find(nodeLoop => nodeLoop.id === action.aroundNodeId);
+                const parentSearch: Search = state.searches.find(searchLoop => searchLoop.searchId === node.searchIds[0]);
+                color = darkenColor(parentSearch.color, -.3);
+            }
+
+            search = {
+                q: action.query,
+                color: color,
+                total: 0,
+                displayNodes: action.displayNodes,
+                items: [],
+                requestId: uniqueId(),
+                completed: false,
+                aroundNodeId: action.aroundNodeId,
+                liveDatasource: null,
+                paused: false,
+                datasources: datasources,
+                searchId: uniqueId()
+            };
+
+            searches.push(search);
 
             let fieldPaths: string[] = state.fields.map(field => field.path);
             fieldPaths = fieldPaths.concat(state.date_fields.map(field => field.path));
@@ -523,7 +532,7 @@ export default function entries(state: State = defaultState, action) {
         case SEARCH_EDIT: {
             const searches = concat([], state.searches);
 
-            const search = state.searches.find(search => search.q === action.query);
+            const search = state.searches.find(search => search.searchId === action.searchId);
             const newSearch = Object.assign({}, search, action.opts);
 
             const index = searches.indexOf(search);
@@ -656,7 +665,8 @@ export default function entries(state: State = defaultState, action) {
                 aroundNodeId: null,
                 liveDatasource: action.payload.datasource.id,
                 paused: true,
-                datasources: [action.payload.datasource.id]
+                datasources: [action.payload.datasource.id],
+                searchId: action.payload.datasource.id
             };
 
             return Object.assign({}, state, {

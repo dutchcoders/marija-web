@@ -51,7 +51,7 @@ export default function getNodesAndLinks(
     const deletedMap = {};
     deletedNodes.forEach(node => deletedMap[node.id] = true);
 
-    const query: string = search.q;
+    const searchId: string = search.searchId;
 
     items.forEach(item => {
         fields.forEach(sourceField => {
@@ -101,18 +101,18 @@ export default function getNodesAndLinks(
                         existingSource.fields.push(sourceField.path);
                     }
 
-                    if (existingSource.queries.indexOf(query) === -1) {
-                        existingSource.queries.push(query);
+                    if (existingSource.searchIds.indexOf(searchId) === -1) {
+                        existingSource.searchIds.push(searchId);
                     }
                 } else {
                     // Create new node
                     nodeMap[sourceValue] = {
                         id: sourceValue,
-                        queries: [query],
+                        searchIds: [searchId],
                         items: [item.id],
                         count: item.count,
                         name: sourceValue,
-                        abbreviated: abbreviateNodeName(sourceValue, query, 40),
+                        abbreviated: abbreviateNodeName(sourceValue, searchId, 40),
                         description: '',
                         icon: sourceField.icon,
                         fields: [sourceField.path],
@@ -168,18 +168,18 @@ export default function getNodesAndLinks(
                                 existingTarget.fields.push(targetField.path);
                             }
 
-                            if (existingTarget.queries.indexOf(query) === -1) {
-                                existingTarget.queries.push(query);
+                            if (existingTarget.searchIds.indexOf(searchId) === -1) {
+                                existingTarget.searchIds.push(searchId);
                             }
                         } else {
                             // Create new node
                             nodeMap[targetValue] = {
                                 id: targetValue,
-                                queries: [query],
+                                searchIds: [searchId],
                                 items: [item.id],
                                 count: item.count,
                                 name: targetValue,
-                                abbreviated: abbreviateNodeName(targetValue, query, 40),
+                                abbreviated: abbreviateNodeName(targetValue, searchId, 40),
                                 description: '',
                                 icon: targetField.icon,
                                 fields: [targetField.path],

@@ -1,6 +1,6 @@
 export interface Node {
     id: string;
-    queries: string[];
+    searchIds: string[];
     items: string[]; // array of item ids
     count: number;
     name: string;

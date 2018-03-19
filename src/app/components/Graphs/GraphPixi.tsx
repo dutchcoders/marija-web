@@ -181,9 +181,9 @@ class GraphPixi extends React.PureComponent<Props, State> {
         this.transform = transform;
     }
 
-    getQueryColor(query: string) {
+    getSearchColor(searchId: string) {
         const { searches } = this.props;
-        const search = searches.find(search => search.q === query);
+        const search = searches.find(search => search.searchId === searchId);
 
         if (typeof search !== 'undefined') {
             return search.color;
@@ -193,7 +193,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
     getNodeTextureKey(node: NodeFromWorker) {
         return node.icon
             + node.r
-            + node.queries.map(query => this.getQueryColor(query)).join('');
+            + node.searchIds.map(searchId => this.getSearchColor(searchId)).join('');
     }
 
     getNodeTexture(node: NodeFromWorker) {
@@ -208,18 +208,18 @@ class GraphPixi extends React.PureComponent<Props, State> {
         canvas.height = node.r * 2;
         const ctx = canvas.getContext('2d');
 
-        const fractionPerQuery = 1 / node.queries.length;
-        const anglePerQuery = 2 * Math.PI * fractionPerQuery;
+        const fractionPerSearch = 1 / node.searchIds.length;
+        const anglePerSearch = 2 * Math.PI * fractionPerSearch;
         let currentAngle = .5 * Math.PI;
 
-        node.queries.forEach(query => {
+        node.searchIds.forEach(searchId => {
             ctx.beginPath();
-            ctx.fillStyle = this.getQueryColor(query);
+            ctx.fillStyle = this.getSearchColor(searchId);
             ctx.moveTo(node.r, node.r);
-            ctx.arc(node.r, node.r, node.r, currentAngle, currentAngle + anglePerQuery);
+            ctx.arc(node.r, node.r, node.r, currentAngle, currentAngle + anglePerSearch);
             ctx.fill();
 
-            currentAngle += anglePerQuery;
+            currentAngle += anglePerSearch;
         });
 
         const fontSize = node.r;
@@ -511,7 +511,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
                 id: node.id,
                 count: node.count,
                 hash: node.hash,
-                queries: node.queries,
+                searchIds: node.searchIds,
                 icon: node.icon,
                 label: label
             };

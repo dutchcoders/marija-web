@@ -1,5 +1,7 @@
 import {FlowWS, error} from '../../utils/index';
 import {searchReceive, SEARCH_RECEIVE} from '../../modules/search/index';
+import {liveReceive} from '../../modules/search/actions';
+import {LIVE_RECEIVE} from '../../modules/search/constants';
 import {receiveFields, FIELDS_RECEIVE} from '../../modules/fields/index';
 import {
     receiveInitialState,
@@ -12,7 +14,6 @@ import {receiveItems} from "../../modules/items/actions";
 import {Item} from "../../interfaces/item";
 import {Dispatch} from "react-redux";
 import Timer = NodeJS.Timer;
-import datasources from "../../reducers/datasources";
 
 interface SearchTimeout {
     /**
@@ -38,10 +39,10 @@ interface SearchTimeout {
 interface SocketInterface {
     ws: any;
     searchResults: {
-        [query: string]: Item[]
+        [requestId: string]: Item[]
     };
     searchTimeouts: {
-        [query: string]: SearchTimeout
+        [requestId: string]: SearchTimeout
     };
     /**
      * Maximum age in ms for search results. We never wait longer than this with
@@ -69,15 +70,16 @@ export const Socket: SocketInterface = {
      * Instead, we wait for 500ms and bundle all of the items together.
      *
      * @param newItems
-     * @param query
+     * @param requestId
      * @param dispatch
+     * @param liveDatasource
      */
-    searchReceive: (newItems: Item[], query: string, dispatch: Dispatch<any>) => {
+    searchReceive: (newItems: Item[], requestId: string, dispatch: Dispatch<any>, liveDatasource: string|false) => {
         if (newItems === null) {
             return;
         }
 
-        let results = Socket.searchResults[query] || [];
+        let results = Socket.searchResults[requestId] || [];
 
         for (let i = 0; i < newItems.length; i++ ) {
             let result = newItems[i];
@@ -92,16 +94,21 @@ export const Socket: SocketInterface = {
             results[index].count = result.count;
         }
 
-        Socket.searchResults[query] = results;
+        Socket.searchResults[requestId] = results;
 
-        const searchTimeout: any = Socket.searchTimeouts[query] || {};
+        const searchTimeout: any = Socket.searchTimeouts[requestId] || {};
 
         const timeoutFinished = () => {
             clearTimeout(searchTimeout.bundleTimeout);
             clearTimeout(searchTimeout.maxTimeout);
 
-            dispatch(searchReceive(Socket.searchResults[query], query));
-            delete Socket.searchResults[query];
+            if (liveDatasource) {
+                dispatch(liveReceive(Socket.searchResults[requestId], liveDatasource));
+            } else {
+                dispatch(searchReceive(Socket.searchResults[requestId], requestId));
+            }
+
+            delete Socket.searchResults[requestId];
         };
 
         // Dispatch when we haven't received any new items for 500 ms.
@@ -115,7 +122,7 @@ export const Socket: SocketInterface = {
             searchTimeout.maxTimeout = setTimeout(timeoutFinished, Socket.maxTimeoutMs);
         }
 
-        Socket.searchTimeouts[query] = searchTimeout;
+        Socket.searchTimeouts[requestId] = searchTimeout;
     },
     wsDispatcher: (message, dispatch) => {
         if (message.error) {
@@ -123,14 +130,24 @@ export const Socket: SocketInterface = {
         }
 
         switch (message.type) {
-            case SEARCH_RECEIVE:
-                Socket.searchReceive(message.results, message.query, dispatch);
+            case SEARCH_RECEIVE: {
+                Socket.searchReceive(
+                    message.results,
+                    message['request-id'],
+                    dispatch,
+                    false
+                );
                 break;
-
-            case 'LIVE_RECEIVE':
-                Socket.searchReceive(message.graphs, message.datasource, dispatch);
+            }
+            case LIVE_RECEIVE: {
+                Socket.searchReceive(
+                    message.graphs,
+                    message.datasource,
+                    dispatch,
+                    message.datasource
+                );
                 break;
-
+            }
             case FIELDS_RECEIVE:
                 console.log(message);
                 const defaults = message.default;

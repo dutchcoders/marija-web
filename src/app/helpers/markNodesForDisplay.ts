@@ -5,24 +5,27 @@
  * @param searches
  * @returns {Array}
  */
-export default function markNodesForDisplay(nodes, searches) {
+import {Node} from "../interfaces/node";
+import {Search} from "../interfaces/search";
+
+export default function markNodesForDisplay(nodes: Node[], searches: Search[]) {
     const searchesCounter = {};
     const nodesForDisplay = [];
     const max = {};
 
-    searches.forEach(search => max[search.q] = search.displayNodes);
+    searches.forEach(search => max[search.searchId] = search.displayNodes);
 
     nodes.forEach(node => {
         let display = true;
 
-        node.queries.forEach(query => {
-            if (searchesCounter[query]) {
-                searchesCounter[query] ++;
+        node.searchIds.forEach(searchId => {
+            if (searchesCounter[searchId]) {
+                searchesCounter[searchId] ++;
             } else {
-                searchesCounter[query] = 1;
+                searchesCounter[searchId] = 1;
             }
 
-            if (searchesCounter[query] > max[query]) {
+            if (searchesCounter[searchId] > max[searchId]) {
                 display = false;
             }
         });

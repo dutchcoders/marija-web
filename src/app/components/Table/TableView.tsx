@@ -119,14 +119,14 @@ class TableView extends React.Component<Props, State> {
 
     setQueryColorMap(selectedNodes: Node[], searches: Search[]) {
         const colorMap = {};
-        searches.forEach(search => colorMap[search.q] = search.color);
+        searches.forEach(search => colorMap[search.searchId] = search.color);
 
         const queryMap: QueryColorMap = {};
 
         selectedNodes.forEach(node => {
             node.items.forEach(itemId => {
-                node.queries.forEach(query => {
-                    const color: string = colorMap[query];
+                node.searchIds.forEach(searchId => {
+                    const color: string = colorMap[searchId];
 
                     if (!queryMap[itemId]) {
                         queryMap[itemId] = [color];

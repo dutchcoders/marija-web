@@ -9,7 +9,7 @@ export interface NodeFromWorker {
     id: string;
     count: number;
     hash: number;
-    queries: string[];
+    searchIds: string[];
     icon: string;
     textureKey?: string;
     label: string;

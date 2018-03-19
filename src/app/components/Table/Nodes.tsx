@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import {connect} from 'react-redux';
+import * as React from 'react';
+import {connect, Dispatch} from 'react-redux';
 
 import { map, uniq, filter, concat, without, find, differenceWith, sortBy, forEach } from 'lodash';
 
@@ -11,18 +11,34 @@ import {showTooltip} from "../../modules/graph/actions";
 import {normalizationAdd} from "../../modules/data";
 import getDirectlyRelatedNodes from '../../helpers/getDirectlyRelatedNodes';
 import {normalizationDelete} from '../../modules/data/actions';
+import {Search} from "../../interfaces/search";
+import {Node} from "../../interfaces/node";
+import {Link} from "../../interfaces/link";
+import {Normalization} from "../../interfaces/normalization";
 
-class Nodes extends React.Component {
-    constructor(props) {
-        super(props);
+interface Props {
+    dispatch: Dispatch<any>;
+    searches: Search[];
+    nodes: Node[];
+    links: Link[];
+    normalizations: Normalization[];
+}
 
-        this.state = {
-            editNode: null,
-            value: "",
-            description: "",
-            nodeImages: {}
-        };
-    }
+interface State {
+    editNode: Node;
+    value: string;
+    description: string;
+    nodeImages: any;
+}
+
+class Nodes extends React.Component<Props, State> {
+    refs: any;
+    state: State = {
+        editNode: null,
+        value: "",
+        description: "",
+        nodeImages: {}
+    };
 
     handleClearSelection() {
         const { dispatch } = this.props;
@@ -111,9 +127,9 @@ class Nodes extends React.Component {
         dispatch(showTooltip([]));
     }
 
-    getQueryColor(query) {
-        const { queries } = this.props;
-        const search = queries.find(search => search.q === query);
+    getQueryColor(searchId: string) {
+        const { searches } = this.props;
+        const search = searches.find(search => search.searchId === searchId);
 
         if (typeof search !== 'undefined') {
             return search.color;
@@ -122,7 +138,7 @@ class Nodes extends React.Component {
 
     getImageKey(node) {
         return node.icon
-            + node.queries.map(query => this.getQueryColor(query)).join('');
+            + node.searchIds.map(searchId => this.getQueryColor(searchId)).join('');
     }
 
     prepareImage(key, node) {
@@ -141,13 +157,13 @@ class Nodes extends React.Component {
         canvas.height = height;
         const ctx = canvas.getContext('2d');
 
-        const fractionPerQuery = 1 / node.queries.length;
+        const fractionPerQuery = 1 / node.searchIds.length;
         const anglePerQuery = 2 * Math.PI * fractionPerQuery;
         let currentAngle = .5 * Math.PI;
 
-        node.queries.forEach(query => {
+        node.searchIds.forEach(searchId => {
             ctx.beginPath();
-            ctx.fillStyle = this.getQueryColor(query);
+            ctx.fillStyle = this.getQueryColor(searchId);
             ctx.moveTo(radius, radius);
             ctx.arc(radius, radius, radius, currentAngle, currentAngle + anglePerQuery);
             ctx.fill();
@@ -357,7 +373,7 @@ function select(state) {
     return {
         nodes: state.entries.nodes,
         links: state.entries.links,
-        queries: state.entries.searches,
+        searches: state.entries.searches,
         normalizations: state.entries.normalizations
     };
 }

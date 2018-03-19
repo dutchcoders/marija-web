@@ -14,7 +14,7 @@ import {Link} from "../../interfaces/link";
 const getItem = (data, query = 'query', id = uniqueId()) => {
     return {
         id: id,
-        query: query,
+        searchId: query,
         fields: data,
         nodes: [],
     } as Item;
@@ -33,7 +33,8 @@ const getSearch = (query, liveDatasource = null, aroundNodeId = null) => {
         q: query,
         liveDatasource: liveDatasource,
         datasources: [],
-        items: []
+        items: [],
+        searchId: query
     } as Search;
 };
 
@@ -41,7 +42,7 @@ const getNode = (id, query, itemIds) => {
     return {
         id: id,
         name: id,
-        queries: [query],
+        searchIds: [query],
         items: itemIds,
         count: 0,
         fields: [],
@@ -58,7 +59,7 @@ const getLink = (source, target) => {
 
 const defaultPayload: GraphWorkerPayload = {
     items: [],
-    query: 'query',
+    searchId: 'query',
     prevNodes: [],
     prevLinks: [],
     prevItems: [],
@@ -107,7 +108,7 @@ test('should output nodes and links', (done) => {
     graphWorker.onMessage(getEvent(payload));
 });
 
-test('should correctly output nodes when there are multiple queries', (done) => {
+test('should correctly output nodes when there are multiple searchIds', (done) => {
     const graphWorker = new GraphWorkerClass();
 
     graphWorker.output.addListener('output', (output: GraphWorkerOutput) => {
@@ -117,10 +118,10 @@ test('should correctly output nodes when there are multiple queries', (done) => 
         const node4 = output.nodes.find(node => node.id === '4');
 
         expect(output.nodes.length).toBe(4);
-        expect(node1.queries).toEqual(['query1']);
-        expect(node2.queries).toEqual(['query1', 'query2']);
-        expect(node3.queries).toEqual(['query1']);
-        expect(node4.queries).toEqual(['query2']);
+        expect(node1.searchIds).toEqual(['query1']);
+        expect(node2.searchIds).toEqual(['query1', 'query2']);
+        expect(node3.searchIds).toEqual(['query1']);
+        expect(node4.searchIds).toEqual(['query2']);
 
         done();
     });
@@ -147,7 +148,7 @@ test('should correctly output nodes when there are multiple queries', (done) => 
         items: [
             getItem({client: 4, server: 2}, 'query2', 'c'),
         ],
-        query: 'query2'
+        searchId: 'query2'
     };
 
     graphWorker.onMessage(getEvent(payload));
@@ -187,14 +188,14 @@ test('should not filter secondary components if there is 1 live datasource, and 
             getItem({client: 4, server: 5}, 'query2', 'c'),
             getItem({client: 6, server: 5}, 'query2', 'd'),
         ],
-        query: 'query2'
+        searchId: 'query2'
     };
 
     graphWorker.onMessage(getEvent(payload));
 });
 
 
-test('should work with "search around" queries', (done) => {
+test('should work with "search around" searchIds', (done) => {
     const graphWorker = new GraphWorkerClass();
 
     graphWorker.output.addListener('output', (output: GraphWorkerOutput) => {
@@ -231,7 +232,7 @@ test('should work with "search around" queries', (done) => {
             // This item should not appear in the output:
             getItem({client: 'unrelated', server: 7}, 'node1', 'f'),
         ],
-        query: 'node1'
+        searchId: 'node1'
     };
 
     graphWorker.onMessage(getEvent(payload));
@@ -267,7 +268,7 @@ test('should sort items', (done) => {
             getItem({client: 'B', server: 4}, 'query1'),
             getItem({client: 'A', server: 5}, 'query1'),
         ],
-        query: 'query1',
+        searchId: 'query1',
         sortColumn: 'client'
     };
 
