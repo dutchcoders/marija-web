@@ -165,7 +165,7 @@ export default function entries(state: State = defaultState, action) {
 
             let nodes: Node[] = state.nodes;
 
-            // If the icon was updates, also delete all the icons of the affected nodes
+            // If the icon was updated, also update the icons of all the affected nodes
             if (action.updates.icon) {
                 nodes = state.nodes.map(node => {
                     const isAffected: boolean =
@@ -191,10 +191,18 @@ export default function entries(state: State = defaultState, action) {
             const nodes = deleteFieldFromNodes(action.field.path, state.nodes);
             const links = removeDeadLinks(nodes, state.links);
 
+            let columns: Column[] = state.columns;
+
+            // If the field was used as a column in the table, delete that column
+            if (columns.indexOf(action.field.path) !== -1) {
+                columns = columns.filter(column => column !== action.field.path);
+            }
+
             return Object.assign({}, state, {
                 fields: without(state.fields, action.field),
                 nodes: nodes,
-                links: links
+                links: links,
+                columns: columns
             });
         }
         case NORMALIZATION_ADD: {

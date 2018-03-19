@@ -472,6 +472,10 @@ class GraphPixi extends React.PureComponent<Props, State> {
             this.nodesFromWorker.forEach(nodeFromWorker => {
                 const node = nextProps.nodesForDisplay.find(search => search.id === nodeFromWorker.id);
 
+                if (!node) {
+                    return;
+                }
+
                 nodeFromWorker.icon = node.icon;
                 nodeFromWorker.textureKey = this.getNodeTextureKey(nodeFromWorker);
             });
