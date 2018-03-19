@@ -518,13 +518,19 @@ class GraphPixi extends React.PureComponent<Props, State> {
         });
 
         const linksToPost = linksForDisplay.map(link => {
+            let thickness: number = 1;
+
+            if (link.itemIds.length > 1) {
+                thickness = Math.min(link.itemIds.length, 15);
+            }
+
             return {
                 source: link.source,
                 target: link.target,
                 label: link.label,
                 total: link.total,
                 current: link.current,
-                thickness: Math.max(1, link.itemIds.length)
+                thickness: thickness
             };
         });
 
