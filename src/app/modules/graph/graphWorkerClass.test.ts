@@ -73,6 +73,8 @@ const defaultPayload: GraphWorkerPayload = {
     deletedNodes: [],
     via: [],
     receivedAt: 0,
+    sortColumn: null,
+    sortType: 'asc'
 };
 
 const getEvent = (payload: GraphWorkerPayload) => {
@@ -230,6 +232,43 @@ test('should work with "search around" queries', (done) => {
             getItem({client: 'unrelated', server: 7}, 'node1', 'f'),
         ],
         query: 'node1'
+    };
+
+    graphWorker.onMessage(getEvent(payload));
+});
+
+test('should sort items', (done) => {
+    const graphWorker = new GraphWorkerClass();
+
+    graphWorker.output.addListener('output', (output: GraphWorkerOutput) => {
+        const firstIndex: number = output.items.findIndex(item =>
+            item.fields.client === 'A'
+        );
+
+        const secondIndex: number = output.items.findIndex(item =>
+            item.fields.client === 'B'
+        );
+
+        expect(firstIndex).toBe(0);
+        expect(secondIndex).toBe(1);
+
+        done();
+    });
+
+    const payload: GraphWorkerPayload = {
+        ...defaultPayload,
+        searches: [
+            getSearch('query1')
+        ],
+        prevNodes: [],
+        prevLinks: [],
+        prevItems: [],
+        items: [
+            getItem({client: 'B', server: 4}, 'query1'),
+            getItem({client: 'A', server: 5}, 'query1'),
+        ],
+        query: 'query1',
+        sortColumn: 'client'
     };
 
     graphWorker.onMessage(getEvent(payload));

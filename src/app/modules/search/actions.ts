@@ -8,6 +8,7 @@ import {Socket} from "../../utils";
 import {uniqueId} from 'lodash';
 import {ADD_LIVE_DATASOURCE_SEARCH, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DATASOURCE} from './constants';
 import {Datasource} from "../../interfaces/datasource";
+import {GraphWorkerPayload} from "../graph/graphWorkerClass";
 
 export function searchRequest(query: string) {
     return (dispatch, getState) => {
@@ -43,24 +44,28 @@ export function searchReceive(items: Item[], query: string) {
     return (dispatch, getState) => {
         const state = getState();
 
+        const payload: GraphWorkerPayload = {
+            items: items,
+            query: query,
+            prevNodes: state.entries.nodes,
+            prevLinks: state.entries.links,
+            prevItems: state.entries.items,
+            fields: state.entries.fields,
+            normalizations: state.entries.normalizations,
+            searches: state.entries.searches,
+            deletedNodes: state.entries.deletedNodes,
+            via: state.entries.via,
+            receivedAt: Date.now(),
+            sortType: state.entries.sortType,
+            sortColumn: state.entries.sortColumn
+        };
+
         dispatch({
             type: SEARCH_RECEIVE,
             meta: {
                 WebWorker: true
             },
-            payload: {
-                items: items,
-                query: query,
-                prevNodes: state.entries.nodes,
-                prevLinks: state.entries.links,
-                prevItems: state.entries.items,
-                fields: state.entries.fields,
-                normalizations: state.entries.normalizations,
-                searches: state.entries.searches,
-                deletedNodes: state.entries.deletedNodes,
-                via: state.entries.via,
-                receivedAt: Date.now()
-            }
+            payload: payload
         });
     }
 }

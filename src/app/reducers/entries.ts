@@ -8,12 +8,12 @@ import {
 } from '../modules/graph/constants';
 import {  SEARCH_DELETE, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DATASOURCE, SEARCH_REQUEST, SEARCH_EDIT } from '../modules/search/constants';
 import {  ADD_LIVE_DATASOURCE_SEARCH } from '../modules/search/constants';
-import {  TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
+import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
 
 import { removeDeadLinks, applyVia, getQueryColor, deleteFieldFromNodes
 } from '../helpers/index';
 import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
-import {VIA_ADD, VIA_DELETE} from "../modules/data/constants";
+import {VIA_ADD, VIA_DELETE, TABLE_SORT} from "../modules/data/constants";
 import {NODES_TOOLTIP, SET_SELECTING_MODE, TOGGLE_LABELS} from "../modules/graph/constants";
 import {REQUEST_COMPLETED} from "../utils/constants";
 import {SEARCH_FIELDS_UPDATE} from "../modules/search/constants";
@@ -37,11 +37,12 @@ import removeVia from "../helpers/removeVia";
 import markHighlightedNodes from "../helpers/markHighlightedNodes";
 import markLinksForDisplay from "../helpers/markLinksForDisplay";
 import markNodesForDisplay from "../helpers/markNodesForDisplay";
+import {sortItems} from "../helpers/sortItems";
+import {SortType} from "../interfaces/sortType";
 
 interface State {
     connected: boolean;
     total: number;
-    columns: Column[];
     fields: Field[];
     date_fields: Field[];
     normalizations: Normalization[];
@@ -54,6 +55,9 @@ interface State {
     via: Via[];
     selectingMode: boolean;
     showLabels: boolean;
+    columns: Column[];
+    sortColumn: Column;
+    sortType: SortType;
 }
 
 export const defaultState: State = {
@@ -71,7 +75,9 @@ export const defaultState: State = {
     errors: null,
     via: [],
     selectingMode: false,
-    showLabels: false
+    showLabels: false,
+    sortColumn: null,
+    sortType: 'asc'
 };
 
 export default function entries(state: State = defaultState, action) {
@@ -126,8 +132,15 @@ export default function entries(state: State = defaultState, action) {
                 columns: concat(state.columns, action.field),
             });
         case TABLE_COLUMN_REMOVE:
+            let sortColumn = state.sortColumn;
+
+            if (action.field === sortColumn) {
+                sortColumn = null;
+            }
+
             return Object.assign({}, state, {
-                columns: without(state.columns, action.field)
+                columns: without(state.columns, action.field),
+                sortColumn: sortColumn
             });
         case FIELD_ADD:
             const existing = state.fields.find(field => field.path === action.field.path);
@@ -198,11 +211,18 @@ export default function entries(state: State = defaultState, action) {
                 columns = columns.filter(column => column !== action.field.path);
             }
 
+            let sortColumn = state.sortColumn;
+
+            if (action.field.path === sortColumn) {
+                sortColumn = null;
+            }
+
             return Object.assign({}, state, {
                 fields: without(state.fields, action.field),
                 nodes: nodes,
                 links: links,
-                columns: columns
+                columns: columns,
+                sortColumn: sortColumn
             });
         }
         case NORMALIZATION_ADD: {
@@ -602,6 +622,10 @@ export default function entries(state: State = defaultState, action) {
                 });
             }
 
+            if (state.sortColumn) {
+                items = sortItems(items, state.sortColumn, state.sortType);
+            }
+
             return Object.assign({}, state, {
                 nodes: nodes,
                 items: items
@@ -673,6 +697,16 @@ export default function entries(state: State = defaultState, action) {
         case TOGGLE_LABELS: {
             return Object.assign({}, state, {
                 showLabels: action.payload.show
+            });
+        }
+
+        case TABLE_SORT: {
+            const items = sortItems(state.items, action.payload.column, action.payload.type);
+
+            return Object.assign({}, state, {
+                sortColumn: action.payload.column,
+                sortType: action.payload.type,
+                items: items
             });
         }
 

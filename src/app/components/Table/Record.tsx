@@ -1,46 +1,48 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import { uniq, find, map, mapValues, reduce } from 'lodash';
 import { fieldLocator } from '../../helpers/index';
 import { highlightNodes } from '../../modules/graph/index';
 import { Icon } from '../../components/index';
+import {Column} from "../../interfaces/column";
+import {Item} from "../../interfaces/item";
+import {Node} from "../../interfaces/node";
+import {Search} from "../../interfaces/search";
+import {QueryColorMap} from "./TableView";
 
-export default class Record extends Component {
-    constructor(props) {
-        super(props);
+interface Props {
+    toggleExpand: Function;
+    record: Item;
+    columns: Column[];
+    selectedNodes: Node[];
+    searches: Search[];
+    className: string;
+    expanded: boolean;
+    queryColorMap: QueryColorMap;
+}
 
-        this.state = {
-        };
+interface State {
+}
 
-        this.handleToggleExpand.bind(this);
-    }
-
+export default class Record extends React.Component<Props, State> {
     handleToggleExpand(id) {
         const { toggleExpand } = this.props;
         toggleExpand(id);
     }
 
-    render() {
-        const { record, columns, node, searches, className } = this.props;
-        const { expanded } = this.props;
-
-        let queries = [];
-        record.nodes.forEach(n => queries = queries.concat(n.queries));
-        queries = uniq(queries);
-
-        let usedSearches = [];
-        queries.forEach(query => {
-            const search = searches.find(s => s.q === query);
-
-            if (search) {
-                usedSearches.push(search);
-            }
-        });
-        usedSearches = uniq(usedSearches);
+    getQueryInfo() {
+        const { queryColorMap, record } = this.props;
 
         const queryElements = [];
-        usedSearches.forEach(search => {
-            queryElements.push(<Icon name='ion-ios-lightbulb' style={{ color: search.color }} alt={ search.q } key={search.q} />);
+        queryColorMap[record.id].forEach(color => {
+            queryElements.push(<Icon name='ion-ios-lightbulb' style={{ color: color }} key={color} />);
         });
+
+        return queryElements;
+    }
+
+    render() {
+        const { record, columns, className } = this.props;
+        const { expanded } = this.props;
 
         const renderedColumns = (columns || []).map((value) => {
             const val = fieldLocator(record.fields, value);
@@ -58,7 +60,7 @@ export default class Record extends Component {
                     <div className="itemIcons">
                         <Icon onClick={() => this.handleToggleExpand(record.id) }
                           name={expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down'}/>
-                        { queryElements }
+                        { this.getQueryInfo() }
                     </div>
                 </td>
                 { renderedColumns}

@@ -19,6 +19,9 @@ import {Link} from "../../interfaces/link";
 import {Normalization} from "../../interfaces/normalization";
 import {Via} from "../../interfaces/via";
 import {EventEmitter} from "fbemitter";
+import {Column} from "../../interfaces/column";
+import {SortType} from "../../interfaces/sortType";
+import {sortItems} from "../../helpers/sortItems";
 
 export interface GraphWorkerPayload {
     items: Item[];
@@ -32,6 +35,8 @@ export interface GraphWorkerPayload {
     deletedNodes: Node[];
     via: Via[];
     receivedAt: number;
+    sortColumn: Column;
+    sortType: SortType;
 }
 
 export interface GraphWorkerOutput {
@@ -123,10 +128,15 @@ export default class GraphWorkerClass {
 
         let { nodes, links } = applyVia(result.nodes, result.links, payload.via);
 
+        let items = payload.prevItems.concat(payload.items);
+        if (payload.sortColumn) {
+            items = sortItems(items, payload.sortColumn, payload.sortType);
+        }
+
         const output: GraphWorkerOutput = {
             nodes: nodes,
             links: links,
-            items: payload.prevItems.concat(payload.items),
+            items: items,
             fields: fields,
             searches: searches
         };

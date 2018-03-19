@@ -4,6 +4,7 @@ import {saveAs} from 'file-saver';
 import { forEach, uniqWith, reduce, find, findIndex, pull, concat, map } from 'lodash';
 import { Record, RecordDetail, Icon } from '../index';
 import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
+import { tableSort } from '../../modules/data/actions';
 import {requestItems} from "../../modules/items/actions";
 import {Item} from "../../interfaces/item";
 import {Node} from "../../interfaces/node";
@@ -15,13 +16,18 @@ import { fieldAdd } from '../../modules/data/index';
 import {searchFieldsUpdate} from "../../modules/search/actions";
 import { EventEmitter } from 'fbemitter';
 import {getSelectedNodes} from "../../reducers/entriesSelectors";
+import {Column} from "../../interfaces/column";
+import {SortType} from "../../interfaces/sortType";
+import IconSelector from "../Configuration/iconSelector/iconSelector";
 
 interface Props {
     dispatch: Dispatch<any>;
     selectedNodes: Node[];
     items: Item[];
     fields: any;
-    columns: any;
+    columns: Column[];
+    sortColumn: Column;
+    sortType: SortType;
     normalizations: Normalization[];
     searches: Search[];
     availableFields: Field[];
@@ -31,12 +37,18 @@ interface Props {
 interface State {
     items: Item[];
     expandedItems: any[];
+    queryColorMap: QueryColorMap;
+}
+
+export interface QueryColorMap {
+    [itemId: string]: string[]
 }
 
 class TableView extends React.Component<Props, State> {
     state: State = {
         items: [],
         expandedItems: [],
+        queryColorMap: {}
     };
 
     toggleExpand(id) {
@@ -68,32 +80,30 @@ class TableView extends React.Component<Props, State> {
         dispatch(searchFieldsUpdate());
     }
 
-    getSelectedItems(selectedNodes: Node[], items: Item[]) {
-        // todo(nl5887): this can be optimized
-        let selectedItems = reduce(selectedNodes, (result, node) => {
-            for (var itemid of node.items) {
-                const i = find(items, (i) => itemid === i.id);
-                if (!i) {
-                    console.error("could not find ", itemid, " in items?", items);
-                    continue;
-                }
+    getSelectedItems(selectedNodes: Node[], items: Item[]): Item[] {
+        const nodeMap = {};
 
-                // check if already exists
-                if (find(result, (i) => itemid == i.id)) {
-                    i.nodes.push(node);
-                    continue;
-                }
-
-                i.nodes = [node];
-                result.push(i);
-            };
-
-            return result;
-        }, []);
-
-        return uniqWith(selectedItems, (value, other) => {
-            return (value.id == other.id);
+        selectedNodes.forEach(node => {
+            node.items.forEach(itemId => {
+                nodeMap[itemId] = true;
+            });
         });
+
+        const itemMap = {};
+
+        items.forEach(item => {
+            if (!nodeMap[item.id]) {
+                // Item is not selected
+                return;
+            }
+
+            itemMap[item.id] = item;
+        });
+
+        // Convert object to array
+        const selectedItems: Item[] = Object.keys(itemMap).map(id => itemMap[id]);
+
+        return selectedItems;
     }
 
     requestData(selectedNodes: Node[], items: Item[]) {
@@ -107,10 +117,45 @@ class TableView extends React.Component<Props, State> {
         }
     }
 
+    setQueryColorMap(selectedNodes: Node[], searches: Search[]) {
+        const colorMap = {};
+        searches.forEach(search => colorMap[search.q] = search.color);
+
+        const queryMap: QueryColorMap = {};
+
+        selectedNodes.forEach(node => {
+            node.items.forEach(itemId => {
+                node.queries.forEach(query => {
+                    const color: string = colorMap[query];
+
+                    if (!queryMap[itemId]) {
+                        queryMap[itemId] = [color];
+                        return;
+                    }
+
+                    if (queryMap[itemId].indexOf(color) === -1) {
+                        queryMap[itemId].push(color);
+                    }
+                });
+            });
+        });
+
+        this.setState({
+            queryColorMap: queryMap
+        });
+    }
+
     componentWillReceiveProps(nextProps: Props) {
-        if (nextProps.selectedNodes !== this.props.selectedNodes) {
+        const sortChanged: boolean =
+            nextProps.sortColumn !== this.props.sortColumn
+            || nextProps.sortType !== this.props.sortType;
+
+        const selectionChanged: boolean = nextProps.selectedNodes !== this.props.selectedNodes;
+
+        if (selectionChanged || sortChanged) {
             const items = this.getSelectedItems(nextProps.selectedNodes, nextProps.items);
             this.setState({items: items});
+            this.setQueryColorMap(nextProps.selectedNodes, nextProps.searches);
         }
 
         if (nextProps.selectedNodes.length !== this.props.selectedNodes.length) {
@@ -134,8 +179,8 @@ class TableView extends React.Component<Props, State> {
     }
 
     renderBody() {
-        const { columns, searches, fields } = this.props;
-        const { items } = this.state;
+        const { columns, searches, fields, selectedNodes } = this.props;
+        const { items, queryColorMap } = this.state;
 
         const activeFields = fields.map(field => field.path);
 
@@ -147,10 +192,12 @@ class TableView extends React.Component<Props, State> {
                 <Record
                     key={'record' + record.id}
                     columns={ columns }
+                    selectedNodes={ selectedNodes }
                     record={ record }
                     searches={ searches }
                     toggleExpand = { this.toggleExpand.bind(this) }
                     expanded = { expanded }
+                    queryColorMap={queryColorMap}
                     className={className}
                 />,
                 <RecordDetail
@@ -168,14 +215,46 @@ class TableView extends React.Component<Props, State> {
         });
     }
 
+    sort(column: Column, type: SortType) {
+        const { dispatch } = this.props;
+
+        dispatch(tableSort(column, type));
+    }
+
     renderHeader() {
-        const { columns } = this.props;
+        const { columns, sortColumn, sortType } = this.props;
 
         return map(columns, (value) => {
+            let sortIcon;
+
+            if (value === sortColumn && sortType === 'asc') {
+                sortIcon = (
+                    <Icon
+                        name="ion-ios-arrow-down"
+                        onClick={() => this.sort(value, 'desc')}
+                    />
+                )
+            } else if (value === sortColumn && sortType === 'desc' ) {
+                sortIcon = (
+                    <Icon
+                        name="ion-ios-arrow-up"
+                        onClick={() => this.sort(value, 'asc')}
+                    />
+                )
+            } else {
+                sortIcon = (
+                    <Icon
+                        name="ion-ios-arrow-down unsorted"
+                        onClick={() => this.sort(value, 'asc')}
+                    />
+                )
+            }
+
             return (
                 <th key={ 'header_' + value }>
                     <h1>
                         <span>{ value }</span>
+                        {sortIcon}
                         <Icon onClick={(e) => this.handleTableRemoveColumn(value)} name="ion-ios-close-empty"/>
                     </h1>
                 </th>
@@ -244,6 +323,8 @@ function select(state) {
         searches: state.entries.searches,
         fields: state.entries.fields,
         columns: state.entries.columns,
+        sortColumn: state.entries.sortColumn,
+        sortType: state.entries.sortType,
         availableFields: state.fields.availableFields
     };
 }

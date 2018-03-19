@@ -303,6 +303,10 @@
                     font-size: 21px;
                     margin-top: -3px;
                     margin-left: 5px;
+
+                    &.unsorted {
+                        opacity: .3;
+                    }
                 }
             }
 

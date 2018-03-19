@@ -1,10 +1,11 @@
 import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from './index';
-import {VIA_ADD, VIA_DELETE} from "./constants";
+import {VIA_ADD, VIA_DELETE, TABLE_SORT} from "./constants";
 import {Field} from "../../interfaces/field";
 import {getFields} from '../fields/actions';
 import {Datasource} from "../../interfaces/datasource";
 import {datasourceDeactivated} from "../datasources/actions";
 import {addLiveDatasourceSearch} from "../search/actions";
+import {Column} from "../../interfaces/column";
 
 export function tableColumnRemove(field) {
     return {
@@ -138,5 +139,15 @@ export function viaDelete(via) {
         type: VIA_DELETE,
         receivedAt: Date.now(),
         via: via
+    };
+}
+
+export function tableSort(column: Column, type: 'asc' | 'desc') {
+    return {
+        type: TABLE_SORT,
+        payload: {
+            column: column,
+            type: type
+        }
     };
 }
