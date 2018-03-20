@@ -506,7 +506,11 @@ export default function entries(state: State = defaultState, action) {
             // In a live search all fields present in the items are automatically
             // added
             if (!isEqual(action.fields, state.fields)) {
-                updates.fields = action.fields;
+                const newFields = action.fields.filter((field: Field) =>
+                    state.fields.findIndex(existing => existing.path === field.path) === -1
+                );
+
+                updates.fields = state.fields.concat(newFields);
             }
 
             return Object.assign({}, state, updates);
