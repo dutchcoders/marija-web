@@ -43,6 +43,11 @@
   min-width: 100%;
 }
 
+.datasourcesHidden {
+  height: 0;
+  overflow: hidden;
+}
+
 .datasourceLabel {
   margin: 0 6px 0 0;
   font-weight: 300;

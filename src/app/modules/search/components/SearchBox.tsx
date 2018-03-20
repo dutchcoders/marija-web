@@ -132,7 +132,7 @@ class SearchBox extends React.Component<Props, State> {
         const { formExpanded } = this.state;
 
         const className = styles.datasources + ' ' +
-            (formExpanded ? '' : 'hidden');
+            (formExpanded ? '' : styles.datasourcesHidden);
 
         const queryDatasources = datasources.filter(datasource => datasource.type !== 'live');
 
