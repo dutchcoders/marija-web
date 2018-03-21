@@ -229,6 +229,7 @@ export default class GraphWorkerClass {
 
                 const field = createField(fields, key, 'string', datasource);
                 fields = fields.concat([field]);
+                fieldMap[key] = true;
             });
         });
 
