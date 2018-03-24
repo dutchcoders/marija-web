@@ -13,7 +13,7 @@ import abbreviateNodeName from '../../helpers/abbreviateNodeName';
 import {Search} from "../../interfaces/search";
 
 interface Props {
-    node: Node;
+    nodeId: string;
     nodes: Node[];
     links: Link[];
     x: number;
@@ -35,20 +35,40 @@ class ContextMenu extends React.Component<Props, State> {
         renameTo: ''
     };
 
+    getNode(nodeId: string): Node {
+        const { nodes } = this.props;
+
+        return nodes.find(search => search.id === nodeId);
+    }
+
     componentWillReceiveProps(nextProps: Props) {
-        if (!nextProps.node) {
+        const { nodeId } = this.props;
+
+        if (!nextProps.nodeId) {
             return;
         }
 
-        this.setState({
-            renameTo: nextProps.node.name,
-            renameOpened: false
-        });
+        const isDifferentNode: boolean = nextProps.nodeId !== nodeId;
+
+        if (isDifferentNode) {
+            this.setState({
+                renameOpened: false
+            });
+        }
+
+        if (isDifferentNode || !nodeId) {
+            const node = this.getNode(nextProps.nodeId);
+
+            this.setState({
+                renameTo: node.name
+            });
+        }
     }
 
     selectRelated() {
-        const { dispatch, nodes, links, node } = this.props;
+        const { dispatch, nodes, links, nodeId } = this.props;
 
+        const node = this.getNode(nodeId);
         const relatedNodes = getDirectlyRelatedNodes([node], nodes, links);
         dispatch(nodesSelect(relatedNodes));
 
@@ -56,15 +76,18 @@ class ContextMenu extends React.Component<Props, State> {
     }
 
     delete() {
-        const { dispatch, node } = this.props;
+        const { dispatch, nodeId } = this.props;
+
+        const node = this.getNode(nodeId);
         dispatch(deleteNodes([node]));
 
         this.close();
     }
 
     searchAround() {
-        const { dispatch, node } = this.props;
+        const { dispatch, nodeId } = this.props;
 
+        const node = this.getNode(nodeId);
         dispatch(searchAround(node));
         this.close();
     }
@@ -87,17 +110,24 @@ class ContextMenu extends React.Component<Props, State> {
     }
 
     handleRenameEvents(event: KeyboardEvent) {
-        const { dispatch, node, searches } = this.props;
+        const { dispatch, nodeId, searches } = this.props;
         const { renameTo } = this.state;
 
         if (event.key === 'Enter') {
+            const node = this.getNode(nodeId);
             const search = searches.find(loop => loop.searchId === node.searchIds[0]);
 
-            dispatch(nodeUpdate(node.id, {
+            dispatch(nodeUpdate(nodeId, {
                 name: renameTo,
                 abbreviated: abbreviateNodeName(renameTo, search.q, 20)
             }));
+
+            this.setState({
+                renameOpened: false
+            });
         } else if (event.key === 'Escape') {
+            const node = this.getNode(nodeId);
+
             this.setState({
                 renameOpened: false,
                 renameTo: node.name
@@ -112,10 +142,10 @@ class ContextMenu extends React.Component<Props, State> {
     }
 
     render() {
-        const { node, x, y } = this.props;
+        const { nodeId, x, y } = this.props;
         const { renameOpened, renameTo } = this.state;
 
-        if (!node) {
+        if (!nodeId) {
             return null;
         }
 
@@ -143,6 +173,8 @@ class ContextMenu extends React.Component<Props, State> {
                 </button>
             );
         }
+
+        const node = this.getNode(nodeId);
 
         return (
             <div className={styles.contextMenu} style={{top: y, left: x}}>
@@ -179,7 +211,7 @@ class ContextMenu extends React.Component<Props, State> {
 const select = (state, ownProps) => {
     return {
         ...ownProps,
-        node: state.contextMenu.node,
+        nodeId: state.contextMenu.nodeId,
         nodes: state.entries.nodes,
         links: state.entries.links,
         searches: state.entries.searches,

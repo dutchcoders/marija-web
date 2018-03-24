@@ -390,6 +390,8 @@ export default function entries(state: State = defaultState, action) {
                 n = assign(n, action.params);
             }
 
+
+
             return Object.assign({}, state, {
                 nodes: nodes
             });

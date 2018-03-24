@@ -1229,7 +1229,7 @@ class Graph extends React.PureComponent<Props, State> {
         const node = this.findNode(transformedX, transformedY);
 
         if (node) {
-            dispatch(showContextMenu(node, x, y));
+            dispatch(showContextMenu(node.id, x, y));
 
             // Hide tooltip, because it looks weird to have both active at the
             // same time

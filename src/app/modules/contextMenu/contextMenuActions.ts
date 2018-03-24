@@ -1,10 +1,10 @@
 import {Node} from "../../interfaces/node";
 import {HIDE_CONTEXT_MENU, SHOW_CONTEXT_MENU} from "./contextMenuConstants";
 
-export function showContextMenu(node: Node, x: number, y: number) {
+export function showContextMenu(nodeId: string, x: number, y: number) {
     return {
         type: SHOW_CONTEXT_MENU,
-        node: node,
+        nodeId: nodeId,
         x: x,
         y: y
     };
