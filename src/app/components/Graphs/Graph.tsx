@@ -1167,13 +1167,18 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedSince.lastSelection = false;
     }
 
-    handleKeyDown(event) {
-        const { selectingMode, dispatch } = this.props;
-        const altKey = 18;
+    handleKeyDown(event: KeyboardEvent) {
+        const { dispatch } = this.props;
         const shiftKey = 16;
+        const mKey = 77;
+        const sKey = 83;
 
-        if (event.keyCode === altKey) {
-            dispatch(setSelectingMode(!selectingMode));
+        if (event.keyCode === mKey) {
+            // Switch to move mode
+            dispatch(setSelectingMode(false));
+        } else if (event.keyCode === sKey) {
+            // Switch to selecting mode
+            dispatch(setSelectingMode(true));
         } else if (event.keyCode === shiftKey) {
             this.shift = true;
         }

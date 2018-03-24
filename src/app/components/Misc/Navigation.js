@@ -100,13 +100,13 @@ class Navigation extends React.Component {
                     )}
                     {this.getButton(
                         'ion-arrow-move',
-                        'Move',
+                        'Move (M)',
                         () => this.enableMoving(),
                         !selectingMode
                     )}
                     {this.getButton(
                         'ion-qr-scanner',
-                        'Select',
+                        'Select (S)',
                         () => this.enableSelecting(),
                         selectingMode
                     )}
