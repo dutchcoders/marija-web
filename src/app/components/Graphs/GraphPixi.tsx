@@ -11,8 +11,8 @@ import * as PIXI from 'pixi.js';
 import {Search} from "../../interfaces/search";
 import {Node} from "../../interfaces/node";
 import {Link} from "../../interfaces/link";
-import {NodeFromWorker} from "../../interfaces/nodeFromWorker";
-import {LinkFromWorker} from "../../interfaces/linkFromWorker";
+import {NodeFromD3} from "../../interfaces/nodeFromD3";
+import {LinkFromD3} from "../../interfaces/linkFromD3";
 import {
     hideContextMenu,
     showContextMenu
@@ -70,10 +70,10 @@ class GraphPixi extends React.PureComponent<Props, State> {
         lastFields: true,
         lastNodeLableToggle: true
     };
-    nodesFromWorker: NodeFromWorker[] = [];
+    nodesFromD3: NodeFromD3[] = [];
     nodeTextures: TextureMap = {};
     renderedNodesContainer: PIXI.Container = new PIXI.Container();
-    linksFromWorker: LinkFromWorker[] = [];
+    linksFromD3: LinkFromD3[] = [];
     renderedLinks: PIXI.Graphics = new PIXI.Graphics();
     renderedLinkLabels: PIXI.Container = new PIXI.Container();
     renderedArrows: PIXI.Container = new PIXI.Container();
@@ -124,8 +124,8 @@ class GraphPixi extends React.PureComponent<Props, State> {
             node.textureKey = this.getNodeTextureKey(node);
         });
 
-        this.nodesFromWorker = data.nodes;
-        this.linksFromWorker = data.links;
+        this.nodesFromD3 = data.nodes;
+        this.linksFromD3 = data.links;
         this.renderedSince.lastTick = false;
     }
 
@@ -190,13 +190,13 @@ class GraphPixi extends React.PureComponent<Props, State> {
         }
     }
 
-    getNodeTextureKey(node: NodeFromWorker) {
+    getNodeTextureKey(node: NodeFromD3) {
         return node.icon
             + node.r
             + node.searchIds.map(searchId => this.getSearchColor(searchId)).join('');
     }
 
-    getNodeTexture(node: NodeFromWorker) {
+    getNodeTexture(node: NodeFromD3) {
         let texture = this.nodeTextures[node.textureKey];
 
         if (typeof texture !== 'undefined') {
@@ -239,7 +239,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
     renderNodes() {
         this.renderedNodesContainer.removeChildren();
 
-        this.nodesFromWorker.forEach(node => {
+        this.nodesFromD3.forEach(node => {
             const texture = this.getNodeTexture(node);
             const renderedNode = new PIXI.Sprite(texture);
 
@@ -257,7 +257,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
         this.renderedLinkLabels.removeChildren();
         this.renderedArrows.removeChildren();
 
-        this.linksFromWorker.forEach(link => {
+        this.linksFromD3.forEach(link => {
             this.renderedLinks.lineStyle(link.thickness, 0xFFFFFF);
             this.renderLink(link);
         });
@@ -274,7 +274,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
         this.renderedArrows.addChild(sprite);
     }
 
-    renderLink(link: LinkFromWorker) {
+    renderLink(link: LinkFromD3) {
         if (link.total <= 1) {
             // When there's only 1 link between 2 nodes, we can draw a straight line
 
@@ -469,15 +469,15 @@ class GraphPixi extends React.PureComponent<Props, State> {
         }
 
         if (!isEqual(nextProps.fields, fields)) {
-            this.nodesFromWorker.forEach(nodeFromWorker => {
-                const node = nextProps.nodesForDisplay.find(search => search.id === nodeFromWorker.id);
+            this.nodesFromD3.forEach(nodeFromD3 => {
+                const node = nextProps.nodesForDisplay.find(search => search.id === nodeFromD3.id);
 
                 if (!node) {
                     return;
                 }
 
-                nodeFromWorker.icon = node.icon;
-                nodeFromWorker.textureKey = this.getNodeTextureKey(nodeFromWorker);
+                nodeFromD3.icon = node.icon;
+                nodeFromD3.textureKey = this.getNodeTextureKey(nodeFromD3);
             });
 
             this.nodeTextures = {};
@@ -610,17 +610,17 @@ class GraphPixi extends React.PureComponent<Props, State> {
         }
 
         tooltipNodes.forEach(node => {
-            const nodeFromWorker = this.nodesFromWorker.find(search => search.hash === node.hash);
+            const nodeFromD3 = this.nodesFromD3.find(search => search.hash === node.hash);
 
-            if (typeof nodeFromWorker === 'undefined') {
+            if (typeof nodeFromD3 === 'undefined') {
                 return;
             }
 
             const texture = this.getTooltipTexture(node);
             const sprite = new PIXI.Sprite(texture);
 
-            sprite.x = this.transform.applyX(nodeFromWorker.x);
-            sprite.y = this.transform.applyY(nodeFromWorker.y);
+            sprite.x = this.transform.applyX(nodeFromD3.x);
+            sprite.y = this.transform.applyY(nodeFromD3.y);
 
             this.renderedTooltip.addChild(sprite);
         });
@@ -659,19 +659,19 @@ class GraphPixi extends React.PureComponent<Props, State> {
         this.renderedSelectedNodes.removeChildren();
 
         selectedNodes.forEach(selected => {
-            const nodeFromWorker = this.nodesFromWorker.find(search => search.hash === selected.hash);
+            const nodeFromD3 = this.nodesFromD3.find(search => search.hash === selected.hash);
 
-            if (typeof nodeFromWorker === 'undefined') {
+            if (typeof nodeFromD3 === 'undefined') {
                 return;
             }
 
-            const texture = this.getSelectedNodeTexture(nodeFromWorker.r);
+            const texture = this.getSelectedNodeTexture(nodeFromD3.r);
             const sprite = new PIXI.Sprite(texture);
 
             sprite.anchor.x = 0.5;
             sprite.anchor.y = 0.5;
-            sprite.x = nodeFromWorker.x;
-            sprite.y = nodeFromWorker.y;
+            sprite.x = nodeFromD3.x;
+            sprite.y = nodeFromD3.y;
 
             this.renderedSelectedNodes.addChild(sprite);
         });
@@ -707,19 +707,19 @@ class GraphPixi extends React.PureComponent<Props, State> {
         this.renderedHighlights.removeChildren();
 
         highlightNodes.forEach(searchResult => {
-            const nodeFromWorker = this.nodesFromWorker.find(search => search.hash === searchResult.hash);
+            const nodeFromD3 = this.nodesFromD3.find(search => search.hash === searchResult.hash);
 
-            if (typeof nodeFromWorker === 'undefined') {
+            if (typeof nodeFromD3 === 'undefined') {
                 return;
             }
 
-            const texture = this.getSearchResultTexture(nodeFromWorker.r);
+            const texture = this.getSearchResultTexture(nodeFromD3.r);
             const sprite = new PIXI.Sprite(texture);
 
             sprite.anchor.x = 0.5;
             sprite.anchor.y = 0.5;
-            sprite.x = nodeFromWorker.x;
-            sprite.y = nodeFromWorker.y;
+            sprite.x = nodeFromD3.x;
+            sprite.y = nodeFromD3.y;
 
             this.renderedHighlights.addChild(sprite);
         });
@@ -762,7 +762,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
             return;
         }
 
-        this.nodesFromWorker.forEach(node => {
+        this.nodesFromD3.forEach(node => {
             const texture = this.getNodeLabelTexture(node.label);
             const sprite = new PIXI.Sprite(texture);
 
@@ -1009,11 +1009,11 @@ class GraphPixi extends React.PureComponent<Props, State> {
         const x = this.transform.invertX(d3.event.x);
         const y = this.transform.invertY(d3.event.y);
 
-        return this.findNodeFromWorker(x, y);
+        return this.findNodeFromD3(x, y);
     }
 
-    findNodeFromWorker(x: number, y: number): NodeFromWorker {
-        return this.nodesFromWorker.find(node => {
+    findNodeFromD3(x: number, y: number): NodeFromD3 {
+        return this.nodesFromD3.find(node => {
             const dx = x - node.x;
             const dy = y - node.y;
             const d2 = dx * dx + dy * dy;
@@ -1023,15 +1023,15 @@ class GraphPixi extends React.PureComponent<Props, State> {
     }
 
     findNode(x, y): Node {
-        const nodeFromWorker = this.findNodeFromWorker(x, y);
+        const nodeFromD3 = this.findNodeFromD3(x, y);
 
-        if (typeof nodeFromWorker === 'undefined') {
+        if (typeof nodeFromD3 === 'undefined') {
             return;
         }
 
         const { nodesForDisplay } = this.props;
 
-        return nodesForDisplay.find(node => node.hash === nodeFromWorker.hash);
+        return nodesForDisplay.find(node => node.hash === nodeFromD3.hash);
     }
 
     tooltipNode(node: Node) {
@@ -1129,19 +1129,19 @@ class GraphPixi extends React.PureComponent<Props, State> {
 
         const newSelectedNodes = concat(selectedNodes, []);
 
-        this.nodesFromWorker.forEach(nodeFromWorker => {
-            if ((nodeFromWorker.x > this.selection.x1 && nodeFromWorker.x < this.selection.x2) &&
-                (nodeFromWorker.y > this.selection.y1 && nodeFromWorker.y < this.selection.y2)) {
-                const node = nodesForDisplay.find(search => search.hash === nodeFromWorker.hash);
+        this.nodesFromD3.forEach(nodeFromD3 => {
+            if ((nodeFromD3.x > this.selection.x1 && nodeFromD3.x < this.selection.x2) &&
+                (nodeFromD3.y > this.selection.y1 && nodeFromD3.y < this.selection.y2)) {
+                const node = nodesForDisplay.find(search => search.hash === nodeFromD3.hash);
 
                 if (!includes(selectedNodes, node)) {
                     newSelectedNodes.push(node);
                 }
             }
 
-            if ((nodeFromWorker.x > this.selection.x2 && nodeFromWorker.x < this.selection.x1) &&
-                (nodeFromWorker.y > this.selection.y2 && nodeFromWorker.y < this.selection.y1)) {
-                const node = nodesForDisplay.find(search => search.hash === nodeFromWorker.hash);
+            if ((nodeFromD3.x > this.selection.x2 && nodeFromD3.x < this.selection.x1) &&
+                (nodeFromD3.y > this.selection.y2 && nodeFromD3.y < this.selection.y1)) {
+                const node = nodesForDisplay.find(search => search.hash === nodeFromD3.hash);
 
                 if (!includes(selectedNodes, node)) {
                     newSelectedNodes.push(node);

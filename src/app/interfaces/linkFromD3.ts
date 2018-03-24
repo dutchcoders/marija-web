@@ -1,4 +1,4 @@
-export interface LinkFromWorker {
+export interface LinkFromD3 {
     source: {
         x: number;
         y: number;
