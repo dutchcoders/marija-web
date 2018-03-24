@@ -174,7 +174,7 @@ export default class GraphWorkerClass {
     private static filterSecondaryQueries(nodes: Node[], links: Link[], searches: Search[]): { nodes: Node[], links: Link[]} {
         const normalSearches = searches.filter(search => !search.liveDatasource);
 
-        if (normalSearches.length === 0) {
+        if (normalSearches.length < 2) {
             return {
                 nodes: nodes,
                 links: links
