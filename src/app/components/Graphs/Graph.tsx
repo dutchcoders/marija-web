@@ -51,12 +51,12 @@ interface RenderedSince {
     lastSelection: boolean;
     lastSelectedNodes: boolean;
     lastQueries: boolean;
-    lastSearchResults: boolean;
+    lastHighlights: boolean;
     lastFields: boolean;
     lastNodeLableToggle: boolean;
 }
 
-class GraphPixi extends React.PureComponent<Props, State> {
+class Graph extends React.PureComponent<Props, State> {
     pixiContainer: HTMLElement;
     state: State = {};
     renderedSince: RenderedSince = {
@@ -66,7 +66,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
         lastSelection: true,
         lastSelectedNodes: true,
         lastQueries: true,
-        lastSearchResults: true,
+        lastHighlights: true,
         lastFields: true,
         lastNodeLableToggle: true
     };
@@ -84,7 +84,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
     renderedTooltip: PIXI.Container = new PIXI.Graphics();
     renderedSelectedNodes: PIXI.Container = new PIXI.Graphics();
     selectedNodeTextures: TextureMap = {};
-    searchResultTextures: TextureMap = {};
+    highlightTextures: TextureMap = {};
     renderedHighlights: PIXI.Container = new PIXI.Container();
     nodeLabelTextures: TextureMap = {};
     renderedNodeLabels: PIXI.Container = new PIXI.Container();
@@ -200,6 +200,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
         let texture = this.nodeTextures[node.textureKey];
 
         if (typeof texture !== 'undefined') {
+            // Get from cache
             return texture;
         }
 
@@ -231,6 +232,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
 
         texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
 
+        // Save in cache
         this.nodeTextures[node.textureKey] = texture;
 
         return texture;
@@ -368,6 +370,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
         let texture = this.linkLabelTextures[label];
 
         if (typeof texture !== 'undefined') {
+            // Get from cache
             return texture;
         }
 
@@ -382,6 +385,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
         texture = PIXI.RenderTexture.create(metrics.width, metrics.height);
         this.renderer.render(text, texture);
 
+        // Save in cache
         this.linkLabelTextures[label] = texture;
 
         return texture;
@@ -489,7 +493,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
         }
 
         if (nextProps.nodesForDisplay.filter(node => node.highlighted) !== this.getHighlightNodes()) {
-            this.renderedSince.lastSearchResults = false;
+            this.renderedSince.lastHighlights = false;
         }
 
         if (nextProps.showLabels !== showLabels) {
@@ -568,6 +572,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
         let texture = this.tooltipTextures[key];
 
         if (typeof texture !== 'undefined') {
+            // Get from cache
             return texture;
         }
 
@@ -595,6 +600,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
         texture = PIXI.RenderTexture.create(backgroundWidth, backgroundHeight);
         this.renderer.render(container, texture);
 
+        // Save in cache
         this.tooltipTextures[key] = texture;
 
         return texture;
@@ -630,6 +636,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
         let texture = this.selectedNodeTextures[radius];
 
         if (texture) {
+            // Get from cache
             return texture;
         }
 
@@ -645,6 +652,7 @@ class GraphPixi extends React.PureComponent<Props, State> {
 
         texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
 
+        // Save in cache
         this.selectedNodeTextures[radius] = texture;
 
         return texture;
@@ -677,11 +685,12 @@ class GraphPixi extends React.PureComponent<Props, State> {
         });
     }
 
-    getSearchResultTexture(radius: number) {
+    getHighlightTexture(radius: number) {
         radius += 5;
-        let texture = this.searchResultTextures[radius];
+        let texture = this.highlightTextures[radius];
 
         if (texture) {
+            // Get from cache
             return texture;
         }
 
@@ -696,24 +705,25 @@ class GraphPixi extends React.PureComponent<Props, State> {
 
         texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
 
-        this.searchResultTextures[radius] = texture;
+        // Save in cache
+        this.highlightTextures[radius] = texture;
 
         return texture;
     }
 
-    renderSearchResults() {
+    renderHighlights() {
         const highlightNodes = this.getHighlightNodes();
 
         this.renderedHighlights.removeChildren();
 
-        highlightNodes.forEach(searchResult => {
-            const nodeFromD3 = this.nodesFromD3.find(search => search.hash === searchResult.hash);
+        highlightNodes.forEach((highlightNode: Node) => {
+            const nodeFromD3 = this.nodesFromD3.find(node => node.hash === highlightNode.hash);
 
             if (typeof nodeFromD3 === 'undefined') {
                 return;
             }
 
-            const texture = this.getSearchResultTexture(nodeFromD3.r);
+            const texture = this.getHighlightTexture(nodeFromD3.r);
             const sprite = new PIXI.Sprite(texture);
 
             sprite.anchor.x = 0.5;
@@ -727,9 +737,10 @@ class GraphPixi extends React.PureComponent<Props, State> {
 
     getNodeLabelTexture(label: string): PIXI.Texture {
         const key = label;
-        let texture = this.tooltipTextures[key];
+        let texture = this.nodeLabelTextures[key];
 
         if (typeof texture !== 'undefined') {
+            // Get from cache
             return texture;
         }
 
@@ -746,7 +757,8 @@ class GraphPixi extends React.PureComponent<Props, State> {
         texture = PIXI.RenderTexture.create(text.width, text.height);
         this.renderer.render(text, texture);
 
-        this.tooltipTextures[key] = texture;
+        // Save in cache
+        this.nodeLabelTextures[key] = texture;
 
         return texture;
     }
@@ -825,12 +837,12 @@ class GraphPixi extends React.PureComponent<Props, State> {
             stateUpdates.lastSelectedNodes = true;
         }
 
-        if (shouldRender('lastSearchResults')
+        if (shouldRender('lastHighlights')
             || shouldRender('lastZoom')
             || shouldRender('lastTick')) {
-            this.renderSearchResults();
+            this.renderHighlights();
 
-            stateUpdates.lastSearchResults = true;
+            stateUpdates.lastHighlights = true;
         }
 
         const hasStateUpdates: boolean = !isEmpty(stateUpdates);
@@ -1251,4 +1263,4 @@ const select = (state, ownProps) => {
     };
 };
 
-export default connect(select)(GraphPixi);
+export default connect(select)(Graph);
