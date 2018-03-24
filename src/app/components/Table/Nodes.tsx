@@ -1,8 +1,6 @@
 import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
-
 import { map, uniq, filter, concat, without, find, differenceWith, sortBy, forEach } from 'lodash';
-
 import { Icon } from '../index';
 import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
 import SkyLight from 'react-skylight';
@@ -15,6 +13,7 @@ import {Search} from "../../interfaces/search";
 import {Node} from "../../interfaces/node";
 import {Link} from "../../interfaces/link";
 import {Normalization} from "../../interfaces/normalization";
+import getRelatedNodes from '../../helpers/getRelatedNodes';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -93,6 +92,14 @@ class Nodes extends React.Component<Props, State> {
     }
 
     handleSelectRelatedNodes() {
+        const { dispatch, nodes, links } = this.props;
+        const selectedNodes = nodes.filter(node => node.selected);
+
+        const relatedNodes = getRelatedNodes(selectedNodes, nodes, links);
+        dispatch(nodesSelect(relatedNodes));
+    }
+
+    handleSelectDirectlyRelatedNodes() {
         const { dispatch, nodes, links } = this.props;
         const selectedNodes = nodes.filter(node => node.selected);
 
@@ -349,6 +356,7 @@ class Nodes extends React.Component<Props, State> {
                 <div className="nodes-btn-group" role="group">
                     <button type="button" className="btn btn-default" aria-label="Clear selection" onClick={() => this.handleClearSelection()}>deselect</button>
                     <button type="button" className="btn btn-default" aria-label="Select related nodes" onClick={() => this.handleSelectRelatedNodes()}>related</button>
+                    <button type="button" className="btn btn-default" aria-label="Select directly related nodes" onClick={() => this.handleSelectDirectlyRelatedNodes()}>directly related</button>
                     <button type="button" className="btn btn-default" aria-label="Select all nodes" onClick={() => this.handleSelectAllNodes()}>all</button>
                     <button type="button" className="btn btn-default" aria-label="Delete selected nodes" onClick={() => this.handleDeleteAllNodes()}>delete</button>
                     <button type="button" className="btn btn-default" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}>delete others</button>
