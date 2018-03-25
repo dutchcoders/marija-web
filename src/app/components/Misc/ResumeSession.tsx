@@ -1,9 +1,10 @@
 import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
-import {dateFieldAdd, fieldAdd} from "../../modules/data/actions";
+import {dateFieldAdd, fieldAdd, viaAdd} from "../../modules/data/actions";
 import {searchRequest} from "../../modules/search/actions";
 import Url from "../../domain/Url";
 import {Field} from "../../interfaces/field";
+import {Via} from "../../interfaces/via";
 
 interface Props {
     history: any;
@@ -30,6 +31,12 @@ class ResumeSession extends React.Component<Props, State> {
         if (data.search) {
             data.search.forEach(search => {
                 this.search(search.q, search.d);
+            });
+        }
+
+        if (data.via) {
+            data.via.forEach(via => {
+                this.addVia(via);
             });
         }
     }
@@ -60,6 +67,18 @@ class ResumeSession extends React.Component<Props, State> {
         const { dispatch } = this.props;
 
         dispatch(searchRequest(query, datasources));
+    }
+
+    addVia(viaData) {
+        const { dispatch } = this.props;
+
+        const via: Via = {
+            from: viaData.f,
+            via: viaData.v,
+            to: viaData.t
+        };
+
+        dispatch(viaAdd(via));
     }
 
     render() {

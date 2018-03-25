@@ -263,6 +263,17 @@ export default function entries(state: State = defaultState, action) {
                 id: uniqueId()
             };
 
+            const existing: Via = state.via.find(search =>
+                search.from === newVia.from
+                && search.via === newVia.via
+                && search.to === newVia.to
+            );
+
+            if (typeof existing !== 'undefined') {
+                // Already exists
+                return state;
+            }
+
             const via: Via[] = state.via.concat([newVia]);
             const { nodes, links } = applyVia(state.nodes, state.links, via);
 

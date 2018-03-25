@@ -10,6 +10,7 @@ import {Normalization} from "../../interfaces/normalization";
 import {Datasource} from "../../interfaces/datasource";
 import Fields from './fields/fields';
 import {Via} from "../../interfaces/via";
+import Url from "../../domain/Url";
 
 interface State {
     normalization_error: string;
@@ -158,12 +159,14 @@ class ConfigurationView extends React.Component<Props, State> {
             return;
         }
 
+        Url.addVia(viaData);
         dispatch(viaAdd(viaData));
     }
 
     handleDeleteVia(viaData) {
         const { dispatch } = this.props;
 
+        Url.removeVia(viaData);
         dispatch(viaDelete(viaData));
     }
 

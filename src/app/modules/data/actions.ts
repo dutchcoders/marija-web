@@ -6,6 +6,7 @@ import {Datasource} from "../../interfaces/datasource";
 import {datasourceDeactivated} from "../datasources/actions";
 import {addLiveDatasourceSearch} from "../search/actions";
 import {Column} from "../../interfaces/column";
+import {Via} from "../../interfaces/via";
 
 export function tableColumnRemove(field) {
     return {
@@ -126,7 +127,7 @@ export function receiveInitialState(initialState) {
     };
 }
 
-export function viaAdd(via) {
+export function viaAdd(via: Via) {
     return {
         type: VIA_ADD,
         receivedAt: Date.now(),

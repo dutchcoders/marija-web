@@ -3,6 +3,7 @@ import queryString from 'query-string';
 import {Datasource} from "../interfaces/datasource";
 import * as rison from 'rison';
 import {isEqual} from 'lodash';
+import {Via} from "../interfaces/via";
 
 const history = createBrowserHistory();
 let currentLocation = history.location;
@@ -44,6 +45,40 @@ export default class Url {
 
         if (data.search.length === 0) {
             delete data.search;
+        }
+
+        Url.setData(data);
+    }
+
+    static addVia(via: Via) {
+        const data: any = Url.getData();
+
+        if (Url.viaExists(via, data.via)) {
+            return;
+        }
+
+        const newVia = {f: via.from, v: via.via, t: via.to};
+        data.via = data.via || [];
+        data.via = data.via.concat([newVia]);
+
+        Url.setData(data);
+    }
+
+    static removeVia(via: Via) {
+        const data: any = Url.getData();
+
+        if (!data.via) {
+            return;
+        }
+
+        data.via = data.via.filter(search =>
+            search.f !== via.from
+            || search.v !== via.via
+            || search.t !== via.to
+        );
+
+        if (data.via.length === 0) {
+            delete data.via;
         }
 
         Url.setData(data);
@@ -110,6 +145,20 @@ export default class Url {
         const existing = current.find(search =>
             search.q === query
             && isEqual(search.d, datasourceIds)
+        );
+
+        return typeof existing !== 'undefined';
+    }
+
+    private static viaExists(via: Via, current: any[]): boolean {
+        if (!current) {
+            return false;
+        }
+
+        const existing = current.find(search =>
+            search.f === via.from
+            && search.v === via.via
+            && search.t === via.to
         );
 
         return typeof existing !== 'undefined';
