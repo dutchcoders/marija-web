@@ -464,7 +464,6 @@ export default function entries(state: State = defaultState, action) {
         case SEARCH_FIELDS_UPDATE: {
             let fields = state.fields.map(field => field.path);
             fields = fields.concat(state.date_fields.map(field => field.path));
-            const datasources = action.payload.datasources.map(datasource => datasource.id);
 
             const newSearches = state.searches.map(search => {
                 if (search.liveDatasource) {
@@ -476,7 +475,7 @@ export default function entries(state: State = defaultState, action) {
                 const newRequestId = uniqueId();
 
                 Socket.ws.postMessage({
-                    datasources: datasources,
+                    datasources: search.datasources,
                     query: search.q,
                     fields: fields,
                     'request-id': newRequestId
