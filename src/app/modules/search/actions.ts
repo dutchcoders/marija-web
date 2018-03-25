@@ -10,19 +10,15 @@ import {ADD_LIVE_DATASOURCE_SEARCH, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DA
 import {Datasource} from "../../interfaces/datasource";
 import {GraphWorkerPayload} from "../graph/graphWorkerClass";
 
-export function searchRequest(query: string) {
-    return (dispatch, getState) => {
-        const state = getState();
-
-        dispatch({
-            type: SEARCH_REQUEST,
-            receivedAt: Date.now(),
-            query: query,
-            aroundNodeId: null,
-            displayNodes: 500,
-            datasources: state.datasources.datasources
-        });
-    };
+export function searchRequest(query: string, datasourceIds: string[]) {
+    return {
+        type: SEARCH_REQUEST,
+        receivedAt: Date.now(),
+        query: query,
+        aroundNodeId: null,
+        displayNodes: 500,
+        datasourceIds: datasourceIds
+    }
 }
 
 export function searchAround(node: Node) {

@@ -12,6 +12,7 @@
     "test:watch": "jest --watch --config=jest.config.json"
   },
   "dependencies": {
+    "@types/rison": "^0.0.6",
     "d3": "^4.3.0",
     "fbemitter": "^2.1.1",
     "file-saver": "^1.3.3",
@@ -38,6 +39,7 @@
     "redux-thunk": "^2.2.0",
     "redux-worker-middleware": "^1.0.0",
     "reselect": "^3.0.1",
+    "rison": "^0.1.1",
     "worker-loader": "^0.7.1"
   },
   "devDependencies": {

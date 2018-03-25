@@ -1,7 +1,5 @@
 import { DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED } from './index'
-import {getFields, clearFields} from "../fields/actions";
 import {Datasource} from "../../interfaces/datasource";
-import {deleteSearch} from "../search/actions";
 
 export function datasourceActivated(datasource: Datasource) {
     return {

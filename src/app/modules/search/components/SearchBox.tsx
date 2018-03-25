@@ -98,10 +98,8 @@ class SearchBox extends React.Component<Props, State> {
         const { dispatch } = this.props;
 
         if (event.currentTarget.checked) {
-            Url.addQueryParam('datasources', datasource.id);
             dispatch(datasourceActivated(datasource))
         } else {
-            Url.removeQueryParam('datasources', datasource.id);
             dispatch(datasourceDeactivated(datasource))
         }
     }

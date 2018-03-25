@@ -1,40 +1,40 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-
+import * as React from 'react';
+import {connect, Dispatch} from 'react-redux';
 import { SearchBox, searchRequest } from '../modules/search/index';
-import { Icon } from '../components/index';
-
-import { generateColour } from '../helpers/index';
-import { openPane } from '../utils/index';
 import Url from "../domain/Url";
 import {error} from '../utils';
+import {Datasource} from "../interfaces/datasource";
+import {Field} from "../interfaces/field";
 
-class Header extends Component {
+interface Props {
+    connected: boolean;
+    datasources: Datasource[];
+    fields: Field[];
+    dispatch: Dispatch<any>;
+}
 
-    getColour(str) {
-        return generateColour(str);
-    }
+interface State {
+}
 
+class Header extends React.Component<Props, State> {
     onSearchSubmit(q) {
-        const { dispatch } = this.props;
+        const { dispatch, datasources } = this.props;
 
-        Url.addQueryParam('search', q);
+        const datasourceIds: string[] = datasources.map(datasource => datasource.id);
 
-        dispatch(searchRequest(q));
+        Url.addSearch(q, datasourceIds);
+        dispatch(searchRequest(q, datasourceIds));
     }
 
     render() {
-        const { connected, total, fields, datasources } = this.props;
+        const { connected, fields, datasources } = this.props;
 
         let errors = null;
-
-
 
         return (
             <header className="header">
                 <SearchBox
-                    total={total}
-                    onSubmit={(q, index) => this.onSearchSubmit(q, index)}
+                    onSubmit={q => this.onSearchSubmit(q)}
                     connected={connected}
                     enabled={fields.length > 0 && datasources.length > 0}
                 />
@@ -44,14 +44,10 @@ class Header extends Component {
     }
 }
 
-
 function select(state) {
     return {
-        itemsFetching: state.entries.itemsFetching,
         connected: state.entries.connected,
         datasources: state.datasources.datasources.filter(datasource => datasource.active),
-        queries: state.entries.searches,
-        total: state.entries.total,
         fields: state.entries.fields
     };
 }

@@ -407,11 +407,7 @@ export default function entries(state: State = defaultState, action) {
         case SEARCH_REQUEST: {
             const searches = state.searches.concat([]);
 
-            const datasources: string[] = action
-                .datasources
-                .filter(datasource => datasource.active)
-                .map(datasource => datasource.id)
-                .sort();
+            const datasources: string[] = action.datasourceIds;
 
             let search: Search = state.searches.find((search: Search) =>
                 search.q === action.query

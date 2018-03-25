@@ -14,13 +14,6 @@ export default function persistState() {
         }
 
         // Add datasources to url to keep local storage and url in sync
-        initialState.datasources.datasources.forEach(datasource => {
-            if (datasource.active) {
-                Url.addQueryParam('datasources', datasource.id);
-            }
-        });
-
-        // Add datasources to url to keep local storage and url in sync
         initialState.entries.fields.forEach(field => {
             Url.addQueryParam('fields', field.path);
         });
