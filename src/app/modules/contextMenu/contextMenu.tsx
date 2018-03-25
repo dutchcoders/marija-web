@@ -11,6 +11,7 @@ import {searchAround} from "../search/actions";
 import {FormEvent} from "react";
 import abbreviateNodeName from '../../helpers/abbreviateNodeName';
 import {Search} from "../../interfaces/search";
+import {Datasource} from "../../interfaces/datasource";
 
 interface Props {
     nodeId: string;
@@ -19,7 +20,8 @@ interface Props {
     x: number;
     y: number;
     dispatch: Dispatch<any>;
-    searches: Search[]
+    searches: Search[];
+    datasources: Datasource[]
 }
 
 interface State {
@@ -51,15 +53,10 @@ class ContextMenu extends React.Component<Props, State> {
         const isDifferentNode: boolean = nextProps.nodeId !== nodeId;
 
         if (isDifferentNode) {
-            this.setState({
-                renameOpened: false
-            });
-        }
-
-        if (isDifferentNode || !nodeId) {
             const node = this.getNode(nextProps.nodeId);
 
             this.setState({
+                renameOpened: false,
                 renameTo: node.name
             });
         }
@@ -84,11 +81,11 @@ class ContextMenu extends React.Component<Props, State> {
         this.close();
     }
 
-    searchAround() {
+    searchAround(datasourceId: string) {
         const { dispatch, nodeId } = this.props;
 
         const node = this.getNode(nodeId);
-        dispatch(searchAround(node));
+        dispatch(searchAround(node, [datasourceId]));
         this.close();
     }
 
@@ -141,6 +138,34 @@ class ContextMenu extends React.Component<Props, State> {
         });
     }
 
+    renderSearchAround() {
+        const { datasources } = this.props;
+
+        const useDatasources = datasources.filter(datasource =>
+            datasource.type !== 'live'
+        );
+
+        return (
+            <li>
+                <h2 className={styles.searchAroundHeading}>
+                    <Icon name={'ion-ios-search ' + styles.icon} />
+                    <span className={styles.buttonText}>Search around in</span>
+                </h2>
+                <ul className={styles.datasourceList}>
+                    {useDatasources.map(datasource =>
+                        <li>
+                            <button
+                                className={styles.datasource}
+                                onClick={() => this.searchAround(datasource.id)}>
+                                &mdash; {datasource.name}
+                            </button>
+                        </li>
+                    )}
+                </ul>
+            </li>
+        )
+    }
+
     render() {
         const { nodeId, x, y } = this.props;
         const { renameOpened, renameTo } = this.state;
@@ -186,12 +211,7 @@ class ContextMenu extends React.Component<Props, State> {
                             <span className={styles.buttonText}>Select related</span>
                         </button>
                     </li>
-                    <li>
-                        <button onClick={this.searchAround.bind(this)} className={styles.button}>
-                            <Icon name={'ion-ios-search ' + styles.icon} />
-                            <span className={styles.buttonText}>Search around</span>
-                        </button>
-                    </li>
+                    {this.renderSearchAround()}
                     <li>
                         {rename}
                     </li>
@@ -215,6 +235,7 @@ const select = (state, ownProps) => {
         nodes: state.entries.nodes,
         links: state.entries.links,
         searches: state.entries.searches,
+        datasources: state.datasources.datasources,
         x: state.contextMenu.x,
         y: state.contextMenu.y,
     };

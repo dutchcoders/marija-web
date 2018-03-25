@@ -14,6 +14,7 @@ import {Node} from "../../interfaces/node";
 import {Link} from "../../interfaces/link";
 import {Normalization} from "../../interfaces/normalization";
 import getRelatedNodes from '../../helpers/getRelatedNodes';
+import {Datasource} from "../../interfaces/datasource";
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -21,6 +22,7 @@ interface Props {
     nodes: Node[];
     links: Link[];
     normalizations: Normalization[];
+    datasources: Datasource[];
 }
 
 interface State {
@@ -298,11 +300,16 @@ class Nodes extends React.Component<Props, State> {
     }
 
     searchAround() {
-        const { dispatch, nodes } = this.props;
+        const { dispatch, nodes, datasources } = this.props;
+
         const selectedNodes = nodes.filter(node => node.selected);
+        const useDatasources = datasources.filter(datasource =>
+            datasource.active && datasource.type !== 'live'
+        );
+        const datasourceIds: string[] = useDatasources.map(datasource => datasource.id);
 
         selectedNodes.forEach(node => {
-            dispatch(searchAround(node));
+            dispatch(searchAround(node, datasourceIds));
         });
     }
 
@@ -382,7 +389,8 @@ function select(state) {
         nodes: state.entries.nodes,
         links: state.entries.links,
         searches: state.entries.searches,
-        normalizations: state.entries.normalizations
+        normalizations: state.entries.normalizations,
+        datasources: state.datasources.datasources
     };
 }
 

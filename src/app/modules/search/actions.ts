@@ -18,21 +18,17 @@ export function searchRequest(query: string, datasourceIds: string[]) {
         aroundNodeId: null,
         displayNodes: 500,
         datasourceIds: datasourceIds
-    }
+    };
 }
 
-export function searchAround(node: Node) {
-    return (dispatch, getState) => {
-        const state = getState();
-
-        dispatch({
-            type: SEARCH_REQUEST,
-            receivedAt: Date.now(),
-            query: node.name,
-            aroundNodeId: node.id,
-            displayNodes: 500,
-            datasources: state.datasources.datasources
-        });
+export function searchAround(node: Node, datasourceIds: string[]) {
+    return {
+        type: SEARCH_REQUEST,
+        receivedAt: Date.now(),
+        query: node.name,
+        aroundNodeId: node.id,
+        displayNodes: 500,
+        datasourceIds: datasourceIds
     };
 }
 

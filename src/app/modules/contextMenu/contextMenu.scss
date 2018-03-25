@@ -14,7 +14,9 @@
     }
 }
 
-.button {
+.button,
+.datasource,
+.searchAroundHeading {
     display: flex;
     align-items: center;
     width: 100%;
@@ -23,7 +25,22 @@
     color: white;
     padding: 5px;
     box-sizing: border-box;
+    font-size: 1em;
+    margin: 0;
+    font-weight: 300;
+}
 
+.datasourceList {
+    padding: 0;
+    list-style: none;
+}
+
+.datasource {
+    padding-left: 40px;
+}
+
+.button,
+.datasource {
     &:hover {
         background: #689DE5;
     }
