@@ -237,14 +237,17 @@ class ConfigurationView extends React.Component<Props, State> {
     renderFieldSelector(fields, changeHandler, value) {
         const options = map(fields, (field: any) => {
             return (
-                <option key={field.path} value={field.path}>
+                <option
+                    selected={value === field.path}
+                    key={field.path}
+                    value={field.path}>
                     {field.path}
                 </option>
             );
         });
 
         return (
-            <select className="form-control" onChange={(event) => changeHandler(event)} value={value}>
+            <select className="form-control" onChange={(event) => changeHandler(event)}>
                 {options}
             </select>
         );
