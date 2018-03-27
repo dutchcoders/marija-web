@@ -4,9 +4,13 @@ import {Field} from "../../interfaces/field";
 import {getFields} from '../fields/actions';
 import {Datasource} from "../../interfaces/datasource";
 import {datasourceDeactivated} from "../datasources/actions";
-import {addLiveDatasourceSearch} from "../search/actions";
+import {
+    activateLiveDatasource,
+    addLiveDatasourceSearch
+} from "../search/actions";
 import {Column} from "../../interfaces/column";
 import {Via} from "../../interfaces/via";
+import Url from "../../domain/Url";
 
 export function tableColumnRemove(field) {
     return {
@@ -123,7 +127,11 @@ export function receiveInitialState(initialState) {
 
         live.forEach(datasource => {
             dispatch(addLiveDatasourceSearch(datasource));
-        })
+
+            if (Url.isLiveDatasourceActive(datasource.id)) {
+                dispatch(activateLiveDatasource(datasource.id));
+            }
+        });
     };
 }
 

@@ -128,12 +128,14 @@ class Query extends React.Component<Props, State> {
     activateLiveDatasource() {
         const { search, dispatch } = this.props;
 
+        Url.addQueryParam('live', search.liveDatasource);
         dispatch(activateLiveDatasource(search.liveDatasource));
     }
 
     deactivateLiveDatasource() {
         const { search, dispatch } = this.props;
 
+        Url.removeQueryParam('live', search.liveDatasource);
         dispatch(deactivateLiveDatasource(search.liveDatasource));
     }
 

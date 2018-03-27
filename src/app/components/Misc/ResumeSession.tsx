@@ -1,7 +1,10 @@
 import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
 import {dateFieldAdd, fieldAdd, viaAdd} from "../../modules/data/actions";
-import {searchRequest} from "../../modules/search/actions";
+import {
+    activateLiveDatasource,
+    searchRequest
+} from "../../modules/search/actions";
 import Url from "../../domain/Url";
 import {Field} from "../../interfaces/field";
 import {Via} from "../../interfaces/via";

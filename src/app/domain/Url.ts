@@ -122,13 +122,15 @@ export default class Url {
         Url.setData(data);
     }
 
-    static removeAllQueryParams(name) {
-        Url.setData('');
-    }
-
     static getData(): any {
         const queryParams = queryString.parse(currentLocation.search);
         return queryParams.session ? rison.decode(queryParams.session) : {};
+    }
+
+    static isLiveDatasourceActive(datasourceId: string): boolean {
+        const data = this.getData();
+
+        return data.live && data.live.indexOf(datasourceId) !== -1;
     }
 
     private static setData(data: any) {
