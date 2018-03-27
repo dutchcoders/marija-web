@@ -238,7 +238,6 @@ class ConfigurationView extends React.Component<Props, State> {
         const options = map(fields, (field: any) => {
             return (
                 <option
-                    selected={value === field.path}
                     key={field.path}
                     value={field.path}>
                     {field.path}
@@ -247,7 +246,10 @@ class ConfigurationView extends React.Component<Props, State> {
         });
 
         return (
-            <select className="form-control" onChange={(event) => changeHandler(event)}>
+            <select
+                className="form-control"
+                defaultValue={value}
+                onChange={(event) => changeHandler(event)}>
                 {options}
             </select>
         );
