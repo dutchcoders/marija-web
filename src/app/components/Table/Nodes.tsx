@@ -331,8 +331,48 @@ class Nodes extends React.Component<Props, State> {
         }));
     }
 
+    markImportant() {
+        const { nodes, dispatch } = this.props;
+        const selectedNodes = nodes.filter(node => node.selected);
+
+        selectedNodes.forEach(node => {
+            if (node.important) {
+                return;
+            }
+
+            dispatch(nodeUpdate(node.id, {
+                important: true
+            }));
+        });
+    }
+
+    markNotImportant() {
+        const { nodes, dispatch } = this.props;
+        const selectedNodes = nodes.filter(node => node.selected);
+
+        selectedNodes.forEach(node => {
+            if (!node.important) {
+                return;
+            }
+
+            dispatch(nodeUpdate(node.id, {
+                important: false
+            }));
+        });
+    }
+
+    selectImportant() {
+        const { nodes, dispatch } = this.props;
+
+        const importantNodes = nodes.filter(node => node.important);
+
+        dispatch(nodesSelect(importantNodes));
+    }
+
     render() {
         const { editNode, value, description } = this.state;
+        const { nodes } = this.props;
+        const selectedNodes = nodes.filter(node => node.selected);
 
         const updateNodeDialogStyles = {
             backgroundColor: '#fff',
@@ -358,17 +398,44 @@ class Nodes extends React.Component<Props, State> {
 	          </form>;
 	      }
 
+	    let important;
+        const notImportantNode = selectedNodes.find(node => !node.important);
+
+        if (typeof notImportantNode !== 'undefined' || !selectedNodes.length) {
+            important = (
+                <button
+                    type="button"
+                    className="btn btn-default"
+                    aria-label="Mark important"
+                    onClick={() => this.markImportant()}>
+                    mark important
+                </button>
+            );
+        } else {
+            important = (
+                <button
+                    type="button"
+                    className="btn btn-default"
+                    aria-label="Undo important mark"
+                    onClick={() => this.markNotImportant()}>
+                    undo important mark
+                </button>
+            );
+        }
+
         return (
             <div className="form-group toolbar">
                 <div className="nodes-btn-group" role="group">
+                    <button type="button" className="btn btn-default" aria-label="Select all nodes" onClick={() => this.handleSelectAllNodes()}>select all</button>
                     <button type="button" className="btn btn-default" aria-label="Clear selection" onClick={() => this.handleClearSelection()}>deselect</button>
                     <button type="button" className="btn btn-default" aria-label="Select related nodes" onClick={() => this.handleSelectRelatedNodes()}>related</button>
                     <button type="button" className="btn btn-default" aria-label="Select directly related nodes" onClick={() => this.handleSelectDirectlyRelatedNodes()}>directly related</button>
-                    <button type="button" className="btn btn-default" aria-label="Select all nodes" onClick={() => this.handleSelectAllNodes()}>all</button>
                     <button type="button" className="btn btn-default" aria-label="Delete selected nodes" onClick={() => this.handleDeleteAllNodes()}>delete</button>
                     <button type="button" className="btn btn-default" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}>delete others</button>
                     <button type="button" className="btn btn-default" aria-label="Search around" onClick={() => this.searchAround()}>search around</button>
                     <button type="button" className="btn btn-default" aria-label="Merge" onClick={() => this.merge()}>merge</button>
+                    <button type="button" className="btn btn-default" aria-label="Select all nodes" onClick={() => this.selectImportant()}>select important</button>
+                    {important}
                 </div>
                 <div>
                     <ul onMouseLeave={this.hideTooltip.bind(this)}>
