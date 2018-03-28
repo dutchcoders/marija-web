@@ -502,6 +502,22 @@ class Graph extends React.PureComponent<Props, State> {
         return nodesForDisplay.filter(node => node.highlighted);
     }
 
+    shouldUpdateNodeProperties(nodes: Node[], nextNodes: Node[]): boolean {
+        if (nodes.length !== nextNodes.length) {
+            // If we have a different amount of nodes we dont update just some
+            // properties, we update the whole node array
+            return false;
+        }
+
+        for (let i = 0; i < nodes.length; i ++) {
+            if (nodes[i].important !== nextNodes[i].important) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     updateNodeProperties(nextNodes: Node[]) {
         const nodesToPost = nextNodes.map(node => {
             return {
@@ -552,7 +568,7 @@ class Graph extends React.PureComponent<Props, State> {
 
         if (this.shouldPostToWorker(nextProps.nodesForDisplay, nodesForDisplay, nextProps.linksForDisplay, linksForDisplay)) {
             this.postNodesAndLinksToWorker(nextProps.nodesForDisplay, nextProps.linksForDisplay);
-        } else if (!isEqual(nodesForDisplay, nextProps.nodesForDisplay)) {
+        } else if (this.shouldUpdateNodeProperties(nodesForDisplay, nextProps.nodesForDisplay)) {
             this.updateNodeProperties(nextProps.nodesForDisplay);
         }
 
