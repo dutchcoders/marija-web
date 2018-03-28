@@ -198,5 +198,19 @@ onmessage = function(event) {
             // .alphaDecay(.0428)
             // .velocityDecay(.2)
             .restart();
+    } else if (event.data.type === 'updateNodeProperties') {
+        const { nodes } = event.data;
+
+        nodes.forEach(node => {
+            const existing = this.nodes.find(search => search.id === node.id);
+
+            Object.assign(existing, node);
+        });
+
+        postMessage({
+            type: "tick",
+            nodes: this.nodes,
+            links: this.links
+        });
     }
 }

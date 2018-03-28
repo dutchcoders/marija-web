@@ -122,7 +122,8 @@ export default function getNodesAndLinks(
                         selected: false,
                         highlighted: false,
                         displayTooltip: false,
-                        isNormalizationParent: false
+                        isNormalizationParent: false,
+                        important: false
                     };
                 }
 
@@ -189,7 +190,8 @@ export default function getNodesAndLinks(
                                 selected: false,
                                 highlighted: false,
                                 displayTooltip: false,
-                                isNormalizationParent: false
+                                isNormalizationParent: false,
+                                important: false
                             };
                         }
 

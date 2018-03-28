@@ -13,4 +13,5 @@ export interface NodeFromD3 {
     icon: string;
     textureKey?: string;
     label: string;
+    important: boolean;
 }

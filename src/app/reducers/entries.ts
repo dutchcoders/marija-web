@@ -394,14 +394,10 @@ export default function entries(state: State = defaultState, action) {
             });
         }
         case NODE_UPDATE:
-            let nodes = concat(state.nodes, []);
+            const nodes = state.nodes.concat([]);
+            const index = nodes.findIndex(node => node.id === action.node_id);
 
-            let n = find(nodes, {id: action.node_id });
-            if (n) {
-                n = assign(n, action.params);
-            }
-
-
+            nodes[index] = Object.assign({}, nodes[index], action.params);
 
             return Object.assign({}, state, {
                 nodes: nodes

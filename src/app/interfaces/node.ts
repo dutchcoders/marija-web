@@ -43,4 +43,9 @@ export interface Node {
      * The id of this node would be the 'replaceWith' value of the normalization.
      */
     isNormalizationParent: boolean;
+
+    /**
+     * Whether user marked this node as important.
+     */
+    important: boolean;
 }

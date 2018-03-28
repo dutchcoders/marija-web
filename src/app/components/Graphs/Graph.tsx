@@ -88,6 +88,8 @@ class Graph extends React.PureComponent<Props, State> {
     renderedHighlights: PIXI.Container = new PIXI.Container();
     nodeLabelTextures: TextureMap = {};
     renderedNodeLabels: PIXI.Container = new PIXI.Container();
+    iconTextures: TextureMap = {};
+    renderedIcons: PIXI.Container = new PIXI.Container();
     stage: PIXI.Container = new PIXI.Container();
     worker: Worker;
     transform: any = d3.zoomIdentity;
@@ -156,7 +158,8 @@ class Graph extends React.PureComponent<Props, State> {
             this.renderedLinkLabels,
             this.renderedHighlights,
             this.renderedNodeLabels,
-            this.renderedArrows
+            this.renderedArrows,
+            this.renderedIcons
         ].forEach(zoomable => {
             zoomable.scale.x = fraction;
             zoomable.scale.y = fraction;
@@ -238,8 +241,39 @@ class Graph extends React.PureComponent<Props, State> {
         return texture;
     }
 
+    getIconTexture(icon: string): PIXI.RenderTexture {
+        let texture: PIXI.RenderTexture = this.iconTextures[icon];
+
+        if (texture) {
+            // Get from cache
+            return texture;
+        }
+
+        const style = new PIXI.TextStyle({
+            fontSize: 18,
+            fontFamily: 'Ionicons',
+            fill: 0xfac04b,
+            dropShadow: true,
+            dropShadowDistance: 1,
+            dropShadowBlur: 3,
+            dropShadowAlpha: .7
+        });
+
+        const text = new PIXI.Text(icon, style);
+        const metrics = PIXI.TextMetrics.measureText(icon, style);
+
+        texture = PIXI.RenderTexture.create(metrics.width, metrics.height);
+        this.renderer.render(text, texture);
+
+        // Save in cache
+        this.iconTextures[icon] = texture;
+
+        return texture;
+    }
+
     renderNodes() {
         this.renderedNodesContainer.removeChildren();
+        this.renderedIcons.removeChildren();
 
         this.nodesFromD3.forEach(node => {
             const texture = this.getNodeTexture(node);
@@ -251,7 +285,21 @@ class Graph extends React.PureComponent<Props, State> {
             renderedNode.y = node.y;
 
             this.renderedNodesContainer.addChild(renderedNode);
+            this.renderIcons(node);
         });
+    }
+
+    renderIcons(node: NodeFromD3) {
+        if (node.important) {
+            const star = '\uF24E';
+            const warning = '\uF100';
+            const texture = this.getIconTexture(warning);
+            const sprite = new PIXI.Sprite(texture);
+            sprite.x = node.x + node.r - sprite.width + 5;
+            sprite.y = node.y - node.r - 5;
+
+            this.renderedIcons.addChild(sprite);
+        }
     }
 
     renderLinks() {
@@ -454,6 +502,20 @@ class Graph extends React.PureComponent<Props, State> {
         return nodesForDisplay.filter(node => node.highlighted);
     }
 
+    updateNodeProperties(nextNodes: Node[]) {
+        const nodesToPost = nextNodes.map(node => {
+            return {
+                id: node.id,
+                important: node.important
+            }
+        });
+
+        this.postWorkerMessage({
+            type: 'updateNodeProperties',
+            nodes: nodesToPost
+        });
+    }
+
     componentWillReceiveProps(nextProps: Props) {
         const { searches, nodesForDisplay, linksForDisplay, fields, showLabels } = this.props;
         const selectedNodes = this.getSelectedNodes();
@@ -490,6 +552,8 @@ class Graph extends React.PureComponent<Props, State> {
 
         if (this.shouldPostToWorker(nextProps.nodesForDisplay, nodesForDisplay, nextProps.linksForDisplay, linksForDisplay)) {
             this.postNodesAndLinksToWorker(nextProps.nodesForDisplay, nextProps.linksForDisplay);
+        } else if (!isEqual(nodesForDisplay, nextProps.nodesForDisplay)) {
+            this.updateNodeProperties(nextProps.nodesForDisplay);
         }
 
         if (nextProps.nodesForDisplay.filter(node => node.highlighted) !== this.getHighlightNodes()) {
@@ -517,7 +581,8 @@ class Graph extends React.PureComponent<Props, State> {
                 hash: node.hash,
                 searchIds: node.searchIds,
                 icon: node.icon,
-                label: label
+                label: label,
+                important: node.important
             };
         });
 
@@ -906,6 +971,7 @@ class Graph extends React.PureComponent<Props, State> {
         this.stage.addChild(this.renderedNodeLabels);
         this.stage.addChild(this.renderedTooltip);
         this.stage.addChild(this.renderedArrows);
+        this.stage.addChild(this.renderedIcons);
 
         const dragging = d3.drag()
             .filter(() => this.isMoving())

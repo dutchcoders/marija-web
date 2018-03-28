@@ -55,7 +55,7 @@ export function clearSelection() {
     };
 }
 
-export function nodeUpdate(node_id, params) {
+export function nodeUpdate(node_id: string, params) {
     return {
         type: NODE_UPDATE,
         receivedAt: Date.now(),

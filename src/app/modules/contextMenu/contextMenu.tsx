@@ -138,6 +138,22 @@ class ContextMenu extends React.Component<Props, State> {
         });
     }
 
+    handleImportant() {
+        const { dispatch, nodeId } = this.props;
+
+        dispatch(nodeUpdate(nodeId, {
+            important: true
+        }));
+    }
+
+    handleNotImportant() {
+        const { dispatch, nodeId } = this.props;
+
+        dispatch(nodeUpdate(nodeId, {
+            important: false
+        }));
+    }
+
     renderSearchAround() {
         const { datasources } = this.props;
 
@@ -153,7 +169,7 @@ class ContextMenu extends React.Component<Props, State> {
                 </h2>
                 <ul className={styles.datasourceList}>
                     {useDatasources.map(datasource =>
-                        <li>
+                        <li key={datasource.id}>
                             <button
                                 className={styles.datasource}
                                 onClick={() => this.searchAround(datasource.id)}>
@@ -201,6 +217,24 @@ class ContextMenu extends React.Component<Props, State> {
 
         const node = this.getNode(nodeId);
 
+        let important;
+
+        if (node.important) {
+            important = (
+                <button onClick={this.handleNotImportant.bind(this)} className={styles.button}>
+                    <Icon name={'ion-alert-circled ' + styles.icon} />
+                    <span className={styles.buttonText}>Undo important mark</span>
+                </button>
+            );
+        } else {
+            important = (
+                <button onClick={this.handleImportant.bind(this)} className={styles.button}>
+                    <Icon name={'ion-alert-circled ' + styles.icon} />
+                    <span className={styles.buttonText}>Mark important</span>
+                </button>
+            );
+        }
+
         return (
             <div className={styles.contextMenu} style={{top: y, left: x}}>
                 <h1 className={styles.title}>{node.name}</h1>
@@ -214,6 +248,9 @@ class ContextMenu extends React.Component<Props, State> {
                     {this.renderSearchAround()}
                     <li>
                         {rename}
+                    </li>
+                    <li>
+                        {important}
                     </li>
                     <li>
                         <button onClick={this.delete.bind(this)} className={styles.button}>
