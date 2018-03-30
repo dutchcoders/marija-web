@@ -100,6 +100,7 @@ class Graph extends React.PureComponent<Props, State> {
     lastDispatchedFpsTimestamp: number = 0;
     linkLabelTextures: TextureMap = {};
     tooltipTextures: TextureMap = {};
+    dragSubjects: NodeFromD3[];
 
     isMoving() {
         const { selectingMode } = this.props;
@@ -1089,17 +1090,28 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedSince.lastZoom = false;
     }, 500);
 
-    dragstarted() {
-        const x = this.transform.invertX(d3.event.sourceEvent.layerX);
-        const y = this.transform.invertY(d3.event.sourceEvent.layerY);
+    setDragSubjects() {
+        const { nodesForDisplay } = this.props;
 
-        d3.event.subject.fx = (x);
-        d3.event.subject.fy = (y);
+        const selected = nodesForDisplay.filter(node => node.selected);
 
-        this.postWorkerMessage({
-            nodes: [d3.event.subject],
-            type: 'restart'
+        const subjects: NodeFromD3[] = [];
+        const mainSubject: NodeFromD3 = d3.event.subject;
+
+        selected.forEach(node => {
+            if (node.id === mainSubject.id) {
+                return;
+            }
+
+            const nodeFromD3 = this.nodesFromD3.find(search => search.hash === node.hash);
+            subjects.push(nodeFromD3);
         });
+
+        this.dragSubjects = subjects;
+    }
+
+    dragstarted() {
+        this.setDragSubjects();
 
         // Remove the tooltip
         this.tooltipNode(undefined);
@@ -1117,16 +1129,33 @@ class Graph extends React.PureComponent<Props, State> {
             return;
         }
 
-        d3.event.subject.fx = (x);
-        d3.event.subject.fy = (y);
+        const mainSubject: NodeFromD3 = d3.event.subject;
+        mainSubject.fx = x;
+        mainSubject.fy = y;
+
+        let subjects: NodeFromD3[] = [mainSubject];
+
+        if (this.dragSubjects) {
+            const deltaX = x - mainSubject.x;
+            const deltaY = y - mainSubject.y;
+
+            this.dragSubjects.forEach(subject => {
+                subject.fx = subject.x + deltaX;
+                subject.fy = subject.y + deltaY;
+            });
+
+            subjects = subjects.concat(this.dragSubjects);
+        }
 
         this.postWorkerMessage({
-            nodes: [d3.event.subject],
+            nodes: subjects,
             type: 'restart'
         });
     }
 
     dragended() {
+        this.dragSubjects = undefined;
+
         this.postWorkerMessage({
             nodes: [d3.event.subject],
             type: 'stop'
@@ -1134,8 +1163,17 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     dragsubject() {
+        const { nodesForDisplay } = this.props;
+
+        const selectedNodes = nodesForDisplay.filter(node => node.selected);
+        const nodeMap = {};
+        selectedNodes.forEach(node => nodeMap[node.id] = node);
+
         const x = this.transform.invertX(d3.event.x);
         const y = this.transform.invertY(d3.event.y);
+
+        const nodeFromD3 = this.findNodeFromD3(x, y);
+
 
         return this.findNodeFromD3(x, y);
     }
