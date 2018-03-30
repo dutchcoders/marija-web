@@ -23,6 +23,7 @@ import {
 } from "../../reducers/entriesSelectors";
 import {setFps} from "../../modules/stats/statsActions";
 import {Field} from "../../interfaces/field";
+import {getArrowPosition} from "../../helpers/getArrowPosition";
 const myWorker = require("worker-loader!./d3Worker");
 
 interface TextureMap {
@@ -132,9 +133,9 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     createArrowTexture() {
-        const width = 20;
-        const height = 20;
-        const sharpness = 10;
+        const width = 15;
+        const height = 15;
+        const sharpness = 8;
 
         const canvas = document.createElement('canvas');
         canvas.width = width;
@@ -324,6 +325,15 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedArrows.addChild(sprite);
     }
 
+    renderArrow2(x: number, y: number, angle: number) {
+        const sprite = new PIXI.Sprite(this.arrowTexture);
+        sprite.x = x;
+        sprite.y = y;
+        sprite.rotation = angle - .79;
+
+        this.renderedArrows.addChild(sprite);
+    }
+
     renderLink(link: LinkFromD3) {
         if (link.total <= 1) {
             // When there's only 1 link between 2 nodes, we can draw a straight line
@@ -370,7 +380,12 @@ class Graph extends React.PureComponent<Props, State> {
                     bend
                 );
 
-            this.renderArc(centerX, centerY, radius, startAngle, endAngle, bend < 0);
+            const normalizedEndAngle = (endAngle + Math.PI * 2) % (Math.PI * 2);
+            const counterClockwise = bend < 0;
+            const arrowPosition = getArrowPosition(centerX, centerY, radius, normalizedEndAngle, counterClockwise, link.target.x, link.target.y);
+
+            this.renderArrow2(arrowPosition.x, arrowPosition.y, arrowPosition.angle);
+            this.renderArc(centerX, centerY, radius, startAngle, endAngle, counterClockwise);
 
             if (link.label) {
                 const averageAngle = (startAngle + endAngle) / 2;
