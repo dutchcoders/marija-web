@@ -4,7 +4,8 @@ import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, 
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
 import {
     FIELD_NODES_HIGHLIGHT,
-    GRAPH_WORKER_OUTPUT
+    GRAPH_WORKER_OUTPUT,
+    SELECT_FIELD_NODES
 } from '../modules/graph/constants';
 import {  SEARCH_DELETE, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DATASOURCE, SEARCH_REQUEST, SEARCH_EDIT } from '../modules/search/constants';
 import {  ADD_LIVE_DATASOURCE_SEARCH } from '../modules/search/constants';
@@ -40,6 +41,8 @@ import markNodesForDisplay from "../helpers/markNodesForDisplay";
 import {sortItems} from "../helpers/sortItems";
 import {SortType} from "../interfaces/sortType";
 import datasources from "./datasources";
+import {selectNodes} from "../helpers/selectNodes";
+import {deselectNodes} from "../helpers/deselectNodes";
 
 interface State {
     connected: boolean;
@@ -81,7 +84,7 @@ export const defaultState: State = {
     sortType: 'asc'
 };
 
-export default function entries(state: State = defaultState, action) {
+export default function entries(state: State = defaultState, action): State {
     switch (action.type) {
         case NODES_DELETE: {
             const items = concat([], state.items);
@@ -336,47 +339,20 @@ export default function entries(state: State = defaultState, action) {
             });
         }
         case NODES_SELECT: {
-            const select: Node[] = action.nodes.filter(node => !node.selected);
-            const nodes: Node[] = state.nodes.concat([]);
+            const nodes: Node[] = selectNodes(action.nodes, state.nodes);
 
-            select.forEach(node => {
-                const index = nodes.findIndex(searchNode =>
-                    searchNode.id === node.id
-                    && searchNode.display
-                    && (searchNode.normalizationId === null || searchNode.isNormalizationParent)
-                );
-
-                if (!nodes[index].selected) {
-                    nodes[index] = Object.assign({}, nodes[index], {
-                        selected: true
-                    });
-                }
-            });
-
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 nodes: nodes
-            });
+            };
         }
         case NODES_DESELECT: {
-            const nodes: Node[] = state.nodes.concat([]);
+            const nodes: Node[] = deselectNodes(action.nodes, state.nodes);
 
-            action.nodes.forEach(node => {
-                const index = nodes.findIndex(search =>
-                    search.id === node.id
-                    && search.display
-                    && (search.normalizationId === null || search.isNormalizationParent)
-                );
-
-                if (nodes[index].selected) {
-                    nodes[index] = Object.assign({}, nodes[index], {
-                        selected: false
-                    });
-                }
-            });
-
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 nodes: nodes
-            });
+            };
         }
         case SELECTION_CLEAR: {
             const nodes: Node[] = state.nodes.concat([]);
@@ -392,6 +368,28 @@ export default function entries(state: State = defaultState, action) {
             return Object.assign({}, state, {
                 nodes: nodes
             });
+        }
+        case SELECT_FIELD_NODES: {
+            const fieldPath: string = action.payload.fieldPath;
+
+            const fieldNodes: Node[] = state.nodes.filter(node =>
+                node.fields.indexOf(fieldPath) !== -1
+            );
+
+            const alreadySelected: boolean = typeof fieldNodes.find(node => !node.selected) === 'undefined';
+            let nodes: Node[];
+
+            if (alreadySelected) {
+                // If all of the nodes for this field are selected, we deselect them instead
+                nodes = deselectNodes(fieldNodes, state.nodes);
+            } else {
+                nodes = selectNodes(fieldNodes, state.nodes);
+            }
+
+            return {
+                ...state,
+                nodes: nodes
+            };
         }
         case NODE_UPDATE:
             const nodes = state.nodes.concat([]);

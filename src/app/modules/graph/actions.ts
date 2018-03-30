@@ -1,10 +1,5 @@
 import { NODES_DESELECT, NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, SELECTION_CLEAR, SET_SELECTING_MODE, NODES_TOOLTIP } from './index';
-import { GRAPH_WORKER_OUTPUT, FIELD_NODES_HIGHLIGHT, TOGGLE_LABELS } from './constants';
-import {Node} from "../../interfaces/node";
-import {Link} from "../../interfaces/link";
-import {Item} from "../../interfaces/item";
-import {Search} from "../../interfaces/search";
-import {Field} from "../../interfaces/field";
+import { GRAPH_WORKER_OUTPUT, FIELD_NODES_HIGHLIGHT, TOGGLE_LABELS, SELECT_FIELD_NODES } from './constants';
 import {GraphWorkerOutput} from "./graphWorkerClass";
 
 export function deselectNodes(opts) {
@@ -95,6 +90,15 @@ export function toggleLabels(show: boolean) {
         type: TOGGLE_LABELS,
         payload: {
             show: show
+        }
+    }
+}
+
+export function selectFieldNodes(fieldPath: string) {
+    return {
+        type: SELECT_FIELD_NODES,
+        payload: {
+            fieldPath: fieldPath
         }
     }
 }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-
+import Tooltip from 'rc-tooltip';
 import { Icon } from '../../../../components/index';
 import { FieldType } from '../../index';
 import {Field} from "../../../../interfaces/field";
@@ -9,7 +9,7 @@ import * as styles from './fieldRow.scss';
 import {fieldAdd, fieldDelete, fieldUpdate} from "../../../data";
 import Url from "../../../../domain/Url";
 import {searchFieldsUpdate} from "../../../search/actions";
-import {fieldNodesHighlight} from "../../../graph/actions";
+import {fieldNodesHighlight, selectFieldNodes} from "../../../graph/actions";
 
 interface Props {
     field: Field;
@@ -73,6 +73,12 @@ class FieldRow extends React.Component<Props, State> {
         });
     }
 
+    selectNodes() {
+        const { field, dispatch } = this.props;
+
+        dispatch(selectFieldNodes(field.path));
+    }
+
     render() {
         const { field, isActive } = this.props;
         const { iconSelectorOpened } = this.state;
@@ -104,6 +110,7 @@ class FieldRow extends React.Component<Props, State> {
         }
 
         let selectIconButton = null;
+        let selectNodesButton = null;
 
         if (isActive) {
             selectIconButton = (
@@ -113,6 +120,19 @@ class FieldRow extends React.Component<Props, State> {
                     {!iconSelectorOpened ? null :
                         <IconSelector onSelectIcon={(icon: string) => this.selectIcon(icon)} />
                     }
+                </td>
+            );
+
+            selectNodesButton = (
+                <td className={styles.td}>
+                    <Tooltip
+                        overlay={'Select nodes'}
+                        placement="bottom"
+                        mouseLeaveDelay={0}
+                        arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                        <Icon name={styles.selectNodesButton + ' ion-qr-scanner'}
+                              onClick={this.selectNodes.bind(this)} />
+                    </Tooltip>
                 </td>
             );
         }
@@ -125,6 +145,7 @@ class FieldRow extends React.Component<Props, State> {
                 <td className={styles.td}>{field.path}</td>
                 <td className={styles.td}>{field.datasourceId}</td>
                 {selectIconButton}
+                {selectNodesButton}
                 {deleteButton}
                 {addButton}
             </tr>

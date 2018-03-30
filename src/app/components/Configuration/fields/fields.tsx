@@ -3,15 +3,11 @@ import { connect, Dispatch } from 'react-redux';
 import { map, isEqual } from 'lodash';
 import { fieldAdd, fieldDelete, fieldUpdate } from '../../../modules/data/index';
 import FieldRow from '../../../modules/fields/components/fieldRow/fieldRow';
-import { Icon } from '../../index';
-import Url from "../../../domain/Url";
 import Loader from "../../Misc/Loader";
 import {saveAs} from 'file-saver';
-import {searchFieldsUpdate} from "../../../modules/search/actions";
-import {fieldNodesHighlight, highlightNodes} from "../../../modules/graph/actions";
+import {highlightNodes} from "../../../modules/graph/actions";
 import {Datasource} from "../../../interfaces/datasource";
 import {Field} from "../../../interfaces/field";
-import IconSelector from '../iconSelector/iconSelector';
 import * as styles from './fields.scss';
 
 interface State {
