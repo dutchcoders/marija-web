@@ -663,6 +663,14 @@ class Graph extends React.PureComponent<Props, State> {
         }
     }
 
+    getSearches(searchIds: string[]): Search[] {
+        const { searches } = this.props;
+
+        return searches.filter(search =>
+            searchIds.indexOf(search.searchId) !== -1
+        );
+    }
+
     getTooltipTexture(node: Node) {
         const key = node.name + node.fields.join('');
         let texture = this.tooltipTextures[key];
@@ -673,7 +681,18 @@ class Graph extends React.PureComponent<Props, State> {
         }
 
         const container = new PIXI.Container();
-        const description = node.fields.join(', ') + ': ' + node.abbreviated;
+        const searches = this.getSearches(node.searchIds);
+
+        const queries: string[] = searches.map(search => search.q);
+        const datasources: string[] = searches.reduce((accumulator, search) =>
+            accumulator.concat(search.datasources)
+        , []);
+
+        const description =
+            node.fields.join(', ') + ': ' + node.abbreviated + "\n"
+            + 'Queries: ' + queries.join(', ') + "\n"
+            + 'Datasources: ' + datasources.join(', ');
+
         const text = new PIXI.Text(description, {
             fontFamily: 'Arial',
             fontSize: '12px',
