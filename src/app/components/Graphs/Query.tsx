@@ -147,7 +147,6 @@ class Query extends React.Component<Props, State> {
         const lessClass = 'ion ion-ios-minus ' + (displayNodes <= 0 ? 'disabled' : '');
         const moreClass = 'ion ion-ios-plus ' + (displayNodes === nodes ? 'disabled' : '');
         const loading: boolean = !search.completed && !search.paused;
-        const itemClass = 'query ' + (loading ? 'loading' : '');
 
         let count = null;
 
@@ -322,13 +321,22 @@ class Query extends React.Component<Props, State> {
             ]);
         }
 
-        return (
-            <div key={search.searchId} style={{backgroundColor: search.color}} className={itemClass}>
-                {search.q}&nbsp;
-                {count}
+        let animation = null;
 
-                <div className="actions">
-                    {actions}
+        if (loading) {
+            animation = <div className="queryAnimation" />;
+        }
+
+        return (
+            <div key={search.searchId} style={{backgroundColor: search.color}} className="query">
+                {animation}
+                <div className="queryInner" style={{backgroundColor: search.color}}>
+                    {search.q}&nbsp;
+                    {count}
+
+                    <div className="actions">
+                        {actions}
+                    </div>
                 </div>
             </div>
         );
