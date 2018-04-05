@@ -246,9 +246,6 @@ class SearchBox extends React.Component<Props, State> {
                     <img className={`logo ${connected ? 'connected' : 'not-connected'}`} src="/images/logo.png" title={connected ? "Marija is connected to the backendservice" : "No connection to Marija backend available" } />
                 </div>
                 <div className="queriesContainer">
-                    {searchAroundContainer}
-                    {userQueries}
-
                     <form onSubmit={this.handleSubmit.bind(this)} className={styles.form} ref={form => this.searchForm = form}>
                         <input
                             className={styles.queryInput}
@@ -259,6 +256,9 @@ class SearchBox extends React.Component<Props, State> {
                         />
                         {this.renderDatasourceForm()}
                     </form>
+
+                    {searchAroundContainer}
+                    {userQueries}
                 </div>
                 <SkyLight dialogStyles={editQueryDialogStyles} hideOnOverlayClicked ref="editDialog" title="Update query" >
                     { edit_query }
