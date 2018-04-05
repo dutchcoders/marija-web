@@ -24,6 +24,7 @@ import {
 import {setFps} from "../../modules/stats/statsActions";
 import {Field} from "../../interfaces/field";
 import {getArrowPosition} from "../../helpers/getArrowPosition";
+import {AppState} from "../../interfaces/appState";
 const myWorker = require("worker-loader!./d3Worker");
 
 interface TextureMap {
@@ -1410,7 +1411,7 @@ class Graph extends React.PureComponent<Props, State> {
     }
 }
 
-const select = (state, ownProps) => {
+const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
         nodesForDisplay: getNodesForDisplay(state),

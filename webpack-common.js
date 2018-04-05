@@ -12,7 +12,7 @@ const SRC_DIR = path.resolve(__dirname, 'src');
 module.exports = {
     entry: {
         vendor: SRC_DIR + '/app/vendor.ts',
-        app: SRC_DIR + '/app/main.js'
+        app: SRC_DIR + '/app/main.tsx'
     },
     target: 'web',
     devtool: 'eval',

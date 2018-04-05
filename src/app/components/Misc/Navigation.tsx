@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { connect} from 'react-redux';
 import {Icon} from "../index";
 import {closePane, openPane} from "../../utils/actions";
@@ -6,7 +6,7 @@ import Tooltip from 'rc-tooltip';
 import {setSelectingMode, toggleLabels} from '../../modules/graph/actions';
 import Filter from "../Graphs/Filter";
 
-class Navigation extends React.Component {
+class Navigation extends React.Component<any, any> {
     enableMoving() {
         const { dispatch } = this.props;
         dispatch(setSelectingMode(false));

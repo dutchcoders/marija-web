@@ -5,6 +5,7 @@ import Url from "../domain/Url";
 import {error} from '../utils';
 import {Datasource} from "../interfaces/datasource";
 import {Field} from "../interfaces/field";
+import {AppState} from "../interfaces/appState";
 
 interface Props {
     connected: boolean;
@@ -44,7 +45,7 @@ class Header extends React.Component<Props, State> {
     }
 }
 
-function select(state) {
+function select(state: AppState) {
     return {
         connected: state.entries.connected,
         datasources: state.datasources.datasources.filter(datasource => datasource.active),

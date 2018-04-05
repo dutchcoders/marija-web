@@ -11,6 +11,7 @@ import {Datasource} from "../../interfaces/datasource";
 import Fields from './fields/fields';
 import {Via} from "../../interfaces/via";
 import Url from "../../domain/Url";
+import {AppState} from "../../interfaces/appState";
 
 interface State {
     normalization_error: string;
@@ -398,7 +399,7 @@ class ConfigurationView extends React.Component<Props, State> {
 }
 
 
-function select(state) {
+function select(state: AppState) {
     return {
         fields: state.entries.fields,
         normalizations: state.entries.normalizations,

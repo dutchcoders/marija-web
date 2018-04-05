@@ -1,4 +1,4 @@
-export { default as entries, defaultState } from './entries';
+export { default as entries, defaultEntriesState } from './entries';
 export { default as utils } from './utils';
 export { default as datasources } from './datasources';
 export { default as fields } from './fields';

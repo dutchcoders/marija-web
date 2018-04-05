@@ -1,19 +1,18 @@
-import {Node} from "../../interfaces/node";
 import {HIDE_CONTEXT_MENU, SHOW_CONTEXT_MENU} from "./contextMenuConstants";
 
-interface State {
+export interface ContextMenuState {
     nodeId: string;
     x: number;
     y: number;
 }
 
-export const initialContextMenuState: State = {
+export const initialContextMenuState: ContextMenuState = {
     nodeId: undefined,
     x: undefined,
     y: undefined
 };
 
-export default function contextMenuReducer(state: State = initialContextMenuState, action) {
+export default function contextMenuReducer(state: ContextMenuState = initialContextMenuState, action): ContextMenuState {
     switch (action.type) {
         case SHOW_CONTEXT_MENU: {
             return Object.assign({}, state, {

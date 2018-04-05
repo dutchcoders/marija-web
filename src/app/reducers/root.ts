@@ -1,4 +1,4 @@
-import { entries, enableBatching, utils, datasources, fields, defaultState } from './';
+import { entries, enableBatching, utils, datasources, fields } from './';
 import { compose, createStore, combineReducers, applyMiddleware } from 'redux';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import {EXPORT_DATA, IMPORT_DATA} from "../modules/import/constants";

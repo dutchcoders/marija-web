@@ -15,6 +15,7 @@ import {Link} from "../../interfaces/link";
 import {Normalization} from "../../interfaces/normalization";
 import getRelatedNodes from '../../helpers/getRelatedNodes';
 import {Datasource} from "../../interfaces/datasource";
+import {AppState} from "../../interfaces/appState";
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -451,7 +452,7 @@ class Nodes extends React.Component<Props, State> {
 }
 
 
-function select(state) {
+function select(state: AppState) {
     return {
         nodes: state.entries.nodes,
         links: state.entries.links,

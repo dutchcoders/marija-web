@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 import { map, isEqual } from 'lodash';
-import { fieldAdd, fieldDelete, fieldUpdate } from '../../../modules/data/index';
 import FieldRow from '../../../modules/fields/components/fieldRow/fieldRow';
 import Loader from "../../Misc/Loader";
 import {saveAs} from 'file-saver';
@@ -9,6 +8,7 @@ import {highlightNodes} from "../../../modules/graph/actions";
 import {Datasource} from "../../../interfaces/datasource";
 import {Field} from "../../../interfaces/field";
 import * as styles from './fields.scss';
+import {AppState} from "../../../interfaces/appState";
 
 interface State {
     currentFieldSearchValue: string;
@@ -417,7 +417,7 @@ class Fields extends React.Component<Props, State> {
 }
 
 
-function select(state) {
+function select(state: AppState) {
     return {
         fields: state.entries.fields,
         availableFields: state.fields.availableFields,
@@ -426,6 +426,5 @@ function select(state) {
         datasources: state.datasources.datasources,
     };
 }
-
 
 export default connect(select)(Fields);

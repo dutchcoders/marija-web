@@ -3,6 +3,7 @@ import {Icon} from '../index';
 import {error} from "../../utils";
 import {connect, Dispatch} from "react-redux";
 import * as styles from './notifications.scss';
+import {AppState} from "../../interfaces/appState";
 
 interface Props {
     errors: string;
@@ -37,7 +38,7 @@ class Notifications extends React.Component<Props, State> {
     }
 }
 
-const select = (state) => {
+const select = (state: AppState) => {
     return {
         errors: state.entries.errors,
     };

@@ -6,13 +6,13 @@ require('../images/favicon.png');
 
 import * as React from 'react';
 import { render } from 'react-dom';
-import { dispatch, compose, createStore, combineReducers, applyMiddleware } from 'redux';
+import { compose, createStore, combineReducers, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import { Router, Route } from 'react-router';
 import { createBrowserHistory } from 'history';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import { RootView, StateCapturer, Websocket } from './components/index';
-import { defaultState, root } from './reducers/index';
+import { defaultEntriesState, root } from './reducers/index';
 import { persistState } from './helpers/index';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import thunk from 'redux-thunk';
@@ -21,23 +21,26 @@ import {defaultDatasourcesState} from './reducers/datasources';
 import {initialContextMenuState} from './modules/contextMenu/contextMenuReducer';
 import createWorkerMiddleware from 'redux-worker-middleware';
 import {defaultStatsState} from './modules/stats/statsReducer';
+import {AppState} from "./interfaces/appState";
+import {defaultFieldsState} from "./reducers/fields";
 
 const GraphWorker = require('worker-loader!./modules/graph/graphWorker');
 const graphWorker = new GraphWorker();
 const graphWorkerMiddleware = createWorkerMiddleware(graphWorker);
 
+const defaultState: AppState = {
+    entries: defaultEntriesState,
+    datasources: defaultDatasourcesState,
+    contextMenu: initialContextMenuState,
+    fields: defaultFieldsState,
+    utils: defaultUtilsState,
+    stats: defaultStatsState
+};
+
 function configureStore() {
     return createStore(
-        root, {
-            entries: defaultState,
-            datasources: defaultDatasourcesState,
-            contextMenu: initialContextMenuState,
-            fields: {
-                availableFields: []
-            },
-            utils: defaultUtilsState,
-            stats: defaultStatsState
-        },
+        root,
+        defaultState,
         composeWithDevTools(
             persistState(),
             applyMiddleware(thunk, graphWorkerMiddleware)

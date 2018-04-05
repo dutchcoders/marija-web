@@ -17,6 +17,7 @@ import {highlightNodes, nodesSelect} from '../../modules/graph/actions';
 import {BarChart, XAxis, YAxis, Bar, Tooltip} from 'recharts';
 import {Search} from "../../interfaces/search";
 import {getNodesForDisplay} from "../../reducers/entriesSelectors";
+import {AppState} from "../../interfaces/appState";
 
 interface Props {
     normalizations: Normalization[];
@@ -296,12 +297,11 @@ class Timeline extends React.Component<Props, State> {
     }
 }
 
-const select = (state, ownProps) => {
+const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
         availableFields: state.fields.availableFields,
         nodes: getNodesForDisplay(state),
-        queries: state.entries.searchIds,
         fields: state.entries.fields,
         normalizations: state.entries.normalizations,
         date_fields: state.entries.date_fields,

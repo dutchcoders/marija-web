@@ -8,6 +8,7 @@ import {
 import Url from "../../domain/Url";
 import {Field} from "../../interfaces/field";
 import {Via} from "../../interfaces/via";
+import {AppState} from "../../interfaces/appState";
 
 interface Props {
     history: any;
@@ -89,7 +90,7 @@ class ResumeSession extends React.Component<Props, State> {
     }
 }
 
-const select = (state, ownProps) => {
+const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
         datasources: state.datasources.datasources,

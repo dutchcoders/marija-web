@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
+import {AppState} from "../../interfaces/appState";
 
 interface Props {
     serverVersion: string;
@@ -25,7 +26,7 @@ class Stats extends React.Component<Props, State> {
 }
 
 
-const select = (state, ownProps) => {
+const select = (state: AppState, ownProps) => {
     return {
         serverVersion: state.stats.serverVersion,
         fps: state.stats.fps

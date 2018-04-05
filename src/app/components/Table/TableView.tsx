@@ -19,6 +19,7 @@ import {getSelectedNodes} from "../../reducers/entriesSelectors";
 import {Column} from "../../interfaces/column";
 import {SortType} from "../../interfaces/sortType";
 import IconSelector from "../Configuration/iconSelector/iconSelector";
+import {AppState} from "../../interfaces/appState";
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -315,7 +316,7 @@ class TableView extends React.Component<Props, State> {
 }
 
 
-function select(state) {
+function select(state: AppState) {
     return {
         selectedNodes: getSelectedNodes(state),
         normalizations: state.entries.normalizations,

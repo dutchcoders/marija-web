@@ -1,23 +1,21 @@
 import { FIELDS_RECEIVE, FIELDS_REQUEST, FIELDS_CLEAR } from '../modules/fields/index'
-import { Socket } from '../utils/index';
 import sortFields from "../helpers/sortFields";
 import {Field} from "../interfaces/field";
-import {uniqueId} from 'lodash';
 import {DefaultConfigs} from "../interfaces/defaultConfigs";
 
-interface State {
+export interface FieldsState {
     availableFields: Field[];
     fieldsFetching: boolean;
     defaultConfigs: DefaultConfigs;
 }
 
-const defaultState: State = {
+export const defaultFieldsState: FieldsState = {
     availableFields: [],
     fieldsFetching: false,
     defaultConfigs: {}
 };
 
-export default function fields(state: State = defaultState, action) {
+export default function fields(state: FieldsState = defaultFieldsState, action) {
     switch (action.type) {
         case FIELDS_RECEIVE: {
             if (action.payload.fields === null) {

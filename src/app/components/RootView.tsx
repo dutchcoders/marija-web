@@ -11,6 +11,7 @@ import Filter from "./Graphs/Filter";
 import ContextMenu from '../modules/contextMenu/contextMenu';
 import Stats from '../modules/stats/stats';
 import Circle from '../modules/chordDiagram/chordDiagram';
+import {AppState} from "../interfaces/appState";
 
 class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();
@@ -133,7 +134,7 @@ class RootView extends React.Component<any, any> {
     }
 }
 
-const select = (state, ownProps) => {
+const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
         errors: state.entries.errors,

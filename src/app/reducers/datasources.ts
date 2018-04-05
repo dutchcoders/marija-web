@@ -6,15 +6,15 @@ import {Socket} from "../utils";
 import {SEARCH_DELETE} from '../modules/search/constants';
 import {Search} from "../interfaces/search";
 
-interface State {
+export interface DatasourcesState {
     datasources: Datasource[];
 }
 
-export const defaultDatasourcesState: State = {
+export const defaultDatasourcesState: DatasourcesState = {
     datasources: []
 };
 
-export default function datasources(state: State = defaultDatasourcesState, action) {
+export default function datasources(state: DatasourcesState = defaultDatasourcesState, action) {
     switch (action.type) {
         case INITIAL_STATE_RECEIVE: {
             const datasources: Datasource[] = action.initial_state.datasources.map(datasource => {

@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 
 import { Workspaces, Migrations } from '../../domain/index'
+import {AppState} from '../../interfaces/appState';
 
-class StateCapturer extends Component {
+class StateCapturer extends React.Component<any, any> {
 
     debounce(fn, delay) {
         let timer;
@@ -40,15 +41,14 @@ class StateCapturer extends Component {
     }
 }
 
-function select(state, ownProps) {
+function select(state: AppState, ownProps) {
     return {
         ...ownProps,
-
         columns: state.entries.columns,
         searches: state.entries.searches,
         entries_fields: state.entries.fields,
         date_fields: state.entries.date_fields,
-        datasources: state.entries.datasources,
+        datasources: state.datasources.datasources,
         normalizations: state.entries.normalizations,
         utils: state.utils,
         fields: state.fields,

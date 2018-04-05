@@ -44,7 +44,7 @@ import datasources from "./datasources";
 import {selectNodes} from "../helpers/selectNodes";
 import {deselectNodes} from "../helpers/deselectNodes";
 
-interface State {
+export interface EntriesState {
     connected: boolean;
     total: number;
     fields: Field[];
@@ -64,7 +64,7 @@ interface State {
     sortType: SortType;
 }
 
-export const defaultState: State = {
+export const defaultEntriesState: EntriesState = {
     connected: false,
     total: 0,
     columns: [],
@@ -84,7 +84,7 @@ export const defaultState: State = {
     sortType: 'asc'
 };
 
-export default function entries(state: State = defaultState, action): State {
+export default function entries(state: EntriesState = defaultEntriesState, action): EntriesState {
     switch (action.type) {
         case NODES_DELETE: {
             const items = concat([], state.items);
