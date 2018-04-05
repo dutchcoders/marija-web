@@ -85,7 +85,7 @@ export function fieldDelete(field) {
             if (datasourceFields.length === 0) {
                 // If there are no more active fields for this datasource,
                 // deactivate the datasource
-                dispatch(datasourceDeactivated(datasource));
+                dispatch(datasourceDeactivated(datasource.id));
             }
         });
     };

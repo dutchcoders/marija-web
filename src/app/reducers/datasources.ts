@@ -45,7 +45,7 @@ export default function datasources(state: State = defaultDatasourcesState, acti
             });
         }
         case DATASOURCE_ACTIVATED: {
-            const index: number = state.datasources.findIndex(datasource => datasource.id === action.payload.datasource.id);
+            const index: number = state.datasources.findIndex(datasource => datasource.id === action.payload.datasourceId);
 
             // It's already active
             if (state.datasources[index].active) {
@@ -62,7 +62,7 @@ export default function datasources(state: State = defaultDatasourcesState, acti
             });
         }
         case DATASOURCE_DEACTIVATED: {
-            const index: number = state.datasources.findIndex(datasource => datasource.id === action.payload.datasource.id);
+            const index: number = state.datasources.findIndex(datasource => datasource.id === action.payload.datasourceId);
 
             // It's already inactive
             if (!state.datasources[index].active) {

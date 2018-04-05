@@ -1,20 +1,19 @@
 import { DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED } from './index'
-import {Datasource} from "../../interfaces/datasource";
 
-export function datasourceActivated(datasource: Datasource) {
+export function datasourceActivated(datasourceId: string) {
     return {
         type: DATASOURCE_ACTIVATED,
         payload: {
-            datasource: datasource
+            datasourceId: datasourceId
         }
     };
 }
 
-export function datasourceDeactivated(datasource) {
+export function datasourceDeactivated(datasourceId: string) {
     return {
         type: DATASOURCE_DEACTIVATED,
         payload: {
-            datasource: datasource
+            datasourceId: datasourceId
         }
     };
 }

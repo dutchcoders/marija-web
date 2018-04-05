@@ -98,9 +98,9 @@ class SearchBox extends React.Component<Props, State> {
         const { dispatch } = this.props;
 
         if (event.currentTarget.checked) {
-            dispatch(datasourceActivated(datasource))
+            dispatch(datasourceActivated(datasource.id))
         } else {
-            dispatch(datasourceDeactivated(datasource))
+            dispatch(datasourceDeactivated(datasource.id))
         }
     }
 

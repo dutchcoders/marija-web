@@ -10,6 +10,7 @@ import {fieldAdd, fieldDelete, fieldUpdate} from "../../../data";
 import Url from "../../../../domain/Url";
 import {searchFieldsUpdate} from "../../../search/actions";
 import {fieldNodesHighlight, selectFieldNodes} from "../../../graph/actions";
+import {datasourceActivated} from "../../../datasources/actions";
 
 interface Props {
     field: Field;
@@ -33,6 +34,11 @@ class FieldRow extends React.Component<Props, State> {
 
         dispatch(fieldAdd(field));
         dispatch(searchFieldsUpdate());
+
+        // If we add a field for a datasource, we assume that a user wants to
+        // search in it, so we go ahead and activate it for the user, saving him
+        // a click.
+        dispatch(datasourceActivated(field.datasourceId));
     }
 
     remove() {
