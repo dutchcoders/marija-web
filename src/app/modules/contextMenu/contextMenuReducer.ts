@@ -6,28 +6,32 @@ export interface ContextMenuState {
     y: number;
 }
 
-export const initialContextMenuState: ContextMenuState = {
+export const defaultContextMenuState: ContextMenuState = {
     nodeId: undefined,
     x: undefined,
     y: undefined
 };
 
-export default function contextMenuReducer(state: ContextMenuState = initialContextMenuState, action): ContextMenuState {
+export default function contextMenuReducer(state: ContextMenuState = defaultContextMenuState, action): ContextMenuState {
     switch (action.type) {
         case SHOW_CONTEXT_MENU: {
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 nodeId: action.nodeId,
                 x: action.x,
                 y: action.y
-            });
+            };
         }
+
         case HIDE_CONTEXT_MENU: {
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 nodeId: undefined,
                 x: undefined,
                 y: undefined
-            });
+            };
         }
+
         default: {
             return state;
         }

@@ -11,18 +11,20 @@ export const defaultStatsState: StatsState = {
     serverVersion: ''
 };
 
-export default function statsReducer(state: StatsState = defaultStatsState, action) {
+export default function statsReducer(state: StatsState = defaultStatsState, action): StatsState {
     switch (action.type) {
         case INITIAL_STATE_RECEIVE: {
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 serverVersion: action.initial_state.version
-            });
+            }
         }
 
         case SET_FPS: {
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 fps: action.payload.fps
-            });
+            };
         }
 
         default: {

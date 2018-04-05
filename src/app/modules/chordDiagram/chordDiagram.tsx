@@ -11,6 +11,7 @@ import {Item} from "../../interfaces/item";
 import {Selection} from "d3-selection";
 import {EventEmitter} from "fbemitter";
 import * as styles from './chordDiagram.scss';
+import {AppState} from "../../interfaces/appState";
 
 interface Props {
     nodes: Node[];
@@ -263,7 +264,7 @@ class ChordDiagram extends React.Component<Props, State> {
     }
 }
 
-const select = (state) => {
+const select = (state: AppState) => {
     return {
         nodes: getSelectedNodes(state),
         links: getLinksForDisplay(state),

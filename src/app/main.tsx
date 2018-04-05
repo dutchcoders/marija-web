@@ -18,7 +18,7 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import thunk from 'redux-thunk';
 import {defaultUtilsState} from "./reducers/utils";
 import {defaultDatasourcesState} from './reducers/datasources';
-import {initialContextMenuState} from './modules/contextMenu/contextMenuReducer';
+import {defaultContextMenuState} from './modules/contextMenu/contextMenuReducer';
 import createWorkerMiddleware from 'redux-worker-middleware';
 import {defaultStatsState} from './modules/stats/statsReducer';
 import {AppState} from "./interfaces/appState";
@@ -31,7 +31,7 @@ const graphWorkerMiddleware = createWorkerMiddleware(graphWorker);
 const defaultState: AppState = {
     entries: defaultEntriesState,
     datasources: defaultDatasourcesState,
-    contextMenu: initialContextMenuState,
+    contextMenu: defaultContextMenuState,
     fields: defaultFieldsState,
     utils: defaultUtilsState,
     stats: defaultStatsState
