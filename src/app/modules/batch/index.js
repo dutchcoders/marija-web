@@ -1,2 +1,0 @@
-export { batchActions } from './actions';
-
