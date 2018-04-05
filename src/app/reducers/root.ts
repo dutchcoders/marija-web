@@ -1,4 +1,4 @@
-import { entries, enableBatching, utils, datasources, fields } from './';
+import { entries, utils, datasources, fields } from './';
 import { compose, createStore, combineReducers, applyMiddleware } from 'redux';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import {EXPORT_DATA, IMPORT_DATA} from "../modules/import/constants";
@@ -6,17 +6,15 @@ import exportJson from "../helpers/exportJson";
 import contextMenuReducer from '../modules/contextMenu/contextMenuReducer';
 import statsReducer from "../modules/stats/statsReducer";
 
-const appReducer = enableBatching(
-    combineReducers({
-        entries,
-        utils,
-        datasources,
-        fields,
-        contextMenu: contextMenuReducer,
-        routing: routerReducer,
-        stats: statsReducer
-    })
-);
+const appReducer = combineReducers({
+    entries,
+    utils,
+    datasources,
+    fields,
+    contextMenu: contextMenuReducer,
+    routing: routerReducer,
+    stats: statsReducer
+});
 
 export default function root(state, action) {
     if (action.type === IMPORT_DATA) {
