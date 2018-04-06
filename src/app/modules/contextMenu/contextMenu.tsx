@@ -12,6 +12,7 @@ import {FormEvent} from "react";
 import abbreviateNodeName from '../../helpers/abbreviateNodeName';
 import {Search} from "../../interfaces/search";
 import {Datasource} from "../../interfaces/datasource";
+import {AppState} from "../../interfaces/appState";
 
 interface Props {
     nodeId: string;
@@ -21,7 +22,7 @@ interface Props {
     y: number;
     dispatch: Dispatch<any>;
     searches: Search[];
-    datasources: Datasource[]
+    datasources: Datasource[];
 }
 
 interface State {
@@ -30,6 +31,7 @@ interface State {
 }
 
 class ContextMenu extends React.Component<Props, State> {
+    contextMenu: HTMLDivElement;
     renameInput: HTMLInputElement;
 
     state: State = {
@@ -182,6 +184,33 @@ class ContextMenu extends React.Component<Props, State> {
         )
     }
 
+    componentDidUpdate() {
+        const { nodeId, x, y } = this.props;
+
+        if (!nodeId) {
+            return;
+        }
+
+        const rect = this.contextMenu.getBoundingClientRect();
+        const containerRect = this.contextMenu.parentElement.getBoundingClientRect();
+
+        let newY: number = y;
+
+        // Make sure the context menu fits on the page
+        if (rect.height + y > containerRect.height) {
+            newY = containerRect.height - rect.height;
+        }
+
+        let newX: number = x;
+
+        if (rect.width + x > containerRect.width) {
+            newX = containerRect.width - rect.width;
+        }
+
+        this.contextMenu.style.top = newY + 'px';
+        this.contextMenu.style.left = newX + 'px';
+    }
+
     render() {
         const { nodeId, x, y } = this.props;
         const { renameOpened, renameTo } = this.state;
@@ -236,7 +265,7 @@ class ContextMenu extends React.Component<Props, State> {
         }
 
         return (
-            <div className={styles.contextMenu} style={{top: y, left: x}}>
+            <div className={styles.contextMenu} ref={ref => this.contextMenu = ref}>
                 <h1 className={styles.title}>{node.name}</h1>
                 <ul>
                     <li>
@@ -265,7 +294,7 @@ class ContextMenu extends React.Component<Props, State> {
 }
 
 
-const select = (state, ownProps) => {
+const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
         nodeId: state.contextMenu.nodeId,
