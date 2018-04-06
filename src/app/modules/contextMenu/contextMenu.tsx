@@ -229,7 +229,7 @@ class ContextMenu extends React.Component<Props, State> {
     }
 
     render() {
-        const { nodeId, x, y } = this.props;
+        const { nodeId } = this.props;
         const { renameOpened, renameTo, forceNoteOpen } = this.state;
 
         if (!nodeId) {
