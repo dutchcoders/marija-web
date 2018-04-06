@@ -1,8 +1,6 @@
 import { DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED } from '../modules/datasources/index';
-import { union, without, uniqBy } from 'lodash';
 import {Datasource} from "../interfaces/datasource";
 import {INITIAL_STATE_RECEIVE} from "../modules/data/index";
-import {Socket} from "../utils";
 import {SEARCH_DELETE} from '../modules/search/constants';
 import {Search} from "../interfaces/search";
 

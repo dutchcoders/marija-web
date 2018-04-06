@@ -1,9 +1,8 @@
 import { FIELDS_RECEIVE, FIELDS_REQUEST, FIELDS_CLEAR } from './index';
 import {Datasource} from "../../interfaces/datasource";
-import {Socket} from "../../utils";
-import {uniqueId} from 'lodash';
 import {Field} from "../../interfaces/field";
 import {Via} from "../../interfaces/via";
+import {webSocketSend} from "../../utils/actions";
 
 export function clearFields(datasource){
     return {
@@ -27,20 +26,19 @@ export function receiveFields(fields: Field[], datasource: string, defaultFields
 }
 
 export function getFields(datasources: Datasource[]) {
-    const datasourceIds: string[] = datasources.map(datasource => datasource.id);
+    return (dispatch, getState) => {
+        dispatch({
+            type: FIELDS_REQUEST,
+            payload: {
+                datasources: datasources
+            }
+        });
 
-    Socket.ws.postMessage(
-        {
-            datasources: datasourceIds,
-            'request-id': uniqueId()
-        },
-        FIELDS_REQUEST
-    );
+        const datasourceIds: string[] = datasources.map(datasource => datasource.id);
 
-    return {
-        type: FIELDS_REQUEST,
-        payload: {
-            datasources: datasources
-        }
+        dispatch(webSocketSend({
+            type: FIELDS_REQUEST,
+            datasources: datasourceIds
+        }));
     };
 }

@@ -1,4 +1,4 @@
-import { DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED } from './index'
+    import { DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED } from './index'
 
 export function datasourceActivated(datasourceId: string) {
     return {

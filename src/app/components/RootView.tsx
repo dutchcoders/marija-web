@@ -12,6 +12,7 @@ import ContextMenu from '../modules/contextMenu/contextMenu';
 import Stats from '../modules/stats/stats';
 import Circle from '../modules/chordDiagram/chordDiagram';
 import {AppState} from "../interfaces/appState";
+import {webSocketConnect} from "../utils/actions";
 
 class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();
@@ -24,6 +25,12 @@ class RootView extends React.Component<any, any> {
         this.state = {
             mounted: false
         };
+    }
+
+    componentWillMount() {
+        const { dispatch } = this.props;
+
+        dispatch(webSocketConnect());
     }
 
     componentDidMount() {

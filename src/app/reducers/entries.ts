@@ -1,6 +1,6 @@
 import { concat, without, remove, assign, find, uniqueId, isEqual, chunk } from 'lodash';
 
-import {  ERROR, AUTH_CONNECTED, Socket, SearchMessage, DiscoverIndicesMessage, DiscoverFieldsMessage } from '../utils/index';
+import {  ERROR, AUTH_CONNECTED} from '../utils/index';
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
 import {
     FIELD_NODES_HIGHLIGHT,
@@ -18,7 +18,6 @@ import {VIA_ADD, VIA_DELETE, TABLE_SORT} from "../modules/data/constants";
 import {NODES_TOOLTIP, SET_SELECTING_MODE, TOGGLE_LABELS} from "../modules/graph/constants";
 import {REQUEST_COMPLETED} from "../utils/constants";
 import {SEARCH_FIELDS_UPDATE} from "../modules/search/constants";
-import {cancelRequest} from "./utils";
 import {Node} from '../interfaces/node';
 import {Link} from "../interfaces/link";
 import {Item} from "../interfaces/item";
@@ -116,11 +115,6 @@ export default function entries(state: EntriesState = defaultEntriesState, actio
                 search.searchId !== toDelete.searchId
             );
             let items = concat(state.items);
-
-            if (!toDelete.completed) {
-                // Tell the server it can stop sending results for this query
-                cancelRequest(toDelete['request-id']);
-            }
 
             items = items.filter(item => item.searchId !== toDelete.searchId);
 
@@ -440,7 +434,7 @@ export default function entries(state: EntriesState = defaultEntriesState, actio
                 total: 0,
                 displayNodes: action.displayNodes,
                 items: [],
-                requestId: uniqueId(),
+                requestId: action.requestId,
                 completed: false,
                 aroundNodeId: action.aroundNodeId,
                 liveDatasource: null,
@@ -451,50 +445,16 @@ export default function entries(state: EntriesState = defaultEntriesState, actio
 
             searches.push(search);
 
-            let fieldPaths: string[] = state.fields.map(field => field.path);
-            fieldPaths = fieldPaths.concat(state.date_fields.map(field => field.path));
-
-            let message = {
-                datasources: search.datasources,
-                query: action.query,
-                fields: fieldPaths,
-                'request-id': search.requestId
-            };
-            Socket.ws.postMessage(message);
-
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 searches: searches
-            });
+            };
         }
         case SEARCH_FIELDS_UPDATE: {
-            let fields = state.fields.map(field => field.path);
-            fields = fields.concat(state.date_fields.map(field => field.path));
-
-            const newSearches = state.searches.map(search => {
-                if (search.liveDatasource) {
-                    return search;
-                }
-
-                cancelRequest(search.requestId);
-
-                const newRequestId = uniqueId();
-
-                Socket.ws.postMessage({
-                    datasources: search.datasources,
-                    query: search.q,
-                    fields: fields,
-                    'request-id': newRequestId
-                });
-
-                return Object.assign({}, search, {
-                    requestId: newRequestId,
-                    completed: false
-                });
-            });
-
-            return Object.assign({}, state, {
-                searches: newSearches
-            });
+            return {
+                ...state,
+                searches: action.payload.searches
+            };
         }
         case GRAPH_WORKER_OUTPUT: {
             const updates: any = {
@@ -582,19 +542,6 @@ export default function entries(state: EntriesState = defaultEntriesState, actio
         }
 
         case ITEMS_REQUEST: {
-            const ids: string[] = action.items.map(item => item.id);
-
-            const chunks = chunk(ids, 10);
-
-            chunks.forEach(batch => {
-                const message = {
-                    'request-id': uniqueId(),
-                    items: batch
-                };
-
-                Socket.ws.postMessage(message, ITEMS_REQUEST);
-            });
-
             const newItems = state.items.concat([]);
 
             action.items.forEach(item => {

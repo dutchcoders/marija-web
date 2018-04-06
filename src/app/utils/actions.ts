@@ -1,4 +1,7 @@
-import {ERROR, AUTH_CONNECTED, OPEN_PANE, CLOSE_PANE, CANCEL_REQUEST} from './constants';
+import {
+    ERROR, AUTH_CONNECTED, OPEN_PANE, CLOSE_PANE, CANCEL_REQUEST,
+    WEB_SOCKET_SEND, WEB_SOCKET_CONNECT
+} from './constants';
 import {
     MOVE_PANE_TO_TOP, REQUEST_COMPLETED,
     SET_PANE_CONFIG
@@ -9,13 +12,6 @@ export function error(msg) {
         type: ERROR,
         receivedAt: Date.now(),
         errors: msg
-    };
-}
-
-export function cancelRequest(requestId) {
-    return {
-        type: CANCEL_REQUEST,
-        requestId: requestId
     };
 }
 
@@ -61,4 +57,29 @@ export function movePaneToTop(key) {
         type: MOVE_PANE_TO_TOP,
         key: key
     };
+}
+
+interface WebSocketSendPayload {
+    type: string;
+    [key: string]: any;
+}
+
+export function webSocketSend(payload: WebSocketSendPayload) {
+    return {
+        type: WEB_SOCKET_SEND,
+        payload: payload
+    };
+}
+
+export function webSocketConnect() {
+    return {
+        type: WEB_SOCKET_CONNECT
+    }
+}
+
+export function cancelRequest(requestId) {
+    return webSocketSend({
+        type: CANCEL_REQUEST,
+        requestId: requestId
+    });
 }
