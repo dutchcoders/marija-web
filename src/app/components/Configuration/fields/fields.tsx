@@ -47,14 +47,6 @@ class Fields extends React.Component<Props, State> {
         });
     }
 
-    componentWillReceiveProps(nextProps: Props) {
-        if (!isEqual(nextProps.datasources, this.props.datasources)) {
-            this.setState({
-                datasourceFilter: null
-            });
-        }
-    }
-
     types = [
         {
             label: 'yes/no',
