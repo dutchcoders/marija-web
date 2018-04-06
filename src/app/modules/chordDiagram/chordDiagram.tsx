@@ -12,6 +12,7 @@ import {Selection} from "d3-selection";
 import {EventEmitter} from "fbemitter";
 import * as styles from './chordDiagram.scss';
 import {AppState} from "../../interfaces/appState";
+import {getNodeHierarchy} from "../../helpers/getNodeHierarchy";
 
 interface Props {
     nodes: Node[];
@@ -63,10 +64,8 @@ class ChordDiagram extends React.Component<Props, State> {
         this.link = this.svg.append("g").selectAll(".link");
         this.node = this.svg.append("g").selectAll(".node");
 
-        const items = this.buildData(nodes, links);
-
-        const root = this.packageHierarchy(items)
-            .sum(d => d.size);
+        const hierarchy = getNodeHierarchy(nodes, links);
+        const root = d3.hierarchy(hierarchy).sum(d => d.size);
 
         const cluster = d3.cluster()
             .size([360, innerRadius]);
@@ -90,7 +89,7 @@ class ChordDiagram extends React.Component<Props, State> {
             .attr("dy", "0.31em")
             .attr("transform", function(d: any) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
             .attr("text-anchor", function(d: any) { return d.x < 180 ? "start" : "end"; })
-            .text(function(d: any) { return d.data.key; })
+            .text(function(d: any) { return d.data.name; })
             .on("mouseover", this.mouseovered.bind(this))
             .on("mouseout", this.mouseouted.bind(this));
     }
@@ -155,38 +154,6 @@ class ChordDiagram extends React.Component<Props, State> {
             .classed("node--source", false);
     }
 
-
-    updateNodes(name, value) {
-        return function (d) {
-            if (value) this.parentNode.appendChild(this);
-            this.svg.select("#node-" + d[name].key).classed(name, value);
-        };
-    }
-
-    packageHierarchy(items) {
-        var map = {};
-
-        const find = (id, data?) => {
-            var node = map[id], i;
-            if (!node) {
-                node = map[id] = data || {id: id, children: []};
-                if (id && id.length) {
-                    node.parent = find(id.substring(0, i = id.lastIndexOf(".")));
-                    node.parent.children.push(node);
-                    // node.key = id.substring(i + 1);
-                    node.key = this.sanitize(id);
-                }
-            }
-            return node;
-        };
-
-        items.forEach(function(d) {
-            find(d.id, d);
-        });
-
-        return d3.hierarchy(map[""]);
-    }
-
     packageImports(nodes) {
         var map = {},
             imports = [];
@@ -204,30 +171,6 @@ class ChordDiagram extends React.Component<Props, State> {
         });
 
         return imports;
-    }
-
-    sanitize(string) {
-        return string;
-    }
-
-    buildData(nodes: Node[], links: Link[]) {
-        return nodes.map(node => {
-            const targets = links.filter(link =>
-                link.source === node.id
-                && nodes.find(search => search.id === link.target)
-            ).map(link => this.sanitize(link.target));
-
-            const sources = links.filter(link =>
-                link.target === node.id
-                && nodes.find(search => search.id === link.source)
-            ).map(link => this.sanitize(link.source));
-
-
-            return Object.assign({}, node, {
-                linksTo: targets.concat(sources),
-                id: this.sanitize(node.id)
-            });
-        });
     }
 
     render() {
