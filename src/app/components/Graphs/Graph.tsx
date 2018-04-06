@@ -293,16 +293,30 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     renderIcons(node: NodeFromD3) {
+        const icons: PIXI.Sprite[] = [];
+
         if (node.important) {
-            const star = '\uF24E';
             const warning = '\uF100';
             const texture = this.getIconTexture(warning);
-            const sprite = new PIXI.Sprite(texture);
-            sprite.x = node.x + node.r - sprite.width + 5;
-            sprite.y = node.y - node.r - 5;
-
-            this.renderedIcons.addChild(sprite);
+            icons.push(new PIXI.Sprite(texture));
         }
+
+        if (node.description) {
+            const note = '\uF482';
+            const texture = this.getIconTexture(note);
+            icons.push(new PIXI.Sprite(texture));
+        }
+
+        let y = node.y - node.r - 5;
+
+        icons.forEach(icon => {
+            icon.x = node.x + node.r - icon.width + 8;
+            icon.y = y - 5;
+
+            y += icon.height - 3;
+
+            this.renderedIcons.addChild(icon);
+        });
     }
 
     renderLinks() {
@@ -530,6 +544,11 @@ class Graph extends React.PureComponent<Props, State> {
             if (nodes[i].important !== nextNodes[i].important) {
                 return true;
             }
+
+            if ((nodes[i].description && !nextNodes[i].description)
+                || (!nodes[i].description && nextNodes[i].description)) {
+                return true;
+            }
         }
 
         return false;
@@ -539,7 +558,8 @@ class Graph extends React.PureComponent<Props, State> {
         const nodesToPost = nextNodes.map(node => {
             return {
                 id: node.id,
-                important: node.important
+                important: node.important,
+                description: node.description
             }
         });
 
@@ -615,7 +635,8 @@ class Graph extends React.PureComponent<Props, State> {
                 searchIds: node.searchIds,
                 icon: node.icon,
                 label: label,
-                important: node.important
+                important: node.important,
+                description: node.description
             };
         });
 

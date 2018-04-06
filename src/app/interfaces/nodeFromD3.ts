@@ -16,4 +16,5 @@ export interface NodeFromD3 {
     important: boolean;
     fx: number;
     fy: number;
+    description: string;
 }
