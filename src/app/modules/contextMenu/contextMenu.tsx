@@ -3,7 +3,7 @@ import {Node} from "../../interfaces/node";
 import * as styles from './contextMenu.scss';
 import { Icon } from '../../components/index';
 import {connect, Dispatch} from "react-redux";
-import {deleteNodes, nodesSelect, nodeUpdate} from "../graph";
+import {deleteNodes, nodesSelect, nodeUpdate} from "../graph/actions";
 import getDirectlyRelatedNodes from "../../helpers/getDirectlyRelatedNodes";
 import {Link} from "../../interfaces/link";
 import {hideContextMenu} from "./contextMenuActions";
@@ -28,6 +28,7 @@ interface Props {
 interface State {
     renameOpened: boolean;
     renameTo: string;
+    forceNoteOpen: boolean;
 }
 
 class ContextMenu extends React.Component<Props, State> {
@@ -36,7 +37,8 @@ class ContextMenu extends React.Component<Props, State> {
 
     state: State = {
         renameOpened: false,
-        renameTo: ''
+        renameTo: '',
+        forceNoteOpen: false
     };
 
     getNode(nodeId: string): Node {
@@ -59,7 +61,8 @@ class ContextMenu extends React.Component<Props, State> {
 
             this.setState({
                 renameOpened: false,
-                renameTo: node.name
+                renameTo: node.name,
+                forceNoteOpen: false
             });
         }
     }
@@ -211,9 +214,23 @@ class ContextMenu extends React.Component<Props, State> {
         this.contextMenu.style.left = newX + 'px';
     }
 
+    handleAddNote() {
+        this.setState({
+            forceNoteOpen: true
+        });
+    }
+
+    handleNoteChange(event: FormEvent<HTMLTextAreaElement>) {
+        const { nodeId, dispatch } = this.props;
+
+        dispatch(nodeUpdate(nodeId, {
+            description: event.currentTarget.value
+        }));
+    }
+
     render() {
         const { nodeId, x, y } = this.props;
-        const { renameOpened, renameTo } = this.state;
+        const { renameOpened, renameTo, forceNoteOpen } = this.state;
 
         if (!nodeId) {
             return null;
@@ -264,30 +281,57 @@ class ContextMenu extends React.Component<Props, State> {
             );
         }
 
+        let noteButton = null;
+        let note = null;
+
+        if (node.description || forceNoteOpen) {
+            note = (
+                <div className={styles.note}>
+                    <textarea
+                        autoFocus
+                        onChange={event => this.handleNoteChange(event)}
+                        defaultValue={node.description} />
+                </div>
+            );
+        } else {
+            noteButton = (
+                <button onClick={this.handleAddNote.bind(this)} className={styles.button}>
+                    <Icon name={'ion-ios-paper ' + styles.icon} />
+                    <span className={styles.buttonText}>Add note</span>
+                </button>
+            );
+        }
+
         return (
             <div className={styles.contextMenu} ref={ref => this.contextMenu = ref}>
-                <h1 className={styles.title}>{node.name}</h1>
-                <ul>
-                    <li>
-                        <button onClick={this.selectRelated.bind(this)} className={styles.button}>
-                            <Icon name={'ion-qr-scanner ' + styles.icon} />
-                            <span className={styles.buttonText}>Select related</span>
-                        </button>
-                    </li>
-                    {this.renderSearchAround()}
-                    <li>
-                        {rename}
-                    </li>
-                    <li>
-                        {important}
-                    </li>
-                    <li>
-                        <button onClick={this.delete.bind(this)} className={styles.button}>
-                            <Icon name={'ion-ios-trash ' + styles.icon} />
-                            <span className={styles.buttonText}>Delete</span>
-                        </button>
-                    </li>
-                </ul>
+                <div className={styles.main}>
+                    <h1 className={styles.title}>{node.name}</h1>
+                    <ul>
+                        <li>
+                            <button onClick={this.selectRelated.bind(this)} className={styles.button}>
+                                <Icon name={'ion-qr-scanner ' + styles.icon} />
+                                <span className={styles.buttonText}>Select related</span>
+                            </button>
+                        </li>
+                        {this.renderSearchAround()}
+                        <li>
+                            {rename}
+                        </li>
+                        <li>
+                            {important}
+                        </li>
+                        <li>
+                            {noteButton}
+                        </li>
+                        <li>
+                            <button onClick={this.delete.bind(this)} className={styles.button}>
+                                <Icon name={'ion-ios-trash ' + styles.icon} />
+                                <span className={styles.buttonText}>Delete</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                {note}
             </div>
         );
     }
