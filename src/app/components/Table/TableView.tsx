@@ -293,9 +293,14 @@ class TableView extends React.Component<Props, State> {
 
     render() {
         const { items } = this.state;
+        const { selectedNodes } = this.props;
+
+        if (!selectedNodes.length) {
+            return <p className="noNodes">Select some nodes first</p>;
+        }
 
         if (!items.length) {
-            return <p className="noNodes">Select some nodes first</p>;
+            return <p className="noNodes">No items found for these nodes</p>;
         }
 
         return (
