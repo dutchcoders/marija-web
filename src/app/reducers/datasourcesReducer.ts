@@ -12,7 +12,7 @@ export const defaultDatasourcesState: DatasourcesState = {
     datasources: []
 };
 
-export default function datasources(state: DatasourcesState = defaultDatasourcesState, action) {
+export default function datasourcesReducer(state: DatasourcesState = defaultDatasourcesState, action) {
     switch (action.type) {
         case INITIAL_STATE_RECEIVE: {
             const datasources: Datasource[] = action.initial_state.datasources.map(datasource => {

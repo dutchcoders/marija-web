@@ -20,7 +20,7 @@ import {
 import {
     getLinksForDisplay,
     getNodesForDisplay
-} from "../../reducers/entriesSelectors";
+} from "../../reducers/graphSelectors";
 import {setFps} from "../../modules/stats/statsActions";
 import {Field} from "../../interfaces/field";
 import {getArrowPosition} from "../../helpers/getArrowPosition";

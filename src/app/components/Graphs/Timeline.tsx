@@ -16,7 +16,7 @@ import {searchFieldsUpdate} from '../../modules/search/actions';
 import {highlightNodes, nodesSelect} from '../../modules/graph/actions';
 import {BarChart, XAxis, YAxis, Bar, Tooltip} from 'recharts';
 import {Search} from "../../interfaces/search";
-import {getNodesForDisplay} from "../../reducers/entriesSelectors";
+import {getNodesForDisplay} from "../../reducers/graphSelectors";
 import {AppState} from "../../interfaces/appState";
 
 interface Props {

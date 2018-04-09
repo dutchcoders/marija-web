@@ -1,15 +1,6 @@
-import { OPEN_PANE, CLOSE_PANE, CANCEL_REQUEST, Socket} from '../utils/index';
+import { OPEN_PANE, CLOSE_PANE} from '../utils/index';
 import {MOVE_PANE_TO_TOP, SET_PANE_CONFIG} from "../utils/constants";
 import {each} from 'lodash';
-
-function setPaneTo(panes, pane, state) {
-    return panes.map((item) => {
-        if (item.name == pane) {
-            return Object.assign({}, item, {state: state});
-        }
-        return item;
-    });
-}
 
 const defaultPane = {
     open: false,
@@ -65,7 +56,7 @@ export const defaultUtilsState = {
     }
 };
 
-export default function utils(state = defaultUtilsState, action) {
+export default function utilsReducer(state = defaultUtilsState, action) {
 
     switch (action.type) {
         case OPEN_PANE: {

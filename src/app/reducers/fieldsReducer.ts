@@ -15,7 +15,7 @@ export const defaultFieldsState: FieldsState = {
     defaultConfigs: {}
 };
 
-export default function fields(state: FieldsState = defaultFieldsState, action) {
+export default function fieldsReducer(state: FieldsState = defaultFieldsState, action) {
     switch (action.type) {
         case FIELDS_RECEIVE: {
             if (action.payload.fields === null) {

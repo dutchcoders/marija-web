@@ -39,7 +39,7 @@ import markLinksForDisplay from "../helpers/markLinksForDisplay";
 import markNodesForDisplay from "../helpers/markNodesForDisplay";
 import {sortItems} from "../helpers/sortItems";
 import {SortType} from "../interfaces/sortType";
-import datasources from "./datasources";
+import datasources from "./datasourcesReducer";
 import {selectNodes} from "../helpers/selectNodes";
 import {deselectNodes} from "../helpers/deselectNodes";
 

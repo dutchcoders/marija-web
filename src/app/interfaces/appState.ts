@@ -2,8 +2,8 @@
  * The complete redux store for the entire application.
  */
 import {GraphState} from "../reducers/graphReducer";
-import {FieldsState} from "../reducers/fields";
-import {DatasourcesState} from "../reducers/datasources";
+import {FieldsState} from "../reducers/fieldsReducer";
+import {DatasourcesState} from "../reducers/datasourcesReducer";
 import {StatsState} from "../modules/stats/statsReducer";
 import {ContextMenuState} from "../modules/contextMenu/contextMenuReducer";
 

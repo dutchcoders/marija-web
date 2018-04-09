@@ -6,7 +6,7 @@ import {Link} from '../../interfaces/link';
 import {
     getLinksForDisplay,
     getNodesForDisplay, getSelectedNodes
-} from '../../reducers/entriesSelectors';
+} from '../../reducers/graphSelectors';
 import {Item} from '../../interfaces/item';
 import {Selection} from 'd3-selection';
 import {EventEmitter} from 'fbemitter';

@@ -8,7 +8,7 @@ import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, d
 import {filterSearchResults} from "../../modules/search/actions";
 import {showTooltip} from "../../modules/graph/actions";
 import displayFilter from "../../helpers/displayFilter";
-import {getNodesForDisplay} from '../../reducers/entriesSelectors';
+import {getNodesForDisplay} from '../../reducers/graphSelectors';
 
 class Filter extends React.Component {
     constructor(props) {

@@ -1,17 +1,19 @@
-import { utils, datasources, fields } from './';
-import { compose, createStore, combineReducers, applyMiddleware } from 'redux';
+import { combineReducers } from 'redux';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import {EXPORT_DATA, IMPORT_DATA} from "../modules/import/constants";
 import exportJson from "../helpers/exportJson";
 import contextMenuReducer from '../modules/contextMenu/contextMenuReducer';
 import statsReducer from "../modules/stats/statsReducer";
 import graphReducer from "./graphReducer";
+import fieldsReducer from "./fieldsReducer";
+import datasourcesReducer from "./datasourcesReducer";
+import utilsReducer from "./utilsReducer";
 
 const appReducer = combineReducers({
     graph: graphReducer,
-    utils,
-    datasources,
-    fields,
+    utils: utilsReducer,
+    datasources: datasourcesReducer,
+    fields: fieldsReducer,
     contextMenu: contextMenuReducer,
     routing: routerReducer,
     stats: statsReducer
