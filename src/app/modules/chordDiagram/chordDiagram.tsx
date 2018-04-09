@@ -1,18 +1,18 @@
 import * as React from 'react';
 import * as d3 from 'd3';
-import {connect} from "react-redux";
-import {Node} from "../../interfaces/node";
-import {Link} from "../../interfaces/link";
+import {connect} from 'react-redux';
+import {Node} from '../../interfaces/node';
+import {Link} from '../../interfaces/link';
 import {
     getLinksForDisplay,
     getNodesForDisplay, getSelectedNodes
-} from "../../reducers/entriesSelectors";
-import {Item} from "../../interfaces/item";
-import {Selection} from "d3-selection";
-import {EventEmitter} from "fbemitter";
+} from '../../reducers/entriesSelectors';
+import {Item} from '../../interfaces/item';
+import {Selection} from 'd3-selection';
+import {EventEmitter} from 'fbemitter';
 import * as styles from './chordDiagram.scss';
-import {AppState} from "../../interfaces/appState";
-import {getNodeHierarchy} from "../../helpers/getNodeHierarchy";
+import {AppState} from '../../interfaces/appState';
+import {getNodeHierarchy} from '../../helpers/getNodeHierarchy';
 
 interface Props {
     nodes: Node[];
@@ -38,7 +38,7 @@ class ChordDiagram extends React.Component<Props, State> {
         }
 
         // Clear previous data
-        d3.select("#svgContainer > *").remove();
+        d3.select('#svgContainer > *').remove();
 
         if (nodes.length === 0) {
             return;
@@ -51,18 +51,18 @@ class ChordDiagram extends React.Component<Props, State> {
 
         this.line = d3.radialLine()
             .curve(d3.curveBundle.beta(0.85))
-            .radius(function(d: any) { return d.y; })
-            .angle(function(d: any) { return d.x / 180 * Math.PI; });
+            .radius((node: any) => node.y )
+            .angle((node: any) => node.x / 180 * Math.PI);
 
-        this.svg = d3.select("#svgContainer")
-            .append("svg")
-            .attr("width", rect.width)
-            .attr("height", rect.height)
-            .append("g")
-            .attr("transform", "translate(" + (rect.width / 2) + "," + (rect.height / 2) + ")");
+        this.svg = d3.select('#svgContainer')
+            .append('svg')
+            .attr('width', rect.width)
+            .attr('height', rect.height)
+            .append('g')
+            .attr('transform', 'translate(' + (rect.width / 2) + ',' + (rect.height / 2) + ')');
 
-        this.link = this.svg.append("g").selectAll(".link");
-        this.node = this.svg.append("g").selectAll(".node");
+        this.link = this.svg.append('g').selectAll('.link');
+        this.node = this.svg.append('g').selectAll('.node');
 
         const hierarchy = getNodeHierarchy(nodes, links);
         const root = d3.hierarchy(hierarchy).sum(d => d.size);
@@ -73,25 +73,25 @@ class ChordDiagram extends React.Component<Props, State> {
         cluster(root);
 
         this.link = this.link
-            .data(this.packageImports(root.leaves()))
+            .data(this.getPaths(root.leaves()))
             .enter()
-            .append("path")
+            .append('path')
             .each(function(d: any) { d.source = d[0], d.target = d[d.length - 1]; })
-            .attr("class", "link")
-            .attr("d", this.line)
+            .attr('class', 'link ' + styles.link)
+            .attr('d', this.line)
             .attr('stroke-width', (d) => this.getThickness(links, d.source.data.id, d.target.data.id));
 
         this.node = this.node
             .data(root.leaves())
             .enter()
-            .append("text")
-            .attr("class", "node")
-            .attr("dy", "0.31em")
-            .attr("transform", function(d: any) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
-            .attr("text-anchor", function(d: any) { return d.x < 180 ? "start" : "end"; })
+            .append('text')
+            .attr('class', 'node ' + styles.node)
+            .attr('dy', '0.31em')
+            .attr('transform', function(d: any) { return 'rotate(' + (d.x - 90) + ')translate(' + (d.y + 8) + ',0)' + (d.x < 180 ? '' : 'rotate(180)'); })
+            .attr('text-anchor', function(d: any) { return d.x < 180 ? 'start' : 'end'; })
             .text(function(d: any) { return d.data.name; })
-            .on("mouseover", this.mouseovered.bind(this))
-            .on("mouseout", this.mouseouted.bind(this));
+            .on('mouseover', this.mouseovered.bind(this))
+            .on('mouseout', this.mouseouted.bind(this));
     }
 
     getThickness(links: Link[], source: string, target: string): number {
@@ -134,43 +134,53 @@ class ChordDiagram extends React.Component<Props, State> {
             .each(function(n) { n.target = n.source = false; });
 
         this.link
-            .classed("link--target", function(l) { if (l.target === d) return l.source.source = true; })
-            .classed("link--source", function(l) { if (l.source === d) return l.target.target = true; })
-            .filter(function(l) { return l.target === d || l.source === d; })
+            .classed(styles.linkTarget, link =>
+                link.target === d ? link.source.source = true : null
+            )
+            .classed(styles.linkSource, link =>
+                link.source === d ? link.target.target = true : null
+            )
+            .filter(link =>
+                link.target === d || link.source === d
+            )
             .raise();
 
         this.node
-            .classed("node--target", function(n) { return n.target; })
-            .classed("node--source", function(n) { return n.source; });
+            .classed(styles.nodeTarget, node => node.target)
+            .classed(styles.nodeSource, node => node.source);
     }
 
     mouseouted(d) {
         this.link
-            .classed("link--target", false)
-            .classed("link--source", false);
+            .classed(styles.linkTarget, false)
+            .classed(styles.linkSource, false);
 
         this.node
-            .classed("node--target", false)
-            .classed("node--source", false);
+            .classed(styles.nodeTarget, false)
+            .classed(styles.nodeSource, false);
     }
 
-    packageImports(nodes) {
-        var map = {},
-            imports = [];
+    getPaths(nodes) {
+        const map = {};
+        const paths = [];
 
         // Compute a map from name to node.
-        nodes.forEach(function(d) {
-            map[d.data.id] = d;
-        });
+        nodes.forEach(node => map[node.data.id] = node);
 
-        // For each import, construct a link from the source to target node.
-        nodes.forEach(function(d) {
-            if (d.data.linksTo) d.data.linksTo.forEach(function(i) {
-                imports.push(map[d.data.id].path(map[i]));
+        // For each node, construct a link from the source to target node.
+        nodes.forEach(node => {
+            if (!node.data.linksTo) {
+                return;
+            }
+
+            node.data.linksTo.forEach(linkedNode => {
+                const path = map[node.data.id].path(map[linkedNode]);
+
+                paths.push(path);
             });
         });
 
-        return imports;
+        return paths;
     }
 
     render() {
@@ -198,8 +208,8 @@ class ChordDiagram extends React.Component<Props, State> {
                 {tooManyNodes}
                 {selectNodes}
                 <div
-                    className={nodes.length > this.maxNodes ? 'hidden' : ''}
-                    id="svgContainer"
+                    className={styles.svgContainer + (nodes.length > this.maxNodes ? ' hidden' : '')}
+                    id='svgContainer'
                     ref={svgContainer => this.svgContainer = svgContainer}
                 />
             </div>

@@ -2,3 +2,43 @@
   width: 100%;
   height: 100%;
 }
+
+.svgContainer {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.node {
+  font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  fill: white;
+}
+
+.link {
+  stroke: #689DE5;
+  stroke-opacity: 0.4;
+  fill: none;
+  pointer-events: none;
+}
+
+.nodeSource {
+  fill: #de79f2;
+}
+
+.nodeTarget {
+  fill: #de79f2;
+}
+
+.linkSource,
+.linkTarget {
+  stroke-opacity: 1;
+  stroke-width: 2px;
+}
+
+.linkSource {
+  stroke: #de79f2;
+}
+
+.linkTarget {
+  stroke: #de79f2;
+}
