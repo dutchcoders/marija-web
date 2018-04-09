@@ -11,34 +11,21 @@
 
 .node {
   font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
-  fill: white;
 }
 
 .link {
-  stroke: #689DE5;
+  stroke: white;
   stroke-opacity: 0.4;
   fill: none;
   pointer-events: none;
 }
 
-.nodeSource {
-  fill: #de79f2;
+.activeNode {
+  fill: #fac04b;
 }
 
-.nodeTarget {
-  fill: #de79f2;
-}
-
-.linkSource,
-.linkTarget {
+.activeLink {
   stroke-opacity: 1;
   stroke-width: 2px;
-}
-
-.linkSource {
-  stroke: #de79f2;
-}
-
-.linkTarget {
-  stroke: #de79f2;
+  stroke: #fac04b;
 }

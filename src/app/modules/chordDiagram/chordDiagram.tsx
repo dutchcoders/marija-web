@@ -13,12 +13,14 @@ import {EventEmitter} from 'fbemitter';
 import * as styles from './chordDiagram.scss';
 import {AppState} from '../../interfaces/appState';
 import {getNodeHierarchy} from '../../helpers/getNodeHierarchy';
+import {Search} from "../../interfaces/search";
 
 interface Props {
     nodes: Node[];
     links: Link[];
     items: Item[];
     onPaneEvent?: EventEmitter;
+    searches: Search[];
 }
 
 interface State {
@@ -33,6 +35,8 @@ class ChordDiagram extends React.Component<Props, State> {
     svgContainer: HTMLDivElement;
 
     renderDiagram(nodes: Node[], links: Link[]) {
+        const { searches } = this.props;
+
         if (nodes.length > this.maxNodes) {
             return;
         }
@@ -81,15 +85,19 @@ class ChordDiagram extends React.Component<Props, State> {
             .attr('d', this.line)
             .attr('stroke-width', (d) => this.getThickness(links, d.source.data.id, d.target.data.id));
 
+        const searchColors = {};
+        searches.forEach(search => searchColors[search.searchId] = search.color);
+
         this.node = this.node
             .data(root.leaves())
             .enter()
             .append('text')
             .attr('class', 'node ' + styles.node)
             .attr('dy', '0.31em')
-            .attr('transform', function(d: any) { return 'rotate(' + (d.x - 90) + ')translate(' + (d.y + 8) + ',0)' + (d.x < 180 ? '' : 'rotate(180)'); })
-            .attr('text-anchor', function(d: any) { return d.x < 180 ? 'start' : 'end'; })
-            .text(function(d: any) { return d.data.name; })
+            .attr('transform', (node: any) => 'rotate(' + (node.x - 90) + ')translate(' + (node.y + 8) + ',0)' + (node.x < 180 ? '' : 'rotate(180)'))
+            .attr('text-anchor', (node: any) => node.x < 180 ? 'start' : 'end')
+            .attr('fill', node => searchColors[node.data.searchIds[0]])
+            .text(node => node.data.name)
             .on('mouseover', this.mouseovered.bind(this))
             .on('mouseout', this.mouseouted.bind(this));
     }
@@ -129,35 +137,35 @@ class ChordDiagram extends React.Component<Props, State> {
         }
     }
 
-    mouseovered(d) {
-        this.node
-            .each(function(n) { n.target = n.source = false; });
+    mouseovered(hoveredNode) {
+        // Reset
+        this.link.classed(styles.activeLink, false);
+        this.node.classed(styles.activeNode, false);
+        this.node.each(node => node.active = false);
 
         this.link
-            .classed(styles.linkTarget, link =>
-                link.target === d ? link.source.source = true : null
-            )
-            .classed(styles.linkSource, link =>
-                link.source === d ? link.target.target = true : null
-            )
+            .classed(styles.activeLink, link => {
+                const active = link.target === hoveredNode || link.source === hoveredNode;
+
+                if (active) {
+                    link.target.active = active;
+                    link.source.active = active;
+                }
+
+                return active;
+            })
             .filter(link =>
-                link.target === d || link.source === d
+                link.target === hoveredNode || link.source === hoveredNode
             )
             .raise();
 
         this.node
-            .classed(styles.nodeTarget, node => node.target)
-            .classed(styles.nodeSource, node => node.source);
+            .classed(styles.activeNode, node => node.active);
     }
 
     mouseouted(d) {
-        this.link
-            .classed(styles.linkTarget, false)
-            .classed(styles.linkSource, false);
-
-        this.node
-            .classed(styles.nodeTarget, false)
-            .classed(styles.nodeSource, false);
+        this.link.classed(styles.activeLink, false);
+        this.node.classed(styles.activeNode, false);
     }
 
     getPaths(nodes) {
@@ -221,7 +229,8 @@ const select = (state: AppState) => {
     return {
         nodes: getSelectedNodes(state),
         links: getLinksForDisplay(state),
-        items: state.entries.items
+        items: state.entries.items,
+        searches: state.entries.searches
     };
 };
 
