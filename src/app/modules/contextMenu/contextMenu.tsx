@@ -342,9 +342,9 @@ const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
         nodeId: state.contextMenu.nodeId,
-        nodes: state.entries.nodes,
-        links: state.entries.links,
-        searches: state.entries.searches,
+        nodes: state.graph.nodes,
+        links: state.graph.links,
+        searches: state.graph.searches,
         datasources: state.datasources.datasources,
         x: state.contextMenu.x,
         y: state.contextMenu.y,

@@ -411,9 +411,9 @@ class Fields extends React.Component<Props, State> {
 
 function select(state: AppState) {
     return {
-        fields: state.entries.fields,
+        fields: state.graph.fields,
         availableFields: state.fields.availableFields,
-        date_fields: state.entries.date_fields,
+        date_fields: state.graph.date_fields,
         fieldsFetching: state.fields.fieldsFetching,
         datasources: state.datasources.datasources,
     };

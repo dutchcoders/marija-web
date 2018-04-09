@@ -1437,10 +1437,10 @@ const select = (state: AppState, ownProps) => {
         ...ownProps,
         nodesForDisplay: getNodesForDisplay(state),
         linksForDisplay: getLinksForDisplay(state),
-        fields: state.entries.fields,
-        searches: state.entries.searches,
-        selectingMode: state.entries.selectingMode,
-        showLabels: state.entries.showLabels
+        fields: state.graph.fields,
+        searches: state.graph.searches,
+        selectingMode: state.graph.selectingMode,
+        showLabels: state.graph.showLabels
     };
 };
 

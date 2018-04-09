@@ -12,7 +12,7 @@ import { Router, Route } from 'react-router';
 import { createBrowserHistory } from 'history';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import { RootView, StateCapturer } from './components/index';
-import { defaultEntriesState, root } from './reducers/index';
+import { defaultGraphState, root } from './reducers/index';
 import { persistState } from './helpers/index';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import thunk from 'redux-thunk';
@@ -30,7 +30,7 @@ const graphWorker = new GraphWorker();
 const graphWorkerMiddleware = createWorkerMiddleware(graphWorker);
 
 const defaultState: AppState = {
-    entries: defaultEntriesState,
+    graph: defaultGraphState,
     datasources: defaultDatasourcesState,
     contextMenu: defaultContextMenuState,
     fields: defaultFieldsState,

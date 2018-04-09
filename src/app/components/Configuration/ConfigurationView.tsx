@@ -401,9 +401,9 @@ class ConfigurationView extends React.Component<Props, State> {
 
 function select(state: AppState) {
     return {
-        fields: state.entries.fields,
-        normalizations: state.entries.normalizations,
-        via: state.entries.via,
+        fields: state.graph.fields,
+        normalizations: state.graph.normalizations,
+        via: state.graph.via,
         datasources: state.datasources.datasources,
         fieldsFetching: state.fields.fieldsFetching
     };

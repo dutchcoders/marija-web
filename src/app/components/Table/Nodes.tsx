@@ -454,10 +454,10 @@ class Nodes extends React.Component<Props, State> {
 
 function select(state: AppState) {
     return {
-        nodes: state.entries.nodes,
-        links: state.entries.links,
-        searches: state.entries.searches,
-        normalizations: state.entries.normalizations,
+        nodes: state.graph.nodes,
+        links: state.graph.links,
+        searches: state.graph.searches,
+        normalizations: state.graph.normalizations,
         datasources: state.datasources.datasources
     };
 }

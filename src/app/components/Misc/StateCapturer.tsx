@@ -44,12 +44,11 @@ class StateCapturer extends React.Component<any, any> {
 function select(state: AppState, ownProps) {
     return {
         ...ownProps,
-        columns: state.entries.columns,
-        searches: state.entries.searches,
-        entries_fields: state.entries.fields,
-        date_fields: state.entries.date_fields,
+        columns: state.graph.columns,
+        searches: state.graph.searches,
+        date_fields: state.graph.date_fields,
         datasources: state.datasources.datasources,
-        normalizations: state.entries.normalizations,
+        normalizations: state.graph.normalizations,
         utils: state.utils,
         fields: state.fields,
     };

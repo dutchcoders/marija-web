@@ -42,8 +42,8 @@ export default class Workspaces {
                 state: {
                     ...state,
                     routing: {},
-                    entries:{
-                        ...state.entries,
+                    graph:{
+                        ...state.graph,
                         items: [],
                         nodes: [],
                         links: [],

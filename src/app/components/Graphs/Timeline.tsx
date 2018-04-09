@@ -302,11 +302,11 @@ const select = (state: AppState, ownProps) => {
         ...ownProps,
         availableFields: state.fields.availableFields,
         nodes: getNodesForDisplay(state),
-        fields: state.entries.fields,
-        normalizations: state.entries.normalizations,
-        date_fields: state.entries.date_fields,
-        items: state.entries.items,
-        searches: state.entries.searches
+        fields: state.graph.fields,
+        normalizations: state.graph.normalizations,
+        date_fields: state.graph.date_fields,
+        items: state.graph.items,
+        searches: state.graph.searches
     };
 };
 

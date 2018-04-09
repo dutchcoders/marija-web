@@ -5,6 +5,7 @@ import {closePane, openPane} from "../../utils/actions";
 import Tooltip from 'rc-tooltip';
 import {setSelectingMode, toggleLabels} from '../../modules/graph/actions';
 import Filter from "../Graphs/Filter";
+import {AppState} from "../../interfaces/appState";
 
 class Navigation extends React.Component<any, any> {
     enableMoving() {
@@ -128,12 +129,12 @@ class Navigation extends React.Component<any, any> {
     }
 }
 
-const select = (state, ownProps) => {
+const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
         panes: state.utils.panes,
-        selectingMode: state.entries.selectingMode,
-        showLabels: state.entries.showLabels
+        selectingMode: state.graph.selectingMode,
+        showLabels: state.graph.showLabels
     };
 };
 

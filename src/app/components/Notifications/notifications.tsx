@@ -40,7 +40,7 @@ class Notifications extends React.Component<Props, State> {
 
 const select = (state: AppState) => {
     return {
-        errors: state.entries.errors,
+        errors: state.graph.errors,
     };
 };
 

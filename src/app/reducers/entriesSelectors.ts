@@ -18,16 +18,16 @@ const displayFilter = (collection: Array<Node|Link>): Array<Node|Link> => {
 };
 
 export const getNodesForDisplay = createSelector(
-    (state: AppState) => state.entries.nodes,
+    (state: AppState) => state.graph.nodes,
     (nodes: Node[]) => displayFilter(nodes) as Node[]
 );
 
 export const getLinksForDisplay = createSelector(
-    (state: AppState) => state.entries.links,
+    (state: AppState) => state.graph.links,
     (links: Link[]) => displayFilter(links) as Link[]
 );
 
 export const getSelectedNodes = createSelector(
-    (state: AppState) => state.entries.nodes,
+    (state: AppState) => state.graph.nodes,
     (nodes) => nodes.filter(node => node.selected)
 );

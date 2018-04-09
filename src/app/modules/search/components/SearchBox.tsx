@@ -16,6 +16,7 @@ import {
 } from "../../datasources/actions";
 import {Field} from "../../../interfaces/field";
 import Url from "../../../domain/Url";
+import {AppState} from "../../../interfaces/appState";
 
 interface Props {
     onSubmit: Function;
@@ -268,13 +269,13 @@ class SearchBox extends React.Component<Props, State> {
     }
 }
 
-const select = (state, ownProps) => {
+const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
-        searches: state.entries.searches,
+        searches: state.graph.searches,
         datasources: state.datasources.datasources,
-        nodes: state.entries.nodes.filter(node => node.isNormalizationParent || node.normalizationId === null),
-        fields: state.entries.fields
+        nodes: state.graph.nodes.filter(node => node.isNormalizationParent || node.normalizationId === null),
+        fields: state.graph.fields
     };
 };
 

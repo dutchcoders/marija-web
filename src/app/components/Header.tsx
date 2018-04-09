@@ -47,9 +47,9 @@ class Header extends React.Component<Props, State> {
 
 function select(state: AppState) {
     return {
-        connected: state.entries.connected,
+        connected: state.graph.connected,
         datasources: state.datasources.datasources.filter(datasource => datasource.active),
-        fields: state.entries.fields
+        fields: state.graph.fields
     };
 }
 

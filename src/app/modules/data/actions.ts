@@ -11,6 +11,7 @@ import {
 import {Column} from "../../interfaces/column";
 import {Via} from "../../interfaces/via";
 import Url from "../../domain/Url";
+import {AppState} from "../../interfaces/appState";
 
 export function tableColumnRemove(field) {
     return {
@@ -69,8 +70,8 @@ export function fieldDelete(field) {
             field: field
         });
 
-        const state = getState();
-        const fields: Field[] = state.entries.fields;
+        const state: AppState = getState();
+        const fields: Field[] = state.graph.fields;
         const datasources: Datasource[] = state.datasources.datasources;
 
         datasources.forEach(datasource => {

@@ -43,7 +43,7 @@ import datasources from "./datasources";
 import {selectNodes} from "../helpers/selectNodes";
 import {deselectNodes} from "../helpers/deselectNodes";
 
-export interface EntriesState {
+export interface GraphState {
     connected: boolean;
     total: number;
     fields: Field[];
@@ -63,7 +63,7 @@ export interface EntriesState {
     sortType: SortType;
 }
 
-export const defaultEntriesState: EntriesState = {
+export const defaultGraphState: GraphState = {
     connected: false,
     total: 0,
     columns: [],
@@ -83,7 +83,7 @@ export const defaultEntriesState: EntriesState = {
     sortType: 'asc'
 };
 
-export default function entries(state: EntriesState = defaultEntriesState, action): EntriesState {
+export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
     switch (action.type) {
         case NODES_DELETE: {
             const items = concat([], state.items);

@@ -319,13 +319,13 @@ class TableView extends React.Component<Props, State> {
 function select(state: AppState) {
     return {
         selectedNodes: getSelectedNodes(state),
-        normalizations: state.entries.normalizations,
-        items: state.entries.items,
-        searches: state.entries.searches,
-        fields: state.entries.fields,
-        columns: state.entries.columns,
-        sortColumn: state.entries.sortColumn,
-        sortType: state.entries.sortType,
+        normalizations: state.graph.normalizations,
+        items: state.graph.items,
+        searches: state.graph.searches,
+        fields: state.graph.fields,
+        columns: state.graph.columns,
+        sortColumn: state.graph.sortColumn,
+        sortType: state.graph.sortType,
         availableFields: state.fields.availableFields
     };
 }

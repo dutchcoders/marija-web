@@ -144,9 +144,9 @@ class RootView extends React.Component<any, any> {
 const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
-        errors: state.entries.errors,
-        nodes: state.entries.nodes,
-        links: state.entries.links,
+        errors: state.graph.errors,
+        nodes: state.graph.nodes,
+        links: state.graph.links,
         panes: state.utils.panes
     };
 };

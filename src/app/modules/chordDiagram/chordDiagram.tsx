@@ -248,8 +248,8 @@ const select = (state: AppState) => {
     return {
         nodes: getSelectedNodes(state),
         links: getLinksForDisplay(state),
-        items: state.entries.items,
-        searches: state.entries.searches
+        items: state.graph.items,
+        searches: state.graph.searches
     };
 };
 

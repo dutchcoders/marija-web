@@ -13,8 +13,8 @@ import {cancelRequest, webSocketSend} from "../../utils/actions";
 export function searchRequest(query: string, datasourceIds: string[]) {
     return (dispatch, getState) => {
         const state: AppState = getState();
-        let fieldPaths: string[] = state.entries.fields.map(field => field.path);
-        fieldPaths = fieldPaths.concat(state.entries.date_fields.map(field => field.path));
+        let fieldPaths: string[] = state.graph.fields.map(field => field.path);
+        fieldPaths = fieldPaths.concat(state.graph.date_fields.map(field => field.path));
 
         const requestId = uniqueId();
 
@@ -53,24 +53,24 @@ function getGraphWorkerPayload(state: AppState, items: Item[], searchId: string)
     return {
         items: items,
         searchId: searchId,
-        prevNodes: state.entries.nodes,
-        prevLinks: state.entries.links,
-        prevItems: state.entries.items,
-        fields: state.entries.fields,
-        normalizations: state.entries.normalizations,
-        searches: state.entries.searches,
-        deletedNodes: state.entries.deletedNodes,
-        via: state.entries.via,
+        prevNodes: state.graph.nodes,
+        prevLinks: state.graph.links,
+        prevItems: state.graph.items,
+        fields: state.graph.fields,
+        normalizations: state.graph.normalizations,
+        searches: state.graph.searches,
+        deletedNodes: state.graph.deletedNodes,
+        via: state.graph.via,
         receivedAt: Date.now(),
-        sortType: state.entries.sortType,
-        sortColumn: state.entries.sortColumn
+        sortType: state.graph.sortType,
+        sortColumn: state.graph.sortColumn
     };
 }
 
 export function searchReceive(items: Item[], requestId: string) {
     return (dispatch, getState) => {
-        const state = getState();
-        const search: Search = state.entries.searches.find((search: Search) =>
+        const state: AppState = getState();
+        const search: Search = state.graph.searches.find((search: Search) =>
             search.requestId === requestId
         );
 
@@ -91,7 +91,7 @@ export function searchReceive(items: Item[], requestId: string) {
 
 export function liveReceive(items: Item[], datasourceId: string) {
     return (dispatch, getState) => {
-        const state = getState();
+        const state: AppState = getState();
 
         // Search id is the same as the datasource id for live_receive
         const searchId: string = datasourceId;
@@ -143,10 +143,10 @@ export function searchFieldsUpdate() {
                 datasource.active && datasource.type !== 'live'
             );
 
-        let fields = state.entries.fields.map(field => field.path);
-        fields = fields.concat(state.entries.date_fields.map(field => field.path));
+        let fields = state.graph.fields.map(field => field.path);
+        fields = fields.concat(state.graph.date_fields.map(field => field.path));
 
-        const newSearches = state.entries.searches.map(search => {
+        const newSearches = state.graph.searches.map(search => {
             if (search.liveDatasource) {
                 return search;
             }
@@ -226,9 +226,9 @@ export function deactivateLiveDatasource(datasourceId: string) {
 
 export function resumeSearch(search: Search) {
     return (dispatch, getState) => {
-        const state = getState();
+        const state: AppState = getState();
         const fields: string[] = state
-            .entries
+            .graph
             .fields
             .map(field => field.path);
 
