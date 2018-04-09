@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as d3 from 'd3';
-import {connect} from 'react-redux';
+import {connect, Dispatch} from 'react-redux';
 import {Node} from '../../interfaces/node';
 import {Link} from '../../interfaces/link';
 import {
@@ -14,6 +14,7 @@ import * as styles from './chordDiagram.scss';
 import {AppState} from '../../interfaces/appState';
 import {getNodeHierarchy} from '../../helpers/getNodeHierarchy';
 import {Search} from "../../interfaces/search";
+import {deselectNodes} from "../graph/actions";
 
 interface Props {
     nodes: Node[];
@@ -21,6 +22,7 @@ interface Props {
     items: Item[];
     onPaneEvent?: EventEmitter;
     searches: Search[];
+    dispatch: Dispatch<any>;
 }
 
 interface State {
@@ -91,15 +93,32 @@ class ChordDiagram extends React.Component<Props, State> {
         this.node = this.node
             .data(root.leaves())
             .enter()
-            .append('text')
+            .append('g')
             .attr('class', 'node ' + styles.node)
             .attr('dy', '0.31em')
             .attr('transform', (node: any) => 'rotate(' + (node.x - 90) + ')translate(' + (node.y + 8) + ',0)' + (node.x < 180 ? '' : 'rotate(180)'))
             .attr('text-anchor', (node: any) => node.x < 180 ? 'start' : 'end')
             .attr('fill', node => searchColors[node.data.searchIds[0]])
-            .text(node => node.data.name)
             .on('mouseover', this.mouseovered.bind(this))
             .on('mouseout', this.mouseouted.bind(this));
+
+        this.node
+            .append('text')
+            .attr('dx', node => node.x < 180 ? 15 : -15)
+            .text(node => node.data.name);
+
+        this.node
+            .append('text')
+            .attr('dy', '2px')
+            .attr('class', styles.close)
+            .text(node => '\uF405')
+            .on('click', node => this.close(node));
+    }
+
+    close(node) {
+        const { dispatch } = this.props;
+
+        dispatch(deselectNodes([node.data]));
     }
 
     getThickness(links: Link[], source: string, target: string): number {
