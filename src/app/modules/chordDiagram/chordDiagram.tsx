@@ -6,7 +6,7 @@ import {Link} from '../../interfaces/link';
 import {
     getLinksForDisplay,
     getNodesForDisplay, getSelectedNodes
-} from '../../reducers/graphSelectors';
+} from '../graph/graphSelectors';
 import {Item} from '../../interfaces/item';
 import {Selection} from 'd3-selection';
 import {EventEmitter} from 'fbemitter';
@@ -14,7 +14,7 @@ import * as styles from './chordDiagram.scss';
 import {AppState} from '../../interfaces/appState';
 import {getNodeHierarchy} from '../../helpers/getNodeHierarchy';
 import {Search} from "../../interfaces/search";
-import {deselectNodes} from "../graph/actions";
+import {deselectNodes} from "../graph/graphActions";
 
 interface Props {
     nodes: Node[];

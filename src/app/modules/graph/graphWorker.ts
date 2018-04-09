@@ -1,4 +1,4 @@
-import {graphWorkerOutput} from "./actions";
+import {graphWorkerOutput} from "./graphActions";
 import GraphWorkerClass, {GraphWorkerOutput} from './graphWorkerClass';
 
 const graphWorker = new GraphWorkerClass();

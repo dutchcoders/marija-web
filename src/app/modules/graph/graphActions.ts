@@ -1,5 +1,5 @@
 import { NODES_DESELECT, NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, SELECTION_CLEAR, SET_SELECTING_MODE, NODES_TOOLTIP } from './index';
-import { GRAPH_WORKER_OUTPUT, FIELD_NODES_HIGHLIGHT, TOGGLE_LABELS, SELECT_FIELD_NODES } from './constants';
+import { GRAPH_WORKER_OUTPUT, FIELD_NODES_HIGHLIGHT, TOGGLE_LABELS, SELECT_FIELD_NODES } from './graphConstants';
 import {GraphWorkerOutput} from "./graphWorkerClass";
 
 export function deselectNodes(opts) {

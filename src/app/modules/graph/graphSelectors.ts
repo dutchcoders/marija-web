@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
-import {Node} from "../interfaces/node";
-import {Link} from "../interfaces/link";
-import {AppState} from "../interfaces/appState";
+import {Node} from "../../interfaces/node";
+import {Link} from "../../interfaces/link";
+import {AppState} from "../../interfaces/appState";
 
 /**
  * Returns a collection of nodes or links that are meant to be displayed on the

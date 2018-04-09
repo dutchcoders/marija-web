@@ -1,16 +1,16 @@
 import {
     REQUEST_COMPLETED, WEB_SOCKET_CONNECT,
     WEB_SOCKET_SEND
-} from '../utils/constants';
+} from '../utils/utilsConstants';
 import * as ReconnectingWebsocket from 'reconnecting-websocket';
 import {Dispatch, Middleware} from 'redux';
 import {authConnected, error} from "../utils";
 import {Item} from "../interfaces/item";
 import {liveReceive, searchReceive} from "../modules/search/actions";
-import {requestCompleted} from "../utils/actions";
+import {requestCompleted} from "../utils/utilsActions";
 import {receiveItems} from "../modules/items/actions";
-import {FIELDS_RECEIVE} from "../modules/fields/constants";
-import {receiveFields} from "../modules/fields/actions";
+import {FIELDS_RECEIVE} from "../modules/fields/fieldsConstants";
+import {receiveFields} from "../modules/fields/fieldsActions";
 import {LIVE_RECEIVE, SEARCH_RECEIVE} from "../modules/search/constants";
 import {ITEMS_RECEIVE} from "../modules/items/constants";
 import {INITIAL_STATE_RECEIVE, receiveInitialState} from "../modules/data";

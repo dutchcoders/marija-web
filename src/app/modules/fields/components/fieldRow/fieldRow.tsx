@@ -9,8 +9,8 @@ import * as styles from './fieldRow.scss';
 import {fieldAdd, fieldDelete, fieldUpdate} from "../../../data";
 import Url from "../../../../domain/Url";
 import {searchFieldsUpdate} from "../../../search/actions";
-import {fieldNodesHighlight, selectFieldNodes} from "../../../graph/actions";
-import {datasourceActivated} from "../../../datasources/actions";
+import {fieldNodesHighlight, selectFieldNodes} from "../../../graph/graphActions";
+import {datasourceActivated} from "../../../datasources/datasourcesActions";
 
 interface Props {
     field: Field;

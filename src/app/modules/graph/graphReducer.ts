@@ -1,47 +1,47 @@
 import { concat, without, remove, assign, find, uniqueId, isEqual, chunk } from 'lodash';
 
-import {  ERROR, AUTH_CONNECTED} from '../utils/index';
-import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from '../modules/graph/index';
+import {  ERROR, AUTH_CONNECTED} from '../../utils/index';
+import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from './index';
 import {
     FIELD_NODES_HIGHLIGHT,
     GRAPH_WORKER_OUTPUT,
     SELECT_FIELD_NODES
-} from '../modules/graph/constants';
-import {  SEARCH_DELETE, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DATASOURCE, SEARCH_REQUEST, SEARCH_EDIT } from '../modules/search/constants';
-import {  ADD_LIVE_DATASOURCE_SEARCH } from '../modules/search/constants';
-import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../modules/data/index';
+} from './graphConstants';
+import {  SEARCH_DELETE, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DATASOURCE, SEARCH_REQUEST, SEARCH_EDIT } from '../search/constants';
+import {  ADD_LIVE_DATASOURCE_SEARCH } from '../search/constants';
+import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../data/index';
 
 import { removeDeadLinks, applyVia, getQueryColor, deleteFieldFromNodes
-} from '../helpers/index';
-import removeNodesAndLinks from "../helpers/removeNodesAndLinks";
-import {VIA_ADD, VIA_DELETE, TABLE_SORT} from "../modules/data/constants";
-import {NODES_TOOLTIP, SET_SELECTING_MODE, TOGGLE_LABELS} from "../modules/graph/constants";
-import {REQUEST_COMPLETED} from "../utils/constants";
-import {SEARCH_FIELDS_UPDATE} from "../modules/search/constants";
-import {Node} from '../interfaces/node';
-import {Link} from "../interfaces/link";
-import {Item} from "../interfaces/item";
-import {Search} from "../interfaces/search";
-import {ITEMS_RECEIVE, ITEMS_REQUEST} from "../modules/items/constants";
-import normalizeNodes from "../helpers/normalizeNodes";
-import {Normalization} from "../interfaces/normalization";
-import normalizeLinks from "../helpers/normalizeLinks";
-import denormalizeNodes from "../helpers/denormalizeNodes";
-import denormalizeLinks from "../helpers/denormalizeLinks";
-import darkenColor from "../helpers/darkenColor";
-import {Column} from "../interfaces/column";
-import createField from "../helpers/createField";
-import {Field} from "../interfaces/field";
-import {Via} from "../interfaces/via";
-import removeVia from "../helpers/removeVia";
-import markHighlightedNodes from "../helpers/markHighlightedNodes";
-import markLinksForDisplay from "../helpers/markLinksForDisplay";
-import markNodesForDisplay from "../helpers/markNodesForDisplay";
-import {sortItems} from "../helpers/sortItems";
-import {SortType} from "../interfaces/sortType";
-import datasources from "./datasourcesReducer";
-import {selectNodes} from "../helpers/selectNodes";
-import {deselectNodes} from "../helpers/deselectNodes";
+} from '../../helpers/index';
+import removeNodesAndLinks from "../../helpers/removeNodesAndLinks";
+import {VIA_ADD, VIA_DELETE, TABLE_SORT} from "../data/constants";
+import {NODES_TOOLTIP, SET_SELECTING_MODE, TOGGLE_LABELS} from "./graphConstants";
+import {REQUEST_COMPLETED} from "../../utils/utilsConstants";
+import {SEARCH_FIELDS_UPDATE} from "../search/constants";
+import {Node} from '../../interfaces/node';
+import {Link} from "../../interfaces/link";
+import {Item} from "../../interfaces/item";
+import {Search} from "../../interfaces/search";
+import {ITEMS_RECEIVE, ITEMS_REQUEST} from "../items/constants";
+import normalizeNodes from "../../helpers/normalizeNodes";
+import {Normalization} from "../../interfaces/normalization";
+import normalizeLinks from "../../helpers/normalizeLinks";
+import denormalizeNodes from "../../helpers/denormalizeNodes";
+import denormalizeLinks from "../../helpers/denormalizeLinks";
+import darkenColor from "../../helpers/darkenColor";
+import {Column} from "../../interfaces/column";
+import createField from "../../helpers/createField";
+import {Field} from "../../interfaces/field";
+import {Via} from "../../interfaces/via";
+import removeVia from "../../helpers/removeVia";
+import markHighlightedNodes from "../../helpers/markHighlightedNodes";
+import markLinksForDisplay from "../../helpers/markLinksForDisplay";
+import markNodesForDisplay from "../../helpers/markNodesForDisplay";
+import {sortItems} from "../../helpers/sortItems";
+import {SortType} from "../../interfaces/sortType";
+import datasources from "../datasources/datasourcesReducer";
+import {selectNodes} from "../../helpers/selectNodes";
+import {deselectNodes} from "../../helpers/deselectNodes";
 
 export interface GraphState {
     connected: boolean;

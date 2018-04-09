@@ -2,7 +2,7 @@ import { FIELDS_RECEIVE, FIELDS_REQUEST, FIELDS_CLEAR } from './index';
 import {Datasource} from "../../interfaces/datasource";
 import {Field} from "../../interfaces/field";
 import {Via} from "../../interfaces/via";
-import {webSocketSend} from "../../utils/actions";
+import {webSocketSend} from "../../utils/utilsActions";
 
 export function clearFields(datasource){
     return {

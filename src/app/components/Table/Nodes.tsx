@@ -5,7 +5,7 @@ import { Icon } from '../index';
 import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
 import SkyLight from 'react-skylight';
 import {searchAround} from '../../modules/search/actions';
-import {showTooltip} from "../../modules/graph/actions";
+import {showTooltip} from "../../modules/graph/graphActions";
 import {normalizationAdd} from "../../modules/data";
 import getDirectlyRelatedNodes from '../../helpers/getDirectlyRelatedNodes';
 import {normalizationDelete} from '../../modules/data/actions';

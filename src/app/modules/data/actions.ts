@@ -1,9 +1,9 @@
 import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from './index';
 import {VIA_ADD, VIA_DELETE, TABLE_SORT} from "./constants";
 import {Field} from "../../interfaces/field";
-import {getFields} from '../fields/actions';
+import {getFields} from '../fields/fieldsActions';
 import {Datasource} from "../../interfaces/datasource";
-import {datasourceDeactivated} from "../datasources/actions";
+import {datasourceDeactivated} from "../datasources/datasourcesActions";
 import {
     activateLiveDatasource,
     addLiveDatasourceSearch

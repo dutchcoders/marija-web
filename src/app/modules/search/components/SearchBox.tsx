@@ -13,7 +13,7 @@ import {FormEvent} from "react";
 import {
     datasourceActivated,
     datasourceDeactivated
-} from "../../datasources/actions";
+} from "../../datasources/datasourcesActions";
 import {Field} from "../../../interfaces/field";
 import Url from "../../../domain/Url";
 import {AppState} from "../../../interfaces/appState";

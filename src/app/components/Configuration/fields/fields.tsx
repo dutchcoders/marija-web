@@ -4,7 +4,7 @@ import { map, isEqual } from 'lodash';
 import FieldRow from '../../../modules/fields/components/fieldRow/fieldRow';
 import Loader from "../../Misc/Loader";
 import {saveAs} from 'file-saver';
-import {highlightNodes} from "../../../modules/graph/actions";
+import {highlightNodes} from "../../../modules/graph/graphActions";
 import {Datasource} from "../../../interfaces/datasource";
 import {Field} from "../../../interfaces/field";
 import * as styles from './fields.scss';

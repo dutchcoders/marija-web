@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { connect} from 'react-redux';
 import {Icon} from "../index";
-import {closePane, openPane} from "../../utils/actions";
+import {closePane, openPane} from "../../utils/utilsActions";
 import Tooltip from 'rc-tooltip';
-import {setSelectingMode, toggleLabels} from '../../modules/graph/actions';
+import {setSelectingMode, toggleLabels} from '../../modules/graph/graphActions';
 import Filter from "../Graphs/Filter";
 import {AppState} from "../../interfaces/appState";
 

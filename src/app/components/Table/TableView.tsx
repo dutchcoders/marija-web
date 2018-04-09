@@ -15,7 +15,7 @@ import {dispatch} from "d3-dispatch";
 import { fieldAdd } from '../../modules/data/index';
 import {searchFieldsUpdate} from "../../modules/search/actions";
 import { EventEmitter } from 'fbemitter';
-import {getSelectedNodes} from "../../reducers/graphSelectors";
+import {getSelectedNodes} from "../../modules/graph/graphSelectors";
 import {Column} from "../../interfaces/column";
 import {SortType} from "../../interfaces/sortType";
 import IconSelector from "../Configuration/iconSelector/iconSelector";

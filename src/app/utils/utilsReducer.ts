@@ -1,5 +1,5 @@
-import { OPEN_PANE, CLOSE_PANE} from '../utils/index';
-import {MOVE_PANE_TO_TOP, SET_PANE_CONFIG} from "../utils/constants";
+import { OPEN_PANE, CLOSE_PANE} from './index';
+import {MOVE_PANE_TO_TOP, SET_PANE_CONFIG} from "./utilsConstants";
 import {each} from 'lodash';
 
 const defaultPane = {

@@ -3,7 +3,7 @@ import {Node} from "../../interfaces/node";
 import * as styles from './contextMenu.scss';
 import { Icon } from '../../components/index';
 import {connect, Dispatch} from "react-redux";
-import {deleteNodes, nodesSelect, nodeUpdate} from "../graph/actions";
+import {deleteNodes, nodesSelect, nodeUpdate} from "../graph/graphActions";
 import getDirectlyRelatedNodes from "../../helpers/getDirectlyRelatedNodes";
 import {Link} from "../../interfaces/link";
 import {hideContextMenu} from "./contextMenuActions";

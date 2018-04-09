@@ -5,7 +5,7 @@ import { concat, debounce, remove, includes, assign, isEqual, isEmpty, isEqualWi
 import {
     nodesSelect, highlightNodes, deselectNodes, showTooltip,
     setSelectingMode, clearSelection
-} from '../../modules/graph/actions';
+} from '../../modules/graph/graphActions';
 import { getArcParams, getDirectlyRelatedNodes } from '../../helpers/index.js';
 import * as PIXI from 'pixi.js';
 import {Search} from "../../interfaces/search";
@@ -20,7 +20,7 @@ import {
 import {
     getLinksForDisplay,
     getNodesForDisplay
-} from "../../reducers/graphSelectors";
+} from "../../modules/graph/graphSelectors";
 import {setFps} from "../../modules/stats/statsActions";
 import {Field} from "../../interfaces/field";
 import {getArrowPosition} from "../../helpers/getArrowPosition";

@@ -1,11 +1,11 @@
 import {
     ERROR, AUTH_CONNECTED, OPEN_PANE, CLOSE_PANE, CANCEL_REQUEST,
     WEB_SOCKET_SEND, WEB_SOCKET_CONNECT
-} from './constants';
+} from './utilsConstants';
 import {
     MOVE_PANE_TO_TOP, REQUEST_COMPLETED,
     SET_PANE_CONFIG
-} from "./constants";
+} from "./utilsConstants";
 
 export function error(msg) {
     return {

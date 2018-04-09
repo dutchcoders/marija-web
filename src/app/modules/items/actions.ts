@@ -1,7 +1,7 @@
 import {ITEMS_RECEIVE, ITEMS_REQUEST} from "./constants";
 import {Item} from "../../interfaces/item";
 import {uniqueId, chunk} from 'lodash';
-import {webSocketSend} from "../../utils/actions";
+import {webSocketSend} from "../../utils/utilsActions";
 
 export function requestItems(items: Item[]) {
     return (dispatch, getState) => {

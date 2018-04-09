@@ -8,7 +8,7 @@ import {ADD_LIVE_DATASOURCE_SEARCH, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DA
 import {Datasource} from "../../interfaces/datasource";
 import {GraphWorkerPayload} from "../graph/graphWorkerClass";
 import {AppState} from "../../interfaces/appState";
-import {cancelRequest, webSocketSend} from "../../utils/actions";
+import {cancelRequest, webSocketSend} from "../../utils/utilsActions";
 
 export function searchRequest(query: string, datasourceIds: string[]) {
     return (dispatch, getState) => {

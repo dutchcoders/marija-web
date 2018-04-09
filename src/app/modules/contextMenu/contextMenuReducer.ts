@@ -17,9 +17,9 @@ export default function contextMenuReducer(state: ContextMenuState = defaultCont
         case SHOW_CONTEXT_MENU: {
             return {
                 ...state,
-                nodeId: action.nodeId,
-                x: action.x,
-                y: action.y
+                nodeId: action.payload.nodeId,
+                x: action.payload.x,
+                y: action.payload.y
             };
         }
 

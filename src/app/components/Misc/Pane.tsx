@@ -2,7 +2,7 @@ import * as React from 'react';
 import Rnd from 'react-rnd';
 import { Icon } from '../index';
 import { closePane, openPane } from '../../utils/index';
-import {movePaneToTop, setPaneConfig} from "../../utils/actions";
+import {movePaneToTop, setPaneConfig} from "../../utils/utilsActions";
 import { debounce } from 'lodash';
 import { EventEmitter } from 'fbemitter';
 

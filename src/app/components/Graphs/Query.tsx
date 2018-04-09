@@ -6,8 +6,8 @@ import { Icon } from '../../components/index';
 import { deleteSearch, editSearch } from '../../modules/search/index';
 import Url from "../../domain/Url";
 import Tooltip from 'rc-tooltip';
-import {cancelRequest} from "../../utils/actions";
-import {deleteNodes, deselectNodes} from "../../modules/graph/actions";
+import {cancelRequest} from "../../utils/utilsActions";
+import {deleteNodes, deselectNodes} from "../../modules/graph/graphActions";
 import {Search} from "../../interfaces/search";
 import {Node} from "../../interfaces/node";
 import {
