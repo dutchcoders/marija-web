@@ -19,7 +19,7 @@ const appReducer = combineReducers({
     stats: statsReducer
 });
 
-export default function root(state, action) {
+export default function rootReducer(state, action) {
     if (action.type === IMPORT_DATA) {
         state = action.payload;
     } else if (action.type === EXPORT_DATA) {
