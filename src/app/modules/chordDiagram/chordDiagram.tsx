@@ -1,19 +1,19 @@
 import * as React from 'react';
 import * as d3 from 'd3';
 import {connect, Dispatch} from 'react-redux';
-import {Node} from '../../interfaces/node';
-import {Link} from '../../interfaces/link';
+import {Node} from '../graph/interfaces/node';
+import {Link} from '../graph/interfaces/link';
 import {
     getLinksForDisplay,
     getNodesForDisplay, getSelectedNodes
 } from '../graph/graphSelectors';
-import {Item} from '../../interfaces/item';
+import {Item} from '../graph/interfaces/item';
 import {Selection} from 'd3-selection';
 import {EventEmitter} from 'fbemitter';
 import * as styles from './chordDiagram.scss';
 import {AppState} from '../../interfaces/appState';
 import {getNodeHierarchy} from '../../helpers/getNodeHierarchy';
-import {Search} from "../../interfaces/search";
+import {Search} from "../search/interfaces/search";
 import {deselectNodes} from "../graph/graphActions";
 
 interface Props {

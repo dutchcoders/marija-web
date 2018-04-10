@@ -1,5 +1,5 @@
-import {Node} from "../interfaces/node";
-import {Link} from "../interfaces/link";
+import {Node} from "../modules/graph/interfaces/node";
+import {Link} from "../modules/graph/interfaces/link";
 
 export default function getDirectlyRelatedNodes(nodes: Node[], allNodes: Node[], allLinks: Link[]) {
     const nodeMap = {};

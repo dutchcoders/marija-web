@@ -1,4 +1,4 @@
-import {Node} from "../interfaces/node";
+import {Node} from "../modules/graph/interfaces/node";
 
 /**
  * Will return a list of components that have at least one node in the specified

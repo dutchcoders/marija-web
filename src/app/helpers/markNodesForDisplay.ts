@@ -5,8 +5,8 @@
  * @param searches
  * @returns {Array}
  */
-import {Node} from "../interfaces/node";
-import {Search} from "../interfaces/search";
+import {Node} from "../modules/graph/interfaces/node";
+import {Search} from "../modules/search/interfaces/search";
 
 export default function markNodesForDisplay(nodes: Node[], searches: Search[]) {
     const searchesCounter = {};

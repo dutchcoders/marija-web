@@ -1,17 +1,17 @@
 import * as React from 'react';
-import {Node} from "../../interfaces/node";
+import {Node} from "../graph/interfaces/node";
 import * as styles from './contextMenu.scss';
 import { Icon } from '../../components/index';
 import {connect, Dispatch} from "react-redux";
 import {deleteNodes, nodesSelect, nodeUpdate} from "../graph/graphActions";
 import getDirectlyRelatedNodes from "../../helpers/getDirectlyRelatedNodes";
-import {Link} from "../../interfaces/link";
+import {Link} from "../graph/interfaces/link";
 import {hideContextMenu} from "./contextMenuActions";
 import {searchAround} from "../search/actions";
 import {FormEvent} from "react";
 import abbreviateNodeName from '../../helpers/abbreviateNodeName';
-import {Search} from "../../interfaces/search";
-import {Datasource} from "../../interfaces/datasource";
+import {Search} from "../search/interfaces/search";
+import {Datasource} from "../datasources/interfaces/datasource";
 import {AppState} from "../../interfaces/appState";
 
 interface Props {

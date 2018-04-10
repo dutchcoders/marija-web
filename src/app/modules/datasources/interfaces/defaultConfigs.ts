@@ -1,5 +1,5 @@
-import {Field} from "./field";
-import {Via} from "./via";
+import {Field} from "../../fields/interfaces/field";
+import {Via} from "../../graph/interfaces/via";
 
 export interface DefaultConfigs {
     [datasource: string]: {

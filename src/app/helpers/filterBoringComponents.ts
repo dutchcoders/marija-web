@@ -1,5 +1,5 @@
 import {uniq} from 'lodash';
-import {Node} from "../interfaces/node";
+import {Node} from "../modules/graph/interfaces/node";
 
 /**
  * Filters connected components that contain nodes that are based on only 1 item.

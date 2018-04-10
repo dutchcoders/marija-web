@@ -1,11 +1,11 @@
 import { SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_DELETE, SEARCH_EDIT } from './index';
 import {SEARCH_FIELDS_UPDATE, LIVE_RECEIVE} from "./constants";
-import {Node} from "../../interfaces/node";
-import {Search} from "../../interfaces/search";
-import {Item} from "../../interfaces/item";
+import {Node} from "../graph/interfaces/node";
+import {Search} from "./interfaces/search";
+import {Item} from "../graph/interfaces/item";
 import {uniqueId} from 'lodash';
 import {ADD_LIVE_DATASOURCE_SEARCH, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DATASOURCE} from './constants';
-import {Datasource} from "../../interfaces/datasource";
+import {Datasource} from "../datasources/interfaces/datasource";
 import {GraphWorkerPayload} from "../graph/graphWorkerClass";
 import {AppState} from "../../interfaces/appState";
 import {cancelRequest, webSocketSend} from "../../utils/utilsActions";

@@ -1,5 +1,5 @@
-import {Link} from "../interfaces/link";
-import {Normalization} from "../interfaces/normalization";
+import {Link} from "../modules/graph/interfaces/link";
+import {Normalization} from "../modules/graph/interfaces/normalization";
 
 export default function denormalizeLinks(links: Link[], deleted: Normalization): Link[] {
     // Remove normalization parent

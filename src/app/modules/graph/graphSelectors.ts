@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
-import {Node} from "../../interfaces/node";
-import {Link} from "../../interfaces/link";
+import {Node} from "./interfaces/node";
+import {Link} from "./interfaces/link";
 import {AppState} from "../../interfaces/appState";
 
 /**

@@ -6,10 +6,10 @@ import { Icon } from '../index';
 import Workspaces from "../../helpers/Workspaces";
 import {saveAs} from 'file-saver';
 import {exportData, importData} from "../../modules/import/actions";
-import {Normalization} from "../../interfaces/normalization";
-import {Datasource} from "../../interfaces/datasource";
+import {Normalization} from "../../modules/graph/interfaces/normalization";
+import {Datasource} from "../../modules/datasources/interfaces/datasource";
 import Fields from '../../modules/fields/fields';
-import {Via} from "../../interfaces/via";
+import {Via} from "../../modules/graph/interfaces/via";
 import Url from "../../helpers/Url";
 import {AppState} from "../../interfaces/appState";
 

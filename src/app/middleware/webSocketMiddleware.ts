@@ -5,7 +5,7 @@ import {
 import * as ReconnectingWebsocket from 'reconnecting-websocket';
 import {Dispatch, Middleware} from 'redux';
 import {authConnected, error} from "../utils";
-import {Item} from "../interfaces/item";
+import {Item} from "../modules/graph/interfaces/item";
 import {liveReceive, searchReceive} from "../modules/search/actions";
 import {requestCompleted} from "../utils/utilsActions";
 import {receiveItems} from "../modules/items/actions";

@@ -3,8 +3,8 @@ import {connect, Dispatch} from 'react-redux';
 import { SearchBox, searchRequest } from '../modules/search/index';
 import Url from "../helpers/Url";
 import {error} from '../utils';
-import {Datasource} from "../interfaces/datasource";
-import {Field} from "../interfaces/field";
+import {Datasource} from "../modules/datasources/interfaces/datasource";
+import {Field} from "../modules/fields/interfaces/field";
 import {AppState} from "../interfaces/appState";
 
 interface Props {

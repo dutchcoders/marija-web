@@ -1,6 +1,6 @@
-import {Link} from "../interfaces/link";
-import {Via} from "../interfaces/via";
-import {Node} from "../interfaces/node";
+import {Link} from "../modules/graph/interfaces/link";
+import {Via} from "../modules/graph/interfaces/via";
+import {Node} from "../modules/graph/interfaces/node";
 
 function getConnectedNodes(node, nodes, links) {
     const connected = [];

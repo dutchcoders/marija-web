@@ -5,8 +5,8 @@ import FieldRow from './components/fieldRow/fieldRow';
 import Loader from "../../components/Misc/Loader";
 import {saveAs} from 'file-saver';
 import {highlightNodes} from "../graph/graphActions";
-import {Datasource} from "../../interfaces/datasource";
-import {Field} from "../../interfaces/field";
+import {Datasource} from "../datasources/interfaces/datasource";
+import {Field} from "./interfaces/field";
 import * as styles from './fields.scss';
 import {AppState} from "../../interfaces/appState";
 

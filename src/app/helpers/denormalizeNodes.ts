@@ -1,5 +1,5 @@
-import {Node} from "../interfaces/node";
-import {Normalization} from "../interfaces/normalization";
+import {Node} from "../modules/graph/interfaces/node";
+import {Normalization} from "../modules/graph/interfaces/normalization";
 
 export default function denormalizeNodes(nodes: Node[], deleted: Normalization): Node[] {
     // Remove normalization parent

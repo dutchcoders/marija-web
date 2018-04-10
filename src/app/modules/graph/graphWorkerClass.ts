@@ -9,18 +9,18 @@ import normalizeLinks from "../../helpers/normalizeLinks";
 import normalizeNodes from "../../helpers/normalizeNodes";
 import filterBoringComponents from "../../helpers/filterBoringComponents";
 import {SEARCH_RECEIVE, LIVE_RECEIVE} from "../search/constants";
-import {Field} from "../../interfaces/field";
+import {Field} from "../fields/interfaces/field";
 import createField from "../../helpers/createField";
-import {Search} from "../../interfaces/search";
+import {Search} from "../search/interfaces/search";
 import {forEach} from 'lodash';
-import {Item} from "../../interfaces/item";
-import {Node} from "../../interfaces/node";
-import {Link} from "../../interfaces/link";
-import {Normalization} from "../../interfaces/normalization";
-import {Via} from "../../interfaces/via";
+import {Item} from "./interfaces/item";
+import {Node} from "./interfaces/node";
+import {Link} from "./interfaces/link";
+import {Normalization} from "./interfaces/normalization";
+import {Via} from "./interfaces/via";
 import {EventEmitter} from "fbemitter";
-import {Column} from "../../interfaces/column";
-import {SortType} from "../../interfaces/sortType";
+import {Column} from "../table/interfaces/column";
+import {SortType} from "../table/interfaces/sortType";
 import {sortItems} from "../../helpers/sortItems";
 
 export interface GraphWorkerPayload {

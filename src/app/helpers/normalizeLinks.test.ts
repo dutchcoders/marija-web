@@ -1,7 +1,7 @@
 import normalizeNodes from "./normalizeNodes";
-import {Node} from "../interfaces/node";
-import {Link} from "../interfaces/link";
-import {Normalization} from "../interfaces/normalization";
+import {Node} from "../modules/graph/interfaces/node";
+import {Link} from "../modules/graph/interfaces/link";
+import {Normalization} from "../modules/graph/interfaces/normalization";
 import normalizeLinks from "./normalizeLinks";
 import {uniqueId} from 'lodash';
 

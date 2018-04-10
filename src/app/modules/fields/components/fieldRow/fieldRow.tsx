@@ -2,7 +2,7 @@ import * as React from 'react';
 import Tooltip from 'rc-tooltip';
 import { Icon } from '../../../../components/index';
 import { FieldType } from '../../index';
-import {Field} from "../../../../interfaces/field";
+import {Field} from "../../interfaces/field";
 import IconSelector from "../iconSelector/iconSelector";
 import {connect, Dispatch} from "react-redux";
 import * as styles from './fieldRow.scss';

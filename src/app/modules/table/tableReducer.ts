@@ -2,7 +2,7 @@ import {
     TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE,
     TABLE_SORT
 } from './tableConstants';
-import {Column} from "../../interfaces/column";
+import {Column} from "./interfaces/column";
 import {FIELD_ADD, FIELD_DELETE} from "../data/constants";
 
 export interface TableState {

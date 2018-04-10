@@ -1,5 +1,5 @@
-import {Node} from "../interfaces/node";
-import {Normalization} from "../interfaces/normalization";
+import {Node} from "../modules/graph/interfaces/node";
+import {Normalization} from "../modules/graph/interfaces/normalization";
 import {uniqueId} from 'lodash';
 import normalizeNodes from "./normalizeNodes";
 import denormalizeNodes from "./denormalizeNodes";

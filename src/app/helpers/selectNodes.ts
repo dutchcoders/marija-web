@@ -1,4 +1,4 @@
-import {Node} from "../interfaces/node";
+import {Node} from "../modules/graph/interfaces/node";
 
 export function selectNodes(nodesToSelect: Node[], allNodes: Node[]): Node[] {
     const select: Node[] = nodesToSelect.filter(node => !node.selected);

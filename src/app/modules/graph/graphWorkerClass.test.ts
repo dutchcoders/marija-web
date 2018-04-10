@@ -3,12 +3,12 @@ import GraphWorkerClass, {
     GraphWorkerPayload
 } from './graphWorkerClass';
 import {SEARCH_RECEIVE} from '../search/constants';
-import {Item} from "../../interfaces/item";
-import {Node} from "../../interfaces/node";
+import {Item} from "./interfaces/item";
+import {Node} from "./interfaces/node";
 import {uniqueId} from 'lodash';
-import {Field} from "../../interfaces/field";
-import {Search} from "../../interfaces/search";
-import {Link} from "../../interfaces/link";
+import {Field} from "../fields/interfaces/field";
+import {Search} from "../search/interfaces/search";
+import {Link} from "./interfaces/link";
 
 
 const getItem = (data, query = 'query', id = uniqueId()) => {

@@ -1,8 +1,8 @@
 import { DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED } from './index';
-import {Datasource} from "../../interfaces/datasource";
+import {Datasource} from "./interfaces/datasource";
 import {INITIAL_STATE_RECEIVE} from "../data/index";
 import {SEARCH_DELETE} from '../search/constants';
-import {Search} from "../../interfaces/search";
+import {Search} from "../search/interfaces/search";
 
 export interface DatasourcesState {
     datasources: Datasource[];

@@ -1,4 +1,4 @@
-import {Item} from "./item";
+import {Item} from "../../graph/interfaces/item";
 
 export interface Search {
     aroundNodeId: null|string;

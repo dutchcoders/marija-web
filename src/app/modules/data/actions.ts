@@ -9,15 +9,15 @@ import {
     NORMALIZATION_DELETE
 } from './index';
 import {VIA_ADD, VIA_DELETE} from "./constants";
-import {Field} from "../../interfaces/field";
+import {Field} from "../fields/interfaces/field";
 import {getFields} from '../fields/fieldsActions';
-import {Datasource} from "../../interfaces/datasource";
+import {Datasource} from "../datasources/interfaces/datasource";
 import {datasourceDeactivated} from "../datasources/datasourcesActions";
 import {
     activateLiveDatasource,
     addLiveDatasourceSearch
 } from "../search/actions";
-import {Via} from "../../interfaces/via";
+import {Via} from "../graph/interfaces/via";
 import Url from "../../helpers/Url";
 import {AppState} from "../../interfaces/appState";
 

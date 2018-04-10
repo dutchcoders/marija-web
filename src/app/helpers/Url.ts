@@ -1,9 +1,9 @@
 import createBrowserHistory from 'history/createBrowserHistory';
 import queryString from 'query-string';
-import {Datasource} from "../interfaces/datasource";
+import {Datasource} from "../modules/datasources/interfaces/datasource";
 import * as rison from 'rison';
 import {isEqual} from 'lodash';
-import {Via} from "../interfaces/via";
+import {Via} from "../modules/graph/interfaces/via";
 
 const history = createBrowserHistory();
 let currentLocation = history.location;

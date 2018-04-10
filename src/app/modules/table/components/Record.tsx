@@ -1,12 +1,10 @@
 import * as React from 'react';
-import { uniq, find, map, mapValues, reduce } from 'lodash';
 import { fieldLocator } from '../../../helpers/index';
-import { highlightNodes } from '../../graph/index';
 import { Icon } from '../../../components/index';
-import {Column} from "../../../interfaces/column";
-import {Item} from "../../../interfaces/item";
-import {Node} from "../../../interfaces/node";
-import {Search} from "../../../interfaces/search";
+import {Column} from "../interfaces/column";
+import {Item} from "../../graph/interfaces/item";
+import {Node} from "../../graph/interfaces/node";
+import {Search} from "../../search/interfaces/search";
 import {QueryColorMap} from "../table";
 
 interface Props {

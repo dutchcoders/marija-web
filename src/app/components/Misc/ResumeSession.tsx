@@ -6,8 +6,8 @@ import {
     searchRequest
 } from "../../modules/search/actions";
 import Url from "../../helpers/Url";
-import {Field} from "../../interfaces/field";
-import {Via} from "../../interfaces/via";
+import {Field} from "../../modules/fields/interfaces/field";
+import {Via} from "../../modules/graph/interfaces/via";
 import {AppState} from "../../interfaces/appState";
 
 interface Props {

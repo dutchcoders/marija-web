@@ -8,8 +8,8 @@ import Url from "../../helpers/Url";
 import Tooltip from 'rc-tooltip';
 import {cancelRequest} from "../../utils/utilsActions";
 import {deleteNodes, deselectNodes} from "../../modules/graph/graphActions";
-import {Search} from "../../interfaces/search";
-import {Node} from "../../interfaces/node";
+import {Search} from "../../modules/search/interfaces/search";
+import {Node} from "../../modules/graph/interfaces/node";
 import {
     activateLiveDatasource, deactivateLiveDatasource, pauseSearch,
     resumeSearch
