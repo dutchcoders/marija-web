@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { map, mapValues, reduce } from 'lodash';
-import { fieldLocator } from '../../helpers/index';
-import { highlightNodes } from '../../modules/graph/index';
-import { Icon } from '../../components/index';
+import { fieldLocator } from '../../../helpers/index';
+import { highlightNodes } from '../../graph/index';
+import { Icon } from '../../../components/index';
 
 export default class Record extends Component {
     constructor(props) {

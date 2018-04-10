@@ -1,24 +1,24 @@
 import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
 import {saveAs} from 'file-saver';
-import { forEach, uniqWith, reduce, find, findIndex, pull, concat, map } from 'lodash';
-import { Record, RecordDetail, Icon } from '../index';
-import { tableSort, tableColumnAdd, tableColumnRemove } from '../../modules/table/tableActions';
-import {requestItems} from "../../modules/items/actions";
+import { findIndex, pull, concat, map } from 'lodash';
+import { Icon } from '../../components/index';
+import { tableSort, tableColumnAdd, tableColumnRemove } from './tableActions';
+import {requestItems} from "../items/actions";
 import {Item} from "../../interfaces/item";
 import {Node} from "../../interfaces/node";
 import {Normalization} from "../../interfaces/normalization";
 import {Search} from "../../interfaces/search";
 import {Field} from "../../interfaces/field";
-import {dispatch} from "d3-dispatch";
-import { fieldAdd } from '../../modules/data/index';
-import {searchFieldsUpdate} from "../../modules/search/actions";
+import { fieldAdd } from '../data/index';
+import {searchFieldsUpdate} from "../search/actions";
 import { EventEmitter } from 'fbemitter';
-import {getSelectedNodes} from "../../modules/graph/graphSelectors";
+import {getSelectedNodes} from "../graph/graphSelectors";
 import {Column} from "../../interfaces/column";
 import {SortType} from "../../interfaces/sortType";
-import IconSelector from "../Configuration/iconSelector/iconSelector";
 import {AppState} from "../../interfaces/appState";
+import Record from "./components/Record";
+import RecordDetail from "./components/RecordDetail";
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -44,7 +44,7 @@ export interface QueryColorMap {
     [itemId: string]: string[]
 }
 
-class TableView extends React.Component<Props, State> {
+class Table extends React.Component<Props, State> {
     state: State = {
         items: [],
         expandedItems: [],
@@ -335,4 +335,4 @@ function select(state: AppState) {
 }
 
 
-export default connect(select)(TableView);
+export default connect(select)(Table);

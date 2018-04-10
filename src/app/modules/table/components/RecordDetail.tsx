@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { map, mapValues, reduce, concat, isObject, forEach } from 'lodash';
-import { fieldLocator } from '../../helpers/index';
-import { Icon } from '../../components/index';
+import { fieldLocator } from '../../../helpers/index';
+import { Icon } from '../../../components/index';
 import Tooltip from 'rc-tooltip';
 import Expandable from "./expandable/expandable";
 

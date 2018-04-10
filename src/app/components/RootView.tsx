@@ -4,7 +4,7 @@ import { EventEmitter } from 'fbemitter';
 import Notifications from './notifications/notifications';
 
 import {
-    Header, Record, TableView, ConfigurationView, Timeline,
+    Header, ConfigurationView, Timeline,
     GraphPixi, Pane, Icon, Nodes, Navigation
 } from './index';
 import Filter from "./Graphs/Filter";
@@ -13,6 +13,7 @@ import Stats from '../modules/stats/stats';
 import Circle from '../modules/chordDiagram/chordDiagram';
 import {AppState} from "../interfaces/appState";
 import {webSocketConnect} from "../utils/utilsActions";
+import Table from '../modules/table/table';
 
 class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();
@@ -91,7 +92,7 @@ class RootView extends React.Component<any, any> {
                         config={panes.table}
                         dispatch={dispatch}
                         container={this.main}>
-                        <TableView exportEvents={this.exportTableEvents} />
+                        <Table exportEvents={this.exportTableEvents} />
                     </Pane>
 
                     <Pane

@@ -1,11 +1,7 @@
 export { default as Header } from './Header';
 export { default as RootView } from './RootView';
 
-export { default as Record } from './Table/Record';
-export { default as RecordDetail } from './Table/RecordDetail';
-export { default as TableView } from './Table/TableView';
-export { default as Nodes } from './Table/Nodes';
-
+export { default as Nodes } from './Graphs/Nodes';
 export { default as Timeline } from './Graphs/Timeline';
 export { default as GraphPixi } from './Graphs/Graph.tsx';
 export { default as Query } from './Graphs/Query';

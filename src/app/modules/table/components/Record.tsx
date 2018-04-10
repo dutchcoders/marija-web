@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { uniq, find, map, mapValues, reduce } from 'lodash';
-import { fieldLocator } from '../../helpers/index';
-import { highlightNodes } from '../../modules/graph/index';
-import { Icon } from '../../components/index';
-import {Column} from "../../interfaces/column";
-import {Item} from "../../interfaces/item";
-import {Node} from "../../interfaces/node";
-import {Search} from "../../interfaces/search";
-import {QueryColorMap} from "./TableView";
+import { fieldLocator } from '../../../helpers/index';
+import { highlightNodes } from '../../graph/index';
+import { Icon } from '../../../components/index';
+import {Column} from "../../../interfaces/column";
+import {Item} from "../../../interfaces/item";
+import {Node} from "../../../interfaces/node";
+import {Search} from "../../../interfaces/search";
+import {QueryColorMap} from "../table";
 
 interface Props {
     toggleExpand: Function;
