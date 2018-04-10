@@ -8,7 +8,7 @@ import {saveAs} from 'file-saver';
 import {exportData, importData} from "../../modules/import/actions";
 import {Normalization} from "../../interfaces/normalization";
 import {Datasource} from "../../interfaces/datasource";
-import Fields from './fields/fields';
+import Fields from '../../modules/fields/fields';
 import {Via} from "../../interfaces/via";
 import Url from "../../domain/Url";
 import {AppState} from "../../interfaces/appState";

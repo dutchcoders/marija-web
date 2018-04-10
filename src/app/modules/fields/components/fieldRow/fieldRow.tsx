@@ -3,7 +3,7 @@ import Tooltip from 'rc-tooltip';
 import { Icon } from '../../../../components/index';
 import { FieldType } from '../../index';
 import {Field} from "../../../../interfaces/field";
-import IconSelector from "../../../../components/Configuration/iconSelector/iconSelector";
+import IconSelector from "../iconSelector/iconSelector";
 import {connect, Dispatch} from "react-redux";
 import * as styles from './fieldRow.scss';
 import {fieldAdd, fieldDelete, fieldUpdate} from "../../../data";

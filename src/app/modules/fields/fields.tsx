@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 import { map, isEqual } from 'lodash';
-import FieldRow from '../../../modules/fields/components/fieldRow/fieldRow';
-import Loader from "../../Misc/Loader";
+import FieldRow from './components/fieldRow/fieldRow';
+import Loader from "../../components/Misc/Loader";
 import {saveAs} from 'file-saver';
-import {highlightNodes} from "../../../modules/graph/graphActions";
-import {Datasource} from "../../../interfaces/datasource";
-import {Field} from "../../../interfaces/field";
+import {highlightNodes} from "../graph/graphActions";
+import {Datasource} from "../../interfaces/datasource";
+import {Field} from "../../interfaces/field";
 import * as styles from './fields.scss';
-import {AppState} from "../../../interfaces/appState";
+import {AppState} from "../../interfaces/appState";
 
 interface State {
     currentFieldSearchValue: string;
