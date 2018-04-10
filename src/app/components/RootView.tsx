@@ -7,7 +7,7 @@ import {
     Header, ConfigurationView, Timeline,
     GraphPixi, Pane, Icon, Nodes, Navigation
 } from './index';
-import Filter from "./Graphs/Filter";
+import Filter from "../modules/graph/components/Filter";
 import ContextMenu from '../modules/contextMenu/contextMenu';
 import Stats from '../modules/stats/stats';
 import Circle from '../modules/chordDiagram/chordDiagram';

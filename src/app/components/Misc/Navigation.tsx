@@ -4,7 +4,7 @@ import {Icon} from "../index";
 import {closePane, openPane} from "../../utils/utilsActions";
 import Tooltip from 'rc-tooltip';
 import {setSelectingMode, toggleLabels} from '../../modules/graph/graphActions';
-import Filter from "../Graphs/Filter";
+import Filter from "../../modules/graph/components/Filter";
 import {AppState} from "../../interfaces/appState";
 
 class Navigation extends React.Component<any, any> {

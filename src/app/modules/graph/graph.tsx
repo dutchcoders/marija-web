@@ -5,27 +5,27 @@ import { concat, debounce, remove, includes, assign, isEqual, isEmpty, isEqualWi
 import {
     nodesSelect, highlightNodes, deselectNodes, showTooltip,
     setSelectingMode, clearSelection
-} from '../../modules/graph/graphActions';
+} from './graphActions';
 import { getArcParams, getDirectlyRelatedNodes } from '../../helpers/index.js';
 import * as PIXI from 'pixi.js';
-import {Search} from "../../modules/search/interfaces/search";
-import {Node} from "../../modules/graph/interfaces/node";
-import {Link} from "../../modules/graph/interfaces/link";
-import {NodeFromD3} from "../../modules/graph/interfaces/nodeFromD3";
-import {LinkFromD3} from "../../modules/graph/interfaces/linkFromD3";
+import {Search} from "../search/interfaces/search";
+import {Node} from "./interfaces/node";
+import {Link} from "./interfaces/link";
+import {NodeFromD3} from "./interfaces/nodeFromD3";
+import {LinkFromD3} from "./interfaces/linkFromD3";
 import {
     hideContextMenu,
     showContextMenu
-} from "../../modules/contextMenu/contextMenuActions";
+} from "../contextMenu/contextMenuActions";
 import {
     getLinksForDisplay,
     getNodesForDisplay
-} from "../../modules/graph/graphSelectors";
-import {setFps} from "../../modules/stats/statsActions";
-import {Field} from "../../modules/fields/interfaces/field";
+} from "./graphSelectors";
+import {setFps} from "../stats/statsActions";
+import {Field} from "../fields/interfaces/field";
 import {getArrowPosition} from "../../helpers/getArrowPosition";
 import {AppState} from "../../interfaces/appState";
-const myWorker = require("worker-loader!./d3Worker");
+const myWorker = require("worker-loader!./helpers/d3Worker");
 
 interface TextureMap {
     [hash: string]: PIXI.RenderTexture;

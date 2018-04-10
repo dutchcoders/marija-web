@@ -1,21 +1,21 @@
 import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
 import { map, uniq, filter, concat, without, find, differenceWith, sortBy, forEach } from 'lodash';
-import { Icon } from '../index';
-import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../../modules/graph/index';
+import { Icon } from '../../../components/index';
+import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../index';
 import SkyLight from 'react-skylight';
-import {searchAround} from '../../modules/search/actions';
-import {showTooltip} from "../../modules/graph/graphActions";
-import {normalizationAdd} from "../../modules/data/index";
-import getDirectlyRelatedNodes from '../../helpers/getDirectlyRelatedNodes';
-import {normalizationDelete} from '../../modules/data/actions';
-import {Search} from "../../modules/search/interfaces/search";
-import {Node} from "../../modules/graph/interfaces/node";
-import {Link} from "../../modules/graph/interfaces/link";
-import {Normalization} from "../../modules/graph/interfaces/normalization";
-import getRelatedNodes from '../../helpers/getRelatedNodes';
-import {Datasource} from "../../modules/datasources/interfaces/datasource";
-import {AppState} from "../../interfaces/appState";
+import {searchAround} from '../../search/actions';
+import {showTooltip} from "../graphActions";
+import {normalizationAdd} from "../../data/index";
+import getDirectlyRelatedNodes from '../../../helpers/getDirectlyRelatedNodes';
+import {normalizationDelete} from '../../data/actions';
+import {Search} from "../../search/interfaces/search";
+import {Node} from "../interfaces/node";
+import {Link} from "../interfaces/link";
+import {Normalization} from "../interfaces/normalization";
+import getRelatedNodes from '../../../helpers/getRelatedNodes';
+import {Datasource} from "../../datasources/interfaces/datasource";
+import {AppState} from "../../../interfaces/appState";
 
 interface Props {
     dispatch: Dispatch<any>;
