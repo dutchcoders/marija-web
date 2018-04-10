@@ -25,6 +25,7 @@ import {AppState} from "./interfaces/appState";
 import {defaultFieldsState} from "./modules/fields/fieldsReducer";
 import {webSocketMiddleware} from './middleware/webSocketMiddleware';
 import {defaultGraphState} from "./modules/graph/graphReducer";
+import {defaultTableState} from "./modules/table/tableReducer";
 
 const GraphWorker = require('worker-loader!./modules/graph/graphWorker');
 const graphWorker = new GraphWorker();
@@ -36,7 +37,8 @@ const defaultState: AppState = {
     contextMenu: defaultContextMenuState,
     fields: defaultFieldsState,
     utils: defaultUtilsState,
-    stats: defaultStatsState
+    stats: defaultStatsState,
+    table: defaultTableState
 };
 
 function configureStore() {

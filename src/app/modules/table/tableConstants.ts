@@ -1,0 +1,3 @@
+export const TABLE_COLUMN_ADD = 'TABLE_COLUMN_ADD';
+export const TABLE_COLUMN_REMOVE = 'TABLE_COLUMN_REMOVE';
+export const TABLE_SORT = 'TABLE_SORT';

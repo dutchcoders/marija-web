@@ -6,6 +6,7 @@ import {FieldsState} from "../modules/fields/fieldsReducer";
 import {DatasourcesState} from "../modules/datasources/datasourcesReducer";
 import {StatsState} from "../modules/stats/statsReducer";
 import {ContextMenuState} from "../modules/contextMenu/contextMenuReducer";
+import {TableState} from "../modules/table/tableReducer";
 
 export interface AppState {
     graph: GraphState;
@@ -13,5 +14,6 @@ export interface AppState {
     fields: FieldsState;
     datasources: DatasourcesState;
     stats: StatsState;
+    table: TableState;
     utils: any;
 }

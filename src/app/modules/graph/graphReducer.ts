@@ -9,12 +9,12 @@ import {
 } from './graphConstants';
 import {  SEARCH_DELETE, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DATASOURCE, SEARCH_REQUEST, SEARCH_EDIT } from '../search/constants';
 import {  ADD_LIVE_DATASOURCE_SEARCH } from '../search/constants';
-import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../data/index';
+import { FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../data/index';
 
 import { removeDeadLinks, applyVia, getQueryColor, deleteFieldFromNodes
 } from '../../helpers/index';
 import removeNodesAndLinks from "../../helpers/removeNodesAndLinks";
-import {VIA_ADD, VIA_DELETE, TABLE_SORT} from "../data/constants";
+import {VIA_ADD, VIA_DELETE} from "../data/constants";
 import {NODES_TOOLTIP, SET_SELECTING_MODE, TOGGLE_LABELS} from "./graphConstants";
 import {REQUEST_COMPLETED} from "../../utils/utilsConstants";
 import {SEARCH_FIELDS_UPDATE} from "../search/constants";
@@ -42,6 +42,7 @@ import {SortType} from "../../interfaces/sortType";
 import datasources from "../datasources/datasourcesReducer";
 import {selectNodes} from "../../helpers/selectNodes";
 import {deselectNodes} from "../../helpers/deselectNodes";
+import {TABLE_SORT} from "../table/tableConstants";
 
 export interface GraphState {
     connected: boolean;
@@ -58,15 +59,11 @@ export interface GraphState {
     via: Via[];
     selectingMode: boolean;
     showLabels: boolean;
-    columns: Column[];
-    sortColumn: Column;
-    sortType: SortType;
 }
 
 export const defaultGraphState: GraphState = {
     connected: false,
     total: 0,
-    columns: [],
     fields: [],
     date_fields: [],
     normalizations: [],
@@ -78,9 +75,7 @@ export const defaultGraphState: GraphState = {
     errors: null,
     via: [],
     selectingMode: false,
-    showLabels: false,
-    sortColumn: null,
-    sortType: 'asc'
+    showLabels: false
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -118,7 +113,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             items = items.filter(item => item.searchId !== toDelete.searchId);
 
-            const { nodes, links } = removeNodesAndLinks(state.nodes, state.links, toDelete.searchId);
+            const {nodes, links} = removeNodesAndLinks(state.nodes, state.links, toDelete.searchId);
 
             return Object.assign({}, state, {
                 searches: searches,
@@ -127,22 +122,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 links: links
             });
         }
-        case TABLE_COLUMN_ADD:
-            return Object.assign({}, state, {
-                columns: concat(state.columns, action.field),
-            });
-        case TABLE_COLUMN_REMOVE:
-            let sortColumn = state.sortColumn;
-
-            if (action.field === sortColumn) {
-                sortColumn = null;
-            }
-
-            return Object.assign({}, state, {
-                columns: without(state.columns, action.field),
-                sortColumn: sortColumn
-            });
-        case FIELD_ADD:
+        case FIELD_ADD: {
             const existing = state.fields.find(field => field.path === action.field.path);
 
             if (existing) {
@@ -159,17 +139,13 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 dateFields.push(newField);
             }
 
-            let columns = state.columns;
+            return {
+                ...state,
+                fields: state.fields.concat([newField]),
+                date_fields: dateFields
+            };
+        }
 
-            if (columns.length < 3) {
-                columns = columns.concat([newField.path]);
-            }
-
-            return Object.assign({}, state, {
-                fields: concat(state.fields, newField),
-                date_fields: dateFields,
-                columns: columns
-            });
         case FIELD_UPDATE: {
             const index: number = state.fields.findIndex(search  => search.path === action.fieldPath);
             const fields: Field[] = state.fields.concat([]);
@@ -204,26 +180,12 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             const nodes = deleteFieldFromNodes(action.field.path, state.nodes);
             const links = removeDeadLinks(nodes, state.links);
 
-            let columns: Column[] = state.columns;
-
-            // If the field was used as a column in the table, delete that column
-            if (columns.indexOf(action.field.path) !== -1) {
-                columns = columns.filter(column => column !== action.field.path);
-            }
-
-            let sortColumn = state.sortColumn;
-
-            if (action.field.path === sortColumn) {
-                sortColumn = null;
-            }
-
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 fields: without(state.fields, action.field),
                 nodes: nodes,
-                links: links,
-                columns: columns,
-                sortColumn: sortColumn
-            });
+                links: links
+            };
         }
         case NORMALIZATION_ADD: {
             const normalization: Normalization = {
@@ -557,19 +519,19 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             });
         }
         case ITEMS_RECEIVE: {
-            if (!action.items) {
+            if (!action.payload.items) {
                 return state;
             }
 
             let nodes: Node[] = state.nodes.concat([]);
-            let items = state.items.concat(action.items);
+            let items = state.items.concat(action.payload.items);
 
             // We might need to delete the previous item
-            if (action.prevItemId) {
-                items = items.filter(item => item.id !== action.prevItemId);
+            if (action.payload.prevItemId) {
+                items = items.filter(item => item.id !== action.payload.prevItemId);
 
                 nodes = nodes.map(node => {
-                    const itemIndex = node.items.indexOf(action.prevItemId);
+                    const itemIndex = node.items.indexOf(action.payload.prevItemId);
 
                     if (itemIndex === -1) {
                         return node;
@@ -584,14 +546,23 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 });
             }
 
-            if (state.sortColumn) {
-                items = sortItems(items, state.sortColumn, state.sortType);
+            if (action.payload.sortColumn) {
+                items = sortItems(items, action.payload.sortColumn, action.payload.sortType);
             }
 
             return Object.assign({}, state, {
                 nodes: nodes,
                 items: items
             });
+        }
+
+        case TABLE_SORT: {
+            const items = sortItems(state.items, action.payload.column, action.payload.type);
+
+            return {
+                ...state,
+                items: items
+            };
         }
 
         /**
@@ -663,15 +634,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             });
         }
 
-        case TABLE_SORT: {
-            const items = sortItems(state.items, action.payload.column, action.payload.type);
 
-            return Object.assign({}, state, {
-                sortColumn: action.payload.column,
-                sortType: action.payload.type,
-                items: items
-            });
-        }
 
         default:
             return state;

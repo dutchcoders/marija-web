@@ -44,7 +44,7 @@ class StateCapturer extends React.Component<any, any> {
 function select(state: AppState, ownProps) {
     return {
         ...ownProps,
-        columns: state.graph.columns,
+        columns: state.table.columns,
         searches: state.graph.searches,
         date_fields: state.graph.date_fields,
         datasources: state.datasources.datasources,

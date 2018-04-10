@@ -62,8 +62,8 @@ function getGraphWorkerPayload(state: AppState, items: Item[], searchId: string)
         deletedNodes: state.graph.deletedNodes,
         via: state.graph.via,
         receivedAt: Date.now(),
-        sortType: state.graph.sortType,
-        sortColumn: state.graph.sortColumn
+        sortType: state.table.sortType,
+        sortColumn: state.table.sortColumn
     };
 }
 

@@ -2,6 +2,7 @@ import {ITEMS_RECEIVE, ITEMS_REQUEST} from "./constants";
 import {Item} from "../../interfaces/item";
 import {uniqueId, chunk} from 'lodash';
 import {webSocketSend} from "../../utils/utilsActions";
+import {AppState} from "../../interfaces/appState";
 
 export function requestItems(items: Item[]) {
     return (dispatch, getState) => {
@@ -28,9 +29,17 @@ export function requestItems(items: Item[]) {
 }
 
 export function receiveItems(items: Item[], prevItemId: string) {
-    return {
-        type: ITEMS_RECEIVE,
-        items: items,
-        prevItemId: prevItemId
+    return (dispatch, getState) => {
+        const state: AppState = getState();
+
+        dispatch({
+            type: ITEMS_RECEIVE,
+            payload: {
+                items: items,
+                prevItemId: prevItemId,
+                sortColumn: state.table.sortColumn,
+                sortType: state.table.sortType
+            }
+        });
     };
 }

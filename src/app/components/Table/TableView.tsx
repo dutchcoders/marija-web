@@ -3,8 +3,7 @@ import {connect, Dispatch} from 'react-redux';
 import {saveAs} from 'file-saver';
 import { forEach, uniqWith, reduce, find, findIndex, pull, concat, map } from 'lodash';
 import { Record, RecordDetail, Icon } from '../index';
-import { tableColumnAdd, tableColumnRemove } from '../../modules/data/index';
-import { tableSort } from '../../modules/data/actions';
+import { tableSort, tableColumnAdd, tableColumnRemove } from '../../modules/table/tableActions';
 import {requestItems} from "../../modules/items/actions";
 import {Item} from "../../interfaces/item";
 import {Node} from "../../interfaces/node";
@@ -328,9 +327,9 @@ function select(state: AppState) {
         items: state.graph.items,
         searches: state.graph.searches,
         fields: state.graph.fields,
-        columns: state.graph.columns,
-        sortColumn: state.graph.sortColumn,
-        sortType: state.graph.sortType,
+        columns: state.table.columns,
+        sortColumn: state.table.sortColumn,
+        sortType: state.table.sortType,
         availableFields: state.fields.availableFields
     };
 }

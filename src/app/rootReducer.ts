@@ -8,6 +8,7 @@ import graphReducer from "./modules/graph/graphReducer";
 import fieldsReducer from "./modules/fields/fieldsReducer";
 import datasourcesReducer from "./modules/datasources/datasourcesReducer";
 import utilsReducer from "./utils/utilsReducer";
+import tableReducer from "./modules/table/tableReducer";
 
 const appReducer = combineReducers({
     graph: graphReducer,
@@ -15,6 +16,7 @@ const appReducer = combineReducers({
     datasources: datasourcesReducer,
     fields: fieldsReducer,
     contextMenu: contextMenuReducer,
+    table: tableReducer,
     routing: routerReducer,
     stats: statsReducer
 });
