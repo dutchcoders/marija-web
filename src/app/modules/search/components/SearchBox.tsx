@@ -15,7 +15,7 @@ import {
     datasourceDeactivated
 } from "../../datasources/datasourcesActions";
 import {Field} from "../../../interfaces/field";
-import Url from "../../../domain/Url";
+import Url from "../../../helpers/Url";
 import {AppState} from "../../../interfaces/appState";
 
 interface Props {

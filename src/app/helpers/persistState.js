@@ -1,11 +1,10 @@
-import { concat, merge } from 'lodash';
-import { Workspaces, Migrations } from '../domain/index.js';
-import Url from "../domain/Url";
+import Workspaces from '../helpers/Workspaces';
+import Url from "./Url";
 
 export default function persistState() {
     return (next) => (reducer, initialState, enhancer) => {
 
-        initialState = Workspaces.loadCurrentWorkspace(initialState)
+        initialState = Workspaces.loadCurrentWorkspace(initialState);
 
         // parse all normalizations
         for (let i=0; i < (initialState.graph.normalizations || []).length; i++) {

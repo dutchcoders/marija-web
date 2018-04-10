@@ -3,14 +3,14 @@ import { connect, Dispatch } from 'react-redux';
 import { find, sortBy, map, slice, uniq, concat, isEqual } from 'lodash';
 import { normalizationAdd, normalizationDelete, viaDelete, viaAdd } from '../../modules/data/index';
 import { Icon } from '../index';
-import {Workspaces} from "../../domain/index";
+import Workspaces from "../../helpers/Workspaces";
 import {saveAs} from 'file-saver';
 import {exportData, importData} from "../../modules/import/actions";
 import {Normalization} from "../../interfaces/normalization";
 import {Datasource} from "../../interfaces/datasource";
 import Fields from '../../modules/fields/fields';
 import {Via} from "../../interfaces/via";
-import Url from "../../domain/Url";
+import Url from "../../helpers/Url";
 import {AppState} from "../../interfaces/appState";
 
 interface State {

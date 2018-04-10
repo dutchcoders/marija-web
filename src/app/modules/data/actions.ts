@@ -18,7 +18,7 @@ import {
     addLiveDatasourceSearch
 } from "../search/actions";
 import {Via} from "../../interfaces/via";
-import Url from "../../domain/Url";
+import Url from "../../helpers/Url";
 import {AppState} from "../../interfaces/appState";
 
 export function dateFieldAdd(field: Field) {

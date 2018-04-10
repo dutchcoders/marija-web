@@ -4,7 +4,7 @@ import { isEqual } from 'lodash';
 import { nodesSelect } from '../../modules/graph/index';
 import { Icon } from '../../components/index';
 import { deleteSearch, editSearch } from '../../modules/search/index';
-import Url from "../../domain/Url";
+import Url from "../../helpers/Url";
 import Tooltip from 'rc-tooltip';
 import {cancelRequest} from "../../utils/utilsActions";
 import {deleteNodes, deselectNodes} from "../../modules/graph/graphActions";

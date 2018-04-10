@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
 import { SearchBox, searchRequest } from '../modules/search/index';
-import Url from "../domain/Url";
+import Url from "../helpers/Url";
 import {error} from '../utils';
 import {Datasource} from "../interfaces/datasource";
 import {Field} from "../interfaces/field";
