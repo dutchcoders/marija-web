@@ -6,7 +6,28 @@ import {
 } from "./uiConstants";
 import {each} from 'lodash';
 
-const defaultPane = {
+export interface PaneInterface {
+    open: boolean;
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+    fullHeight: boolean;
+    fullWidth: boolean;
+    alignRight: boolean;
+    alignBottom: boolean;
+    minWidth: number;
+    minHeight: number;
+    zIndex: number;
+}
+
+export interface UiState {
+    panes: {
+        [name: string]: PaneInterface
+    }
+}
+
+const defaultPane: PaneInterface = {
     open: false,
     width: 0,
     height: 0,
@@ -21,42 +42,48 @@ const defaultPane = {
     zIndex: 2
 };
 
-export const defaultUiState = {
+export const defaultUiState: UiState = {
     panes: {
-        configuration: Object.assign({}, defaultPane, {
+        configuration: {
+            ...defaultPane,
             open: true,
             width: 400,
             fullHeight: true,
             minWidth: 300
-        }),
-        nodes: Object.assign({}, defaultPane, {
+        },
+        nodes: {
+            ...defaultPane,
             width: 350,
             height: 300,
             alignRight: true,
             minWidth: 300
-        }),
-        table: Object.assign({}, defaultPane, {
+        },
+        table: {
+            ...defaultPane,
             width: 500,
             height: 400,
             y: 300,
             alignRight: true,
             alignBottom: true,
             minWidth: 430
-        }),
-        timeline: Object.assign({}, defaultPane, {
+        },
+        timeline: {
+            ...defaultPane,
             width: 300,
             height: 300,
             alignBottom: true,
             fullWidth: true
-        }),
-        filter: Object.assign({}, defaultPane, {
+        },
+        filter: {
+            ...defaultPane,
             width: 300,
             height: 300,
-        }),
-        chordDiagram: Object.assign({}, defaultPane, {
+        },
+        chordDiagram: {
+            ...defaultPane,
             width: 500,
             height: 500,
-        })
+        }
     }
 };
 

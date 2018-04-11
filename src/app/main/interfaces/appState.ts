@@ -7,6 +7,7 @@ import {DatasourcesState} from "../../datasources/datasourcesReducer";
 import {StatsState} from "../../stats/statsReducer";
 import {ContextMenuState} from "../../contextMenu/contextMenuReducer";
 import {TableState} from "../../table/tableReducer";
+import {UiState} from "../../ui/uiReducer";
 
 export interface AppState {
     graph: GraphState;
@@ -15,5 +16,5 @@ export interface AppState {
     datasources: DatasourcesState;
     stats: StatsState;
     table: TableState;
-    ui: any;
+    ui: UiState;
 }
