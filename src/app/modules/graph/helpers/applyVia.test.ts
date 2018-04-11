@@ -1,6 +1,6 @@
 import applyVia from "./applyVia";
-import {Node} from "../modules/graph/interfaces/node";
-import {Link} from "../modules/graph/interfaces/link";
+import {Node} from "../interfaces/node";
+import {Link} from "../interfaces/link";
 
 const generateNode = (id: string, fields: string[]): Node => {
     return {

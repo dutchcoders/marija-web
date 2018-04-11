@@ -1,5 +1,5 @@
-import {Node} from "../modules/graph/interfaces/node";
-import {Link} from "../modules/graph/interfaces/link";
+import {Node} from "../interfaces/node";
+import {Link} from "../interfaces/link";
 
 /**
  * Sets the property display of the links to true or false.

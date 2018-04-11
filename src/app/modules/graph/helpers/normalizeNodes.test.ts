@@ -1,7 +1,7 @@
-import {Node} from "../modules/graph/interfaces/node";
+import {Node} from "../interfaces/node";
 import {uniqueId} from 'lodash';
 import normalizeNodes from "./normalizeNodes";
-import {Normalization} from "../modules/graph/interfaces/normalization";
+import {Normalization} from "../interfaces/normalization";
 
 const generateNode = (id): Node => {
     return {

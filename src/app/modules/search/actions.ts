@@ -6,7 +6,7 @@ import {Item} from "../graph/interfaces/item";
 import {uniqueId} from 'lodash';
 import {ADD_LIVE_DATASOURCE_SEARCH, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DATASOURCE} from './constants';
 import {Datasource} from "../datasources/interfaces/datasource";
-import {GraphWorkerPayload} from "../graph/graphWorkerClass";
+import {GraphWorkerPayload} from "../graph/helpers/graphWorkerClass";
 import {AppState} from "../../interfaces/appState";
 import {cancelRequest, webSocketSend} from "../../utils/utilsActions";
 

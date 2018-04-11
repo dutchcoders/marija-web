@@ -1,6 +1,6 @@
-import {Node} from "../modules/graph/interfaces/node";
-import {Link} from "../modules/graph/interfaces/link";
-import {Via} from "../modules/graph/interfaces/via";
+import {Node} from "../interfaces/node";
+import {Link} from "../interfaces/link";
+import {Via} from "../interfaces/via";
 
 const getLink = (source: string, target: string): Link => {
     return {

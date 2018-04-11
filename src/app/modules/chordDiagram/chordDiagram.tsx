@@ -12,7 +12,7 @@ import {Selection} from 'd3-selection';
 import {EventEmitter} from 'fbemitter';
 import * as styles from './chordDiagram.scss';
 import {AppState} from '../../interfaces/appState';
-import {getNodeHierarchy} from '../../helpers/getNodeHierarchy';
+import {getNodeHierarchy} from '../graph/helpers/getNodeHierarchy';
 import {Search} from "../search/interfaces/search";
 import {deselectNodes} from "../graph/graphActions";
 

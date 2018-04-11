@@ -13,7 +13,7 @@ import { FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELET
 
 import { removeDeadLinks, applyVia, getQueryColor, deleteFieldFromNodes
 } from '../../helpers/index';
-import removeNodesAndLinks from "../../helpers/removeNodesAndLinks";
+import removeNodesAndLinks from "./helpers/removeNodesAndLinks";
 import {VIA_ADD, VIA_DELETE} from "../data/constants";
 import {NODES_TOOLTIP, SET_SELECTING_MODE, TOGGLE_LABELS} from "./graphConstants";
 import {REQUEST_COMPLETED} from "../../utils/utilsConstants";
@@ -23,25 +23,25 @@ import {Link} from "./interfaces/link";
 import {Item} from "./interfaces/item";
 import {Search} from "../search/interfaces/search";
 import {ITEMS_RECEIVE, ITEMS_REQUEST} from "../items/constants";
-import normalizeNodes from "../../helpers/normalizeNodes";
+import normalizeNodes from "./helpers/normalizeNodes";
 import {Normalization} from "./interfaces/normalization";
-import normalizeLinks from "../../helpers/normalizeLinks";
-import denormalizeNodes from "../../helpers/denormalizeNodes";
-import denormalizeLinks from "../../helpers/denormalizeLinks";
+import normalizeLinks from "./helpers/normalizeLinks";
+import denormalizeNodes from "./helpers/denormalizeNodes";
+import denormalizeLinks from "./helpers/denormalizeLinks";
 import darkenColor from "../../helpers/darkenColor";
 import {Column} from "../table/interfaces/column";
 import createField from "../../helpers/createField";
 import {Field} from "../fields/interfaces/field";
 import {Via} from "./interfaces/via";
-import removeVia from "../../helpers/removeVia";
-import markHighlightedNodes from "../../helpers/markHighlightedNodes";
-import markLinksForDisplay from "../../helpers/markLinksForDisplay";
-import markNodesForDisplay from "../../helpers/markNodesForDisplay";
+import removeVia from "./helpers/removeVia";
+import markHighlightedNodes from "./helpers/markHighlightedNodes";
+import markLinksForDisplay from "./helpers/markLinksForDisplay";
+import markNodesForDisplay from "./helpers/markNodesForDisplay";
 import {sortItems} from "../../helpers/sortItems";
 import {SortType} from "../table/interfaces/sortType";
 import datasources from "../datasources/datasourcesReducer";
-import {selectNodes} from "../../helpers/selectNodes";
-import {deselectNodes} from "../../helpers/deselectNodes";
+import {selectNodes} from "./helpers/selectNodes";
+import {deselectNodes} from "./helpers/deselectNodes";
 import {TABLE_SORT} from "../table/tableConstants";
 
 export interface GraphState {

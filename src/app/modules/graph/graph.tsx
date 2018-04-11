@@ -23,7 +23,7 @@ import {
 } from "./graphSelectors";
 import {setFps} from "../stats/statsActions";
 import {Field} from "../fields/interfaces/field";
-import {getArrowPosition} from "../../helpers/getArrowPosition";
+import {getArrowPosition} from "./helpers/getArrowPosition";
 import {AppState} from "../../interfaces/appState";
 const myWorker = require("worker-loader!./helpers/d3Worker");
 

@@ -7,13 +7,13 @@ import SkyLight from 'react-skylight';
 import {searchAround} from '../../search/actions';
 import {showTooltip} from "../graphActions";
 import {normalizationAdd} from "../../data/index";
-import getDirectlyRelatedNodes from '../../../helpers/getDirectlyRelatedNodes';
+import getDirectlyRelatedNodes from '../helpers/getDirectlyRelatedNodes';
 import {normalizationDelete} from '../../data/actions';
 import {Search} from "../../search/interfaces/search";
 import {Node} from "../interfaces/node";
 import {Link} from "../interfaces/link";
 import {Normalization} from "../interfaces/normalization";
-import getRelatedNodes from '../../../helpers/getRelatedNodes';
+import getRelatedNodes from '../helpers/getRelatedNodes';
 import {Datasource} from "../../datasources/interfaces/datasource";
 import {AppState} from "../../../interfaces/appState";
 

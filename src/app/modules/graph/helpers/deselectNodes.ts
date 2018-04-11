@@ -1,4 +1,4 @@
-import {Node} from "../modules/graph/interfaces/node";
+import {Node} from "../interfaces/node";
 
 export function deselectNodes(nodesToSelect: Node[], allNodes: Node[]): Node[] {
     const nodes: Node[] = allNodes.concat([]);
