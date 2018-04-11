@@ -78,7 +78,5 @@ class App extends React.Component<any, any> {
     }
 }
 
-render((
-    <App/>
-), document.getElementById('root'));
+export default App;
 
