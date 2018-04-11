@@ -1,6 +1,6 @@
 import * as React from 'react';
 import fieldLocator from '../../fields/helpers/fieldLocator';
-import { Icon } from '../../../components/index';
+import Icon from '../../ui/components/Icon';
 import {Column} from "../interfaces/column";
 import {Item} from "../../graph/interfaces/item";
 import {Node} from "../../graph/interfaces/node";

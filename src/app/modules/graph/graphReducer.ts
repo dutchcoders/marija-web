@@ -1,6 +1,7 @@
 import { concat, without, remove, assign, find, uniqueId, isEqual, chunk } from 'lodash';
 
-import {  ERROR, AUTH_CONNECTED} from '../../utils/index';
+import {  AUTH_CONNECTED} from '../../utils/index';
+import {ERROR} from '../ui/uiConstants';
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from './index';
 import {
     FIELD_NODES_HIGHLIGHT,

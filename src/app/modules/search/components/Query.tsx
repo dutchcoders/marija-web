@@ -1,19 +1,19 @@
 import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
 import { isEqual } from 'lodash';
-import { nodesSelect } from '../index';
-import { Icon } from '../../../components/index';
-import { deleteSearch, editSearch } from '../../search/index';
+import { nodesSelect } from '../../graph/index';
+import Icon from '../../ui/components/Icon';
+import { deleteSearch, editSearch } from '../index';
 import Url from "../../../helpers/Url";
 import Tooltip from 'rc-tooltip';
 import {cancelRequest} from "../../../utils/utilsActions";
-import {deleteNodes, deselectNodes} from "../graphActions";
-import {Search} from "../../search/interfaces/search";
-import {Node} from "../interfaces/node";
+import {deleteNodes, deselectNodes} from "../../graph/graphActions";
+import {Search} from "../interfaces/search";
+import {Node} from "../../graph/interfaces/node";
 import {
     activateLiveDatasource, deactivateLiveDatasource, pauseSearch,
     resumeSearch
-} from "../../search/searchActions";
+} from "../searchActions";
 
 interface Props {
     dispatch: Dispatch<any>;

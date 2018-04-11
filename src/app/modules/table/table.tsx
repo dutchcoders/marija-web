@@ -2,7 +2,7 @@ import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
 import {saveAs} from 'file-saver';
 import { findIndex, pull, concat, map } from 'lodash';
-import { Icon } from '../../components/index';
+import Icon from '../ui/components/Icon';
 import { tableSort, tableColumnAdd, tableColumnRemove } from './tableActions';
 import {requestItems} from "../items/tableActions";
 import {Item} from "../graph/interfaces/item";

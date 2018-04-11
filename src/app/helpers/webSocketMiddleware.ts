@@ -4,7 +4,8 @@ import {
 } from '../utils/utilsConstants';
 import * as ReconnectingWebsocket from 'reconnecting-websocket';
 import {Dispatch, Middleware} from 'redux';
-import {authConnected, error} from "../utils/index";
+import {authConnected} from "../utils/index";
+import {error} from '../modules/ui/uiActions';
 import {Item} from "../modules/graph/interfaces/item";
 import {liveReceive, searchReceive} from "../modules/search/searchActions";
 import {requestCompleted} from "../utils/utilsActions";

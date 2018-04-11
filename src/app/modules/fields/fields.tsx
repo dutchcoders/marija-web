@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 import { map, isEqual } from 'lodash';
 import FieldRow from './components/fieldRow/fieldRow';
-import Loader from "../../components/Misc/Loader";
+import Loader from "../ui/components/Loader";
 import {saveAs} from 'file-saver';
 import {highlightNodes} from "../graph/graphActions";
 import {Datasource} from "../datasources/interfaces/datasource";

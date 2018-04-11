@@ -1,19 +1,21 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { EventEmitter } from 'fbemitter';
-import Notifications from './notifications/notifications';
-
-import {
-    Header, ConfigurationView, Timeline,
-    GraphPixi, Pane, Icon, Nodes, Navigation
-} from './index';
+import Notifications from '../modules/ui/components/Notifications/notifications';
 import Filter from "../modules/graph/components/Filter";
 import ContextMenu from '../modules/contextMenu/contextMenu';
 import Stats from '../modules/stats/stats';
-import Circle from '../modules/chordDiagram/chordDiagram';
+import Circle from '../modules/graph/components/chordDiagram/chordDiagram';
 import {AppState} from "../interfaces/appState";
 import {webSocketConnect} from "../utils/utilsActions";
 import Table from '../modules/table/table';
+import Navigation from "../modules/graph/components/Navigation";
+import ConfigurationView from "./Configuration/ConfigurationView";
+import Pane from "../modules/ui/components/Pane";
+import Nodes from "../modules/graph/components/Nodes";
+import Timeline from "../modules/graph/components/Timeline";
+import Graph from "../modules/graph/graph";
+import Header from "../modules/search/components/Header";
 
 class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();
@@ -55,7 +57,7 @@ class RootView extends React.Component<any, any> {
                         zoomOut={() => this.zoomEvents.emit('zoomOut')}
                     />
 
-                    <GraphPixi
+                    <Graph
                         className="graph"
                         zoomEvents={this.zoomEvents}
                     />
@@ -148,7 +150,7 @@ const select = (state: AppState, ownProps) => {
         errors: state.graph.errors,
         nodes: state.graph.nodes,
         links: state.graph.links,
-        panes: state.utils.panes
+        panes: state.ui.panes
     };
 };
 export default connect(select)(RootView);

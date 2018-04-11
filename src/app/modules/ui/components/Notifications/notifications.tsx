@@ -1,9 +1,9 @@
 import * as React from 'react';
-import {Icon} from '../index';
-import {error} from "../../utils";
+import Icon from '../Icon';
+import {error} from "../../../ui/uiActions";
 import {connect, Dispatch} from "react-redux";
 import * as styles from './notifications.scss';
-import {AppState} from "../../interfaces/appState";
+import {AppState} from "../../../../interfaces/appState";
 
 interface Props {
     errors: string;

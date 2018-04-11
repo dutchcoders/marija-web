@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Tooltip from 'rc-tooltip';
-import { Icon } from '../../../../components/index';
+import Icon from '../../../ui/components/Icon';
 import { FieldType } from '../../index';
 import {Field} from "../../interfaces/field";
 import IconSelector from "../iconSelector/iconSelector";

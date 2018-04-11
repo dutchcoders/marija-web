@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 import { find, sortBy, map, slice, uniq, concat, isEqual } from 'lodash';
 import { normalizationAdd, normalizationDelete, viaDelete, viaAdd } from '../../modules/graph/graphActions';
-import { Icon } from '../index';
+import Icon from '../../modules/ui/components/Icon';
 import Workspaces from "../../helpers/Workspaces";
 import {saveAs} from 'file-saver';
 import {exportData, importData} from "../../modules/import/actions";

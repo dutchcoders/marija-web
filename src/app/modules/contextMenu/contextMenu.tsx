@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {Node} from "../graph/interfaces/node";
 import * as styles from './contextMenu.scss';
-import { Icon } from '../../components/index';
+import Icon from '../ui/components/Icon';
 import {connect, Dispatch} from "react-redux";
 import {deleteNodes, nodesSelect, nodeUpdate} from "../graph/graphActions";
 import getDirectlyRelatedNodes from "../graph/helpers/getDirectlyRelatedNodes";

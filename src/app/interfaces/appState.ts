@@ -15,5 +15,5 @@ export interface AppState {
     datasources: DatasourcesState;
     stats: StatsState;
     table: TableState;
-    utils: any;
+    ui: any;
 }

@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 
-export default class Icon extends Component {
+export default class Icon extends React.Component<any, any> {
     render() {
         const { name } = this.props;
         return (

@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { connect} from 'react-redux';
-import {Icon} from "../index";
-import {closePane, openPane} from "../../utils/utilsActions";
+import Icon from '../../ui/components/Icon';
+import {closePane} from "../../ui/uiActions";
 import Tooltip from 'rc-tooltip';
-import {setSelectingMode, toggleLabels} from '../../modules/graph/graphActions';
-import Filter from "../../modules/graph/components/Filter";
-import {AppState} from "../../interfaces/appState";
+import {setSelectingMode, toggleLabels} from '../graphActions';
+import Filter from "./Filter";
+import {AppState} from "../../../interfaces/appState";
+import {openPane} from "../../ui/uiActions";
 
 class Navigation extends React.Component<any, any> {
     enableMoving() {
@@ -132,7 +133,7 @@ class Navigation extends React.Component<any, any> {
 const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
-        panes: state.utils.panes,
+        panes: state.ui.panes,
         selectingMode: state.graph.selectingMode,
         showLabels: state.graph.showLabels
     };

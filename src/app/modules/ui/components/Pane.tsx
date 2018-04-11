@@ -1,10 +1,11 @@
 import * as React from 'react';
 import Rnd from 'react-rnd';
-import { Icon } from '../index';
-import { closePane, openPane } from '../../utils/index';
-import {movePaneToTop, setPaneConfig} from "../../utils/utilsActions";
+import Icon from './Icon';
+import { closePane, openPane } from '../uiActions';
+import {movePaneToTop} from "../uiActions";
 import { debounce } from 'lodash';
 import { EventEmitter } from 'fbemitter';
+import {setPaneConfig} from "../uiActions";
 
 class Pane extends React.Component<any, any> {
     rnd: any;

@@ -16,7 +16,7 @@ import root from './rootReducer';
 import { persistState } from './helpers/index';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import thunk from 'redux-thunk';
-import {defaultUtilsState} from "./utils/utilsReducer";
+import {defaultUiState} from "./modules/ui/uiReducer";
 import {defaultDatasourcesState} from './modules/datasources/datasourcesReducer';
 import {defaultContextMenuState} from './modules/contextMenu/contextMenuReducer';
 import createWorkerMiddleware from 'redux-worker-middleware';
@@ -36,7 +36,7 @@ const defaultState: AppState = {
     datasources: defaultDatasourcesState,
     contextMenu: defaultContextMenuState,
     fields: defaultFieldsState,
-    utils: defaultUtilsState,
+    ui: defaultUiState,
     stats: defaultStatsState,
     table: defaultTableState
 };

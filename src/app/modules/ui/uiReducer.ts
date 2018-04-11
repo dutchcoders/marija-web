@@ -1,5 +1,9 @@
-import { OPEN_PANE, CLOSE_PANE} from './index';
-import {MOVE_PANE_TO_TOP, SET_PANE_CONFIG} from "./utilsConstants";
+import {
+    CLOSE_PANE,
+    MOVE_PANE_TO_TOP,
+    OPEN_PANE,
+    SET_PANE_CONFIG
+} from "./uiConstants";
 import {each} from 'lodash';
 
 const defaultPane = {
@@ -17,7 +21,7 @@ const defaultPane = {
     zIndex: 2
 };
 
-export const defaultUtilsState = {
+export const defaultUiState = {
     panes: {
         configuration: Object.assign({}, defaultPane, {
             open: true,
@@ -56,7 +60,7 @@ export const defaultUtilsState = {
     }
 };
 
-export default function utilsReducer(state = defaultUtilsState, action) {
+export default function uiReducer(state = defaultUiState, action) {
 
     switch (action.type) {
         case OPEN_PANE: {

@@ -2,12 +2,10 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
 import { map, uniq, filter, concat, without, find, differenceWith, sortBy, debounce, isEqual } from 'lodash';
-
-import { Icon } from '../../../components/index';
+import Icon from '../../ui/components/Icon';
 import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../index';
 import {filterSearchResults} from "../../search/searchActions";
 import {showTooltip} from "../graphActions";
-import displayFilter from "../../helpers/displayFilter";
 import {getNodesForDisplay} from '../graphSelectors';
 
 class Filter extends React.Component {

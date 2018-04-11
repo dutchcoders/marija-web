@@ -48,7 +48,7 @@ function select(state: AppState, ownProps) {
         date_fields: state.graph.date_fields,
         datasources: state.datasources.datasources,
         normalizations: state.graph.normalizations,
-        utils: state.utils,
+        utils: state.ui,
         fields: state.fields,
     };
 }

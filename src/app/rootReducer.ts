@@ -7,12 +7,12 @@ import statsReducer from "./modules/stats/statsReducer";
 import graphReducer from "./modules/graph/graphReducer";
 import fieldsReducer from "./modules/fields/fieldsReducer";
 import datasourcesReducer from "./modules/datasources/datasourcesReducer";
-import utilsReducer from "./utils/utilsReducer";
+import uiReducer from "./modules/ui/uiReducer";
 import tableReducer from "./modules/table/tableReducer";
 
 const appReducer = combineReducers({
     graph: graphReducer,
-    utils: utilsReducer,
+    ui: uiReducer,
     datasources: datasourcesReducer,
     fields: fieldsReducer,
     contextMenu: contextMenuReducer,

@@ -3,7 +3,8 @@ import {connect, Dispatch} from 'react-redux';
 import Tooltip from 'rc-tooltip';
 import SkyLight from 'react-skylight';
 import SketchPicker from 'react-color';
-import {Query, Icon, Loader} from "../../../components/index";
+import Query from "./Query";
+import Icon from '../../ui/components/Icon';
 import {editSearch} from "../searchActions";
 import {Search} from "../interfaces/search";
 import {Node} from "../../graph/interfaces/node";
@@ -15,7 +16,6 @@ import {
     datasourceDeactivated
 } from "../../datasources/datasourcesActions";
 import {Field} from "../../fields/interfaces/field";
-import Url from "../../../helpers/Url";
 import {AppState} from "../../../interfaces/appState";
 
 interface Props {

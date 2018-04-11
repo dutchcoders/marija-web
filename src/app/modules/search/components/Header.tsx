@@ -1,11 +1,10 @@
 import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
-import { SearchBox, searchRequest } from '../modules/search/index';
-import Url from "../helpers/Url";
-import {error} from '../utils';
-import {Datasource} from "../modules/datasources/interfaces/datasource";
-import {Field} from "../modules/fields/interfaces/field";
-import {AppState} from "../interfaces/appState";
+import { SearchBox, searchRequest } from '../index';
+import Url from "../../../helpers/Url";
+import {Datasource} from "../../datasources/interfaces/datasource";
+import {Field} from "../../fields/interfaces/field";
+import {AppState} from "../../../interfaces/appState";
 
 interface Props {
     connected: boolean;
