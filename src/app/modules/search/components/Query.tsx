@@ -6,7 +6,7 @@ import Icon from '../../ui/components/Icon';
 import { deleteSearch, editSearch } from '../index';
 import Url from "../../../helpers/Url";
 import Tooltip from 'rc-tooltip';
-import {cancelRequest} from "../../../utils/utilsActions";
+import {cancelRequest} from "../../connection/connectionActions";
 import {deleteNodes, deselectNodes} from "../../graph/graphActions";
 import {Search} from "../interfaces/search";
 import {Node} from "../../graph/interfaces/node";

@@ -1,6 +1,6 @@
 import { concat, without, remove, assign, find, uniqueId, isEqual, chunk } from 'lodash';
 
-import {  AUTH_CONNECTED} from '../../utils/index';
+import {  AUTH_CONNECTED} from '../connection/connectionConstants';
 import {ERROR} from '../ui/uiConstants';
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from './index';
 import {
@@ -15,7 +15,7 @@ import { getQueryColor,
 import removeNodesAndLinks from "./helpers/removeNodesAndLinks";
 import {VIA_DELETE} from "./graphConstants";
 import {NODES_TOOLTIP, SET_SELECTING_MODE, TOGGLE_LABELS} from "./graphConstants";
-import {REQUEST_COMPLETED} from "../../utils/utilsConstants";
+import {REQUEST_COMPLETED} from "../connection/connectionConstants";
 import {SEARCH_FIELDS_UPDATE} from "../search/searchConstants";
 import {Node} from './interfaces/node';
 import {Link} from "./interfaces/link";

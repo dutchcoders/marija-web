@@ -7,7 +7,7 @@ import ContextMenu from '../modules/contextMenu/contextMenu';
 import Stats from '../modules/stats/stats';
 import Circle from '../modules/graph/components/chordDiagram/chordDiagram';
 import {AppState} from "../interfaces/appState";
-import {webSocketConnect} from "../utils/utilsActions";
+import {webSocketConnect} from "../modules/connection/connectionActions";
 import Table from '../modules/table/table';
 import Navigation from "../modules/graph/components/Navigation";
 import ConfigurationView from "./Configuration/ConfigurationView";

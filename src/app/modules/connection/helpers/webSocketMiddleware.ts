@@ -1,21 +1,21 @@
 import {
     REQUEST_COMPLETED, WEB_SOCKET_CONNECT,
     WEB_SOCKET_SEND
-} from '../utils/utilsConstants';
+} from '../connectionConstants';
 import * as ReconnectingWebsocket from 'reconnecting-websocket';
 import {Dispatch, Middleware} from 'redux';
-import {authConnected} from "../utils/index";
-import {error} from '../modules/ui/uiActions';
-import {Item} from "../modules/graph/interfaces/item";
-import {liveReceive, searchReceive} from "../modules/search/searchActions";
-import {requestCompleted} from "../utils/utilsActions";
-import {receiveItems} from "../modules/items/tableActions";
-import {FIELDS_RECEIVE} from "../modules/fields/fieldsConstants";
-import {receiveFields} from "../modules/fields/fieldsActions";
-import {LIVE_RECEIVE, SEARCH_RECEIVE} from "../modules/search/searchConstants";
-import {ITEMS_RECEIVE} from "../modules/items/tableConstants";
-import {INITIAL_STATE_RECEIVE} from "../modules/datasources/datasourcesConstants";
-import {receiveInitialState} from "../modules/datasources/datasourcesActions";
+import {authConnected} from "../connectionActions";
+import {error} from '../../ui/uiActions';
+import {Item} from "../../graph/interfaces/item";
+import {liveReceive, searchReceive} from "../../search/searchActions";
+import {requestCompleted} from "../connectionActions";
+import {receiveItems} from "../../items/tableActions";
+import {FIELDS_RECEIVE} from "../../fields/fieldsConstants";
+import {receiveFields} from "../../fields/fieldsActions";
+import {LIVE_RECEIVE, SEARCH_RECEIVE} from "../../search/searchConstants";
+import {ITEMS_RECEIVE} from "../../items/tableConstants";
+import {INITIAL_STATE_RECEIVE} from "../../datasources/datasourcesConstants";
+import {receiveInitialState} from "../../datasources/datasourcesActions";
 import Timer = NodeJS.Timer;
 
 let opened: Promise<ReconnectingWebsocket>;

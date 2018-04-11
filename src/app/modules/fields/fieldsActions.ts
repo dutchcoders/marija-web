@@ -2,7 +2,7 @@ import {FIELDS_CLEAR, FIELDS_RECEIVE, FIELDS_REQUEST} from './index';
 import {Datasource} from "../datasources/interfaces/datasource";
 import {Field} from "./interfaces/field";
 import {Via} from "../graph/interfaces/via";
-import {webSocketSend} from "../../utils/utilsActions";
+import {webSocketSend} from "../connection/connectionActions";
 import {
     DATE_FIELD_ADD,
     DATE_FIELD_DELETE,

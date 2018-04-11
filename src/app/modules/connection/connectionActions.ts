@@ -4,7 +4,7 @@ import {
     REQUEST_COMPLETED,
     WEB_SOCKET_CONNECT,
     WEB_SOCKET_SEND
-} from './utilsConstants';
+} from './connectionConstants';
 
 export function requestCompleted(requestId) {
     return {

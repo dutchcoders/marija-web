@@ -23,7 +23,7 @@ import createWorkerMiddleware from 'redux-worker-middleware';
 import {defaultStatsState} from './modules/stats/statsReducer';
 import {AppState} from "./interfaces/appState";
 import {defaultFieldsState} from "./modules/fields/fieldsReducer";
-import {webSocketMiddleware} from './helpers/webSocketMiddleware';
+import {webSocketMiddleware} from './modules/connection/helpers/webSocketMiddleware';
 import {defaultGraphState} from "./modules/graph/graphReducer";
 import {defaultTableState} from "./modules/table/tableReducer";
 
