@@ -5,13 +5,14 @@ import { normalizationAdd, normalizationDelete, viaDelete, viaAdd } from '../../
 import Icon from '../../../ui/components/Icon';
 import Workspaces from "../../helpers/Workspaces";
 import {saveAs} from 'file-saver';
-import {exportData, importData} from "../../../import/actions";
+import {exportData} from "../../mainActions";
 import {Normalization} from "../../../graph/interfaces/normalization";
 import {Datasource} from "../../../datasources/interfaces/datasource";
 import Fields from '../../../fields/fields';
 import {Via} from "../../../graph/interfaces/via";
 import Url from "../../helpers/Url";
 import {AppState} from "../../interfaces/appState";
+import {importData} from "../../mainActions";
 
 interface State {
     normalization_error: string;
