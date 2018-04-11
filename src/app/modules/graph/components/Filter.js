@@ -5,7 +5,7 @@ import { map, uniq, filter, concat, without, find, differenceWith, sortBy, debou
 
 import { Icon } from '../../../components/index';
 import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../index';
-import {filterSearchResults} from "../../search/actions";
+import {filterSearchResults} from "../../search/searchActions";
 import {showTooltip} from "../graphActions";
 import displayFilter from "../../helpers/displayFilter";
 import {getNodesForDisplay} from '../graphSelectors';

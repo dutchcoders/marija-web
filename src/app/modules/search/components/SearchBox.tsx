@@ -4,7 +4,7 @@ import Tooltip from 'rc-tooltip';
 import SkyLight from 'react-skylight';
 import SketchPicker from 'react-color';
 import {Query, Icon, Loader} from "../../../components/index";
-import {editSearch} from "../actions";
+import {editSearch} from "../searchActions";
 import {Search} from "../interfaces/search";
 import {Node} from "../../graph/interfaces/node";
 import {Datasource} from "../../datasources/interfaces/datasource";

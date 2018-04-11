@@ -13,7 +13,7 @@ import {Node} from "../interfaces/node";
 import {
     activateLiveDatasource, deactivateLiveDatasource, pauseSearch,
     resumeSearch
-} from "../../search/actions";
+} from "../../search/searchActions";
 
 interface Props {
     dispatch: Dispatch<any>;

@@ -8,7 +8,7 @@ import markLinksForDisplay from "./markLinksForDisplay";
 import normalizeLinks from "./normalizeLinks";
 import normalizeNodes from "./normalizeNodes";
 import filterBoringComponents from "./filterBoringComponents";
-import {SEARCH_RECEIVE, LIVE_RECEIVE} from "../../search/constants";
+import {SEARCH_RECEIVE, LIVE_RECEIVE} from "../../search/searchConstants";
 import {Field} from "../../fields/interfaces/field";
 import createField from "../../fields/helpers/createField";
 import {Search} from "../../search/interfaces/search";
@@ -21,7 +21,7 @@ import {Via} from "../interfaces/via";
 import {EventEmitter} from "fbemitter";
 import {Column} from "../../table/interfaces/column";
 import {SortType} from "../../table/interfaces/sortType";
-import {sortItems} from "../../../helpers/sortItems";
+import {sortItems} from "../../items/helpers/sortItems";
 
 export interface GraphWorkerPayload {
     items: Item[];

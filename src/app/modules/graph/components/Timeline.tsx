@@ -11,7 +11,7 @@ import {Node} from "../interfaces/node";
 import {Moment} from "moment";
 import {FormEvent} from "react";
 import {dateFieldAdd, dateFieldDelete} from '../../data/actions';
-import {searchFieldsUpdate} from '../../search/actions';
+import {searchFieldsUpdate} from '../../search/searchActions';
 import {highlightNodes, nodesSelect} from '../graphActions';
 import {BarChart, XAxis, YAxis, Bar, Tooltip} from 'recharts';
 import {Search} from "../../search/interfaces/search";

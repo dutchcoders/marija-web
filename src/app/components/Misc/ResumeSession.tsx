@@ -4,7 +4,7 @@ import {dateFieldAdd, fieldAdd, viaAdd} from "../../modules/data/actions";
 import {
     activateLiveDatasource,
     searchRequest
-} from "../../modules/search/actions";
+} from "../../modules/search/searchActions";
 import Url from "../../helpers/Url";
 import {Field} from "../../modules/fields/interfaces/field";
 import {Via} from "../../modules/graph/interfaces/via";

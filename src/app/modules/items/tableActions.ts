@@ -1,4 +1,4 @@
-import {ITEMS_RECEIVE, ITEMS_REQUEST} from "./constants";
+import {ITEMS_RECEIVE, ITEMS_REQUEST} from "./tableConstants";
 import {Item} from "../graph/interfaces/item";
 import {uniqueId, chunk} from 'lodash';
 import {webSocketSend} from "../../utils/utilsActions";

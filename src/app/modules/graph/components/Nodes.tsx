@@ -4,7 +4,7 @@ import { map, uniq, filter, concat, without, find, differenceWith, sortBy, forEa
 import { Icon } from '../../../components/index';
 import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../index';
 import SkyLight from 'react-skylight';
-import {searchAround} from '../../search/actions';
+import {searchAround} from '../../search/searchActions';
 import {showTooltip} from "../graphActions";
 import {normalizationAdd} from "../../data/index";
 import getDirectlyRelatedNodes from '../helpers/getDirectlyRelatedNodes';

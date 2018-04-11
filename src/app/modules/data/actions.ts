@@ -16,7 +16,7 @@ import {datasourceDeactivated} from "../datasources/datasourcesActions";
 import {
     activateLiveDatasource,
     addLiveDatasourceSearch
-} from "../search/actions";
+} from "../search/searchActions";
 import {Via} from "../graph/interfaces/via";
 import Url from "../../helpers/Url";
 import {AppState} from "../../interfaces/appState";

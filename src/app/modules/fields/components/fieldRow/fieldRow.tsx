@@ -8,7 +8,7 @@ import {connect, Dispatch} from "react-redux";
 import * as styles from './fieldRow.scss';
 import {fieldAdd, fieldDelete, fieldUpdate} from "../../../data";
 import Url from "../../../../helpers/Url";
-import {searchFieldsUpdate} from "../../../search/actions";
+import {searchFieldsUpdate} from "../../../search/searchActions";
 import {fieldNodesHighlight, selectFieldNodes} from "../../../graph/graphActions";
 import {datasourceActivated} from "../../../datasources/datasourcesActions";
 

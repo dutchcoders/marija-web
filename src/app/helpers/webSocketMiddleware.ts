@@ -4,16 +4,16 @@ import {
 } from '../utils/utilsConstants';
 import * as ReconnectingWebsocket from 'reconnecting-websocket';
 import {Dispatch, Middleware} from 'redux';
-import {authConnected, error} from "../utils";
+import {authConnected, error} from "../utils/index";
 import {Item} from "../modules/graph/interfaces/item";
-import {liveReceive, searchReceive} from "../modules/search/actions";
+import {liveReceive, searchReceive} from "../modules/search/searchActions";
 import {requestCompleted} from "../utils/utilsActions";
-import {receiveItems} from "../modules/items/actions";
+import {receiveItems} from "../modules/items/tableActions";
 import {FIELDS_RECEIVE} from "../modules/fields/fieldsConstants";
 import {receiveFields} from "../modules/fields/fieldsActions";
-import {LIVE_RECEIVE, SEARCH_RECEIVE} from "../modules/search/constants";
-import {ITEMS_RECEIVE} from "../modules/items/constants";
-import {INITIAL_STATE_RECEIVE, receiveInitialState} from "../modules/data";
+import {LIVE_RECEIVE, SEARCH_RECEIVE} from "../modules/search/searchConstants";
+import {ITEMS_RECEIVE} from "../modules/items/tableConstants";
+import {INITIAL_STATE_RECEIVE, receiveInitialState} from "../modules/data/index";
 import Timer = NodeJS.Timer;
 
 let opened: Promise<ReconnectingWebsocket>;

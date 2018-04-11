@@ -7,7 +7,7 @@ import {deleteNodes, nodesSelect, nodeUpdate} from "../graph/graphActions";
 import getDirectlyRelatedNodes from "../graph/helpers/getDirectlyRelatedNodes";
 import {Link} from "../graph/interfaces/link";
 import {hideContextMenu} from "./contextMenuActions";
-import {searchAround} from "../search/actions";
+import {searchAround} from "../search/searchActions";
 import {FormEvent} from "react";
 import abbreviateNodeName from '../graph/helpers/abbreviateNodeName';
 import {Search} from "../search/interfaces/search";
