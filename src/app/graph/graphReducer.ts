@@ -10,8 +10,6 @@ import {
 } from './graphConstants';
 import {  SEARCH_DELETE, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DATASOURCE, SEARCH_REQUEST, SEARCH_EDIT } from '../search/searchConstants';
 import {  ADD_LIVE_DATASOURCE_SEARCH } from '../search/searchConstants';
-import { getQueryColor,
-} from '../main/helpers/index';
 import removeNodesAndLinks from "./helpers/removeNodesAndLinks";
 import {VIA_DELETE} from "./graphConstants";
 import {NODES_TOOLTIP, SET_SELECTING_MODE, TOGGLE_LABELS} from "./graphConstants";
@@ -46,6 +44,7 @@ import {
     DATE_FIELD_ADD, DATE_FIELD_DELETE, FIELD_ADD, FIELD_DELETE,
     FIELD_UPDATE
 } from "../fields/fieldsConstants";
+import getQueryColor from '../search/helpers/getQueryColor';
 
 export interface GraphState {
     connected: boolean;
