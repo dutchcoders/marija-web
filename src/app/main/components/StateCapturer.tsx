@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import Workspaces from '../helpers/Workspaces';
+import Workspaces from '../helpers/workspaces';
 import { AppState } from '../interfaces/appState';
 
 class StateCapturer extends React.Component<any, any> {

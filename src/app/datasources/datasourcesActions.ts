@@ -1,5 +1,5 @@
 import { getFields } from '../fields/fieldsActions';
-import Url from '../main/helpers/Url';
+import Url from '../main/helpers/url';
 import { activateLiveDatasource, addLiveDatasourceSearch } from '../search/searchActions';
 import { DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED, INITIAL_STATE_RECEIVE } from './datasourcesConstants';
 import { Datasource } from './interfaces/datasource';

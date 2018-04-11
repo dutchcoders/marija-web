@@ -8,9 +8,9 @@ import Fields from '../../../fields/fields';
 import { normalizationAdd, normalizationDelete, viaAdd, viaDelete } from '../../../graph/graphActions';
 import { Normalization } from '../../../graph/interfaces/normalization';
 import { Via } from '../../../graph/interfaces/via';
-import Icon from '../../../ui/components/Icon';
-import Url from '../../helpers/Url';
-import Workspaces from '../../helpers/Workspaces';
+import Icon from '../../../ui/components/icon';
+import Url from '../../helpers/url';
+import Workspaces from '../../helpers/workspaces';
 import { AppState } from '../../interfaces/appState';
 import { exportData, importData } from '../../mainActions';
 

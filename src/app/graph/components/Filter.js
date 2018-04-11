@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { filterSearchResults } from '../../search/searchActions';
-import Icon from '../../ui/components/Icon';
+import Icon from '../../ui/components/icon';
 import { clearSelection, deleteNodes, deselectNodes, highlightNodes, nodesSelect, nodeUpdate, showTooltip } from '../graphActions';
 import { getNodesForDisplay } from '../graphSelectors';
 

@@ -6,7 +6,7 @@ import { connect, Dispatch } from 'react-redux';
 import { Datasource } from '../datasources/interfaces/datasource';
 import { highlightNodes } from '../graph/graphActions';
 import { AppState } from '../main/interfaces/appState';
-import Loader from '../ui/components/Loader';
+import Loader from '../ui/components/loader';
 import FieldRow from './components/fieldRow/fieldRow';
 import * as styles from './fields.scss';
 import { Field } from './interfaces/field';

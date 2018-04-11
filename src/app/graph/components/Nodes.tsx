@@ -7,7 +7,7 @@ import { Datasource } from '../../datasources/interfaces/datasource';
 import { AppState } from '../../main/interfaces/appState';
 import { Search } from '../../search/interfaces/search';
 import { searchAround } from '../../search/searchActions';
-import Icon from '../../ui/components/Icon';
+import Icon from '../../ui/components/icon';
 import { clearSelection, deleteNodes, deselectNodes, highlightNodes, nodesSelect, nodeUpdate, normalizationAdd, normalizationDelete, showTooltip } from '../graphActions';
 import getDirectlyRelatedNodes from '../helpers/getDirectlyRelatedNodes';
 import getRelatedNodes from '../helpers/getRelatedNodes';

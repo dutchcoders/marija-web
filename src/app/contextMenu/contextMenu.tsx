@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {FormEvent} from 'react';
+import { FormEvent } from 'react';
 import { connect, Dispatch } from 'react-redux';
 
 import { Datasource } from '../datasources/interfaces/datasource';
@@ -11,7 +11,7 @@ import { Node } from '../graph/interfaces/node';
 import { AppState } from '../main/interfaces/appState';
 import { Search } from '../search/interfaces/search';
 import { searchAround } from '../search/searchActions';
-import Icon from '../ui/components/Icon';
+import Icon from '../ui/components/icon';
 import * as styles from './contextMenu.scss';
 import { hideContextMenu } from './contextMenuActions';
 

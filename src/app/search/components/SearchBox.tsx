@@ -1,6 +1,6 @@
 import Tooltip from 'rc-tooltip';
 import * as React from 'react';
-import {FormEvent} from 'react';
+import { FormEvent } from 'react';
 import SketchPicker from 'react-color';
 import { connect, Dispatch } from 'react-redux';
 import SkyLight from 'react-skylight';
@@ -10,10 +10,10 @@ import { Datasource } from '../../datasources/interfaces/datasource';
 import { Field } from '../../fields/interfaces/field';
 import { Node } from '../../graph/interfaces/node';
 import { AppState } from '../../main/interfaces/appState';
-import Icon from '../../ui/components/Icon';
+import Icon from '../../ui/components/icon';
 import { Search } from '../interfaces/search';
 import { editSearch } from '../searchActions';
-import Query from './Query';
+import Query from './query';
 import * as styles from './searchBox.scss';
 
 interface Props {

@@ -6,9 +6,8 @@ import { GraphWorkerPayload } from '../graph/helpers/graphWorkerClass';
 import { Node } from '../graph/interfaces/node';
 import { Item } from '../items/interfaces/item';
 import { AppState } from '../main/interfaces/appState';
-import { SEARCH_DELETE, SEARCH_EDIT, SEARCH_RECEIVE, SEARCH_REQUEST } from './index';
 import { Search } from './interfaces/search';
-import { ACTIVATE_LIVE_DATASOURCE, ADD_LIVE_DATASOURCE_SEARCH, DEACTIVATE_LIVE_DATASOURCE, LIVE_RECEIVE, SEARCH_FIELDS_UPDATE } from './searchConstants';
+import { ACTIVATE_LIVE_DATASOURCE, ADD_LIVE_DATASOURCE_SEARCH, DEACTIVATE_LIVE_DATASOURCE, LIVE_RECEIVE, SEARCH_DELETE, SEARCH_EDIT, SEARCH_FIELDS_UPDATE, SEARCH_RECEIVE, SEARCH_REQUEST } from './searchConstants';
 
 export function searchRequest(query: string, datasourceIds: string[]) {
     return (dispatch, getState) => {

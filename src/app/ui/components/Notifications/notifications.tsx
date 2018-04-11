@@ -3,7 +3,7 @@ import { connect, Dispatch } from 'react-redux';
 
 import { AppState } from '../../../main/interfaces/appState';
 import { error } from '../../../ui/uiActions';
-import Icon from '../Icon';
+import Icon from '../icon';
 import * as styles from './notifications.scss';
 
 interface Props {

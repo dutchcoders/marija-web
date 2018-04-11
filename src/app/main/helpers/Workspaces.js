@@ -1,4 +1,4 @@
-import Migrations from './Migrations';
+import Migrations from './migrations';
 
 export default class Workspaces {
     

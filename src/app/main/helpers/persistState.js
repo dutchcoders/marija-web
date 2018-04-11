@@ -1,5 +1,5 @@
-import Url from './Url';
-import Workspaces from './Workspaces';
+import Url from './url';
+import Workspaces from './workspaces';
 
 export default function persistState() {
     return (next) => (reducer, initialState, enhancer) => {

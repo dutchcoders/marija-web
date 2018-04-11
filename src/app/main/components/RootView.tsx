@@ -4,17 +4,17 @@ import { connect } from 'react-redux';
 
 import { webSocketConnect } from '../../connection/connectionActions';
 import ContextMenu from '../../contextMenu/contextMenu';
+import Circle from '../../graph/components/chordDiagram/chordDiagram';
 import Filter from '../../graph/components/filter';
 import Navigation from '../../graph/components/navigation';
 import Nodes from '../../graph/components/nodes';
 import Timeline from '../../graph/components/timeline';
-import Circle from '../../graph/components/chordDiagram/chordDiagram';
 import Graph from '../../graph/graph';
-import Header from '../../search/components/Header';
+import Header from '../../search/components/header';
 import Stats from '../../stats/stats';
 import Table from '../../table/table';
-import Notifications from '../../ui/components/Notifications/notifications';
-import Pane from '../../ui/components/Pane';
+import Notifications from '../../ui/components/notifications/notifications';
+import Pane from '../../ui/components/pane';
 import { AppState } from '../interfaces/appState';
 import Configuration from './configuration/configuration';
 

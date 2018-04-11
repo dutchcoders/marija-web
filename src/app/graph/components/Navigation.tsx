@@ -3,7 +3,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import { AppState } from '../../main/interfaces/appState';
-import Icon from '../../ui/components/Icon';
+import Icon from '../../ui/components/icon';
 import { closePane, openPane } from '../../ui/uiActions';
 import { setSelectingMode, toggleLabels } from '../graphActions';
 import Filter from './filter';

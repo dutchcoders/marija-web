@@ -4,9 +4,9 @@ import { connect, Dispatch } from 'react-redux';
 
 import { datasourceActivated } from '../../../datasources/datasourcesActions';
 import { fieldNodesHighlight, selectFieldNodes } from '../../../graph/graphActions';
-import Url from '../../../main/helpers/Url';
+import Url from '../../../main/helpers/url';
 import { searchFieldsUpdate } from '../../../search/searchActions';
-import Icon from '../../../ui/components/Icon';
+import Icon from '../../../ui/components/icon';
 import { fieldAdd, fieldDelete, fieldUpdate } from '../../fieldsActions';
 import { Field } from '../../interfaces/field';
 import FieldType from '../fieldType';

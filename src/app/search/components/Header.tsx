@@ -3,9 +3,10 @@ import { connect, Dispatch } from 'react-redux';
 
 import { Datasource } from '../../datasources/interfaces/datasource';
 import { Field } from '../../fields/interfaces/field';
-import Url from '../../main/helpers/Url';
+import Url from '../../main/helpers/url';
 import { AppState } from '../../main/interfaces/appState';
-import { SearchBox, searchRequest } from '../index';
+import { searchRequest } from '../searchActions';
+import SearchBox from './searchBox';
 
 interface Props {
     connected: boolean;

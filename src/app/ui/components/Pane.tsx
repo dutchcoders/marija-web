@@ -4,7 +4,7 @@ import * as React from 'react';
 import Rnd from 'react-rnd';
 
 import { closePane, movePaneToTop, openPane, setPaneConfig } from '../uiActions';
-import Icon from './Icon';
+import Icon from './icon';
 
 class Pane extends React.Component<any, any> {
     rnd: any;

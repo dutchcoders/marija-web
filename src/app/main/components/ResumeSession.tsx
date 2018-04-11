@@ -5,7 +5,7 @@ import {
     activateLiveDatasource,
     searchRequest
 } from "../../search/searchActions";
-import Url from "../helpers/Url";
+import Url from "../helpers/url";
 import {Field} from "../../fields/interfaces/field";
 import {Via} from "../../graph/interfaces/via";
 import {AppState} from "../interfaces/appState";

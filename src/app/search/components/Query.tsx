@@ -6,11 +6,10 @@ import { connect, Dispatch } from 'react-redux';
 import { cancelRequest } from '../../connection/connectionActions';
 import { deleteNodes, deselectNodes, nodesSelect } from '../../graph/graphActions';
 import { Node } from '../../graph/interfaces/node';
-import Url from '../../main/helpers/Url';
-import Icon from '../../ui/components/Icon';
-import { deleteSearch, editSearch } from '../index';
+import Url from '../../main/helpers/url';
+import Icon from '../../ui/components/icon';
 import { Search } from '../interfaces/search';
-import { activateLiveDatasource, deactivateLiveDatasource, pauseSearch, resumeSearch } from '../searchActions';
+import { activateLiveDatasource, deactivateLiveDatasource, deleteSearch, editSearch, pauseSearch, resumeSearch } from '../searchActions';
 
 interface Props {
     dispatch: Dispatch<any>;

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Icon from '../../ui/components/Icon';
+import Icon from '../../ui/components/icon';
 
 const fieldTypes = {
     string: 'ion-document-text',

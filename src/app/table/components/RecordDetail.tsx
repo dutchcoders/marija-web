@@ -3,7 +3,7 @@ import Tooltip from 'rc-tooltip';
 import * as React from 'react';
 
 import fieldLocator from '../../fields/helpers/fieldLocator';
-import Icon from '../../ui/components/Icon';
+import Icon from '../../ui/components/icon';
 import Expandable from './expandable/expandable';
 
 export default class Record extends React.Component<any, any> {
