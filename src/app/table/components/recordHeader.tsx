@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 
 import fieldLocator from '../../fields/helpers/fieldLocator';
-import { Icon } from '../../main/components/index';
+import Icon from '../../ui/components/icon';
 
-export default class Record extends Component {
+export default class Record extends React.Component<any, any> {
     constructor(props) {
         super(props);
 
@@ -25,7 +25,6 @@ export default class Record extends Component {
             const field_value = record.highlight[value] || fieldLocator(record.fields, value) ;
             return (
                 <td key={ 'column_' + record.id + value }>
-                    { queries }
                     <span className={'length-limiter'}
                           title={ fieldLocator(record.fields, value) } dangerouslySetInnerHTML={{ __html: value }}></span>
                 </td>
@@ -34,7 +33,7 @@ export default class Record extends Component {
 
         return (
             <tr className={`columns ${expanded ? 'expanded' : 'closed'}`}>
-                <td width="25" style={{'textAlign': 'center'}}>
+                <td style={{'textAlign': 'center'}}>
                     <Icon onClick={() => this.toggleExpand(record.id) }
                           name={expanded ? 'ion-ios-remove' : 'ion-ios-add'}/>
                 </td>

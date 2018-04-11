@@ -17,7 +17,7 @@ import { defaultGraphState } from '../graph/graphReducer';
 import { defaultStatsState } from '../stats/statsReducer';
 import { defaultTableState } from '../table/tableReducer';
 import { defaultUiState } from '../ui/uiReducer';
-import StateCapturer from './components/StateCapturer';
+import StateCapturer from './components/stateCapturer';
 import ResumeSession from './components/resumeSession';
 import RootView from './components/rootView';
 import persistState from './helpers/persistState';
