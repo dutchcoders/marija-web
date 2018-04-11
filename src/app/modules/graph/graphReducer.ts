@@ -11,7 +11,7 @@ import {  SEARCH_DELETE, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DATASOURCE, S
 import {  ADD_LIVE_DATASOURCE_SEARCH } from '../search/constants';
 import { FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../data/index';
 
-import { removeDeadLinks, applyVia, getQueryColor, deleteFieldFromNodes
+import { getQueryColor,
 } from '../../helpers/index';
 import removeNodesAndLinks from "./helpers/removeNodesAndLinks";
 import {VIA_ADD, VIA_DELETE} from "../data/constants";
@@ -29,8 +29,7 @@ import normalizeLinks from "./helpers/normalizeLinks";
 import denormalizeNodes from "./helpers/denormalizeNodes";
 import denormalizeLinks from "./helpers/denormalizeLinks";
 import darkenColor from "../../helpers/darkenColor";
-import {Column} from "../table/interfaces/column";
-import createField from "../../helpers/createField";
+import createField from "../fields/helpers/createField";
 import {Field} from "../fields/interfaces/field";
 import {Via} from "./interfaces/via";
 import removeVia from "./helpers/removeVia";
@@ -38,11 +37,12 @@ import markHighlightedNodes from "./helpers/markHighlightedNodes";
 import markLinksForDisplay from "./helpers/markLinksForDisplay";
 import markNodesForDisplay from "./helpers/markNodesForDisplay";
 import {sortItems} from "../../helpers/sortItems";
-import {SortType} from "../table/interfaces/sortType";
-import datasources from "../datasources/datasourcesReducer";
 import {selectNodes} from "./helpers/selectNodes";
 import {deselectNodes} from "./helpers/deselectNodes";
 import {TABLE_SORT} from "../table/tableConstants";
+import deleteFieldFromNodes from './helpers/deleteFieldFromNodes';
+import removeDeadLinks from './helpers/removeDeadLinks';
+import applyVia from './helpers/applyVia';
 
 export interface GraphState {
     connected: boolean;

@@ -6,7 +6,8 @@ import {
     nodesSelect, highlightNodes, deselectNodes, showTooltip,
     setSelectingMode, clearSelection
 } from './graphActions';
-import { getArcParams, getDirectlyRelatedNodes } from '../../helpers/index.js';
+import getArcParams from './helpers/getArcParams';
+import getDirectlyRelatedNodes from './helpers/getDirectlyRelatedNodes';
 import * as PIXI from 'pixi.js';
 import {Search} from "../search/interfaces/search";
 import {Node} from "./interfaces/node";

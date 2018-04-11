@@ -1,5 +1,5 @@
 import { FIELDS_RECEIVE, FIELDS_REQUEST, FIELDS_CLEAR } from './index'
-import sortFields from "../../helpers/sortFields";
+import sortFields from "./helpers/sortFields";
 import {Field} from "./interfaces/field";
 import {DefaultConfigs} from "../datasources/interfaces/defaultConfigs";
 

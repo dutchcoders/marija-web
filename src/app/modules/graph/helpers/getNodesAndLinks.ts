@@ -1,4 +1,4 @@
-import fieldLocator from "../../../helpers/fieldLocator";
+import fieldLocator from "../../fields/helpers/fieldLocator";
 import abbreviateNodeName from "./abbreviateNodeName";
 import {Node} from "../interfaces/node";
 import {Link} from "../interfaces/link";

@@ -10,7 +10,7 @@ import normalizeNodes from "./normalizeNodes";
 import filterBoringComponents from "./filterBoringComponents";
 import {SEARCH_RECEIVE, LIVE_RECEIVE} from "../../search/constants";
 import {Field} from "../../fields/interfaces/field";
-import createField from "../../../helpers/createField";
+import createField from "../../fields/helpers/createField";
 import {Search} from "../../search/interfaces/search";
 import {forEach} from 'lodash';
 import {Item} from "../interfaces/item";

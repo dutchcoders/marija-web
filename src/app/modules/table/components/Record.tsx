@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { fieldLocator } from '../../../helpers/index';
+import fieldLocator from '../../fields/helpers/fieldLocator';
 import { Icon } from '../../../components/index';
 import {Column} from "../interfaces/column";
 import {Item} from "../../graph/interfaces/item";
