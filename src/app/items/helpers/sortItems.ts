@@ -1,4 +1,4 @@
-import {Item} from '../../graph/interfaces/item';
+import {Item} from '../interfaces/item';
 import {Column} from "../../table/interfaces/column";
 import {SortType} from "../../table/interfaces/sortType";
 

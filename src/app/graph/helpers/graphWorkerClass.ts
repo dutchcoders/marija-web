@@ -13,7 +13,7 @@ import {Field} from "../../fields/interfaces/field";
 import createField from "../../fields/helpers/createField";
 import {Search} from "../../search/interfaces/search";
 import {forEach} from 'lodash';
-import {Item} from "../interfaces/item";
+import {Item} from "../../items/interfaces/item";
 import {Node} from "../interfaces/node";
 import {Link} from "../interfaces/link";
 import {Normalization} from "../interfaces/normalization";

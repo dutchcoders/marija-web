@@ -2,7 +2,7 @@ import fieldLocator from "../../fields/helpers/fieldLocator";
 import abbreviateNodeName from "./abbreviateNodeName";
 import {Node} from "../interfaces/node";
 import {Link} from "../interfaces/link";
-import {Item} from "../interfaces/item";
+import {Item} from "../../items/interfaces/item";
 import {Search} from "../../search/interfaces/search";
 import {Field} from "../../fields/interfaces/field";
 

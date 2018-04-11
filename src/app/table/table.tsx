@@ -5,7 +5,7 @@ import { findIndex, pull, concat, map } from 'lodash';
 import Icon from '../ui/components/Icon';
 import { tableSort, tableColumnAdd, tableColumnRemove } from './tableActions';
 import {requestItems} from "../items/itemsActions";
-import {Item} from "../graph/interfaces/item";
+import {Item} from "../items/interfaces/item";
 import {Node} from "../graph/interfaces/node";
 import {Normalization} from "../graph/interfaces/normalization";
 import {Search} from "../search/interfaces/search";

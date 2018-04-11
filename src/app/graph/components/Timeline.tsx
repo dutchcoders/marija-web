@@ -6,7 +6,7 @@ import * as moment from 'moment';
 import fieldLocator from '../../fields/helpers/fieldLocator';
 import {Normalization} from "../interfaces/normalization";
 import {Field} from "../../fields/interfaces/field";
-import {Item} from "../interfaces/item";
+import {Item} from "../../items/interfaces/item";
 import {Node} from "../interfaces/node";
 import {Moment} from "moment";
 import {FormEvent} from "react";

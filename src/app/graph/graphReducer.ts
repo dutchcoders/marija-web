@@ -19,7 +19,7 @@ import {REQUEST_COMPLETED} from "../connection/connectionConstants";
 import {SEARCH_FIELDS_UPDATE} from "../search/searchConstants";
 import {Node} from './interfaces/node';
 import {Link} from "./interfaces/link";
-import {Item} from "./interfaces/item";
+import {Item} from "../items/interfaces/item";
 import {Search} from "../search/interfaces/search";
 import {ITEMS_RECEIVE, ITEMS_REQUEST} from "../items/itemsConstants";
 import normalizeNodes from "./helpers/normalizeNodes";

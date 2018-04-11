@@ -1,5 +1,5 @@
 import {ITEMS_RECEIVE, ITEMS_REQUEST} from "./itemsConstants";
-import {Item} from "../graph/interfaces/item";
+import {Item} from "./interfaces/item";
 import {uniqueId, chunk} from 'lodash';
 import {webSocketSend} from "../connection/connectionActions";
 import {AppState} from "../main/interfaces/appState";

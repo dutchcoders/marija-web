@@ -1,4 +1,4 @@
-import {Node} from "./node";
+import {Node} from "../../graph/interfaces/node";
 
 export interface Item {
     id: string;
