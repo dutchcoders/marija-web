@@ -87,7 +87,7 @@ export const defaultUiState: UiState = {
     }
 };
 
-export default function uiReducer(state = defaultUiState, action) {
+export default function uiReducer(state: UiState = defaultUiState, action): UiState {
 
     switch (action.type) {
         case OPEN_PANE: {
