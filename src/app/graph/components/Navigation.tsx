@@ -6,7 +6,7 @@ import { AppState } from '../../main/interfaces/appState';
 import Icon from '../../ui/components/Icon';
 import { closePane, openPane } from '../../ui/uiActions';
 import { setSelectingMode, toggleLabels } from '../graphActions';
-import Filter from './Filter';
+import Filter from './filter';
 
 class Navigation extends React.Component<any, any> {
     enableMoving() {

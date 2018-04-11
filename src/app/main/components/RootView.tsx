@@ -4,10 +4,10 @@ import { connect } from 'react-redux';
 
 import { webSocketConnect } from '../../connection/connectionActions';
 import ContextMenu from '../../contextMenu/contextMenu';
-import Filter from '../../graph/components/Filter';
-import Navigation from '../../graph/components/Navigation';
-import Nodes from '../../graph/components/Nodes';
-import Timeline from '../../graph/components/Timeline';
+import Filter from '../../graph/components/filter';
+import Navigation from '../../graph/components/navigation';
+import Nodes from '../../graph/components/nodes';
+import Timeline from '../../graph/components/timeline';
 import Circle from '../../graph/components/chordDiagram/chordDiagram';
 import Graph from '../../graph/graph';
 import Header from '../../search/components/Header';
@@ -16,7 +16,7 @@ import Table from '../../table/table';
 import Notifications from '../../ui/components/Notifications/notifications';
 import Pane from '../../ui/components/Pane';
 import { AppState } from '../interfaces/appState';
-import ConfigurationView from './Configuration/ConfigurationView';
+import Configuration from './configuration/configuration';
 
 class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();
@@ -73,7 +73,7 @@ class RootView extends React.Component<any, any> {
                         config={panes.configuration}
                         dispatch={dispatch}
                         container={this.main}>
-                        <ConfigurationView ref="configurationView"/>
+                        <Configuration ref="configurationView"/>
                     </Pane>
 
                     <Pane

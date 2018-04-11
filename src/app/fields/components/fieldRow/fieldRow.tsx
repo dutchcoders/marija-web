@@ -9,7 +9,7 @@ import { searchFieldsUpdate } from '../../../search/searchActions';
 import Icon from '../../../ui/components/Icon';
 import { fieldAdd, fieldDelete, fieldUpdate } from '../../fieldsActions';
 import { Field } from '../../interfaces/field';
-import FieldType from '../FieldType';
+import FieldType from '../fieldType';
 import IconSelector from '../iconSelector/iconSelector';
 import * as styles from './fieldRow.scss';
 

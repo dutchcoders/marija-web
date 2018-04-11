@@ -31,7 +31,7 @@ interface Props {
     fieldsFetching: boolean;
 }
 
-class ConfigurationView extends React.Component<Props, State> {
+class Configuration extends React.Component<Props, State> {
     refs: any;
     state: State = {
         normalization_error: '',
@@ -411,4 +411,4 @@ function select(state: AppState) {
 }
 
 
-export default connect(select)(ConfigurationView);
+export default connect(select)(Configuration);
