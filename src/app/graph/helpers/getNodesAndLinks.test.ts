@@ -1,8 +1,11 @@
 import { uniqueId } from 'lodash';
 
 import getNodesAndLinks from './getNodesAndLinks';
+import {Item} from "../../items/interfaces/item";
+import {Field} from "../../fields/interfaces/field";
+import {Search} from "../../search/interfaces/search";
 
-const generateItem = (fields) => {
+const generateItem = (fields: any = undefined) => {
     if (typeof fields === 'undefined') {
         fields = {
             text: 'test' + uniqueId()
@@ -13,15 +16,19 @@ const generateItem = (fields) => {
         highlight: null,
         id: uniqueId(),
         fields: fields,
-        query: undefined
-    };
+        query: undefined,
+        searchId: null,
+        count: 0,
+        requestedExtraData: false,
+        nodes: []
+    } as Item;
 };
 
 const generateField = (field) => {
     return {
         icon: 'a',
         path: field
-    };
+    } as Field;
 };
 
 const generateQuery = (items) => {
@@ -31,7 +38,7 @@ const generateQuery = (items) => {
         searchId: 'my search',
         total: 100,
         items: items
-    };
+    } as Search;
 };
 
 test('should output nodes', () => {
@@ -173,7 +180,7 @@ test('should filter nodes that are not directly related when searching around a 
 
     const aroundNodeId = 2;
 
-    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, aroundNodeId);
+    const {nodes, links } = getNodesAndLinks(previousNodes as any, previousLinks as any, items as any, fields, query, aroundNodeId as any);
 
     // Nothing should be added, because the new items were not directly related to node id 2
     expect(nodes.length).toBe(2);
@@ -217,7 +224,7 @@ test('should not filter nodes that are directly related when searching around a 
 
     const aroundNodeId = '1';
 
-    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query, aroundNodeId);
+    const {nodes, links } = getNodesAndLinks(previousNodes as any, previousLinks as any, items as any, fields, query, aroundNodeId);
 
     // 1 node should be added, because the new items were directly related to node id 1
     expect(nodes.length).toBe(3);
@@ -246,7 +253,7 @@ test('should not not create nodes for empty field values', () => {
 
     const query = generateQuery(items);
 
-    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
+    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
 
     expect(nodes.length).toBe(2);
     expect(links.length).toBe(1);
@@ -280,7 +287,7 @@ test('should keep track of item ids, especially when there are multiple lines be
 
     const query = generateQuery(items);
 
-    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
+    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
 
     expect(nodes.length).toBe(2);
     expect(links.length).toBe(1);
@@ -315,8 +322,8 @@ test('should not add the same item id multiple times when function is run twice'
 
     const query = generateQuery(items);
 
-    let result = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
-    result = getNodesAndLinks(result.nodes, result.links, items, fields, query);
+    let result = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+    result = getNodesAndLinks(result.nodes, result.links, items as any, fields, query);
 
     expect(result.nodes.length).toBe(2);
     expect(result.links.length).toBe(1);
@@ -344,7 +351,7 @@ test('should build links between array values', () => {
 
     const query = generateQuery(items);
 
-    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
+    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
 
     expect(nodes.length).toBe(4);
     expect(links.length).toBe(3);

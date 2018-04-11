@@ -30,7 +30,7 @@ test('should remove nodes', () => {
         generateNode('test2', ['test query 2'])
     ];
 
-    const {nodes, links} = removeNodesAndLinks(previousNodes, [], 'test query 1');
+    const {nodes, links} = removeNodesAndLinks(previousNodes as any, [], 'test query 1');
 
     expect(nodes.length).toBe(1);
 });
@@ -45,7 +45,7 @@ test('should remove links to nodes that no longer exist', () => {
         generateLink('test1', 'test2')
     ];
 
-    const {nodes, links} = removeNodesAndLinks(previousNodes, previousLinks, 'test query 1');
+    const {nodes, links} = removeNodesAndLinks(previousNodes as any, previousLinks as any, 'test query 1');
 
     expect(links.length).toBe(0);
 });

@@ -36,7 +36,7 @@ export default function getNodesAndLinks(
     items: Item[],
     fields: Field[],
     search: Search,
-    aroundNodeId: string,
+    aroundNodeId: string = undefined,
     deletedNodes: Node[] = []
 ): {
     nodes: Node[],

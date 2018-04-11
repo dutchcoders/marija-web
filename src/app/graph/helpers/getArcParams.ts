@@ -1,4 +1,4 @@
-export default function getArcParams(x1, y1, x2, y2, bend) {
+export default function getArcParams(x1: number, y1: number, x2: number, y2: number, bend: number) {
     // find mid point
     const averageX = (x1 + x2) / 2;
     const averageY = (y1 + y2) / 2;
