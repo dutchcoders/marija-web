@@ -1,4 +1,4 @@
-import {DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED} from './index'
+import {DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED} from './datasourcesConstants'
 import {INITIAL_STATE_RECEIVE} from "./datasourcesConstants";
 import {Datasource} from "./interfaces/datasource";
 import {getFields} from "../fields/fieldsActions";

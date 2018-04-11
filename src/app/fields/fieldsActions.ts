@@ -1,4 +1,4 @@
-import {FIELDS_CLEAR, FIELDS_RECEIVE, FIELDS_REQUEST} from './index';
+import {FIELDS_CLEAR, FIELDS_RECEIVE, FIELDS_REQUEST} from './fieldsConstants';
 import {Datasource} from "../datasources/interfaces/datasource";
 import {Field} from "./interfaces/field";
 import {Via} from "../graph/interfaces/via";

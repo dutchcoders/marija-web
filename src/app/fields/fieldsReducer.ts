@@ -1,4 +1,4 @@
-import { FIELDS_RECEIVE, FIELDS_REQUEST, FIELDS_CLEAR } from './index'
+import { FIELDS_RECEIVE, FIELDS_REQUEST, FIELDS_CLEAR } from './fieldsConstants'
 import sortFields from "./helpers/sortFields";
 import {Field} from "./interfaces/field";
 import {DefaultConfigs} from "../datasources/interfaces/defaultConfigs";
