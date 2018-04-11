@@ -3,14 +3,14 @@ import { assign, clone, difference, each, find, forEach, groupBy, includes, isEq
 
 let simulation = null;
 let timer = null;
-let nodes = [];
-let links = [];
+let workerNodes = [];
+let workerLinks = [];
 
 onmessage = function(event) {
     if (event.data.type === "restart") {
         let { nodes } = event.data;
 
-        for (let n1 of this.nodes) {
+        for (let n1 of workerNodes) {
             for (let n2 of nodes) {
                 if (n1.id !== n2.id)
                     continue;
@@ -24,7 +24,7 @@ onmessage = function(event) {
     } else if (event.data.type === 'stop') {
         let { nodes } = event.data;
 
-        for (let n1 of this.nodes) {
+        for (let n1 of workerNodes) {
             for (let n2 of nodes) {
                 if (n1.id !== n2.id)
                     continue;
@@ -39,7 +39,7 @@ onmessage = function(event) {
         let { clientWidth, clientHeight } = event.data;
 
         const forceLink = d3.forceLink()
-            .distance(link => {
+            .distance((link: any) => {
                 if (!link.label) {
                     return 80;
                 }
@@ -52,7 +52,7 @@ onmessage = function(event) {
 
                 return label.length * 10 + 30;
             })
-            .id((d) => d.id);
+            .id((d: any) => d.id);
 
         const forceManyBody = d3.forceManyBody()
             .strength(-100)
@@ -64,15 +64,15 @@ onmessage = function(event) {
             .force("link", forceLink)
             .force("charge", forceManyBody)
             .force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
-            .force('collide', d3.forceCollide(node => node.r))
+            .force('collide', d3.forceCollide((node: any) => node.r))
             .force("vertical", d3.forceY().strength(0.018))
             .force("horizontal", d3.forceX().strength(0.006))
             .on("tick", () => {
-                postMessage({type: "tick", nodes: this.nodes, links: this.links });
+                postMessage({type: "tick", nodes: workerNodes, links: workerLinks });
             });
 
-        this.nodes = [];
-        this.links = [];
+        workerNodes = [];
+        workerLinks = [];
     } else if (event.data.type === 'tick') {
     } else if (event.data.type === 'update') {
         let { nodes, links } = event.data;
@@ -84,17 +84,17 @@ onmessage = function(event) {
             return node.r + scale(node.r);
         };
 
-        var countExtent = d3.extent(nodes, (n) => {
+        var countExtent = d3.extent(nodes, (n: any) => {
             return n.count;
         }),
-            radiusScale = d3.scalePow().exponent(2).domain(countExtent).range(sizeRange);
+            radiusScale = d3.scalePow().exponent(2).domain(countExtent as any).range(sizeRange);
 
         var newNodes = false;
 
         var that = this;
 
         // remove deleted nodes
-        remove(this.nodes, (n) => {
+        remove(workerNodes, (n) => {
             return !find(nodes, (o) => {
                 return (o.id==n.id);
             });
@@ -104,7 +104,7 @@ onmessage = function(event) {
             let node = nodes[i];
             // todo(nl5887): cleanup
 
-            var n = find(that.nodes, {id: node.id});
+            var n = find(workerNodes, {id: node.id});
             if (n) {
                 n = assign(n, node);
                 n = assign(n, {force: forceScale(n), r: radiusScale(n.count)});
@@ -116,12 +116,12 @@ onmessage = function(event) {
             let node2 = clone(node);
             node2 = assign(node2, {force: forceScale(node2), r: radiusScale(node2.count)});
 
-            that.nodes.push(node2);
+            workerNodes.push(node2);
 
             newNodes = true;
         }
 
-        remove(this.links, (link) => {
+        remove(workerLinks, (link) => {
             return !find(links, (o) => {
                 return (link.source.id == o.source && link.target.id == o.target);
             });
@@ -130,7 +130,7 @@ onmessage = function(event) {
         for (let i=0; i < links.length; i++) {
             let link = links[i];
 
-            var n = find(that.links, (o) => {
+            var n = find(workerLinks, (o) => {
                 return o.source.id == link.source && o.target.id == link.target;
             });
             
@@ -150,11 +150,11 @@ onmessage = function(event) {
                 thickness: link.thickness
             };
 
-            that.links.push(add);
+            workerLinks.push(add);
         }
 
         simulation
-            .nodes(this.nodes);
+            .nodes(workerNodes);
 
         const connectivity = links.length / nodes.length;
 
@@ -173,7 +173,7 @@ onmessage = function(event) {
         simulation.force('charge', forceManyBody);
 
         const forceLink = d3.forceLink()
-            .distance(link => {
+            .distance((link: any) => {
                 if (!link.label) {
                     return 80 + baseLength;
                 }
@@ -186,12 +186,12 @@ onmessage = function(event) {
 
                 return label.length * 10 + 60 + baseLength;
             })
-            .id((d) => d.id);
+            .id((d: any) => d.id);
 
         simulation.force("link", forceLink);
 
         simulation.force('link')
-            .links(this.links);
+            .links(workerLinks);
 
         simulation
             .alpha(0.5)
@@ -202,15 +202,15 @@ onmessage = function(event) {
         const { nodes } = event.data;
 
         nodes.forEach(node => {
-            const existing = this.nodes.find(search => search.id === node.id);
+            const existing = workerNodes.find(search => search.id === node.id);
 
             Object.assign(existing, node);
         });
 
         postMessage({
             type: "tick",
-            nodes: this.nodes,
-            links: this.links
+            nodes: workerNodes,
+            links: workerLinks
         });
     }
 }
