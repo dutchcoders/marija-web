@@ -1,13 +1,12 @@
 import { concat, debounce, differenceWith, filter, find, isEqual, map, sortBy, uniq, without } from 'lodash';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
-
-import { filterSearchResults } from '../../search/searchActions';
 import Icon from '../../ui/components/icon';
 import { clearSelection, deleteNodes, deselectNodes, highlightNodes, nodesSelect, nodeUpdate, showTooltip } from '../graphActions';
 import { getNodesForDisplay } from '../graphSelectors';
+import {Node} from "../interfaces/node";
 
-class Filter extends React.Component {
+class Filter extends React.Component<any, any> {
     constructor(props) {
         super(props);
 
@@ -129,7 +128,7 @@ class Filter extends React.Component {
             }
         });
 
-        const find_nodes = map(searchResults, (node) => {
+        const find_nodes = map(searchResults, (node: Node) => {
             return (
                 <li key={node.id} onMouseEnter={() => this.displayTooltip(node)}>
                     <input type='checkbox' checked={node.selected} onChange={ (e) => this.handleFindSelectChange(node, e) } />
