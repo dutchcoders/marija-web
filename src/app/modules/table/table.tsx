@@ -10,7 +10,7 @@ import {Node} from "../graph/interfaces/node";
 import {Normalization} from "../graph/interfaces/normalization";
 import {Search} from "../search/interfaces/search";
 import {Field} from "../fields/interfaces/field";
-import { fieldAdd } from '../data/index';
+import { fieldAdd } from '../fields/fieldsActions';
 import {searchFieldsUpdate} from "../search/searchActions";
 import { EventEmitter } from 'fbemitter';
 import {getSelectedNodes} from "../graph/graphSelectors";

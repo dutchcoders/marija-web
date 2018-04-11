@@ -4,17 +4,15 @@ import {  ERROR, AUTH_CONNECTED} from '../../utils/index';
 import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from './index';
 import {
     FIELD_NODES_HIGHLIGHT,
-    GRAPH_WORKER_OUTPUT,
-    SELECT_FIELD_NODES
+    GRAPH_WORKER_OUTPUT, NORMALIZATION_ADD, NORMALIZATION_DELETE,
+    SELECT_FIELD_NODES, VIA_ADD
 } from './graphConstants';
 import {  SEARCH_DELETE, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DATASOURCE, SEARCH_REQUEST, SEARCH_EDIT } from '../search/searchConstants';
 import {  ADD_LIVE_DATASOURCE_SEARCH } from '../search/searchConstants';
-import { FIELD_ADD, FIELD_UPDATE, FIELD_DELETE, DATE_FIELD_ADD, DATE_FIELD_DELETE, NORMALIZATION_ADD, NORMALIZATION_DELETE, INITIAL_STATE_RECEIVE } from '../data/index';
-
 import { getQueryColor,
 } from '../../helpers/index';
 import removeNodesAndLinks from "./helpers/removeNodesAndLinks";
-import {VIA_ADD, VIA_DELETE} from "../data/constants";
+import {VIA_DELETE} from "./graphConstants";
 import {NODES_TOOLTIP, SET_SELECTING_MODE, TOGGLE_LABELS} from "./graphConstants";
 import {REQUEST_COMPLETED} from "../../utils/utilsConstants";
 import {SEARCH_FIELDS_UPDATE} from "../search/searchConstants";
@@ -43,6 +41,10 @@ import {TABLE_SORT} from "../table/tableConstants";
 import deleteFieldFromNodes from './helpers/deleteFieldFromNodes';
 import removeDeadLinks from './helpers/removeDeadLinks';
 import applyVia from './helpers/applyVia';
+import {
+    DATE_FIELD_ADD, DATE_FIELD_DELETE, FIELD_ADD, FIELD_DELETE,
+    FIELD_UPDATE
+} from "../fields/fieldsConstants";
 
 export interface GraphState {
     connected: boolean;

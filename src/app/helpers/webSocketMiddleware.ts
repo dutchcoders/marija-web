@@ -13,7 +13,8 @@ import {FIELDS_RECEIVE} from "../modules/fields/fieldsConstants";
 import {receiveFields} from "../modules/fields/fieldsActions";
 import {LIVE_RECEIVE, SEARCH_RECEIVE} from "../modules/search/searchConstants";
 import {ITEMS_RECEIVE} from "../modules/items/tableConstants";
-import {INITIAL_STATE_RECEIVE, receiveInitialState} from "../modules/data/index";
+import {INITIAL_STATE_RECEIVE} from "../modules/datasources/datasourcesConstants";
+import {receiveInitialState} from "../modules/datasources/datasourcesActions";
 import Timer = NodeJS.Timer;
 
 let opened: Promise<ReconnectingWebsocket>;

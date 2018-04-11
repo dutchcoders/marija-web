@@ -1,6 +1,6 @@
 import { DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED } from './index';
 import {Datasource} from "./interfaces/datasource";
-import {INITIAL_STATE_RECEIVE} from "../data/index";
+import {INITIAL_STATE_RECEIVE} from "./datasourcesConstants";
 import {SEARCH_DELETE} from '../search/searchConstants';
 import {Search} from "../search/interfaces/search";
 

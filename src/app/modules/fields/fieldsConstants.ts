@@ -1,3 +1,8 @@
 export const FIELDS_REQUEST = 'FIELDS_REQUEST';
 export const FIELDS_RECEIVE = 'FIELDS_RECEIVE';
 export const FIELDS_CLEAR = 'FIELDS_CLEAR ';
+export const FIELD_ADD = "FIELD_ADD";
+export const FIELD_DELETE = "FIELD_DELETE";
+export const FIELD_UPDATE = 'FIELD_UPDATE';
+export const DATE_FIELD_ADD = "DATE_FIELD_ADD";
+export const DATE_FIELD_DELETE = "DATE_FIELD_DELETE";

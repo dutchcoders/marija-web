@@ -1,6 +1,25 @@
-import { NODES_DESELECT, NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, SELECTION_CLEAR, SET_SELECTING_MODE, NODES_TOOLTIP } from './index';
-import { GRAPH_WORKER_OUTPUT, FIELD_NODES_HIGHLIGHT, TOGGLE_LABELS, SELECT_FIELD_NODES } from './graphConstants';
+import {
+    NODE_UPDATE,
+    NODES_DELETE,
+    NODES_DESELECT,
+    NODES_HIGHLIGHT,
+    NODES_SELECT,
+    NODES_TOOLTIP,
+    SELECTION_CLEAR,
+    SET_SELECTING_MODE
+} from './index';
+import {
+    FIELD_NODES_HIGHLIGHT,
+    GRAPH_WORKER_OUTPUT,
+    NORMALIZATION_ADD,
+    NORMALIZATION_DELETE,
+    SELECT_FIELD_NODES,
+    TOGGLE_LABELS,
+    VIA_ADD,
+    VIA_DELETE
+} from './graphConstants';
 import {GraphWorkerOutput} from "./helpers/graphWorkerClass";
+import {Via} from "./interfaces/via";
 
 export function deselectNodes(opts) {
     return {
@@ -101,4 +120,36 @@ export function selectFieldNodes(fieldPath: string) {
             fieldPath: fieldPath
         }
     }
+}
+
+export function viaAdd(via: Via) {
+    return {
+        type: VIA_ADD,
+        receivedAt: Date.now(),
+        via: via
+    };
+}
+
+export function viaDelete(via) {
+    return {
+        type: VIA_DELETE,
+        receivedAt: Date.now(),
+        via: via
+    };
+}
+
+export function normalizationAdd(normalization) {
+    return {
+        type: NORMALIZATION_ADD,
+        receivedAt: Date.now(),
+        normalization: normalization
+    };
+}
+
+export function normalizationDelete(normalization) {
+    return {
+        type: NORMALIZATION_DELETE,
+        receivedAt: Date.now(),
+        normalization: normalization
+    };
 }

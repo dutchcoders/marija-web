@@ -6,7 +6,7 @@ import {Field} from "../../interfaces/field";
 import IconSelector from "../iconSelector/iconSelector";
 import {connect, Dispatch} from "react-redux";
 import * as styles from './fieldRow.scss';
-import {fieldAdd, fieldDelete, fieldUpdate} from "../../../data";
+import {fieldAdd, fieldDelete, fieldUpdate} from "../../fieldsActions";
 import Url from "../../../../helpers/Url";
 import {searchFieldsUpdate} from "../../../search/searchActions";
 import {fieldNodesHighlight, selectFieldNodes} from "../../../graph/graphActions";

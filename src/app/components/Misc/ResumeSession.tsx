@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
-import {dateFieldAdd, fieldAdd, viaAdd} from "../../modules/data/actions";
+import {viaAdd} from "../../modules/graph/graphActions";
 import {
     activateLiveDatasource,
     searchRequest
@@ -9,6 +9,7 @@ import Url from "../../helpers/Url";
 import {Field} from "../../modules/fields/interfaces/field";
 import {Via} from "../../modules/graph/interfaces/via";
 import {AppState} from "../../interfaces/appState";
+import {dateFieldAdd, fieldAdd} from "../../modules/fields/fieldsActions";
 
 interface Props {
     history: any;

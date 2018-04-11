@@ -3,7 +3,8 @@ import {
     TABLE_SORT
 } from './tableConstants';
 import {Column} from "./interfaces/column";
-import {FIELD_ADD, FIELD_DELETE} from "../data/constants";
+import {FIELD_DELETE} from "../fields/fieldsConstants";
+import {FIELD_ADD} from "../fields/fieldsConstants";
 
 export interface TableState {
     columns: Column[];

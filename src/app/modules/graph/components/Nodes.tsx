@@ -6,9 +6,9 @@ import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, d
 import SkyLight from 'react-skylight';
 import {searchAround} from '../../search/searchActions';
 import {showTooltip} from "../graphActions";
-import {normalizationAdd} from "../../data/index";
+import {normalizationAdd} from "../graphActions";
 import getDirectlyRelatedNodes from '../helpers/getDirectlyRelatedNodes';
-import {normalizationDelete} from '../../data/actions';
+import {normalizationDelete} from '../graphActions';
 import {Search} from "../../search/interfaces/search";
 import {Node} from "../interfaces/node";
 import {Link} from "../interfaces/link";

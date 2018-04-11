@@ -1,5 +1,5 @@
 import {SET_FPS} from "./statsConstants";
-import {INITIAL_STATE_RECEIVE} from "../data/constants";
+import {INITIAL_STATE_RECEIVE} from "../datasources/datasourcesConstants";
 
 export interface StatsState {
    fps: number;
