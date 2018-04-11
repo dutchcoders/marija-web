@@ -1,7 +1,7 @@
-import { FIELDS_RECEIVE, FIELDS_REQUEST, FIELDS_CLEAR } from './fieldsConstants'
-import sortFields from "./helpers/sortFields";
-import {Field} from "./interfaces/field";
-import {DefaultConfigs} from "../datasources/interfaces/defaultConfigs";
+import { DefaultConfigs } from '../datasources/interfaces/defaultConfigs';
+import { FIELDS_CLEAR, FIELDS_RECEIVE, FIELDS_REQUEST } from './fieldsConstants';
+import sortFields from './helpers/sortFields';
+import { Field } from './interfaces/field';
 
 export interface FieldsState {
     availableFields: Field[];

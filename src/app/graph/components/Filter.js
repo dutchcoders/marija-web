@@ -1,12 +1,11 @@
+import { concat, debounce, differenceWith, filter, find, isEqual, map, sortBy, uniq, without } from 'lodash';
 import React, { Component } from 'react';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 
-import { map, uniq, filter, concat, without, find, differenceWith, sortBy, debounce, isEqual } from 'lodash';
+import { filterSearchResults } from '../../search/searchActions';
 import Icon from '../../ui/components/Icon';
-import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../graphActions';
-import {filterSearchResults} from "../../search/searchActions";
-import {showTooltip} from "../graphActions";
-import {getNodesForDisplay} from '../graphSelectors';
+import { clearSelection, deleteNodes, deselectNodes, highlightNodes, nodesSelect, nodeUpdate, showTooltip } from '../graphActions';
+import { getNodesForDisplay } from '../graphSelectors';
 
 class Filter extends React.Component {
     constructor(props) {

@@ -1,18 +1,18 @@
+import { saveAs } from 'file-saver';
+import { concat, find, isEqual, map, slice, sortBy, uniq } from 'lodash';
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
-import { find, sortBy, map, slice, uniq, concat, isEqual } from 'lodash';
-import { normalizationAdd, normalizationDelete, viaDelete, viaAdd } from '../../../graph/graphActions';
-import Icon from '../../../ui/components/Icon';
-import Workspaces from "../../helpers/Workspaces";
-import {saveAs} from 'file-saver';
-import {exportData} from "../../mainActions";
-import {Normalization} from "../../../graph/interfaces/normalization";
-import {Datasource} from "../../../datasources/interfaces/datasource";
+
+import { Datasource } from '../../../datasources/interfaces/datasource';
 import Fields from '../../../fields/fields';
-import {Via} from "../../../graph/interfaces/via";
-import Url from "../../helpers/Url";
-import {AppState} from "../../interfaces/appState";
-import {importData} from "../../mainActions";
+import { normalizationAdd, normalizationDelete, viaAdd, viaDelete } from '../../../graph/graphActions';
+import { Normalization } from '../../../graph/interfaces/normalization';
+import { Via } from '../../../graph/interfaces/via';
+import Icon from '../../../ui/components/Icon';
+import Url from '../../helpers/Url';
+import Workspaces from '../../helpers/Workspaces';
+import { AppState } from '../../interfaces/appState';
+import { exportData, importData } from '../../mainActions';
 
 interface State {
     normalization_error: string;

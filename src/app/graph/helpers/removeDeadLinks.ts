@@ -1,5 +1,5 @@
-import {Node} from "../interfaces/node";
-import {Link} from "../interfaces/link";
+import { Link } from '../interfaces/link';
+import { Node } from '../interfaces/node';
 
 export default function removeDeadLinks(nodes: Node[], links: Link[]) {
     const nodeMap = {};

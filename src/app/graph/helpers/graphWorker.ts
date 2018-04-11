@@ -1,5 +1,5 @@
-import {graphWorkerOutput} from "../graphActions";
-import GraphWorkerClass, {GraphWorkerOutput} from './graphWorkerClass';
+import { graphWorkerOutput } from '../graphActions';
+import GraphWorkerClass, { GraphWorkerOutput } from './graphWorkerClass';
 
 const graphWorker = new GraphWorkerClass();
 

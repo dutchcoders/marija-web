@@ -1,4 +1,4 @@
-import getConnectedComponents from "./getConnectedComponents";
+import getConnectedComponents from './getConnectedComponents';
 
 test('should identify the separate components that make up the graph', () => {
     const nodes = [

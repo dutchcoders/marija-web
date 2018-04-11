@@ -1,15 +1,15 @@
+import { routerReducer, syncHistoryWithStore } from 'react-router-redux';
 import { combineReducers } from 'redux';
-import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
-import {EXPORT_DATA} from "./mainConstants";
-import exportJson from "./helpers/exportJson";
+
 import contextMenuReducer from '../contextMenu/contextMenuReducer';
-import statsReducer from "../stats/statsReducer";
-import graphReducer from "../graph/graphReducer";
-import fieldsReducer from "../fields/fieldsReducer";
-import datasourcesReducer from "../datasources/datasourcesReducer";
-import uiReducer from "../ui/uiReducer";
-import tableReducer from "../table/tableReducer";
-import {IMPORT_DATA} from "./mainConstants";
+import datasourcesReducer from '../datasources/datasourcesReducer';
+import fieldsReducer from '../fields/fieldsReducer';
+import graphReducer from '../graph/graphReducer';
+import statsReducer from '../stats/statsReducer';
+import tableReducer from '../table/tableReducer';
+import uiReducer from '../ui/uiReducer';
+import exportJson from './helpers/exportJson';
+import { EXPORT_DATA, IMPORT_DATA } from './mainConstants';
 
 const appReducer = combineReducers({
     graph: graphReducer,

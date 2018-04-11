@@ -1,5 +1,7 @@
 import * as React from 'react';
+
 import * as styles from './iconSelector.scss';
+
 const ion = require('ionicons-npm/builder/build_data.json');
 
 interface Props {

@@ -1,9 +1,10 @@
+import { concat, forEach, isObject, map, mapValues, reduce } from 'lodash';
+import Tooltip from 'rc-tooltip';
 import * as React from 'react';
-import { map, mapValues, reduce, concat, isObject, forEach } from 'lodash';
+
 import fieldLocator from '../../fields/helpers/fieldLocator';
 import Icon from '../../ui/components/Icon';
-import Tooltip from 'rc-tooltip';
-import Expandable from "./expandable/expandable";
+import Expandable from './expandable/expandable';
 
 export default class Record extends React.Component<any, any> {
     constructor(props) {

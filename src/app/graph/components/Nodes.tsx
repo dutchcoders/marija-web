@@ -1,21 +1,19 @@
+import { concat, differenceWith, filter, find, forEach, map, sortBy, uniq, without } from 'lodash';
 import * as React from 'react';
-import {connect, Dispatch} from 'react-redux';
-import { map, uniq, filter, concat, without, find, differenceWith, sortBy, forEach } from 'lodash';
-import Icon from '../../ui/components/Icon';
-import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../graphActions';
+import { connect, Dispatch } from 'react-redux';
 import SkyLight from 'react-skylight';
-import {searchAround} from '../../search/searchActions';
-import {showTooltip} from "../graphActions";
-import {normalizationAdd} from "../graphActions";
+
+import { Datasource } from '../../datasources/interfaces/datasource';
+import { AppState } from '../../main/interfaces/appState';
+import { Search } from '../../search/interfaces/search';
+import { searchAround } from '../../search/searchActions';
+import Icon from '../../ui/components/Icon';
+import { clearSelection, deleteNodes, deselectNodes, highlightNodes, nodesSelect, nodeUpdate, normalizationAdd, normalizationDelete, showTooltip } from '../graphActions';
 import getDirectlyRelatedNodes from '../helpers/getDirectlyRelatedNodes';
-import {normalizationDelete} from '../graphActions';
-import {Search} from "../../search/interfaces/search";
-import {Node} from "../interfaces/node";
-import {Link} from "../interfaces/link";
-import {Normalization} from "../interfaces/normalization";
 import getRelatedNodes from '../helpers/getRelatedNodes';
-import {Datasource} from "../../datasources/interfaces/datasource";
-import {AppState} from "../../main/interfaces/appState";
+import { Link } from '../interfaces/link';
+import { Node } from '../interfaces/node';
+import { Normalization } from '../interfaces/normalization';
 
 interface Props {
     dispatch: Dispatch<any>;

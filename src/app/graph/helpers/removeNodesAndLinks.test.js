@@ -1,5 +1,6 @@
-import removeNodesAndLinks from './removeNodesAndLinks';
 import { uniqueId } from 'lodash';
+
+import removeNodesAndLinks from './removeNodesAndLinks';
 
 const generateNode = (name, searchIds) => {
     return {

@@ -1,22 +1,20 @@
-import * as React from 'react';
-import {connect, Dispatch} from 'react-redux';
 import Tooltip from 'rc-tooltip';
-import SkyLight from 'react-skylight';
+import * as React from 'react';
+import {FormEvent} from 'react';
 import SketchPicker from 'react-color';
-import Query from "./Query";
+import { connect, Dispatch } from 'react-redux';
+import SkyLight from 'react-skylight';
+
+import { datasourceActivated, datasourceDeactivated } from '../../datasources/datasourcesActions';
+import { Datasource } from '../../datasources/interfaces/datasource';
+import { Field } from '../../fields/interfaces/field';
+import { Node } from '../../graph/interfaces/node';
+import { AppState } from '../../main/interfaces/appState';
 import Icon from '../../ui/components/Icon';
-import {editSearch} from "../searchActions";
-import {Search} from "../interfaces/search";
-import {Node} from "../../graph/interfaces/node";
-import {Datasource} from "../../datasources/interfaces/datasource";
+import { Search } from '../interfaces/search';
+import { editSearch } from '../searchActions';
+import Query from './Query';
 import * as styles from './searchBox.scss';
-import {FormEvent} from "react";
-import {
-    datasourceActivated,
-    datasourceDeactivated
-} from "../../datasources/datasourcesActions";
-import {Field} from "../../fields/interfaces/field";
-import {AppState} from "../../main/interfaces/appState";
 
 interface Props {
     onSubmit: Function;

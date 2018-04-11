@@ -1,6 +1,7 @@
 import * as React from 'react';
-import {connect} from 'react-redux';
-import {AppState} from "../main/interfaces/appState";
+import { connect } from 'react-redux';
+
+import { AppState } from '../main/interfaces/appState';
 
 interface Props {
     serverVersion: string;

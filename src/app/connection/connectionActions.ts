@@ -1,10 +1,4 @@
-import {
-    AUTH_CONNECTED,
-    CANCEL_REQUEST,
-    REQUEST_COMPLETED,
-    WEB_SOCKET_CONNECT,
-    WEB_SOCKET_SEND
-} from './connectionConstants';
+import { AUTH_CONNECTED, CANCEL_REQUEST, REQUEST_COMPLETED, WEB_SOCKET_CONNECT, WEB_SOCKET_SEND } from './connectionConstants';
 
 export function requestCompleted(requestId) {
     return {

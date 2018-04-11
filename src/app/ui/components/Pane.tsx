@@ -1,11 +1,10 @@
+import { EventEmitter } from 'fbemitter';
+import { debounce } from 'lodash';
 import * as React from 'react';
 import Rnd from 'react-rnd';
+
+import { closePane, movePaneToTop, openPane, setPaneConfig } from '../uiActions';
 import Icon from './Icon';
-import { closePane, openPane } from '../uiActions';
-import {movePaneToTop} from "../uiActions";
-import { debounce } from 'lodash';
-import { EventEmitter } from 'fbemitter';
-import {setPaneConfig} from "../uiActions";
 
 class Pane extends React.Component<any, any> {
     rnd: any;

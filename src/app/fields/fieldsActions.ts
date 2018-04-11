@@ -1,17 +1,10 @@
-import {FIELDS_CLEAR, FIELDS_RECEIVE, FIELDS_REQUEST} from './fieldsConstants';
-import {Datasource} from "../datasources/interfaces/datasource";
-import {Field} from "./interfaces/field";
-import {Via} from "../graph/interfaces/via";
-import {webSocketSend} from "../connection/connectionActions";
-import {
-    DATE_FIELD_ADD,
-    DATE_FIELD_DELETE,
-    FIELD_ADD,
-    FIELD_DELETE,
-    FIELD_UPDATE
-} from "./fieldsConstants";
-import {AppState} from "../main/interfaces/appState";
-import {datasourceDeactivated} from "../datasources/datasourcesActions";
+import { webSocketSend } from '../connection/connectionActions';
+import { datasourceDeactivated } from '../datasources/datasourcesActions';
+import { Datasource } from '../datasources/interfaces/datasource';
+import { Via } from '../graph/interfaces/via';
+import { AppState } from '../main/interfaces/appState';
+import { DATE_FIELD_ADD, DATE_FIELD_DELETE, FIELD_ADD, FIELD_DELETE, FIELD_UPDATE, FIELDS_CLEAR, FIELDS_RECEIVE, FIELDS_REQUEST } from './fieldsConstants';
+import { Field } from './interfaces/field';
 
 export function clearFields(datasource){
     return {

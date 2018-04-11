@@ -1,16 +1,17 @@
-import * as React from 'react';
 import Tooltip from 'rc-tooltip';
+import * as React from 'react';
+import { connect, Dispatch } from 'react-redux';
+
+import { datasourceActivated } from '../../../datasources/datasourcesActions';
+import { fieldNodesHighlight, selectFieldNodes } from '../../../graph/graphActions';
+import Url from '../../../main/helpers/Url';
+import { searchFieldsUpdate } from '../../../search/searchActions';
 import Icon from '../../../ui/components/Icon';
+import { fieldAdd, fieldDelete, fieldUpdate } from '../../fieldsActions';
+import { Field } from '../../interfaces/field';
 import FieldType from '../FieldType';
-import {Field} from "../../interfaces/field";
-import IconSelector from "../iconSelector/iconSelector";
-import {connect, Dispatch} from "react-redux";
+import IconSelector from '../iconSelector/iconSelector';
 import * as styles from './fieldRow.scss';
-import {fieldAdd, fieldDelete, fieldUpdate} from "../../fieldsActions";
-import Url from "../../../main/helpers/Url";
-import {searchFieldsUpdate} from "../../../search/searchActions";
-import {fieldNodesHighlight, selectFieldNodes} from "../../../graph/graphActions";
-import {datasourceActivated} from "../../../datasources/datasourcesActions";
 
 interface Props {
     field: Field;

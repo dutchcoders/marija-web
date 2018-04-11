@@ -1,4 +1,4 @@
-import {saveAs} from 'file-saver';
+import { saveAs } from 'file-saver';
 
 export default function exportJson(data) {
     const blob = new Blob(

@@ -1,8 +1,9 @@
-import {ITEMS_RECEIVE, ITEMS_REQUEST} from "./itemsConstants";
-import {Item} from "./interfaces/item";
-import {uniqueId, chunk} from 'lodash';
-import {webSocketSend} from "../connection/connectionActions";
-import {AppState} from "../main/interfaces/appState";
+import { chunk, uniqueId } from 'lodash';
+
+import { webSocketSend } from '../connection/connectionActions';
+import { AppState } from '../main/interfaces/appState';
+import { Item } from './interfaces/item';
+import { ITEMS_RECEIVE, ITEMS_REQUEST } from './itemsConstants';
 
 export function requestItems(items: Item[]) {
     return (dispatch, getState) => {

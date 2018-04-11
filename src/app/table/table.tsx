@@ -1,24 +1,25 @@
-import * as React from 'react';
-import {connect, Dispatch} from 'react-redux';
-import {saveAs} from 'file-saver';
-import { findIndex, pull, concat, map } from 'lodash';
-import Icon from '../ui/components/Icon';
-import { tableSort, tableColumnAdd, tableColumnRemove } from './tableActions';
-import {requestItems} from "../items/itemsActions";
-import {Item} from "../items/interfaces/item";
-import {Node} from "../graph/interfaces/node";
-import {Normalization} from "../graph/interfaces/normalization";
-import {Search} from "../search/interfaces/search";
-import {Field} from "../fields/interfaces/field";
-import { fieldAdd } from '../fields/fieldsActions';
-import {searchFieldsUpdate} from "../search/searchActions";
 import { EventEmitter } from 'fbemitter';
-import {getSelectedNodes} from "../graph/graphSelectors";
-import {Column} from "./interfaces/column";
-import {SortType} from "./interfaces/sortType";
-import {AppState} from "../main/interfaces/appState";
-import Record from "./components/Record";
-import RecordDetail from "./components/RecordDetail";
+import { saveAs } from 'file-saver';
+import { concat, findIndex, map, pull } from 'lodash';
+import * as React from 'react';
+import { connect, Dispatch } from 'react-redux';
+
+import { fieldAdd } from '../fields/fieldsActions';
+import { Field } from '../fields/interfaces/field';
+import { getSelectedNodes } from '../graph/graphSelectors';
+import { Node } from '../graph/interfaces/node';
+import { Normalization } from '../graph/interfaces/normalization';
+import { Item } from '../items/interfaces/item';
+import { requestItems } from '../items/itemsActions';
+import { AppState } from '../main/interfaces/appState';
+import { Search } from '../search/interfaces/search';
+import { searchFieldsUpdate } from '../search/searchActions';
+import Icon from '../ui/components/Icon';
+import Record from './components/Record';
+import RecordDetail from './components/RecordDetail';
+import { Column } from './interfaces/column';
+import { SortType } from './interfaces/sortType';
+import { tableColumnAdd, tableColumnRemove, tableSort } from './tableActions';
 
 interface Props {
     dispatch: Dispatch<any>;

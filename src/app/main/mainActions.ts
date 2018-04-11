@@ -1,5 +1,4 @@
-import {EXPORT_DATA} from "./mainConstants";
-import {IMPORT_DATA} from "./mainConstants";
+import { EXPORT_DATA, IMPORT_DATA } from './mainConstants';
 
 export function importData(data) {
     return {

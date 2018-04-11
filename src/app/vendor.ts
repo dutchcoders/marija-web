@@ -1,4 +1,5 @@
-import 'react';
+import 'querystring';
+
 import 'd3';
 import 'fbemitter';
 import 'file-saver';
@@ -6,8 +7,8 @@ import 'history';
 import 'lodash';
 import 'moment';
 import 'pixi.js';
-import 'querystring';
 import 'rc-tooltip';
+import 'react';
 import 'react-color';
 import 'react-dimensions';
 import 'react-dom';

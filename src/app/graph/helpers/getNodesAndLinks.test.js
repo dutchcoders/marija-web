@@ -1,5 +1,6 @@
-import getNodesAndLinks from './getNodesAndLinks';
 import { uniqueId } from 'lodash';
+
+import getNodesAndLinks from './getNodesAndLinks';
 
 const generateItem = (fields) => {
     if (typeof fields === 'undefined') {

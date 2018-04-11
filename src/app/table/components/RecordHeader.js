@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+
 import fieldLocator from '../../fields/helpers/fieldLocator';
 import { Icon } from '../../main/components/index';
 

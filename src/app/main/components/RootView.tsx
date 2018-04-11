@@ -1,21 +1,22 @@
+import { EventEmitter } from 'fbemitter';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { EventEmitter } from 'fbemitter';
-import Notifications from '../../ui/components/Notifications/notifications';
-import Filter from "../../graph/components/Filter";
+
+import { webSocketConnect } from '../../connection/connectionActions';
 import ContextMenu from '../../contextMenu/contextMenu';
-import Stats from '../../stats/stats';
+import Filter from '../../graph/components/Filter';
+import Navigation from '../../graph/components/Navigation';
+import Nodes from '../../graph/components/Nodes';
+import Timeline from '../../graph/components/Timeline';
 import Circle from '../../graph/components/chordDiagram/chordDiagram';
-import {AppState} from "../interfaces/appState";
-import {webSocketConnect} from "../../connection/connectionActions";
+import Graph from '../../graph/graph';
+import Header from '../../search/components/Header';
+import Stats from '../../stats/stats';
 import Table from '../../table/table';
-import Navigation from "../../graph/components/Navigation";
-import ConfigurationView from "./Configuration/ConfigurationView";
-import Pane from "../../ui/components/Pane";
-import Nodes from "../../graph/components/Nodes";
-import Timeline from "../../graph/components/Timeline";
-import Graph from "../../graph/graph";
-import Header from "../../search/components/Header";
+import Notifications from '../../ui/components/Notifications/notifications';
+import Pane from '../../ui/components/Pane';
+import { AppState } from '../interfaces/appState';
+import ConfigurationView from './Configuration/ConfigurationView';
 
 class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();

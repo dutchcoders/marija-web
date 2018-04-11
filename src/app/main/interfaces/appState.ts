@@ -1,13 +1,13 @@
 /**
  * The complete redux store for the entire application.
  */
-import {GraphState} from "../../graph/graphReducer";
-import {FieldsState} from "../../fields/fieldsReducer";
-import {DatasourcesState} from "../../datasources/datasourcesReducer";
-import {StatsState} from "../../stats/statsReducer";
-import {ContextMenuState} from "../../contextMenu/contextMenuReducer";
-import {TableState} from "../../table/tableReducer";
-import {UiState} from "../../ui/uiReducer";
+import { ContextMenuState } from '../../contextMenu/contextMenuReducer';
+import { DatasourcesState } from '../../datasources/datasourcesReducer';
+import { FieldsState } from '../../fields/fieldsReducer';
+import { GraphState } from '../../graph/graphReducer';
+import { StatsState } from '../../stats/statsReducer';
+import { TableState } from '../../table/tableReducer';
+import { UiState } from '../../ui/uiReducer';
 
 export interface AppState {
     graph: GraphState;

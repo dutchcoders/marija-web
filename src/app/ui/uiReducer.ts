@@ -1,10 +1,6 @@
-import {
-    CLOSE_PANE,
-    MOVE_PANE_TO_TOP,
-    OPEN_PANE,
-    SET_PANE_CONFIG
-} from "./uiConstants";
-import {each} from 'lodash';
+import { each } from 'lodash';
+
+import { CLOSE_PANE, MOVE_PANE_TO_TOP, OPEN_PANE, SET_PANE_CONFIG } from './uiConstants';
 
 export interface PaneInterface {
     open: boolean;

@@ -1,6 +1,6 @@
-import {Item} from '../interfaces/item';
-import {Column} from "../../table/interfaces/column";
-import {SortType} from "../../table/interfaces/sortType";
+import { Column } from '../../table/interfaces/column';
+import { SortType } from '../../table/interfaces/sortType';
+import { Item } from '../interfaces/item';
 
 export function sortItems(items: Item[], sortBy: Column, type: SortType): Item[] {
     items = items.concat([]);

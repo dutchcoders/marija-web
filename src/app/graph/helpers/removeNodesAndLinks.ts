@@ -1,6 +1,7 @@
-import { slice, concat, without, pull } from 'lodash';
-import {Node} from "../interfaces/node";
-import {Link} from "../interfaces/link";
+import { concat, pull, slice, without } from 'lodash';
+
+import { Link } from '../interfaces/link';
+import { Node } from '../interfaces/node';
 
 const removeNodes = (nodes: Node[], removedSearchId: string) => {
     nodes.forEach((node, index) => {

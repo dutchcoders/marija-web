@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { connect} from 'react-redux';
-import Icon from '../../ui/components/Icon';
-import {closePane} from "../../ui/uiActions";
 import Tooltip from 'rc-tooltip';
-import {setSelectingMode, toggleLabels} from '../graphActions';
-import Filter from "./Filter";
-import {AppState} from "../../main/interfaces/appState";
-import {openPane} from "../../ui/uiActions";
+import * as React from 'react';
+import { connect } from 'react-redux';
+
+import { AppState } from '../../main/interfaces/appState';
+import Icon from '../../ui/components/Icon';
+import { closePane, openPane } from '../../ui/uiActions';
+import { setSelectingMode, toggleLabels } from '../graphActions';
+import Filter from './Filter';
 
 class Navigation extends React.Component<any, any> {
     enableMoving() {

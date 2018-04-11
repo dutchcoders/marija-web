@@ -1,14 +1,14 @@
-import { SEARCH_RECEIVE, SEARCH_REQUEST, SEARCH_DELETE, SEARCH_EDIT } from './index';
-import {SEARCH_FIELDS_UPDATE, LIVE_RECEIVE} from "./searchConstants";
-import {Node} from "../graph/interfaces/node";
-import {Search} from "./interfaces/search";
-import {Item} from "../items/interfaces/item";
-import {uniqueId} from 'lodash';
-import {ADD_LIVE_DATASOURCE_SEARCH, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DATASOURCE} from './searchConstants';
-import {Datasource} from "../datasources/interfaces/datasource";
-import {GraphWorkerPayload} from "../graph/helpers/graphWorkerClass";
-import {AppState} from "../main/interfaces/appState";
-import {cancelRequest, webSocketSend} from "../connection/connectionActions";
+import { uniqueId } from 'lodash';
+
+import { cancelRequest, webSocketSend } from '../connection/connectionActions';
+import { Datasource } from '../datasources/interfaces/datasource';
+import { GraphWorkerPayload } from '../graph/helpers/graphWorkerClass';
+import { Node } from '../graph/interfaces/node';
+import { Item } from '../items/interfaces/item';
+import { AppState } from '../main/interfaces/appState';
+import { SEARCH_DELETE, SEARCH_EDIT, SEARCH_RECEIVE, SEARCH_REQUEST } from './index';
+import { Search } from './interfaces/search';
+import { ACTIVATE_LIVE_DATASOURCE, ADD_LIVE_DATASOURCE_SEARCH, DEACTIVATE_LIVE_DATASOURCE, LIVE_RECEIVE, SEARCH_FIELDS_UPDATE } from './searchConstants';
 
 export function searchRequest(query: string, datasourceIds: string[]) {
     return (dispatch, getState) => {

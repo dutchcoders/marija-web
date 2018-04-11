@@ -1,4 +1,4 @@
-import {Node} from "../interfaces/node";
+import { Node } from '../interfaces/node';
 
 export default function markHighlightedNodes(nodes: Node[], toHighlight: Node[]): Node[] {
     nodes = nodes.concat([]);

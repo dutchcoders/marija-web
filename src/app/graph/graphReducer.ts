@@ -1,50 +1,37 @@
-import { concat, without, remove, assign, find, uniqueId, isEqual, chunk } from 'lodash';
+import { assign, chunk, concat, find, isEqual, remove, uniqueId, without } from 'lodash';
 
-import {  AUTH_CONNECTED} from '../connection/connectionConstants';
-import {ERROR} from '../ui/uiConstants';
-import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from './graphConstants';
-import {
-    FIELD_NODES_HIGHLIGHT,
-    GRAPH_WORKER_OUTPUT, NORMALIZATION_ADD, NORMALIZATION_DELETE,
-    SELECT_FIELD_NODES, VIA_ADD
-} from './graphConstants';
-import {  SEARCH_DELETE, ACTIVATE_LIVE_DATASOURCE, DEACTIVATE_LIVE_DATASOURCE, SEARCH_REQUEST, SEARCH_EDIT } from '../search/searchConstants';
-import {  ADD_LIVE_DATASOURCE_SEARCH } from '../search/searchConstants';
-import removeNodesAndLinks from "./helpers/removeNodesAndLinks";
-import {VIA_DELETE} from "./graphConstants";
-import {NODES_TOOLTIP, SET_SELECTING_MODE, TOGGLE_LABELS} from "./graphConstants";
-import {REQUEST_COMPLETED} from "../connection/connectionConstants";
-import {SEARCH_FIELDS_UPDATE} from "../search/searchConstants";
-import {Node} from './interfaces/node';
-import {Link} from "./interfaces/link";
-import {Item} from "../items/interfaces/item";
-import {Search} from "../search/interfaces/search";
-import {ITEMS_RECEIVE, ITEMS_REQUEST} from "../items/itemsConstants";
-import normalizeNodes from "./helpers/normalizeNodes";
-import {Normalization} from "./interfaces/normalization";
-import normalizeLinks from "./helpers/normalizeLinks";
-import denormalizeNodes from "./helpers/denormalizeNodes";
-import denormalizeLinks from "./helpers/denormalizeLinks";
-import darkenColor from "../search/helpers/darkenColor";
-import createField from "../fields/helpers/createField";
-import {Field} from "../fields/interfaces/field";
-import {Via} from "./interfaces/via";
-import removeVia from "./helpers/removeVia";
-import markHighlightedNodes from "./helpers/markHighlightedNodes";
-import markLinksForDisplay from "./helpers/markLinksForDisplay";
-import markNodesForDisplay from "./helpers/markNodesForDisplay";
-import {sortItems} from "../items/helpers/sortItems";
-import {selectNodes} from "./helpers/selectNodes";
-import {deselectNodes} from "./helpers/deselectNodes";
-import {TABLE_SORT} from "../table/tableConstants";
-import deleteFieldFromNodes from './helpers/deleteFieldFromNodes';
-import removeDeadLinks from './helpers/removeDeadLinks';
-import applyVia from './helpers/applyVia';
-import {
-    DATE_FIELD_ADD, DATE_FIELD_DELETE, FIELD_ADD, FIELD_DELETE,
-    FIELD_UPDATE
-} from "../fields/fieldsConstants";
+import { AUTH_CONNECTED, REQUEST_COMPLETED } from '../connection/connectionConstants';
+import { DATE_FIELD_ADD, DATE_FIELD_DELETE, FIELD_ADD, FIELD_DELETE, FIELD_UPDATE } from '../fields/fieldsConstants';
+import createField from '../fields/helpers/createField';
+import { Field } from '../fields/interfaces/field';
+import { sortItems } from '../items/helpers/sortItems';
+import { Item } from '../items/interfaces/item';
+import { ITEMS_RECEIVE, ITEMS_REQUEST } from '../items/itemsConstants';
+import darkenColor from '../search/helpers/darkenColor';
 import getQueryColor from '../search/helpers/getQueryColor';
+import { Search } from '../search/interfaces/search';
+import { ACTIVATE_LIVE_DATASOURCE, ADD_LIVE_DATASOURCE_SEARCH, DEACTIVATE_LIVE_DATASOURCE, SEARCH_DELETE, SEARCH_EDIT, SEARCH_FIELDS_UPDATE, SEARCH_REQUEST } from '../search/searchConstants';
+import { TABLE_SORT } from '../table/tableConstants';
+import { ERROR } from '../ui/uiConstants';
+import { FIELD_NODES_HIGHLIGHT, GRAPH_WORKER_OUTPUT, NODE_UPDATE, NODES_DELETE, NODES_DESELECT, NODES_HIGHLIGHT, NODES_SELECT, NODES_TOOLTIP, NORMALIZATION_ADD, NORMALIZATION_DELETE, SELECT_FIELD_NODES, SELECTION_CLEAR, SET_SELECTING_MODE, TOGGLE_LABELS, VIA_ADD, VIA_DELETE } from './graphConstants';
+import applyVia from './helpers/applyVia';
+import deleteFieldFromNodes from './helpers/deleteFieldFromNodes';
+import denormalizeLinks from './helpers/denormalizeLinks';
+import denormalizeNodes from './helpers/denormalizeNodes';
+import { deselectNodes } from './helpers/deselectNodes';
+import markHighlightedNodes from './helpers/markHighlightedNodes';
+import markLinksForDisplay from './helpers/markLinksForDisplay';
+import markNodesForDisplay from './helpers/markNodesForDisplay';
+import normalizeLinks from './helpers/normalizeLinks';
+import normalizeNodes from './helpers/normalizeNodes';
+import removeDeadLinks from './helpers/removeDeadLinks';
+import removeNodesAndLinks from './helpers/removeNodesAndLinks';
+import removeVia from './helpers/removeVia';
+import { selectNodes } from './helpers/selectNodes';
+import { Link } from './interfaces/link';
+import { Node } from './interfaces/node';
+import { Normalization } from './interfaces/normalization';
+import { Via } from './interfaces/via';
 
 export interface GraphState {
     connected: boolean;

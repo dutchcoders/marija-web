@@ -1,10 +1,10 @@
-import fieldLocator from "../../fields/helpers/fieldLocator";
-import abbreviateNodeName from "./abbreviateNodeName";
-import {Node} from "../interfaces/node";
-import {Link} from "../interfaces/link";
-import {Item} from "../../items/interfaces/item";
-import {Search} from "../../search/interfaces/search";
-import {Field} from "../../fields/interfaces/field";
+import fieldLocator from '../../fields/helpers/fieldLocator';
+import { Field } from '../../fields/interfaces/field';
+import { Item } from '../../items/interfaces/item';
+import { Search } from '../../search/interfaces/search';
+import { Link } from '../interfaces/link';
+import { Node } from '../interfaces/node';
+import abbreviateNodeName from './abbreviateNodeName';
 
 function getHash(string) {
     let hash = 0, i, chr;

@@ -1,25 +1,6 @@
-import {
-    NODE_UPDATE,
-    NODES_DELETE,
-    NODES_DESELECT,
-    NODES_HIGHLIGHT,
-    NODES_SELECT,
-    NODES_TOOLTIP,
-    SELECTION_CLEAR,
-    SET_SELECTING_MODE
-} from './graphConstants';
-import {
-    FIELD_NODES_HIGHLIGHT,
-    GRAPH_WORKER_OUTPUT,
-    NORMALIZATION_ADD,
-    NORMALIZATION_DELETE,
-    SELECT_FIELD_NODES,
-    TOGGLE_LABELS,
-    VIA_ADD,
-    VIA_DELETE
-} from './graphConstants';
-import {GraphWorkerOutput} from "./helpers/graphWorkerClass";
-import {Via} from "./interfaces/via";
+import { FIELD_NODES_HIGHLIGHT, GRAPH_WORKER_OUTPUT, NODE_UPDATE, NODES_DELETE, NODES_DESELECT, NODES_HIGHLIGHT, NODES_SELECT, NODES_TOOLTIP, NORMALIZATION_ADD, NORMALIZATION_DELETE, SELECT_FIELD_NODES, SELECTION_CLEAR, SET_SELECTING_MODE, TOGGLE_LABELS, VIA_ADD, VIA_DELETE } from './graphConstants';
+import { GraphWorkerOutput } from './helpers/graphWorkerClass';
+import { Via } from './interfaces/via';
 
 export function deselectNodes(opts) {
     return {

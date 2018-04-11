@@ -1,4 +1,4 @@
-import {Field} from "../interfaces/field";
+import { Field } from '../interfaces/field';
 
 export default function createField(existing: Field[], path: string, type: string, datasource: string): Field {
     const firstChar = path.charAt(0).toUpperCase();

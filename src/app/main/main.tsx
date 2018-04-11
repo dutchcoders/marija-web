@@ -1,32 +1,32 @@
-import ResumeSession from "./components/ResumeSession";
+import { createBrowserHistory } from 'history';
+import * as React from 'react';
+import { render } from 'react-dom';
+import { connect, Provider } from 'react-redux';
+import { Route, Router } from 'react-router';
+import { routerReducer, syncHistoryWithStore } from 'react-router-redux';
+import { applyMiddleware, combineReducers, compose, createStore } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
+import thunk from 'redux-thunk';
+import createWorkerMiddleware from 'redux-worker-middleware';
+
+import { webSocketMiddleware } from '../connection/helpers/webSocketMiddleware';
+import { defaultContextMenuState } from '../contextMenu/contextMenuReducer';
+import { defaultDatasourcesState } from '../datasources/datasourcesReducer';
+import { defaultFieldsState } from '../fields/fieldsReducer';
+import { defaultGraphState } from '../graph/graphReducer';
+import { defaultStatsState } from '../stats/statsReducer';
+import { defaultTableState } from '../table/tableReducer';
+import { defaultUiState } from '../ui/uiReducer';
+import ResumeSession from './components/ResumeSession';
+import RootView from './components/RootView';
+import StateCapturer from './components/StateCapturer';
+import persistState from './helpers/persistState';
+import { AppState } from './interfaces/appState';
+import root from './rootReducer';
 
 require('../../scss/app.scss');
 require('../../images/logo.png');
 require('../../images/favicon.png');
-
-import * as React from 'react';
-import { render } from 'react-dom';
-import { compose, createStore, combineReducers, applyMiddleware } from 'redux';
-import { Provider, connect } from 'react-redux';
-import { Router, Route } from 'react-router';
-import { createBrowserHistory } from 'history';
-import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
-import root from './rootReducer';
-import persistState from './helpers/persistState';
-import { composeWithDevTools } from 'redux-devtools-extension';
-import thunk from 'redux-thunk';
-import {defaultUiState} from "../ui/uiReducer";
-import {defaultDatasourcesState} from '../datasources/datasourcesReducer';
-import {defaultContextMenuState} from '../contextMenu/contextMenuReducer';
-import createWorkerMiddleware from 'redux-worker-middleware';
-import {defaultStatsState} from '../stats/statsReducer';
-import {AppState} from "./interfaces/appState";
-import {defaultFieldsState} from "../fields/fieldsReducer";
-import {webSocketMiddleware} from '../connection/helpers/webSocketMiddleware';
-import {defaultGraphState} from "../graph/graphReducer";
-import {defaultTableState} from "../table/tableReducer";
-import StateCapturer from "./components/StateCapturer";
-import RootView from "./components/RootView";
 
 const GraphWorker = require('worker-loader!../graph/helpers/graphWorker');
 const graphWorker = new GraphWorker();

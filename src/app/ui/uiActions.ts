@@ -1,6 +1,4 @@
-import {
-    MOVE_PANE_TO_TOP} from "./uiConstants";
-import {CLOSE_PANE, ERROR, OPEN_PANE, SET_PANE_CONFIG} from "./uiConstants";
+import { CLOSE_PANE, ERROR, MOVE_PANE_TO_TOP, OPEN_PANE, SET_PANE_CONFIG } from './uiConstants';
 
 export function error(msg) {
     return {

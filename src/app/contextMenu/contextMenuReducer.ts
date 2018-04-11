@@ -1,4 +1,4 @@
-import {HIDE_CONTEXT_MENU, SHOW_CONTEXT_MENU} from "./contextMenuConstants";
+import { HIDE_CONTEXT_MENU, SHOW_CONTEXT_MENU } from './contextMenuConstants';
 
 export interface ContextMenuState {
     nodeId: string;

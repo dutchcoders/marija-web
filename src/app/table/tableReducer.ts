@@ -1,10 +1,6 @@
-import {
-    TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE,
-    TABLE_SORT
-} from './tableConstants';
-import {Column} from "./interfaces/column";
-import {FIELD_DELETE} from "../fields/fieldsConstants";
-import {FIELD_ADD} from "../fields/fieldsConstants";
+import { FIELD_ADD, FIELD_DELETE } from '../fields/fieldsConstants';
+import { Column } from './interfaces/column';
+import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, TABLE_SORT } from './tableConstants';
 
 export interface TableState {
     columns: Column[];

@@ -1,18 +1,19 @@
 import * as React from 'react';
-import {Node} from "../graph/interfaces/node";
-import * as styles from './contextMenu.scss';
-import Icon from '../ui/components/Icon';
-import {connect, Dispatch} from "react-redux";
-import {deleteNodes, nodesSelect, nodeUpdate} from "../graph/graphActions";
-import getDirectlyRelatedNodes from "../graph/helpers/getDirectlyRelatedNodes";
-import {Link} from "../graph/interfaces/link";
-import {hideContextMenu} from "./contextMenuActions";
-import {searchAround} from "../search/searchActions";
-import {FormEvent} from "react";
+import {FormEvent} from 'react';
+import { connect, Dispatch } from 'react-redux';
+
+import { Datasource } from '../datasources/interfaces/datasource';
+import { deleteNodes, nodesSelect, nodeUpdate } from '../graph/graphActions';
 import abbreviateNodeName from '../graph/helpers/abbreviateNodeName';
-import {Search} from "../search/interfaces/search";
-import {Datasource} from "../datasources/interfaces/datasource";
-import {AppState} from "../main/interfaces/appState";
+import getDirectlyRelatedNodes from '../graph/helpers/getDirectlyRelatedNodes';
+import { Link } from '../graph/interfaces/link';
+import { Node } from '../graph/interfaces/node';
+import { AppState } from '../main/interfaces/appState';
+import { Search } from '../search/interfaces/search';
+import { searchAround } from '../search/searchActions';
+import Icon from '../ui/components/Icon';
+import * as styles from './contextMenu.scss';
+import { hideContextMenu } from './contextMenuActions';
 
 interface Props {
     nodeId: string;

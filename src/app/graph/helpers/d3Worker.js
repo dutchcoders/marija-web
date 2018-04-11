@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { map, clone, groupBy, reduce, forEach, difference, find, uniq, remove, each, includes, assign, isEqual } from 'lodash';
+import { assign, clone, difference, each, find, forEach, groupBy, includes, isEqual, map, reduce, remove, uniq } from 'lodash';
 
 let simulation = null;
 let timer = null;

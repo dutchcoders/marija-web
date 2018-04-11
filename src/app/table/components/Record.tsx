@@ -1,11 +1,12 @@
 import * as React from 'react';
+
 import fieldLocator from '../../fields/helpers/fieldLocator';
+import { Node } from '../../graph/interfaces/node';
+import { Item } from '../../items/interfaces/item';
+import { Search } from '../../search/interfaces/search';
 import Icon from '../../ui/components/Icon';
-import {Column} from "../interfaces/column";
-import {Item} from "../../items/interfaces/item";
-import {Node} from "../../graph/interfaces/node";
-import {Search} from "../../search/interfaces/search";
-import {QueryColorMap} from "../table";
+import { Column } from '../interfaces/column';
+import { QueryColorMap } from '../table';
 
 interface Props {
     toggleExpand: Function;
