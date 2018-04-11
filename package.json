@@ -4,7 +4,7 @@
   "description": "Elasticsearch Graphing",
   "license": "ISC",
   "author": "",
-  "main": "default.js",
+  "main": "src/app/index.ts",
   "scripts": {
     "build": "webpack --config webpack-build.js --progress --colors",
     "start": "webpack-dev-server --watch --progress --colors --port 1340 --config webpack-dev.js",
