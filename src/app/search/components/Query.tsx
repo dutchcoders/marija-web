@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
 import { isEqual } from 'lodash';
-import { nodesSelect } from '../../graph/index';
+import { nodesSelect } from '../../graph/graphActions';
 import Icon from '../../ui/components/Icon';
 import { deleteSearch, editSearch } from '../index';
 import Url from "../../main/helpers/Url";

@@ -2,7 +2,7 @@ import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
 import { map, uniq, filter, concat, without, find, differenceWith, sortBy, forEach } from 'lodash';
 import Icon from '../../ui/components/Icon';
-import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../index';
+import { clearSelection, highlightNodes, nodeUpdate, nodesSelect, deleteNodes, deselectNodes} from '../graphActions';
 import SkyLight from 'react-skylight';
 import {searchAround} from '../../search/searchActions';
 import {showTooltip} from "../graphActions";

@@ -7,7 +7,7 @@ import {
     NODES_TOOLTIP,
     SELECTION_CLEAR,
     SET_SELECTING_MODE
-} from './index';
+} from './graphConstants';
 import {
     FIELD_NODES_HIGHLIGHT,
     GRAPH_WORKER_OUTPUT,

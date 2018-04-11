@@ -2,7 +2,7 @@ import { concat, without, remove, assign, find, uniqueId, isEqual, chunk } from 
 
 import {  AUTH_CONNECTED} from '../connection/connectionConstants';
 import {ERROR} from '../ui/uiConstants';
-import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from './index';
+import {  NODES_DELETE, NODES_HIGHLIGHT, NODE_UPDATE, NODES_SELECT, NODES_DESELECT, SELECTION_CLEAR } from './graphConstants';
 import {
     FIELD_NODES_HIGHLIGHT,
     GRAPH_WORKER_OUTPUT, NORMALIZATION_ADD, NORMALIZATION_DELETE,
