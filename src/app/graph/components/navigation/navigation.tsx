@@ -2,11 +2,12 @@ import Tooltip from 'rc-tooltip';
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import { AppState } from '../../main/interfaces/appState';
-import Icon from '../../ui/components/icon';
-import { closePane, openPane } from '../../ui/uiActions';
-import { toggleLabels } from '../graphActions';
-import Filter from './filter';
+import { AppState } from '../../../main/interfaces/appState';
+import Icon from '../../../ui/components/icon';
+import { closePane, openPane } from '../../../ui/uiActions';
+import { toggleLabels } from '../../graphActions';
+import Filter from '../filter';
+import * as styles from './navigation.scss';
 
 class Navigation extends React.Component<any, any> {
     togglePane(handle) {
@@ -42,6 +43,17 @@ class Navigation extends React.Component<any, any> {
                     <Icon name={icon} onClick={clickHandler} />
                 </Tooltip>
             </li>
+        );
+    }
+
+    getHelp() {
+        return (
+            <div>
+                <h1 className={styles.helpTitle}>Tips</h1>
+                <ul className={styles.tips}>
+                    <li>Use <strong>shift</strong> while dragging to select an area of nodes.</li>
+                </ul>
+            </div>
         );
     }
 
@@ -102,6 +114,19 @@ class Navigation extends React.Component<any, any> {
                         () => zoomIn(),
                         false
                     )}
+                </ul>
+                <ul className="mapControls">
+                    <li>
+                        <Tooltip
+                            overlay={this.getHelp.bind(this)}
+                            placement="bottom"
+                            mouseLeaveDelay={0}
+                            defaultVisible={true}
+                            overlayClassName={styles.help}
+                            arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                            <Icon name={'ion-ios-help ' + styles.helpButton} />
+                        </Tooltip>
+                    </li>
                 </ul>
             </nav>
         );

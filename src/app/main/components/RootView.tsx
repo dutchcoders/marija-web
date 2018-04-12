@@ -6,7 +6,7 @@ import { webSocketConnect } from '../../connection/connectionActions';
 import ContextMenu from '../../contextMenu/contextMenu';
 import Circle from '../../graph/components/chordDiagram/chordDiagram';
 import Filter from '../../graph/components/filter';
-import Navigation from '../../graph/components/navigation';
+import Navigation from '../../graph/components/navigation/navigation';
 import Nodes from '../../graph/components/nodes';
 import Timeline from '../../graph/components/timeline';
 import Graph from '../../graph/graph';
