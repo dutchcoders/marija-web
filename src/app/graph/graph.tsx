@@ -1263,21 +1263,38 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     onMouseMove(event: MouseEvent) {
-        if (!this.shift) {
-            return;
-        }
+        const { dispatch, nodesForDisplay, linksForDisplay } = this.props;
 
         const {x, y} = this.getMouseCoordinates(event);
         const transformedX = this.transform.invertX(x);
         const transformedY = this.transform.invertY(y);
 
-        this.selection = {
-            ...this.selection,
-            x2: transformedX,
-            y2: transformedY
-        };
+        if (this.shift) {
+            this.selection = {
+                ...this.selection,
+                x2: transformedX,
+                y2: transformedY
+            };
 
-        this.renderedSince.lastSelection = false;
+            this.renderedSince.lastSelection = false;
+        } else {
+            const tooltipNodes = this.getTooltipNodes();
+            const tooltip = this.findNode(transformedX, transformedY);
+
+            if (tooltipNodes[0] === tooltip) {
+                // Nothing changed
+                return;
+            }
+
+            this.tooltipNode(tooltip);
+            let related = [];
+
+            if (tooltip) {
+                related = getDirectlyRelatedNodes([tooltip], nodesForDisplay, linksForDisplay);
+            }
+
+            dispatch(highlightNodes(related));
+        }
     }
 
     onClick(event: MouseEvent) {
