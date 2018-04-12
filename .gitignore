@@ -1,6 +1,7 @@
 .idea
 build
 dist
+dist_npm
 node_modules
 .env
 .DS_Store

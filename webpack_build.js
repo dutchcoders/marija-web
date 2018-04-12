@@ -1,4 +1,4 @@
-const baseConfig = require('./webpack-common');
+const baseConfig = require('./webpack_common');
 const path = require('path');
 const merge = require('webpack-merge');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
@@ -11,6 +11,7 @@ module.exports = merge(baseConfig, {
         path: [__dirname, 'dist'].join(path.sep),
         filename: '[name].[hash].js'
     },
+    target: 'web',
     plugins: [
         new webpack.DefinePlugin({
             "process.env": {

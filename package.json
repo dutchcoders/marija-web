@@ -1,15 +1,17 @@
 {
   "name": "marija",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Elasticsearch Graphing",
   "license": "ISC",
   "author": "",
-  "main": "src/app/index.ts",
+  "main": "dist/",
   "scripts": {
-    "build": "webpack --config webpack-build.js --progress --colors",
-    "start": "webpack-dev-server --watch --progress --colors --port 1340 --config webpack-dev.js",
+    "build": "webpack --config webpack_build.js --progress --colors",
+    "build:npm": "webpack --config webpack_build_npm.js --progress --colors",
+    "start": "webpack-dev-server --watch --progress --colors --port 1340 --config webpack_dev.js",
     "test": "jest --config=jest.config.json",
-    "test:watch": "jest --watch --config=jest.config.json"
+    "test:watch": "jest --watch --config=jest.config.json",
+    "prepublish": "yarn build:npm"
   },
   "dependencies": {
     "@types/rison": "^0.0.6",

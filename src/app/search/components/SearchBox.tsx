@@ -15,6 +15,7 @@ import { Search } from '../interfaces/search';
 import { editSearch } from '../searchActions';
 import Query from './query';
 import * as styles from './searchBox.scss';
+const logo = require('../../../images/logo.png');
 
 interface Props {
     onSubmit: Function;
@@ -242,7 +243,7 @@ class SearchBox extends React.Component<Props, State> {
         return (
             <nav id="searchbox" className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation" ref="header">
                 <div className="logoContainer">
-                    <img className={`logo ${connected ? 'connected' : 'not-connected'}`} src="/images/logo.png" title={connected ? "Marija is connected to the backendservice" : "No connection to Marija backend available" } />
+                    <img className={`logo ${connected ? 'connected' : 'not-connected'}`} src={logo} title={connected ? "Marija is connected to the backendservice" : "No connection to Marija backend available" } />
                 </div>
                 <div className="queriesContainer">
                     <form onSubmit={this.handleSubmit.bind(this)} className={styles.form} ref={form => this.searchForm = form}>

@@ -1,7 +1,6 @@
 import { createBrowserHistory } from 'history';
 import * as React from 'react';
-import { render } from 'react-dom';
-import { connect, Provider } from 'react-redux';
+import { Provider } from 'react-redux';
 import { Route, Router } from 'react-router';
 import { routerReducer, syncHistoryWithStore } from 'react-router-redux';
 import { applyMiddleware, combineReducers, compose, createStore } from 'redux';
@@ -25,10 +24,9 @@ import { AppState } from './interfaces/appState';
 import root from './rootReducer';
 
 require('../../scss/app.scss');
-require('../../images/logo.png');
 require('../../images/favicon.png');
 
-const GraphWorker = require('worker-loader!../graph/helpers/graphWorker');
+const GraphWorker = require('../graph/helpers/graphWorker.worker');
 const graphWorker = new GraphWorker();
 const graphWorkerMiddleware = createWorkerMiddleware(graphWorker);
 

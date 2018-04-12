@@ -14,8 +14,6 @@ module.exports = {
         vendor: SRC_DIR + '/app/vendor.ts',
         app: SRC_DIR + '/demo/index.tsx'
     },
-    target: 'web',
-    devtool: 'eval',
     plugins: [
         new webpack.optimize.CommonsChunkPlugin({
             name: 'vendor',
@@ -39,6 +37,17 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.worker\.ts$/,
+                use: [
+                    {
+                        loader: 'worker-loader',
+                        options: {
+                            inline: true
+                        }
+                    }
+                ]
+            },
+            {
                 test: /\.(tsx|ts|js)$/,
                 loader: 'awesome-typescript-loader',
                 include: [path.join(__dirname, "src")]
@@ -47,10 +56,6 @@ module.exports = {
                 enforce: "pre",
                 test: /\.js$/,
                 loader: "source-map-loader"
-            },
-            {
-                test: /\.(woff|woff2|eot|ttf|svg)$/,
-                loader: 'url-loader?limit=100000'
             },
             {
                 // Css files in src/app/ are modular (module: true in the css-loader config)
@@ -99,7 +104,18 @@ module.exports = {
             },
             {
                 test: /\.(png|jpg|jpeg)$/,
-                loader: 'file-loader?name=images/[name].[ext]'
+                loader: 'url-loader',
+                options: {
+                    name: 'images/[name].[ext]',
+                    limit: 9999999
+                }
+            },
+            {
+                test: /\.(woff|woff2|eot|ttf|svg)$/,
+                loader: 'url-loader',
+                options: {
+                    limit: 9999999
+                }
             }
         ]
     },

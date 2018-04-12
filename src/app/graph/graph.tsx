@@ -26,7 +26,7 @@ import {setFps} from "../stats/statsActions";
 import {Field} from "../fields/interfaces/field";
 import {getArrowPosition} from "./helpers/getArrowPosition";
 import {AppState} from "../main/interfaces/appState";
-const myWorker = require("worker-loader!./helpers/d3Worker");
+const myWorker = require('./helpers/d3Worker.worker');
 
 interface TextureMap {
     [hash: string]: PIXI.RenderTexture;
