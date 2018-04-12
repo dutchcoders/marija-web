@@ -4,7 +4,7 @@
   "description": "Elasticsearch Graphing",
   "license": "ISC",
   "author": "",
-  "main": "dist/",
+  "main": "dist_npm/index.js",
   "scripts": {
     "build": "webpack --config webpack_build.js --progress --colors",
     "build:npm": "webpack --config webpack_build_npm.js --progress --colors",
