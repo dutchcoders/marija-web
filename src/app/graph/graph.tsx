@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import { concat, debounce, remove, includes, assign, isEqual, isEmpty, isEqualWith } from 'lodash';
 import {
     nodesSelect, highlightNodes, deselectNodes, showTooltip,
-    setSelectingMode, clearSelection
+    clearSelection
 } from './graphActions';
 import getArcParams from './helpers/getArcParams';
 import getDirectlyRelatedNodes from './helpers/getDirectlyRelatedNodes';
@@ -33,7 +33,6 @@ interface TextureMap {
 }
 
 interface Props {
-    selectingMode: boolean;
     searches: Search[];
     nodesForDisplay: Node[];
     linksForDisplay: Link[];
@@ -103,12 +102,6 @@ class Graph extends React.PureComponent<Props, State> {
     linkLabelTextures: TextureMap = {};
     tooltipTextures: TextureMap = {};
     dragSubjects: NodeFromD3[];
-
-    isMoving() {
-        const { selectingMode } = this.props;
-
-        return !selectingMode;
-    }
 
     postWorkerMessage(message) {
         this.worker.postMessage(message);
@@ -1048,7 +1041,7 @@ class Graph extends React.PureComponent<Props, State> {
         this.stage.addChild(this.renderedTooltip);
 
         const dragging = d3.drag()
-            .filter(() => this.isMoving())
+            .filter(() => !this.shift)
             .container(this.renderer.view)
             .subject(this.dragsubject.bind(this))
             .on('start', this.dragstarted.bind(this))
@@ -1056,16 +1049,20 @@ class Graph extends React.PureComponent<Props, State> {
             .on('end', this.dragended.bind(this));
 
         const zooming = d3.zoom()
-            .filter(() => this.isMoving())
+            .filter(() => !this.shift)
             .scaleExtent([.3, 3])
             .on("zoom", this.zoomed.bind(this));
+
+        const canvas = this.pixiContainer.querySelector('canvas');
+
+        canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
+        canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
+        canvas.addEventListener('click', this.onClick.bind(this));
 
         d3.select(this.renderer.view)
             .call(dragging)
             .call(zooming)
-            .on('mousedown', this.onMouseDown.bind(this))
-            .on('mousemove', this.onMouseMove.bind(this))
-            .on('mouseup', this.onMouseUp.bind(this));
+            .on('dblclick.zoom', null);
 
         this.renderGraph(false);
     }
@@ -1195,9 +1192,6 @@ class Graph extends React.PureComponent<Props, State> {
         const x = this.transform.invertX(d3.event.x);
         const y = this.transform.invertY(d3.event.y);
 
-        const nodeFromD3 = this.findNodeFromD3(x, y);
-
-
         return this.findNodeFromD3(x, y);
     }
 
@@ -1241,81 +1235,63 @@ class Graph extends React.PureComponent<Props, State> {
         }
     }
 
-    selectNodes(nodes: Node[]) {
-        const { dispatch } = this.props;
+    getMouseCoordinates(event: MouseEvent) {
+        const rect = this.pixiContainer.getBoundingClientRect();
 
-        dispatch(nodesSelect(nodes));
-        this.renderedSince.lastSelectedNodes = false;
+        return {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top
+        };
     }
 
     /**
      * Handles selecting/deselecting nodes.
      * Is not involved with dragging nodes, d3 handles that.
      */
-    onMouseDown() {
-        const { dispatch, selectingMode } = this.props;
+    onMouseDown(event: MouseEvent) {
+        event.preventDefault();
 
-        if (!selectingMode) {
+        if (!this.shift) {
             return;
         }
 
-        const x = this.transform.invertX(d3.event.layerX);
-        const y = this.transform.invertY(d3.event.layerY);
-        const node = this.findNode(x, y);
+        const {x, y} = this.getMouseCoordinates(event);
+        const transformedX = this.transform.invertX(x);
+        const transformedY = this.transform.invertY(y);
 
-        if (node) {
-            if (node.selected) {
-                dispatch(deselectNodes([node]));
-            } else {
-                dispatch(nodesSelect([node]));
-            }
+        this.selection = {x1: transformedX, y1: transformedY, x2: transformedX, y2: transformedY};
+    }
+
+    onMouseMove(event: MouseEvent) {
+        if (!this.shift) {
+            return;
+        }
+
+        const {x, y} = this.getMouseCoordinates(event);
+        const transformedX = this.transform.invertX(x);
+        const transformedY = this.transform.invertY(y);
+
+        this.selection = {
+            ...this.selection,
+            x2: transformedX,
+            y2: transformedY
+        };
+
+        this.renderedSince.lastSelection = false;
+    }
+
+    onClick(event: MouseEvent) {
+        if (this.selection && this.shift) {
+            this.selectionEnded();
         } else {
-            this.selection = {x1: x, y1: y, x2: x, y2: y};
-
-            if (!this.shift) {
-                dispatch(clearSelection());
-            }
+            this.clickEnded(event);
         }
     }
 
-    onMouseMove() {
-        const { selectingMode, dispatch, nodesForDisplay, linksForDisplay } = this.props;
-        const tooltipNodes = this.getTooltipNodes();
+    selectionEnded() {
+        const { nodesForDisplay, dispatch } = this.props;
 
-        const x = this.transform.invertX(d3.event.layerX);
-        const y = this.transform.invertY(d3.event.layerY);
-
-        if (selectingMode && this.selection) {
-            this.selection.x2 = x;
-            this.selection.y2 = y;
-            this.renderedSince.lastSelection = false;
-        }
-
-        const tooltip = this.findNode(x, y);
-
-        if (tooltipNodes[0] === tooltip) {
-            // Nothing changed
-            return;
-        }
-
-        this.tooltipNode(tooltip);
-        let related = [];
-
-        if (tooltip) {
-            related = getDirectlyRelatedNodes([tooltip], nodesForDisplay, linksForDisplay);
-        }
-
-        dispatch(highlightNodes(related));
-    }
-
-    onMouseUp() {
-        const { nodesForDisplay } = this.props;
         const selectedNodes = this.getSelectedNodes();
-
-        if (!this.selection) {
-            return;
-        }
-
         const newSelectedNodes = concat(selectedNodes, []);
 
         this.nodesFromD3.forEach(nodeFromD3 => {
@@ -1338,25 +1314,37 @@ class Graph extends React.PureComponent<Props, State> {
             }
         });
 
-        this.selectNodes(newSelectedNodes);
+        dispatch(nodesSelect(newSelectedNodes));
 
         this.selection = null;
         this.renderedSince.lastSelection = false;
     }
 
-    handleKeyDown(event: KeyboardEvent) {
+    clickEnded(event: MouseEvent) {
         const { dispatch } = this.props;
-        const shiftKey = 16;
-        const mKey = 77;
-        const sKey = 83;
+        const {x, y} = this.getMouseCoordinates(event);
 
-        if (event.keyCode === mKey) {
-            // Switch to move mode
-            dispatch(setSelectingMode(false));
-        } else if (event.keyCode === sKey) {
-            // Switch to selecting mode
-            dispatch(setSelectingMode(true));
-        } else if (event.keyCode === shiftKey) {
+        const transformedX = this.transform.invertX(x);
+        const transformedY = this.transform.invertY(y);
+        const node = this.findNode(transformedX, transformedY);
+
+        if (node) {
+            if (node.selected) {
+                dispatch(deselectNodes([node]));
+            } else {
+                dispatch(nodesSelect([node]));
+            }
+        } else {
+            // Deselect all when clicking on empty space
+            const selectedNodes = this.getSelectedNodes();
+            dispatch(deselectNodes(selectedNodes));
+        }
+    }
+
+    handleKeyDown(event: KeyboardEvent) {
+        const shiftKey = 16;
+
+        if (event.keyCode === shiftKey) {
             this.shift = true;
         }
     }
@@ -1440,7 +1428,6 @@ const select = (state: AppState, ownProps) => {
         linksForDisplay: getLinksForDisplay(state),
         fields: state.graph.fields,
         searches: state.graph.searches,
-        selectingMode: state.graph.selectingMode,
         showLabels: state.graph.showLabels
     };
 };

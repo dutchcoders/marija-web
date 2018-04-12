@@ -13,7 +13,7 @@ import { Search } from '../search/interfaces/search';
 import { ACTIVATE_LIVE_DATASOURCE, ADD_LIVE_DATASOURCE_SEARCH, DEACTIVATE_LIVE_DATASOURCE, SEARCH_DELETE, SEARCH_EDIT, SEARCH_FIELDS_UPDATE, SEARCH_REQUEST } from '../search/searchConstants';
 import { TABLE_SORT } from '../table/tableConstants';
 import { ERROR } from '../ui/uiConstants';
-import { FIELD_NODES_HIGHLIGHT, GRAPH_WORKER_OUTPUT, NODE_UPDATE, NODES_DELETE, NODES_DESELECT, NODES_HIGHLIGHT, NODES_SELECT, NODES_TOOLTIP, NORMALIZATION_ADD, NORMALIZATION_DELETE, SELECT_FIELD_NODES, SELECTION_CLEAR, SET_SELECTING_MODE, TOGGLE_LABELS, VIA_ADD, VIA_DELETE } from './graphConstants';
+import { FIELD_NODES_HIGHLIGHT, GRAPH_WORKER_OUTPUT, NODE_UPDATE, NODES_DELETE, NODES_DESELECT, NODES_HIGHLIGHT, NODES_SELECT, NODES_TOOLTIP, NORMALIZATION_ADD, NORMALIZATION_DELETE, SELECT_FIELD_NODES, SELECTION_CLEAR, TOGGLE_LABELS, VIA_ADD, VIA_DELETE } from './graphConstants';
 import applyVia from './helpers/applyVia';
 import deleteFieldFromNodes from './helpers/deleteFieldFromNodes';
 import denormalizeLinks from './helpers/denormalizeLinks';
@@ -46,7 +46,6 @@ export interface GraphState {
     deletedNodes: Node[];
     errors: any;
     via: Via[];
-    selectingMode: boolean;
     showLabels: boolean;
 }
 
@@ -63,7 +62,6 @@ export const defaultGraphState: GraphState = {
     deletedNodes: [],
     errors: null,
     via: [],
-    selectingMode: false,
     showLabels: false
 };
 
@@ -466,11 +464,6 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             return Object.assign({}, state, updates);
         }
-
-        case SET_SELECTING_MODE:
-            return Object.assign({}, state, {
-                selectingMode: action.selectingMode
-            });
 
         case NODES_HIGHLIGHT: {
             const nodes = markHighlightedNodes(state.nodes, action.nodes);

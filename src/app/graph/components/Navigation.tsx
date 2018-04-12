@@ -5,20 +5,10 @@ import { connect } from 'react-redux';
 import { AppState } from '../../main/interfaces/appState';
 import Icon from '../../ui/components/icon';
 import { closePane, openPane } from '../../ui/uiActions';
-import { setSelectingMode, toggleLabels } from '../graphActions';
+import { toggleLabels } from '../graphActions';
 import Filter from './filter';
 
 class Navigation extends React.Component<any, any> {
-    enableMoving() {
-        const { dispatch } = this.props;
-        dispatch(setSelectingMode(false));
-    }
-
-    enableSelecting() {
-        const { dispatch } = this.props;
-        dispatch(setSelectingMode(true));
-    }
-
     togglePane(handle) {
         const { dispatch } = this.props;
 
@@ -56,7 +46,7 @@ class Navigation extends React.Component<any, any> {
     }
 
     render() {
-        const { selectingMode, zoomIn, zoomOut, showLabels } = this.props;
+        const { zoomIn, zoomOut, showLabels } = this.props;
 
         return (
             <nav className="navigation">
@@ -101,18 +91,6 @@ class Navigation extends React.Component<any, any> {
                         showLabels
                     )}
                     {this.getButton(
-                        'ion-arrow-move',
-                        'Move (M)',
-                        () => this.enableMoving(),
-                        !selectingMode
-                    )}
-                    {this.getButton(
-                        'ion-qr-scanner',
-                        'Select (S)',
-                        () => this.enableSelecting(),
-                        selectingMode
-                    )}
-                    {this.getButton(
                         'ion-ios-minus',
                         'Zoom out',
                         () => zoomOut(),
@@ -134,7 +112,6 @@ const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
         panes: state.ui.panes,
-        selectingMode: state.graph.selectingMode,
         showLabels: state.graph.showLabels
     };
 };

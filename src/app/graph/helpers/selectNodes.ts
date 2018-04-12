@@ -11,6 +11,10 @@ export function selectNodes(nodesToSelect: Node[], allNodes: Node[]): Node[] {
             && (searchNode.normalizationId === null || searchNode.isNormalizationParent)
         );
 
+        if (index === -1) {
+            throw new Error('Node ' + node.id + ' not found');
+        }
+
         if (!nodes[index].selected) {
             nodes[index] = Object.assign({}, nodes[index], {
                 selected: true
