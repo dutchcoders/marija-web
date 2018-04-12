@@ -1094,6 +1094,7 @@ class Graph extends React.PureComponent<Props, State> {
         window.addEventListener('resize', this.handleWindowResize.bind(this));
         zoomEvents.addListener('zoomIn', this.zoomIn.bind(this));
         zoomEvents.addListener('zoomOut', this.zoomOut.bind(this));
+        window.addEventListener('blur', this.shiftDisengaged.bind(this));
     }
 
     componentWillUnmount() {
@@ -1308,30 +1309,26 @@ class Graph extends React.PureComponent<Props, State> {
     selectionEnded() {
         const { nodesForDisplay, dispatch } = this.props;
 
-        const selectedNodes = this.getSelectedNodes();
-        const newSelectedNodes = concat(selectedNodes, []);
+        const willSelect: Node[] = [];
 
         this.nodesFromD3.forEach(nodeFromD3 => {
-            if ((nodeFromD3.x > this.selection.x1 && nodeFromD3.x < this.selection.x2) &&
-                (nodeFromD3.y > this.selection.y1 && nodeFromD3.y < this.selection.y2)) {
+            const withinX: boolean =
+                (nodeFromD3.x > this.selection.x1 && nodeFromD3.x < this.selection.x2)
+                || (nodeFromD3.x > this.selection.x2 && nodeFromD3.x < this.selection.x1);
+
+            const withinY: boolean =
+                (nodeFromD3.y > this.selection.y1 && nodeFromD3.y < this.selection.y2)
+                || (nodeFromD3.y > this.selection.y2 && nodeFromD3.y < this.selection.y1);
+
+
+            if (withinX && withinY) {
                 const node = nodesForDisplay.find(search => search.hash === nodeFromD3.hash);
 
-                if (!includes(selectedNodes, node)) {
-                    newSelectedNodes.push(node);
-                }
-            }
-
-            if ((nodeFromD3.x > this.selection.x2 && nodeFromD3.x < this.selection.x1) &&
-                (nodeFromD3.y > this.selection.y2 && nodeFromD3.y < this.selection.y1)) {
-                const node = nodesForDisplay.find(search => search.hash === nodeFromD3.hash);
-
-                if (!includes(selectedNodes, node)) {
-                    newSelectedNodes.push(node);
-                }
+                willSelect.push(node);
             }
         });
 
-        dispatch(nodesSelect(newSelectedNodes));
+        dispatch(nodesSelect(willSelect));
 
         this.selection = null;
         this.renderedSince.lastSelection = false;
@@ -1370,8 +1367,14 @@ class Graph extends React.PureComponent<Props, State> {
         const shiftKey = 16;
 
         if (event.keyCode === shiftKey) {
-            this.shift = false;
+            this.shiftDisengaged();
         }
+    }
+
+    shiftDisengaged() {
+        this.shift = false;
+        this.selection = null;
+        this.renderedSince.lastSelection = false;
     }
 
     zoomIn() {

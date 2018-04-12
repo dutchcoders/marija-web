@@ -121,7 +121,6 @@ class Navigation extends React.Component<any, any> {
                             overlay={this.getHelp.bind(this)}
                             placement="bottom"
                             mouseLeaveDelay={0}
-                            defaultVisible={true}
                             overlayClassName={styles.help}
                             arrowContent={<div className="rc-tooltip-arrow-inner" />}>
                             <Icon name={'ion-ios-help ' + styles.helpButton} />
