@@ -35,16 +35,22 @@ class AdjacencyMatrix extends React.Component<Props, State> {
         const matrix = [];
         nodes.forEach((source, a) => {
             nodes.forEach((target, b) => {
+                const key = source.id + '-' + target.id;
+                const opposite = target.id + '-' + source.id;
+                let total: number = 0;
+
+                if (linkMap[key]) {
+                    total = linkMap[key].itemIds.length;
+                } else if (linkMap[opposite]) {
+                    total = linkMap[opposite].itemIds.length;
+                }
+
                 const grid = {
                     id: source.id + "-" + target.id,
                     x: b,
                     y: a,
-                    total: 0
+                    total: total
                 };
-
-                if(linkMap[grid.id]){
-                    grid.total = linkMap[grid.id].total || 1;
-                }
 
                 matrix.push(grid);
             });
@@ -71,6 +77,18 @@ class AdjacencyMatrix extends React.Component<Props, State> {
             .style("fill-opacity", d=> d.total * .2);
 
         const getX = (i) => i * squareSize + .5 * squareSize;
+
+        stage.append('g')
+            .attr("transform","translate(50,50)")
+            .selectAll('text')
+            .data(matrix.filter(d => d.total > 0))
+            .enter()
+            .append("text")
+            .attr('class', styles.total)
+            .attr("x", d=> d.x*squareSize + (squareSize * .5))
+            .attr("y", d=> d.y*squareSize + 14)
+            .text((d: any) => d.total)
+            .style("text-anchor","middle");
 
         stage
             .append("g")
