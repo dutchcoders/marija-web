@@ -1,24 +1,52 @@
-import { assign, chunk, concat, find, isEqual, remove, uniqueId, without } from 'lodash';
+import {concat, find, isEqual, remove, uniqueId, without} from 'lodash';
 
-import { REQUEST_COMPLETED } from '../connection/connectionConstants';
-import { DATE_FIELD_ADD, DATE_FIELD_DELETE, FIELD_ADD, FIELD_DELETE, FIELD_UPDATE } from '../fields/fieldsConstants';
+import {REQUEST_COMPLETED} from '../connection/connectionConstants';
+import {
+    DATE_FIELD_ADD,
+    DATE_FIELD_DELETE,
+    FIELD_ADD,
+    FIELD_DELETE,
+    FIELD_UPDATE
+} from '../fields/fieldsConstants';
 import createField from '../fields/helpers/createField';
-import { Field } from '../fields/interfaces/field';
-import { sortItems } from '../items/helpers/sortItems';
-import { Item } from '../items/interfaces/item';
-import { ITEMS_RECEIVE, ITEMS_REQUEST } from '../items/itemsConstants';
+import {Field} from '../fields/interfaces/field';
+import {sortItems} from '../items/helpers/sortItems';
+import {ITEMS_RECEIVE, ITEMS_REQUEST} from '../items/itemsConstants';
 import darkenColor from '../search/helpers/darkenColor';
 import getQueryColor from '../search/helpers/getQueryColor';
-import { Search } from '../search/interfaces/search';
-import { ACTIVATE_LIVE_DATASOURCE, ADD_LIVE_DATASOURCE_SEARCH, DEACTIVATE_LIVE_DATASOURCE, SEARCH_DELETE, SEARCH_EDIT, SEARCH_FIELDS_UPDATE, SEARCH_REQUEST } from '../search/searchConstants';
-import { TABLE_SORT } from '../table/tableConstants';
-import { ERROR } from '../connection/connectionConstants';
-import { FIELD_NODES_HIGHLIGHT, GRAPH_WORKER_OUTPUT, NODE_UPDATE, NODES_DELETE, NODES_DESELECT, NODES_HIGHLIGHT, NODES_SELECT, NODES_TOOLTIP, NORMALIZATION_ADD, NORMALIZATION_DELETE, SELECT_FIELD_NODES, SELECTION_CLEAR, TOGGLE_LABELS, VIA_ADD, VIA_DELETE } from './graphConstants';
+import {Search} from '../search/interfaces/search';
+import {
+    ACTIVATE_LIVE_DATASOURCE,
+    ADD_LIVE_DATASOURCE_SEARCH,
+    DEACTIVATE_LIVE_DATASOURCE,
+    SEARCH_DELETE,
+    SEARCH_EDIT,
+    SEARCH_FIELDS_UPDATE,
+    SEARCH_REQUEST
+} from '../search/searchConstants';
+import {TABLE_SORT} from '../table/tableConstants';
+import {
+    FIELD_NODES_HIGHLIGHT,
+    GRAPH_WORKER_OUTPUT,
+    NODE_UPDATE,
+    NODES_DELETE,
+    NODES_DESELECT,
+    NODES_HIGHLIGHT,
+    NODES_SELECT,
+    NODES_TOOLTIP,
+    NORMALIZATION_ADD,
+    NORMALIZATION_DELETE,
+    SELECT_FIELD_NODES,
+    SELECTION_CLEAR,
+    TOGGLE_LABELS,
+    VIA_ADD,
+    VIA_DELETE
+} from './graphConstants';
 import applyVia from './helpers/applyVia';
 import deleteFieldFromNodes from './helpers/deleteFieldFromNodes';
 import denormalizeLinks from './helpers/denormalizeLinks';
 import denormalizeNodes from './helpers/denormalizeNodes';
-import { deselectNodes } from './helpers/deselectNodes';
+import {deselectNodes} from './helpers/deselectNodes';
 import markHighlightedNodes from './helpers/markHighlightedNodes';
 import markLinksForDisplay from './helpers/markLinksForDisplay';
 import markNodesForDisplay from './helpers/markNodesForDisplay';
@@ -27,24 +55,11 @@ import normalizeNodes from './helpers/normalizeNodes';
 import removeDeadLinks from './helpers/removeDeadLinks';
 import removeNodesAndLinks from './helpers/removeNodesAndLinks';
 import removeVia from './helpers/removeVia';
-import { selectNodes } from './helpers/selectNodes';
-import { Link } from './interfaces/link';
-import { Node } from './interfaces/node';
-import { Normalization } from './interfaces/normalization';
-import { Via } from './interfaces/via';
-
-export interface GraphState {
-    fields: Field[];
-    date_fields: Field[];
-    normalizations: Normalization[];
-    items: Item[];
-    searches: Search[];
-    nodes: Node[];
-    links: Link[]; // relations between nodes
-    deletedNodes: Node[];
-    via: Via[];
-    showLabels: boolean;
-}
+import {selectNodes} from './helpers/selectNodes';
+import {Node} from './interfaces/node';
+import {Normalization} from './interfaces/normalization';
+import {Via} from './interfaces/via';
+import {GraphState} from "./interfaces/graphState";
 
 export const defaultGraphState: GraphState = {
     fields: [],

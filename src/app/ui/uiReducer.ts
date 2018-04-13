@@ -1,27 +1,13 @@
-import { each } from 'lodash';
+import {each} from 'lodash';
 
-import { CLOSE_PANE, MOVE_PANE_TO_TOP, OPEN_PANE, SET_PANE_CONFIG } from './uiConstants';
-
-export interface PaneInterface {
-    open: boolean;
-    width: number;
-    height: number;
-    x: number;
-    y: number;
-    fullHeight: boolean;
-    fullWidth: boolean;
-    alignRight: boolean;
-    alignBottom: boolean;
-    minWidth: number;
-    minHeight: number;
-    zIndex: number;
-}
-
-export interface UiState {
-    panes: {
-        [name: string]: PaneInterface
-    }
-}
+import {
+    CLOSE_PANE,
+    MOVE_PANE_TO_TOP,
+    OPEN_PANE,
+    SET_PANE_CONFIG
+} from './uiConstants';
+import {UiState} from "./interfaces/uiState";
+import {PaneInterface} from "./interfaces/paneInterface";
 
 const defaultPane: PaneInterface = {
     open: false,

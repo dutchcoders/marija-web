@@ -1,13 +1,7 @@
-import { DefaultConfigs } from '../datasources/interfaces/defaultConfigs';
-import { FIELDS_CLEAR, FIELDS_RECEIVE, FIELDS_REQUEST } from './fieldsConstants';
+import {FIELDS_CLEAR, FIELDS_RECEIVE, FIELDS_REQUEST} from './fieldsConstants';
 import sortFields from './helpers/sortFields';
-import { Field } from './interfaces/field';
-
-export interface FieldsState {
-    availableFields: Field[];
-    fieldsFetching: boolean;
-    defaultConfigs: DefaultConfigs;
-}
+import {Field} from './interfaces/field';
+import {FieldsState} from "./interfaces/fieldsState";
 
 export const defaultFieldsState: FieldsState = {
     availableFields: [],

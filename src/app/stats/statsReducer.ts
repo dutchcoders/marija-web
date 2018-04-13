@@ -1,10 +1,6 @@
-import { INITIAL_STATE_RECEIVE } from '../datasources/datasourcesConstants';
-import { SET_FPS } from './statsConstants';
-
-export interface StatsState {
-   fps: number;
-   serverVersion: string;
-}
+import {INITIAL_STATE_RECEIVE} from '../datasources/datasourcesConstants';
+import {SET_FPS} from './statsConstants';
+import {StatsState} from "./interfaces/statsState";
 
 export const defaultStatsState: StatsState = {
     fps: 0,

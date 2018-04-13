@@ -1,12 +1,10 @@
-import { FIELD_ADD, FIELD_DELETE } from '../fields/fieldsConstants';
-import { Column } from './interfaces/column';
-import { TABLE_COLUMN_ADD, TABLE_COLUMN_REMOVE, TABLE_SORT } from './tableConstants';
-
-export interface TableState {
-    columns: Column[];
-    sortColumn: Column;
-    sortType: 'asc' | 'desc'
-}
+import {FIELD_ADD, FIELD_DELETE} from '../fields/fieldsConstants';
+import {
+    TABLE_COLUMN_ADD,
+    TABLE_COLUMN_REMOVE,
+    TABLE_SORT
+} from './tableConstants';
+import {TableState} from "./interfaces/tableState";
 
 export const defaultTableState: TableState = {
     columns: [],

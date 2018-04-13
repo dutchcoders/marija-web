@@ -1,10 +1,5 @@
-import { HIDE_CONTEXT_MENU, SHOW_CONTEXT_MENU } from './contextMenuConstants';
-
-export interface ContextMenuState {
-    nodeId: string;
-    x: number;
-    y: number;
-}
+import {HIDE_CONTEXT_MENU, SHOW_CONTEXT_MENU} from './contextMenuConstants';
+import {ContextMenuState} from "./interfaces/contextMenuState";
 
 export const defaultContextMenuState: ContextMenuState = {
     nodeId: undefined,

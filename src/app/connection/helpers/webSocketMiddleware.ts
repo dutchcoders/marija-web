@@ -126,9 +126,7 @@ function getUrl(): string {
         url = ((location.protocol === "https:") ? "wss://" : "ws://") + location.host + "/ws";
     }
 
-    return 'wss://derp';
-
-    // return url;
+    return url;
 }
 
 function getCloseMessage(event: CloseEvent): string {
