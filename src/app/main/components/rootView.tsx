@@ -4,9 +4,9 @@ import { connect } from 'react-redux';
 
 import { webSocketConnect } from '../../connection/connectionActions';
 import ContextMenu from '../../contextMenu/contextMenu';
-import Circle from '../../graph/components/chordDiagram/chordDiagram';
+import ChordDiagram from '../../graph/components/chordDiagram/chordDiagram';
 import Filter from '../../graph/components/filter';
-import Navigation from '../../graph/components/navigation/navigation';
+import Navigation from '../../ui/components/navigation/navigation';
 import Nodes from '../../graph/components/nodes';
 import Timeline from '../../graph/components/timeline';
 import Graph from '../../graph/graph';
@@ -17,6 +17,7 @@ import Notifications from '../../connection/components/notifications/notificatio
 import Pane from '../../ui/components/pane';
 import { AppState } from '../interfaces/appState';
 import Configuration from './configuration/configuration';
+import AdjacencyMatrix from "../../graph/components/adjacencyMatrix/adjacencyMatrix";
 
 class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();
@@ -126,7 +127,16 @@ class RootView extends React.Component<any, any> {
                         config={panes.chordDiagram}
                         dispatch={dispatch}
                         container={this.main}>
-                        <Circle />
+                        <ChordDiagram />
+                    </Pane>
+
+                    <Pane
+                        name="Adjacency matrix"
+                        handle="adjacencyMatrix"
+                        config={panes.adjacencyMatrix}
+                        dispatch={dispatch}
+                        container={this.main}>
+                        <AdjacencyMatrix />
                     </Pane>
                 </div>
             );

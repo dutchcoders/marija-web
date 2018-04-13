@@ -65,6 +65,11 @@ export const defaultUiState: UiState = {
             ...defaultPane,
             width: 500,
             height: 500,
+        },
+        adjacencyMatrix: {
+            ...defaultPane,
+            width: 500,
+            height: 500,
         }
     }
 };

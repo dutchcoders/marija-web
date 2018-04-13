@@ -1,6 +1,3 @@
-/**
- * The complete redux store for the entire application.
- */
 import { ContextMenuState } from '../../contextMenu/interfaces/contextMenuState';
 import { DatasourcesState } from '../../datasources/interfaces/datasourcesState';
 import { FieldsState } from '../../fields/interfaces/fieldsState';
@@ -10,6 +7,9 @@ import { TableState } from '../../table/interfaces/tableState';
 import { UiState } from '../../ui/interfaces/uiState';
 import {ConnectionState} from "../../connection/interfaces/connectionState";
 
+/**
+ * The complete redux store for the entire application.
+ */
 export interface AppState {
     graph: GraphState;
     contextMenu: ContextMenuState;

@@ -3,10 +3,10 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import { AppState } from '../../../main/interfaces/appState';
-import Icon from '../../../ui/components/icon';
-import { closePane, openPane } from '../../../ui/uiActions';
-import { toggleLabels } from '../../graphActions';
-import Filter from '../filter';
+import Icon from '../icon';
+import { closePane, openPane } from '../../uiActions';
+import { toggleLabels } from '../../../graph/graphActions';
+import Filter from '../../../graph/components/filter';
 import * as styles from './navigation.scss';
 
 class Navigation extends React.Component<any, any> {
@@ -93,6 +93,12 @@ class Navigation extends React.Component<any, any> {
                         'Chord diagram',
                         () => this.togglePane('chordDiagram'),
                         this.isActive('chordDiagram')
+                    )}
+                    {this.getButton(
+                        'ion-grid',
+                        'Adjacency matrix',
+                        () => this.togglePane('adjacencyMatrix'),
+                        this.isActive('adjacencyMatrix')
                     )}
                 </ul>
                 <ul className="mapControls">
