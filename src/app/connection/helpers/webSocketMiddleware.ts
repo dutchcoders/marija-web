@@ -4,8 +4,7 @@ import {
 } from '../connectionConstants';
 import * as ReconnectingWebsocket from 'reconnecting-websocket';
 import {Dispatch, Middleware} from 'redux';
-import {authConnected} from "../connectionActions";
-import {error} from '../../ui/uiActions';
+import {authConnected, error} from "../connectionActions";
 import {Item} from "../../items/interfaces/item";
 import {liveReceive, searchReceive} from "../../search/searchActions";
 import {requestCompleted} from "../connectionActions";
@@ -32,6 +31,7 @@ export const webSocketMiddleware: Middleware = ({dispatch}) => next => action =>
                 socket.onopen = event => {onOpen(dispatch); resolve(socket)};
                 socket.onmessage = event => onMessage(event, dispatch);
                 socket.onclose = event => onClose(event, dispatch);
+                socket.onerror = event => onClose(event, dispatch);
             });
 
             break;
@@ -50,10 +50,7 @@ export const webSocketMiddleware: Middleware = ({dispatch}) => next => action =>
 };
 
 function onOpen(dispatch: Dispatch<any>) {
-    dispatch(authConnected({
-        connected: true,
-        errors: null
-    }));
+    dispatch(authConnected(true, null));
 }
 
 function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {
@@ -116,10 +113,7 @@ function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {
 function onClose(event: CloseEvent, dispatch: Dispatch<any>) {
     let reason = getCloseMessage(event);
 
-    dispatch(authConnected({
-        connected: false,
-        errors: reason
-    }));
+    dispatch(authConnected(false, reason));
 }
 
 function getUrl(): string {
@@ -132,7 +126,9 @@ function getUrl(): string {
         url = ((location.protocol === "https:") ? "wss://" : "ws://") + location.host + "/ws";
     }
 
-    return url;
+    return 'wss://derp';
+
+    // return url;
 }
 
 function getCloseMessage(event: CloseEvent): string {

@@ -1,4 +1,11 @@
-import { AUTH_CONNECTED, CANCEL_REQUEST, REQUEST_COMPLETED, WEB_SOCKET_CONNECT, WEB_SOCKET_SEND } from './connectionConstants';
+import {
+    AUTH_CONNECTED,
+    CANCEL_REQUEST,
+    ERROR,
+    REQUEST_COMPLETED,
+    WEB_SOCKET_CONNECT,
+    WEB_SOCKET_SEND
+} from './connectionConstants';
 
 export function requestCompleted(requestId) {
     return {
@@ -7,11 +14,13 @@ export function requestCompleted(requestId) {
     };
 }
 
-export function authConnected(p) {
+export function authConnected(connected: boolean, errors: string) {
     return {
         type: AUTH_CONNECTED,
-        receivedAt: Date.now(),
-        ...p
+        payload: {
+            connected: connected,
+            errors: errors
+        }
     };
 }
 
@@ -38,4 +47,13 @@ export function cancelRequest(requestId) {
         type: CANCEL_REQUEST,
         requestId: requestId
     });
+}
+
+export function error(errors: string) {
+    return {
+        type: ERROR,
+        payload: {
+            errors: errors
+        }
+    };
 }

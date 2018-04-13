@@ -1,12 +1,9 @@
-import { CLOSE_PANE, ERROR, MOVE_PANE_TO_TOP, OPEN_PANE, SET_PANE_CONFIG } from './uiConstants';
-
-export function error(msg) {
-    return {
-        type: ERROR,
-        receivedAt: Date.now(),
-        errors: msg
-    };
-}
+import {
+    CLOSE_PANE,
+    MOVE_PANE_TO_TOP,
+    OPEN_PANE,
+    SET_PANE_CONFIG
+} from './uiConstants';
 
 export function openPane(pane) {
     return {

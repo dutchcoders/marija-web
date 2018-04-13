@@ -13,7 +13,7 @@ import Graph from '../../graph/graph';
 import Header from '../../search/components/header';
 import Stats from '../../stats/stats';
 import Table from '../../table/table';
-import Notifications from '../../ui/components/notifications/notifications';
+import Notifications from '../../connection/components/notifications/notifications';
 import Pane from '../../ui/components/pane';
 import { AppState } from '../interfaces/appState';
 import Configuration from './configuration/configuration';
@@ -148,7 +148,6 @@ class RootView extends React.Component<any, any> {
 const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
-        errors: state.graph.errors,
         nodes: state.graph.nodes,
         links: state.graph.links,
         panes: state.ui.panes

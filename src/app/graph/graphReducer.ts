@@ -1,6 +1,6 @@
 import { assign, chunk, concat, find, isEqual, remove, uniqueId, without } from 'lodash';
 
-import { AUTH_CONNECTED, REQUEST_COMPLETED } from '../connection/connectionConstants';
+import { REQUEST_COMPLETED } from '../connection/connectionConstants';
 import { DATE_FIELD_ADD, DATE_FIELD_DELETE, FIELD_ADD, FIELD_DELETE, FIELD_UPDATE } from '../fields/fieldsConstants';
 import createField from '../fields/helpers/createField';
 import { Field } from '../fields/interfaces/field';
@@ -12,7 +12,7 @@ import getQueryColor from '../search/helpers/getQueryColor';
 import { Search } from '../search/interfaces/search';
 import { ACTIVATE_LIVE_DATASOURCE, ADD_LIVE_DATASOURCE_SEARCH, DEACTIVATE_LIVE_DATASOURCE, SEARCH_DELETE, SEARCH_EDIT, SEARCH_FIELDS_UPDATE, SEARCH_REQUEST } from '../search/searchConstants';
 import { TABLE_SORT } from '../table/tableConstants';
-import { ERROR } from '../ui/uiConstants';
+import { ERROR } from '../connection/connectionConstants';
 import { FIELD_NODES_HIGHLIGHT, GRAPH_WORKER_OUTPUT, NODE_UPDATE, NODES_DELETE, NODES_DESELECT, NODES_HIGHLIGHT, NODES_SELECT, NODES_TOOLTIP, NORMALIZATION_ADD, NORMALIZATION_DELETE, SELECT_FIELD_NODES, SELECTION_CLEAR, TOGGLE_LABELS, VIA_ADD, VIA_DELETE } from './graphConstants';
 import applyVia from './helpers/applyVia';
 import deleteFieldFromNodes from './helpers/deleteFieldFromNodes';
@@ -34,8 +34,6 @@ import { Normalization } from './interfaces/normalization';
 import { Via } from './interfaces/via';
 
 export interface GraphState {
-    connected: boolean;
-    total: number;
     fields: Field[];
     date_fields: Field[];
     normalizations: Normalization[];
@@ -44,14 +42,11 @@ export interface GraphState {
     nodes: Node[];
     links: Link[]; // relations between nodes
     deletedNodes: Node[];
-    errors: any;
     via: Via[];
     showLabels: boolean;
 }
 
 export const defaultGraphState: GraphState = {
-    connected: false,
-    total: 0,
     fields: [],
     date_fields: [],
     normalizations: [],
@@ -60,7 +55,6 @@ export const defaultGraphState: GraphState = {
     nodes: [], // all nodes
     links: [], // relations between nodes
     deletedNodes: [],
-    errors: null,
     via: [],
     showLabels: false
 };
@@ -342,15 +336,6 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             return Object.assign({}, state, {
                 nodes: nodes
-            });
-        case ERROR:
-            console.debug(action);
-            return Object.assign({}, state, {
-                errors: action.errors
-            });
-        case AUTH_CONNECTED:
-            return Object.assign({}, state, {
-                ...action
             });
         case SEARCH_REQUEST: {
             const searches = state.searches.concat([]);

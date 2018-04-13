@@ -10,6 +10,7 @@ import tableReducer from '../table/tableReducer';
 import uiReducer from '../ui/uiReducer';
 import exportJson from './helpers/exportJson';
 import { EXPORT_DATA, IMPORT_DATA } from './mainConstants';
+import connectionReducer from "../connection/connectionReducer";
 
 const appReducer = combineReducers({
     graph: graphReducer,
@@ -18,6 +19,7 @@ const appReducer = combineReducers({
     fields: fieldsReducer,
     contextMenu: contextMenuReducer,
     table: tableReducer,
+    connection: connectionReducer,
     routing: routerReducer,
     stats: statsReducer
 });

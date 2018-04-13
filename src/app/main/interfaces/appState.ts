@@ -8,6 +8,7 @@ import { GraphState } from '../../graph/graphReducer';
 import { StatsState } from '../../stats/statsReducer';
 import { TableState } from '../../table/tableReducer';
 import { UiState } from '../../ui/uiReducer';
+import {ConnectionState} from "../../connection/interfaces/connectionState";
 
 export interface AppState {
     graph: GraphState;
@@ -17,4 +18,5 @@ export interface AppState {
     stats: StatsState;
     table: TableState;
     ui: UiState;
+    connection: ConnectionState;
 }

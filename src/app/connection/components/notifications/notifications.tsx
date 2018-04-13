@@ -2,8 +2,8 @@ import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 
 import { AppState } from '../../../main/interfaces/appState';
-import { error } from '../../../ui/uiActions';
-import Icon from '../icon';
+import { error } from '../../connectionActions';
+import Icon from '../../../ui/components/icon';
 import * as styles from './notifications.scss';
 
 interface Props {
@@ -41,7 +41,7 @@ class Notifications extends React.Component<Props, State> {
 
 const select = (state: AppState) => {
     return {
-        errors: state.graph.errors,
+        errors: state.connection.errors,
     };
 };
 

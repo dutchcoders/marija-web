@@ -22,6 +22,7 @@ import RootView from './components/rootView';
 import persistState from './helpers/persistState';
 import { AppState } from './interfaces/appState';
 import root from './rootReducer';
+import {defaultConnectionState} from "../connection/connectionReducer";
 
 require('../../scss/app.scss');
 require('../../images/favicon.png');
@@ -37,7 +38,8 @@ const defaultState: AppState = {
     fields: defaultFieldsState,
     ui: defaultUiState,
     stats: defaultStatsState,
-    table: defaultTableState
+    table: defaultTableState,
+    connection: defaultConnectionState
 };
 
 function configureStore() {
