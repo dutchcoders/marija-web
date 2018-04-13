@@ -8,6 +8,7 @@ import {connect, Dispatch} from "react-redux";
 import {Search} from "../../../search/interfaces/search";
 import * as d3 from 'd3';
 import {EventEmitter} from "fbemitter";
+import {FormEvent} from "react";
 
 interface Props {
     selectedNodes: Node[];
@@ -17,20 +18,56 @@ interface Props {
 }
 
 interface State {
-
+    sort: 'alphabetically' | 'frequency'
 }
 
 class AdjacencyMatrix extends React.Component<Props, State> {
+    state: State = {
+        sort: 'frequency'
+    };
+
     mounted = false;
     matrix: SVGSVGElement;
     transform: any = d3.zoomIdentity;
     renderedTransform: boolean = true;
 
     renderMatrix(nodes: Node[], links: Link[]) {
+        const { sort } = this.state;
+
         const linkMap = {};
         links.forEach(link =>
             linkMap[link.source + '-' + link.target] = link
         );
+
+        const linkCount = {};
+        links.forEach(link => {
+            if (linkCount[link.source]) {
+                linkCount[link.source] += link.itemIds.length
+            } else {
+                linkCount[link.source] = link.itemIds.length;
+            }
+
+            if (linkCount[link.target]) {
+                linkCount[link.target] += link.itemIds.length
+            } else {
+                linkCount[link.target] = link.itemIds.length;
+            }
+        });
+
+        nodes = nodes.concat([]);
+
+        if (sort === 'alphabetically') {
+            nodes.sort((a, b) => {
+                const aLower = a.id.toLowerCase();
+                const bLower = b.id.toLowerCase();
+
+                if (aLower < bLower) return -1;
+                if (aLower > bLower) return 1;
+                return 0;
+            });
+        } else if (sort === 'frequency') {
+            nodes.sort((a, b) => linkCount[b.id] - linkCount[a.id]);
+        }
 
         const matrix = [];
         nodes.forEach((source, a) => {
@@ -61,6 +98,8 @@ class AdjacencyMatrix extends React.Component<Props, State> {
         const squareSize = 20;
 
         const stage = d3.select(this.matrix).append('g');
+
+        stage.attr('class', 'stage');
 
         stage.append("g")
             .attr("transform","translate(50,50)")
@@ -149,7 +188,8 @@ class AdjacencyMatrix extends React.Component<Props, State> {
     }
 
     renderZoom() {
-        d3.selectAll('svg > g').attr('transform', this.transform);
+        d3.select(this.matrix)
+            .selectAll('.stage').attr('transform', this.transform);
     }
 
     ticker() {
@@ -177,13 +217,38 @@ class AdjacencyMatrix extends React.Component<Props, State> {
         this.mounted = false;
     }
 
+    componentDidUpdate(prevProps: Props, prevState: State) {
+        const { sort } = this.state;
+        const { selectedNodes, links } = this.props;
+
+        if (sort !== prevState.sort) {
+            this.renderMatrix(selectedNodes, links);
+        }
+    }
+
+    handleSortChange(event: FormEvent<HTMLSelectElement>) {
+        this.setState({
+            sort: event.currentTarget.value as any
+        });
+    }
+
     render() {
+        const { sort } = this.state;
+
         return (
-            <svg
-                ref={ref => this.matrix = ref}
-                id="adjancency"
-                className={styles.matrix}
-            />
+            <div className={styles.container}>
+                <div className={styles.sort}>
+                    <label className={styles.sortLabel}>Sort:</label>
+                    <select className={styles.sortSelect} defaultValue={sort} onChange={this.handleSortChange.bind(this)}>
+                        <option value="frequency">Frequency</option>
+                        <option value="alphabetically">Alphabetically</option>
+                    </select>
+                </div>
+                <svg
+                    ref={ref => this.matrix = ref}
+                    className={styles.matrix}
+                />
+            </div>
         );
     }
 }

@@ -20,3 +20,27 @@
 .total {
   font-size: 10px;
 }
+
+.container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.sort {
+  position: absolute;
+  background: #415066;
+  padding: 5px 12px;
+  top: 0;
+  right: 10px;
+  border-radius: 30px;
+  border: 1px solid rgba(0,0,0,.2);
+}
+
+.sortLabel {
+  margin: 0 5px 0 0;
+}
+
+.sortSelect {
+  color: black;
+}
