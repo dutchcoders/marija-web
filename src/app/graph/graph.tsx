@@ -19,6 +19,7 @@ import {
     showContextMenu
 } from "../contextMenu/contextMenuActions";
 import {
+    getHighlightedNodes,
     getLinksForDisplay,
     getNodesForDisplay
 } from "./graphSelectors";
@@ -32,10 +33,15 @@ interface TextureMap {
     [hash: string]: PIXI.RenderTexture;
 }
 
+interface HighlightedNodesMap {
+    [nodeId: string]: true
+}
+
 interface Props {
     searches: Search[];
     nodesForDisplay: Node[];
     linksForDisplay: Link[];
+    highlightedNodes: Node[];
     fields: Field[];
     zoomEvents: any;
     dispatch: Dispatch<any>;
@@ -86,8 +92,6 @@ class Graph extends React.PureComponent<Props, State> {
     renderedTooltip: PIXI.Container = new PIXI.Graphics();
     renderedSelectedNodes: PIXI.Container = new PIXI.Graphics();
     selectedNodeTextures: TextureMap = {};
-    highlightTextures: TextureMap = {};
-    renderedHighlights: PIXI.Container = new PIXI.Container();
     nodeLabelTextures: TextureMap = {};
     renderedNodeLabels: PIXI.Container = new PIXI.Container();
     iconTextures: TextureMap = {};
@@ -102,6 +106,7 @@ class Graph extends React.PureComponent<Props, State> {
     linkLabelTextures: TextureMap = {};
     tooltipTextures: TextureMap = {};
     dragSubjects: NodeFromD3[];
+    highlightedNodesMap: HighlightedNodesMap;
 
     postWorkerMessage(message) {
         this.worker.postMessage(message);
@@ -153,7 +158,6 @@ class Graph extends React.PureComponent<Props, State> {
             this.renderedLinks,
             this.renderedSelectedNodes,
             this.renderedLinkLabels,
-            this.renderedHighlights,
             this.renderedNodeLabels,
             this.renderedArrows,
             this.renderedIcons
@@ -269,6 +273,9 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     renderNodes() {
+        const { highlightedNodes } = this.props;
+
+        const isHighlighting: boolean = highlightedNodes.length > 0;
         this.renderedNodesContainer.removeChildren();
         this.renderedIcons.removeChildren();
 
@@ -280,6 +287,10 @@ class Graph extends React.PureComponent<Props, State> {
             renderedNode.anchor.y = 0.5;
             renderedNode.x = node.x;
             renderedNode.y = node.y;
+
+            if (isHighlighting && !this.highlightedNodesMap[node.id]) {
+                renderedNode.alpha = .3;
+            }
 
             this.renderedNodesContainer.addChild(renderedNode);
             this.renderIcons(node);
@@ -314,9 +325,14 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     renderLinks() {
+        const { highlightedNodes } = this.props;
+
+        const isHighlighting: boolean = highlightedNodes.length > 0;
         this.renderedLinks.clear();
         this.renderedLinkLabels.removeChildren();
         this.renderedArrows.removeChildren();
+
+        this.renderedLinks.alpha = isHighlighting ? .1 : .7;
 
         this.linksFromD3.forEach(link => {
             this.renderedLinks.lineStyle(link.thickness, 0xFFFFFF);
@@ -521,12 +537,6 @@ class Graph extends React.PureComponent<Props, State> {
         return nodesForDisplay.filter(node => node.displayTooltip);
     }
 
-    getHighlightNodes(): Node[] {
-        const { nodesForDisplay } = this.props;
-
-        return nodesForDisplay.filter(node => node.highlighted);
-    }
-
     shouldUpdateNodeProperties(nodes: Node[], nextNodes: Node[]): boolean {
         if (nodes.length !== nextNodes.length) {
             // If we have a different amount of nodes we dont update just some
@@ -564,7 +574,7 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     componentWillReceiveProps(nextProps: Props) {
-        const { searches, nodesForDisplay, linksForDisplay, fields, showLabels } = this.props;
+        const { searches, nodesForDisplay, linksForDisplay, fields, showLabels, highlightedNodes } = this.props;
         const selectedNodes = this.getSelectedNodes();
         const nextSelected = nextProps.nodesForDisplay.filter(node => node.selected);
 
@@ -603,7 +613,13 @@ class Graph extends React.PureComponent<Props, State> {
             this.updateNodeProperties(nextProps.nodesForDisplay);
         }
 
-        if (nextProps.nodesForDisplay.filter(node => node.highlighted) !== this.getHighlightNodes()) {
+        if (nextProps.highlightedNodes !== highlightedNodes) {
+            this.highlightedNodesMap = {};
+
+            nextProps.highlightedNodes.forEach(node =>
+                this.highlightedNodesMap[node.id] = true
+            );
+
             this.renderedSince.lastHighlights = false;
         }
 
@@ -817,56 +833,6 @@ class Graph extends React.PureComponent<Props, State> {
         });
     }
 
-    getHighlightTexture(radius: number) {
-        radius += 5;
-        let texture = this.highlightTextures[radius];
-
-        if (texture) {
-            // Get from cache
-            return texture;
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = radius * 2;
-        canvas.height = radius * 2;
-
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-        ctx.arc(radius, radius, radius, 0, 2 * Math.PI);
-        ctx.fill();
-
-        texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
-
-        // Save in cache
-        this.highlightTextures[radius] = texture;
-
-        return texture;
-    }
-
-    renderHighlights() {
-        const highlightNodes = this.getHighlightNodes();
-
-        this.renderedHighlights.removeChildren();
-
-        highlightNodes.forEach((highlightNode: Node) => {
-            const nodeFromD3 = this.nodesFromD3.find(node => node.hash === highlightNode.hash);
-
-            if (typeof nodeFromD3 === 'undefined') {
-                return;
-            }
-
-            const texture = this.getHighlightTexture(nodeFromD3.r);
-            const sprite = new PIXI.Sprite(texture);
-
-            sprite.anchor.x = 0.5;
-            sprite.anchor.y = 0.5;
-            sprite.x = nodeFromD3.x;
-            sprite.y = nodeFromD3.y;
-
-            this.renderedHighlights.addChild(sprite);
-        });
-    }
-
     getNodeLabelTexture(label: string): PIXI.Texture {
         const key = label;
         let texture = this.nodeLabelTextures[key];
@@ -931,7 +897,8 @@ class Graph extends React.PureComponent<Props, State> {
         if (shouldRender('lastTick')
             || shouldRender('lastZoom')
             || shouldRender('lastQueries')
-            || shouldRender('lastFields')) {
+            || shouldRender('lastFields')
+            || shouldRender('lastHighlights')) {
             this.renderNodes();
             this.renderLinks();
             this.renderTooltip();
@@ -967,14 +934,6 @@ class Graph extends React.PureComponent<Props, State> {
             this.renderSelectedNodes();
 
             stateUpdates.lastSelectedNodes = true;
-        }
-
-        if (shouldRender('lastHighlights')
-            || shouldRender('lastZoom')
-            || shouldRender('lastTick')) {
-            this.renderHighlights();
-
-            stateUpdates.lastHighlights = true;
         }
 
         const hasStateUpdates: boolean = !isEmpty(stateUpdates);
@@ -1031,7 +990,6 @@ class Graph extends React.PureComponent<Props, State> {
 
         this.stage.addChild(this.renderedLinks);
         this.stage.addChild(this.renderedLinkLabels);
-        this.stage.addChild(this.renderedHighlights);
         this.stage.addChild(this.renderedNodesContainer);
         this.stage.addChild(this.renderedSelection);
         this.stage.addChild(this.renderedSelectedNodes);
@@ -1446,6 +1404,7 @@ const select = (state: AppState, ownProps) => {
         ...ownProps,
         nodesForDisplay: getNodesForDisplay(state),
         linksForDisplay: getLinksForDisplay(state),
+        highlightedNodes: getHighlightedNodes(state),
         fields: state.graph.fields,
         searches: state.graph.searches,
         showLabels: state.graph.showLabels

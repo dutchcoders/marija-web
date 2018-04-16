@@ -29,5 +29,10 @@ export const getLinksForDisplay = createSelector(
 
 export const getSelectedNodes = createSelector(
     (state: AppState) => state.graph.nodes,
-    (nodes) => nodes.filter(node => node.selected)
+    (nodes: Node[]) => nodes.filter(node => node.selected)
+);
+
+export const getHighlightedNodes = createSelector(
+    (state: AppState) => state.graph.nodes,
+    (nodes: Node[]) => nodes.filter(node => node.highlighted)
 );
