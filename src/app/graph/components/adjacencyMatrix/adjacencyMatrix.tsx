@@ -7,7 +7,7 @@ import {getLinksForDisplay, getSelectedNodes} from "../../graphSelectors";
 import {connect, Dispatch} from "react-redux";
 import {Search} from "../../../search/interfaces/search";
 import * as d3 from 'd3';
-import {EventEmitter} from "fbemitter";
+import {Communities, jLouvain} from 'jlouvain';
 import {FormEvent} from "react";
 
 interface Props {
@@ -18,7 +18,7 @@ interface Props {
 }
 
 interface State {
-    sort: 'alphabetically' | 'frequency'
+    sort: 'alphabetically' | 'frequency' | 'community'
 }
 
 class AdjacencyMatrix extends React.Component<Props, State> {
@@ -30,6 +30,7 @@ class AdjacencyMatrix extends React.Component<Props, State> {
     matrix: SVGSVGElement;
     transform: any = d3.zoomIdentity;
     renderedTransform: boolean = true;
+    communities: Communities;
 
     renderMatrix(nodes: Node[], links: Link[]) {
         const { sort } = this.state;
@@ -67,6 +68,8 @@ class AdjacencyMatrix extends React.Component<Props, State> {
             });
         } else if (sort === 'frequency') {
             nodes.sort((a, b) => linkCount[b.id] - linkCount[a.id]);
+        } else if (sort === 'community') {
+            nodes.sort((a, b) => this.communities[b.id] - this.communities[a.id]);
         }
 
         const matrix = [];
@@ -174,6 +177,29 @@ class AdjacencyMatrix extends React.Component<Props, State> {
         });
     }
 
+    detectCommunities(nodes: Node[], links: Link[]) {
+        const nodeMap = {};
+        const nodeIds = nodes.map(node => {
+            nodeMap[node.id] = true;
+            return node.id;
+        });
+
+        links = links.filter(link =>
+            typeof nodeMap[link.source] !== 'undefined'
+            && typeof nodeMap[link.target] !== 'undefined'
+        );
+
+        const louvainLinks = links.map(link => {
+            return {
+                source: link.source,
+                target: link.target,
+                weight: link.itemIds.length
+            }
+        });
+
+        this.communities = jLouvain().nodes(nodeIds).edges(louvainLinks)();
+    }
+
     zoomed() {
         this.transform = d3.event.transform;
         this.renderedTransform = false;
@@ -183,6 +209,7 @@ class AdjacencyMatrix extends React.Component<Props, State> {
         const {selectedNodes} = this.props;
 
         if (selectedNodes.length !== props.selectedNodes.length) {
+            this.detectCommunities(props.selectedNodes, props.links);
             this.renderMatrix(props.selectedNodes, props.links);
         }
     }
@@ -207,6 +234,8 @@ class AdjacencyMatrix extends React.Component<Props, State> {
 
     componentDidMount() {
         const {selectedNodes, links} = this.props;
+
+        this.detectCommunities(selectedNodes, links);
         this.renderMatrix(selectedNodes, links);
 
         this.mounted = true;
@@ -241,6 +270,7 @@ class AdjacencyMatrix extends React.Component<Props, State> {
                     <label className={styles.sortLabel}>Sort:</label>
                     <select className={styles.sortSelect} defaultValue={sort} onChange={this.handleSortChange.bind(this)}>
                         <option value="frequency">Frequency</option>
+                        <option value="community">Community</option>
                         <option value="alphabetically">Alphabetically</option>
                     </select>
                 </div>

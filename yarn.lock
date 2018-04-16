@@ -4047,6 +4047,10 @@ jest@^21.2.1:
   dependencies:
     jest-cli "^21.2.1"
 
+jlouvain@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/jlouvain/-/jlouvain-2.0.0.tgz#2718f0e58911cb337ae981b9e65253c3c0606019"
+
 js-base64@^2.1.8:
   version "2.4.3"
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.4.3.tgz#2e545ec2b0f2957f41356510205214e98fad6582"
@@ -4742,6 +4746,16 @@ ncname@1.0.x:
 negotiator@0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
+
+ngraph.louvain@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/ngraph.louvain/-/ngraph.louvain-1.0.1.tgz#d289c5d441090bdfe1a357420df5c399c690b73b"
+  dependencies:
+    ngraph.random "0.0.1"
+
+ngraph.random@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/ngraph.random/-/ngraph.random-0.0.1.tgz#c008e2ebbfdffaf17ed10e4bbc913e567166bcf8"
 
 no-case@^2.2.0:
   version "2.3.2"
