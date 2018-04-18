@@ -3,5 +3,5 @@ import {render} from "react-dom";
 import {Marija} from '../app';
 
 render((
-    <Marija />
+    <Marija backendUri={process.env.WEBSOCKET_URI} />
 ), document.getElementById('root'));

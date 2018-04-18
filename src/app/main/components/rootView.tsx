@@ -33,9 +33,9 @@ class RootView extends React.Component<any, any> {
     }
 
     componentWillMount() {
-        const { dispatch } = this.props;
+        const { dispatch, backendUri } = this.props;
 
-        dispatch(webSocketConnect());
+        dispatch(webSocketConnect(backendUri));
     }
 
     componentDidMount() {
@@ -160,7 +160,8 @@ const select = (state: AppState, ownProps) => {
         ...ownProps,
         nodes: state.graph.nodes,
         links: state.graph.links,
-        panes: state.ui.panes
+        panes: state.ui.panes,
+        backendUri: state.connection.backendUri
     };
 };
 export default connect(select)(RootView);

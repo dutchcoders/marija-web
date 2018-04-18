@@ -23,6 +23,7 @@ import persistState from './helpers/persistState';
 import { AppState } from './interfaces/appState';
 import root from './rootReducer';
 import {defaultConnectionState} from "../connection/connectionReducer";
+import {setBackendUri} from "../connection/connectionActions";
 
 require('../../scss/app.scss');
 require('../../images/favicon.png');
@@ -60,7 +61,20 @@ function configureStore() {
 const store = configureStore();
 const history = syncHistoryWithStore(createBrowserHistory(), store);
 
-class App extends React.Component<any, any> {
+interface Props {
+    backendUri?: string;
+}
+
+interface State {
+}
+
+class App extends React.Component<Props, State> {
+    componentWillMount() {
+        const { backendUri } = this.props;
+
+        store.dispatch(setBackendUri(backendUri));
+    }
+
     render() {
         return (
             <div className="applicationWrapper">

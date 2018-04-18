@@ -22,11 +22,11 @@ let opened: Promise<ReconnectingWebsocket>;
 export const webSocketMiddleware: Middleware = ({dispatch}) => next => action => {
     switch (action.type) {
         case WEB_SOCKET_CONNECT: {
-            const url = getUrl();
-            console.log('Connecting to backend on ', url);
+            const backendUri: string = action.payload.backendUri;
+            console.log('Connecting to backend on ', backendUri);
 
             opened = new Promise(resolve => {
-                const socket = new ReconnectingWebsocket(url);
+                const socket = new ReconnectingWebsocket(backendUri);
 
                 socket.onopen = event => {onOpen(dispatch); resolve(socket)};
                 socket.onmessage = event => onMessage(event, dispatch);

@@ -4,3 +4,4 @@ export const REQUEST_COMPLETED = 'REQUEST_COMPLETED';
 export const WEB_SOCKET_CONNECT = 'WEB_SOCKET_CONNECT';
 export const WEB_SOCKET_SEND = 'WEB_SOCKET_SEND';
 export const ERROR = 'ERROR';
+export const SET_BACKEND_URI = 'SET_BACKEND_URI';
