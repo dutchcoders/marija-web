@@ -179,12 +179,13 @@ class Configuration extends React.Component<Props, State> {
 
     renderNormalizations(normalizations: Normalization[]) {
         const { normalization_error } = this.state;
+        const regexMaxDisplayLength = 100;
 
         const options = map(normalizations, (normalization) => {
             return (
                 <li key={normalization.replaceWith}>
                     <span>
-                       Regex '<b>{normalization.regex}</b>' will be replaced with value '<b>{normalization.replaceWith}</b>'.
+                       Regex '<b>{normalization.regex.substring(0, regexMaxDisplayLength)}</b>' will be replaced with value '<b>{normalization.replaceWith}</b>'.
                     </span>
                     <Icon onClick={() => this.handleDeleteNormalization(normalization)} name="ion-ios-trash-outline"/>
                 </li>

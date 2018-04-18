@@ -322,7 +322,12 @@ class Nodes extends React.Component<Props, State> {
 
         const ids = selectedNodes.map(node => this.escapeRegExp(node.id));
         const regex = '^' + ids.join('$|^') + '$';
-        const name = selectedNodes.map(node => node.name).join('+');
+        const maxLength = 200;
+        const name =
+            'Merged nodes: ' +
+            selectedNodes.map(node => node.name)
+            .join('+')
+            .substring(0, maxLength);
 
         dispatch(normalizationAdd({
             regex: regex,
