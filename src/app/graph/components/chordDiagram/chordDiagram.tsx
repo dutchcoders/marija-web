@@ -33,8 +33,11 @@ class ChordDiagram extends React.Component<Props, State> {
     link: Selection<any, any, any, any>;
     node: Selection<any, any, any, any>;
     line: d3.RadialLine<any>;
-    svg: Selection<any, any, any, any>;
+    svg: any;
     svgContainer: HTMLDivElement;
+    transform: any = d3.zoomIdentity;
+    renderedTransform: boolean = true;
+    mounted: boolean = false;
 
     renderDiagram(nodes: Node[], links: Link[]) {
         const { searches } = this.props;
@@ -63,12 +66,15 @@ class ChordDiagram extends React.Component<Props, State> {
         this.svg = d3.select('#svgContainer')
             .append('svg')
             .attr('width', rect.width)
-            .attr('height', rect.height)
-            .append('g')
+            .attr('height', rect.height);
+
+        const stage = this.svg.append('g').attr('class', 'stage');
+
+        const centerStage = stage.append('g')
             .attr('transform', 'translate(' + (rect.width / 2) + ',' + (rect.height / 2) + ')');
 
-        this.link = this.svg.append('g').selectAll('.link');
-        this.node = this.svg.append('g').selectAll('.node');
+        this.link = centerStage.append('g').selectAll('.link');
+        this.node = centerStage.append('g').selectAll('.node');
 
         const hierarchy = getNodeHierarchy(nodes, links);
         const root = d3.hierarchy(hierarchy).sum(d => d.size);
@@ -113,6 +119,36 @@ class ChordDiagram extends React.Component<Props, State> {
             .attr('class', styles.close)
             .text(node => '\uF405')
             .on('click', node => this.close(node));
+
+        const zooming = d3.zoom()
+            .scaleExtent([.3, 3])
+            .on("zoom", this.zoomed.bind(this));
+
+        d3.select('#svgContainer > svg').call(zooming);
+    }
+
+    zoomed() {
+        this.transform = d3.event.transform;
+        this.renderedTransform = false;
+    }
+
+
+    renderZoom() {
+        d3.select('#svgContainer .stage')
+            .attr('transform', this.transform);
+    }
+
+    ticker() {
+        if (!this.mounted) {
+            return;
+        }
+
+        if (!this.renderedTransform) {
+            this.renderZoom();
+            this.renderedTransform = true;
+        }
+
+        requestAnimationFrame(() => this.ticker());
     }
 
     close(node) {
@@ -135,11 +171,15 @@ class ChordDiagram extends React.Component<Props, State> {
 
         this.renderDiagram(nodes, links);
         onPaneEvent.addListener('resized', this.onResized.bind(this));
+
+        this.mounted = true;
+        requestAnimationFrame(() => this.ticker());
     }
 
     componentWillUnmount() {
         const { onPaneEvent } = this.props;
         onPaneEvent.removeAllListeners();
+        this.mounted = false;
     }
 
     onResized() {
