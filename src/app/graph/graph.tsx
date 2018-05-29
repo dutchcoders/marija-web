@@ -113,7 +113,10 @@ class Graph extends React.PureComponent<Props, State> {
     mapMarkers: Leaflet.LayerGroup;
 	initialMapZoom: number;
 	initialMapBounds: Leaflet.LatLngBounds;
+	mapOffset: Leaflet.Point;
 	graphComponent;
+	isMouseDown: boolean = false;
+	mainDragSubject: NodeFromD3;
     readonly minZoomGraph: number = .3;
     readonly maxZoomGraph: number = 3;
     readonly minZoomMap: number = 1;
@@ -169,7 +172,7 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
     zoom(fraction: number, newX: number, newY: number) {
-        [
+    	[
             this.renderedNodesContainer,
             this.renderedLinks,
             this.renderedSelectedNodes,
@@ -194,7 +197,7 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     zoomed() {
-		const transform = d3.event.transform;
+    	const transform = d3.event.transform;
 
 		this.zoom(transform.k, transform.x, transform.y);
 
@@ -202,12 +205,12 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     mapZoomed() {
-    	const offset = this.map.latLngToContainerPoint(this.initialMapBounds.getNorthWest());
+    	this.mapOffset = this.map.latLngToContainerPoint(this.initialMapBounds.getNorthWest());
 
 		const graphZoom = this.map.getZoomScale(this.map.getZoom(), this.initialMapZoom);
 		this.transform.k = graphZoom;
 
-		this.zoom(graphZoom, offset.x, offset.y);
+		this.zoom(graphZoom, this.mapOffset.x, this.mapOffset.y);
 	}
 
 	initMapMarkers(nodes: Node[]) {
@@ -332,6 +335,16 @@ class Graph extends React.PureComponent<Props, State> {
         return texture;
     }
 
+    getNodeSizeMultiplier(): number {
+    	const { isMapActive } = this.props;
+
+    	if (!isMapActive) {
+    		return 1;
+		}
+
+		return 1 / this.transform.k * .8;
+	}
+
     renderNodes() {
         const { highlightedNodes, isMapActive } = this.props;
 
@@ -339,11 +352,7 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedNodesContainer.removeChildren();
         this.renderedIcons.removeChildren();
 
-		let sizeMultiplier: number = 1;
-
-		if (isMapActive) {
-			sizeMultiplier = 1 / this.transform.k * .8;
-		}
+		const sizeMultiplier = this.getNodeSizeMultiplier();
 
         this.nodesFromD3.forEach(node => {
 			this.renderIcons(node);
@@ -405,12 +414,12 @@ class Graph extends React.PureComponent<Props, State> {
 
         let alpha: number = .7;
 
-        if (isMapActive) {
-        	alpha = 1;
+		if (isHighlighting) {
+			alpha = .1;
 		}
 
-        if (isHighlighting) {
-        	alpha = .1;
+        if (isMapActive) {
+        	alpha = 1;
 		}
 
         this.renderedLinks.alpha = alpha;
@@ -903,15 +912,68 @@ class Graph extends React.PureComponent<Props, State> {
             const texture = this.getTooltipTexture(node);
             const sprite = new PIXI.Sprite(texture);
 
-            sprite.x = this.transform.applyX(nodeFromD3.x);
-            sprite.y = this.transform.applyY(nodeFromD3.y);
+            sprite.x = this.applyX(nodeFromD3.x);
+            sprite.y = this.applyY(nodeFromD3.y);
 
             this.renderedTooltip.addChild(sprite);
         });
     }
 
-    getSelectedNodeTexture(radius: number) {
-        let texture = this.selectedNodeTextures[radius];
+    applyX(x: number): number {
+		const { isMapActive } = this.props;
+
+		let transformed: number = this.transform.applyX(x);
+
+		if (isMapActive) {
+			transformed += this.mapOffset.x;
+		}
+
+		return transformed;
+	}
+
+	applyY(y: number): number {
+		const { isMapActive } = this.props;
+
+		let transformed: number = this.transform.applyY(y);
+
+		if (isMapActive) {
+			transformed += this.mapOffset.y;
+		}
+
+		return transformed;
+	}
+
+	invertX(x: number): number {
+		const { isMapActive } = this.props;
+
+		// let offset = 0;
+
+		if (isMapActive) {
+			x -= this.mapOffset.x;
+		}
+
+
+		let transformed: number = this.transform.invertX(x );
+
+
+		return transformed;
+	}
+
+	invertY(y: number): number {
+		const { isMapActive } = this.props;
+
+		// let transformed: number = ;
+
+		if (isMapActive) {
+			y -= this.mapOffset.y;
+		}
+
+		return this.transform.invertY(y);
+	}
+
+    getSelectedNodeTexture(radius: number, sizeMultiplier: number) {
+		const textureKey = radius + '-' + sizeMultiplier;
+        let texture = this.selectedNodeTextures[textureKey];
 
         if (texture) {
             // Get from cache
@@ -919,19 +981,21 @@ class Graph extends React.PureComponent<Props, State> {
         }
 
         const canvas = document.createElement('canvas');
-        canvas.width = radius * 2 + 4;
-        canvas.height = radius * 2 + 4;
+        const multipliedRadius = radius * sizeMultiplier;
+
+        canvas.width = multipliedRadius * 2 + 4;
+        canvas.height = multipliedRadius * 2 + 4;
 
         const ctx = canvas.getContext('2d');
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 3 * sizeMultiplier;
         ctx.strokeStyle = '#fac04b';
-        ctx.arc(radius + 2, radius + 2, radius, 0, 2 * Math.PI);
+        ctx.arc(multipliedRadius + 2, multipliedRadius + 2, multipliedRadius, 0, 2 * Math.PI);
         ctx.stroke();
 
         texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
 
         // Save in cache
-        this.selectedNodeTextures[radius] = texture;
+        this.selectedNodeTextures[textureKey] = texture;
 
         return texture;
     }
@@ -943,6 +1007,7 @@ class Graph extends React.PureComponent<Props, State> {
         const selectedNodes = this.getSelectedNodes();
 
         this.renderedSelectedNodes.removeChildren();
+        const sizeMultiplier = this.getNodeSizeMultiplier();
 
         selectedNodes.forEach(selected => {
             const nodeFromD3 = this.nodesFromD3.find(search => search.hash === selected.hash);
@@ -951,7 +1016,7 @@ class Graph extends React.PureComponent<Props, State> {
                 return;
             }
 
-            const texture = this.getSelectedNodeTexture(nodeFromD3.r);
+            const texture = this.getSelectedNodeTexture(nodeFromD3.r, sizeMultiplier);
             const sprite = new PIXI.Sprite(texture);
 
             sprite.anchor.x = 0.5;
@@ -1127,29 +1192,22 @@ class Graph extends React.PureComponent<Props, State> {
         this.stage.addChild(this.renderedIcons);
         this.stage.addChild(this.renderedTooltip);
 
-        const dragging = d3.drag()
-            .filter(() => !this.shift)
-            .container(this.renderer.view)
-            .subject(this.dragsubject.bind(this))
-            .on('start', this.dragstarted.bind(this))
-            .on('drag', this.dragged.bind(this))
-            .on('end', this.dragended.bind(this));
-
-        const zooming = d3.zoom()
-            .filter(() => !this.shift)
-            .scaleExtent([this.minZoomGraph, this.maxZoomGraph])
-            .on("zoom", this.zoomed.bind(this));
+        // const zooming = d3.zoom()
+        //     .filter(() => !this.shift)
+        //     .scaleExtent([this.minZoomGraph, this.maxZoomGraph])
+        //     .on("zoom", this.zoomed.bind(this));
 
         const canvas = this.pixiContainer.querySelector('canvas');
 
         this.graphComponent.addEventListener('mousedown', this.onMouseDown.bind(this));
         this.graphComponent.addEventListener('mousemove', this.onMouseMove.bind(this));
+        this.graphComponent.addEventListener('mouseup', this.onMouseUp.bind(this));
         this.graphComponent.addEventListener('click', this.onClick.bind(this));
 
-        d3.select(this.renderer.view)
-            .call(dragging)
-            .call(zooming)
-            .on('dblclick.zoom', null);
+        // d3.select(this.graphComponent)
+        //     // .call(dragging)
+        //     // .call(zooming)
+        //     .on('dblclick.zoom', null);
 
         this.renderGraph(false);
     }
@@ -1210,7 +1268,7 @@ class Graph extends React.PureComponent<Props, State> {
         window.addEventListener('resize', this.handleWindowResize.bind(this));
         zoomEvents.addListener('zoomIn', this.zoomIn.bind(this));
         zoomEvents.addListener('zoomOut', this.zoomOut.bind(this));
-        window.addEventListener('blur', this.shiftDisengaged.bind(this));
+        window.addEventListener('blur', this.onBlur.bind(this));
     }
 
     componentWillUnmount() {
@@ -1227,103 +1285,21 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedSince.lastZoom = false;
     }, 500);
 
-    setDragSubjects() {
-        const { nodesForDisplay } = this.props;
-
-        const selected = nodesForDisplay.filter(node => node.selected);
-
-        const subjects: NodeFromD3[] = [];
-        const mainSubject: NodeFromD3 = d3.event.subject;
-
-        selected.forEach(node => {
-            if (node.id === mainSubject.id) {
-                return;
-            }
-
-            const nodeFromD3 = this.nodesFromD3.find(search => search.hash === node.hash);
-            subjects.push(nodeFromD3);
-        });
-
-        this.dragSubjects = subjects;
-    }
-
-    dragstarted() {
-        this.setDragSubjects();
-
-        // Remove the tooltip
-        this.tooltipNode(undefined);
-    }
-
-    dragged() {
-        const x = this.transform.invertX(d3.event.sourceEvent.layerX);
-        const y = this.transform.invertY(d3.event.sourceEvent.layerY);
-
-        // If there is suddenly a large change in x and y position,
-        // the cursor is probably outside of the graph area. Cancel dragging.
-        if (Math.abs(x - d3.event.subject.fx) > 500
-            || Math.abs(y - d3.event.subject.fy) > 500) {
-            this.dragended();
-            return;
-        }
-
-        const mainSubject: NodeFromD3 = d3.event.subject;
-        mainSubject.fx = x;
-        mainSubject.fy = y;
-
-        let subjects: NodeFromD3[] = [mainSubject];
-
-        if (this.dragSubjects) {
-            const deltaX = x - mainSubject.x;
-            const deltaY = y - mainSubject.y;
-
-            this.dragSubjects.forEach(subject => {
-                subject.fx = subject.x + deltaX;
-                subject.fy = subject.y + deltaY;
-            });
-
-            subjects = subjects.concat(this.dragSubjects);
-        }
-
-        this.postWorkerMessage({
-            nodes: subjects,
-            type: 'restart'
-        });
-    }
-
-    dragended() {
-        this.dragSubjects = undefined;
-
-        this.postWorkerMessage({
-            nodes: [d3.event.subject],
-            type: 'stop'
-        });
-    }
-
-    dragsubject() {
-        const { nodesForDisplay } = this.props;
-
-        const selectedNodes = nodesForDisplay.filter(node => node.selected);
-        const nodeMap = {};
-        selectedNodes.forEach(node => nodeMap[node.id] = node);
-
-        const x = this.transform.invertX(d3.event.x);
-        const y = this.transform.invertY(d3.event.y);
-
-        return this.findNodeFromD3(x, y);
-    }
 
     findNodeFromD3(x: number, y: number): NodeFromD3 {
+    	const sizeMultiplier = this.getNodeSizeMultiplier();
+
         return this.nodesFromD3.find(node => {
             const dx = x - node.x;
             const dy = y - node.y;
             const d2 = dx * dx + dy * dy;
 
-            return d2 < (node.r * node.r);
+            return d2 < Math.pow(node.r * sizeMultiplier, 2);
         });
     }
 
     findNode(x, y): Node {
-        const nodeFromD3 = this.findNodeFromD3(x, y);
+		const nodeFromD3 = this.findNodeFromD3(x, y);
 
         if (typeof nodeFromD3 === 'undefined') {
             return;
@@ -1353,12 +1329,12 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     getMouseCoordinates(event: MouseEvent) {
-        const rect = this.pixiContainer.getBoundingClientRect();
+    	const rect = this.pixiContainer.getBoundingClientRect();
 
         return {
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top
-        };
+			x: event.clientX - rect.left,
+			y: event.clientY - rect.top
+		};
     }
 
     /**
@@ -1366,25 +1342,42 @@ class Graph extends React.PureComponent<Props, State> {
      * Is not involved with dragging nodes, d3 handles that.
      */
     onMouseDown(event: MouseEvent) {
+    	const { isMapActive } = this.props;
+    	this.isMouseDown = true;
+
         event.preventDefault();
 
-        if (!this.shift) {
-            return;
-        }
+		const { x, y } = this.getMouseCoordinates(event);
+		const transformedX = this.invertX(x);
+		const transformedY = this.invertY(y);
+		const node = this.findNodeFromD3(transformedX, transformedY);
 
-        const {x, y} = this.getMouseCoordinates(event);
-        const transformedX = this.transform.invertX(x);
-        const transformedY = this.transform.invertY(y);
+        // When dragging a node, prevent also dragging the map at the same time
+		if (isMapActive) {
+			const draggingEnabled = this.map.dragging.enabled();
 
-        this.selection = {x1: transformedX, y1: transformedY, x2: transformedX, y2: transformedY};
+			if (draggingEnabled && node) {
+				this.map.dragging.disable();
+			} else if (!draggingEnabled && !node) {
+				this.map.dragging.enable();
+			}
+		}
+
+		if (node && (!isMapActive || !node.isGeoLocation)) {
+			this.mainDragSubject = node;
+		}
+
+		if (this.shift) {
+			this.selection = { x1: transformedX, y1: transformedY, x2: transformedX, y2: transformedY };
+		}
     }
 
     onMouseMove(event: MouseEvent) {
     	const { dispatch, nodesForDisplay, linksForDisplay } = this.props;
 
-        const {x, y} = this.getMouseCoordinates(event);
-        const transformedX = this.transform.invertX(x);
-        const transformedY = this.transform.invertY(y);
+        const { x, y } = this.getMouseCoordinates(event);
+        const transformedX = this.invertX(x);
+        const transformedY = this.invertY(y);
 
         if (this.shift) {
             this.selection = {
@@ -1394,7 +1387,17 @@ class Graph extends React.PureComponent<Props, State> {
             };
 
             this.renderedSince.lastSelection = false;
-        } else {
+        } else if (this.isMouseDown && this.mainDragSubject) {
+        	// Dragging
+        	this.mainDragSubject.fx = transformedX;
+        	this.mainDragSubject.fy = transformedY;
+
+			this.postWorkerMessage({
+				nodes: [this.mainDragSubject],
+				type: 'restart'
+			});
+		} else {
+        	// Display tooltip
             const tooltipNodes = this.getTooltipNodes();
             const tooltip = this.findNode(transformedX, transformedY);
 
@@ -1414,7 +1417,15 @@ class Graph extends React.PureComponent<Props, State> {
         }
     }
 
+    onMouseUp() {
+    	this.isMouseDown = false;
+    	this.mainDragSubject = null;
+	}
+
     onClick(event: MouseEvent) {
+    	this.isMouseDown = false;
+    	this.mainDragSubject = null;
+
         if (this.selection && this.shift) {
             this.selectionEnded();
         } else {
@@ -1454,8 +1465,8 @@ class Graph extends React.PureComponent<Props, State> {
         const { dispatch } = this.props;
         const {x, y} = this.getMouseCoordinates(event);
 
-        const transformedX = this.transform.invertX(x);
-        const transformedY = this.transform.invertY(y);
+        const transformedX = this.invertX(x);
+        const transformedY = this.invertY(y);
         const node = this.findNode(transformedX, transformedY);
 
         if (node) {
@@ -1492,6 +1503,12 @@ class Graph extends React.PureComponent<Props, State> {
         this.selection = null;
         this.renderedSince.lastSelection = false;
     }
+
+    onBlur() {
+    	this.shiftDisengaged();
+    	this.isMouseDown = false;
+    	this.mainDragSubject = null;
+	}
 
     zoomIn() {
         const newK = this.transform.k * 1.3;
