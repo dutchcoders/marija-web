@@ -342,7 +342,7 @@ class Graph extends React.PureComponent<Props, State> {
 		let sizeMultiplier: number = 1;
 
 		if (isMapActive) {
-			sizeMultiplier = 1 / this.transform.k;
+			sizeMultiplier = 1 / this.transform.k * .8;
 		}
 
         this.nodesFromD3.forEach(node => {
