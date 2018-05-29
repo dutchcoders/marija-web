@@ -27,6 +27,7 @@ import {setFps} from "../stats/statsActions";
 import {Field} from "../fields/interfaces/field";
 import {getArrowPosition} from "./helpers/getArrowPosition";
 import {AppState} from "../main/interfaces/appState";
+import * as Leaflet from 'leaflet';
 const myWorker = require('./helpers/d3Worker.worker');
 
 interface TextureMap {
@@ -107,6 +108,15 @@ class Graph extends React.PureComponent<Props, State> {
     tooltipTextures: TextureMap = {};
     dragSubjects: NodeFromD3[];
     highlightedNodesMap: HighlightedNodesMap;
+    map: Leaflet.Map;
+    mapMarkers: Leaflet.LayerGroup;
+	initialMapZoom: number;
+	initialMapBounds: Leaflet.LatLngBounds;
+	graphComponent;
+    readonly minZoomGraph: number = .3;
+    readonly maxZoomGraph: number = 3;
+    readonly minZoomMap: number = 1;
+    readonly maxZoomMap: number = 18;
 
     postWorkerMessage(message) {
         this.worker.postMessage(message);
@@ -177,13 +187,103 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedSince.lastZoom = false;
     }
 
+    prevX;
+    prevY;
+    mapZoomTimeout;
+	initialCenter: Leaflet.LatLng;
+
     zoomed() {
-        const transform = d3.event.transform;
+        clearTimeout(this.mapZoomTimeout);
 
-        this.zoom(transform.k, transform.x, transform.y);
+		const transform = d3.event.transform;
 
-        this.transform = transform;
+		// this.zoom(transform.k, transform.x, transform.y);
+
+        this.mapZoomTimeout = setTimeout(() => {
+
+
+			const x = this.transform.applyX(transform.x);
+			const y = this.transform.applyY(transform.y);
+
+			if (!this.prevX) {
+				this.prevX = x;
+				this.prevY = y;
+			}
+
+			const rect = this.pixiContainer.getBoundingClientRect();
+			const deltaX = this.prevX - x;
+			const deltaY = this.prevY - y;
+
+			this.prevX = x;
+			this.prevY = y;
+
+			// console.log(transform.x, this.transform.applyX(transform.x), this.transform.invertX(transform.x));
+
+
+			// this.map.panTo(latLng);
+
+			// thi
+
+			console.log(x, y);
+			console.log(rect.width / 2 + x, rect.height / 2 + y);
+
+			// this.map.panBy(new Leaflet.Point(deltaX, deltaY));
+			// this.map.setView(
+			//     this.map.containerPointToLatLng(new Leaflet.Point(rect.width / 2 + deltaX, rect.height / 2 + deltaY)),
+             //    13, {
+			//         animate: true,
+             //        duration: .05
+             //    }
+			// );
+
+
+
+			// this.map.
+			// this.map.
+
+        }, 100);
     }
+
+    mapZoomed() {
+    	const offset = this.map.latLngToContainerPoint(this.initialMapBounds.getNorthWest());
+
+		const graphZoom = this.map.getZoomScale(this.map.getZoom(), this.initialMapZoom);
+		this.transform.k = graphZoom;
+
+		this.zoom(graphZoom, offset.x, offset.y);
+	}
+
+	initMapMarkers(nodes: Node[]) {
+    	if (!this.map || !nodes.length) {
+    		return;
+		}
+
+		this.mapMarkers.clearLayers();
+
+    	const coordinates: Leaflet.LatLng[] = nodes.map(node => {
+			const splitted = node.name.split(',');
+			const lat = parseFloat(splitted[0]);
+			const lng = parseFloat(splitted[1]);
+
+			const icon = new Leaflet.Icon({
+				iconUrl: 'https://unpkg.com/leaflet@1.3.1/dist/images/marker-icon.png',
+				iconSize: [25, 41],
+				iconAnchor: [12, 41]
+			});
+
+			const latLng = new Leaflet.LatLng(lat, lng);
+
+			const marker = Leaflet.marker(latLng, {
+				icon
+			});
+
+			marker.addTo(this.mapMarkers);
+
+			return latLng;
+		});
+
+    	this.map.fitBounds(Leaflet.latLngBounds(coordinates).pad(.2));
+	}
 
     getSearchColor(searchId: string) {
         const { searches } = this.props;
@@ -280,6 +380,10 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedIcons.removeChildren();
 
         this.nodesFromD3.forEach(node => {
+			if (node.icon === 'L') {
+        		return;
+			}
+
             const texture = this.getNodeTexture(node);
             const renderedNode = new PIXI.Sprite(texture);
 
@@ -638,6 +742,20 @@ class Graph extends React.PureComponent<Props, State> {
                 label = label.substring(0, maxLabelLength) + '...';
             }
 
+            let fx = undefined;
+            let fy = undefined;
+
+			if (node.icon === 'L') {
+            	const splitted = node.name.split(',');
+            	const lat = parseFloat(splitted[0]);
+            	const lng = parseFloat(splitted[1]);
+
+				const containerPoint = this.map.latLngToContainerPoint(new Leaflet.LatLng(lat, lng));
+
+				fx = this.transform.invertX(containerPoint.x);
+				fy = this.transform.invertY(containerPoint.y);
+			}
+
             return {
                 id: node.id,
                 count: node.count,
@@ -646,7 +764,10 @@ class Graph extends React.PureComponent<Props, State> {
                 icon: node.icon,
                 label: label,
                 important: node.important,
-                description: node.description
+                description: node.description,
+				isGeoLocation: node.isGeoLocation,
+				fx: fx,
+				fy: fy,
             };
         });
 
@@ -666,6 +787,9 @@ class Graph extends React.PureComponent<Props, State> {
                 thickness: thickness
             };
         });
+
+        const markers = nodesForDisplay.filter(node => node.isGeoLocation);
+        this.initMapMarkers(markers);
 
         this.postWorkerMessage({
             type: 'update',
@@ -977,13 +1101,12 @@ class Graph extends React.PureComponent<Props, State> {
 
         this.renderer = new PIXI.WebGLRenderer({
             antialias: true,
-            transparent: false,
+            transparent: true,
             resolution: 1,
             width: width,
             height: height
         });
 
-        this.renderer.backgroundColor = 0x3D4B5D;
         this.renderer.render(this.stage);
 
         this.pixiContainer.appendChild(this.renderer.view);
@@ -1008,14 +1131,14 @@ class Graph extends React.PureComponent<Props, State> {
 
         const zooming = d3.zoom()
             .filter(() => !this.shift)
-            .scaleExtent([.3, 3])
+            .scaleExtent([this.minZoomGraph, this.maxZoomGraph])
             .on("zoom", this.zoomed.bind(this));
 
         const canvas = this.pixiContainer.querySelector('canvas');
 
-        canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
-        canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
-        canvas.addEventListener('click', this.onClick.bind(this));
+        this.graphComponent.addEventListener('mousedown', this.onMouseDown.bind(this));
+        this.graphComponent.addEventListener('mousemove', this.onMouseMove.bind(this));
+        this.graphComponent.addEventListener('click', this.onClick.bind(this));
 
         d3.select(this.renderer.view)
             .call(dragging)
@@ -1026,18 +1149,37 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     initWorker() {
-        const { width, height } = this.pixiContainer.getBoundingClientRect();
-        const { nodesForDisplay, linksForDisplay } = this.props;
-        this.worker = new myWorker();
-        this.worker.onmessage = (event) => this.onWorkerMessage(event);
+		const {width, height} = this.pixiContainer.getBoundingClientRect();
+		const {nodesForDisplay, linksForDisplay} = this.props;
+		this.worker = new myWorker();
+		this.worker.onmessage = (event) => this.onWorkerMessage(event);
 
-        this.postWorkerMessage({
-            type: 'init',
-            clientWidth: width,
-            clientHeight: height
-        });
+		this.postWorkerMessage({
+			type: 'init',
+			clientWidth: width,
+			clientHeight: height
+		});
 
-        this.postNodesAndLinksToWorker(nodesForDisplay, linksForDisplay);
+		this.postNodesAndLinksToWorker(nodesForDisplay, linksForDisplay);
+	}
+
+    initMap() {
+        this.map = Leaflet.map('map', {
+        	minZoom: this.minZoomMap,
+			maxZoom: this.maxZoomMap,
+			zoomSnap: 0.1
+		}).setView([51.505, -0.09], 10);
+
+        this.initialMapZoom = this.map.getZoom();
+        this.initialMapBounds = this.map.getBounds();
+        this.mapMarkers = Leaflet.layerGroup();
+        this.mapMarkers.addTo(this.map);
+
+		Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		}).addTo(this.map);
+
+		this.map.on('zoom zoomend move moveend', this.mapZoomed.bind(this));
     }
 
     componentDidMount() {
@@ -1046,6 +1188,7 @@ class Graph extends React.PureComponent<Props, State> {
         this.createArrowTexture();
         this.initWorker();
         this.initGraph();
+        this.initMap();
 
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
         document.addEventListener('keyup', this.handleKeyUp.bind(this));
@@ -1222,6 +1365,8 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     onMouseMove(event: MouseEvent) {
+    	console.log('mouse move');
+
         const { dispatch, nodesForDisplay, linksForDisplay } = this.props;
 
         const {x, y} = this.getMouseCoordinates(event);
@@ -1239,6 +1384,8 @@ class Graph extends React.PureComponent<Props, State> {
         } else {
             const tooltipNodes = this.getTooltipNodes();
             const tooltip = this.findNode(transformedX, transformedY);
+
+            console.log(tooltip);
 
             if (tooltipNodes[0] === tooltip) {
                 // Nothing changed
@@ -1338,7 +1485,7 @@ class Graph extends React.PureComponent<Props, State> {
     zoomIn() {
         const newK = this.transform.k * 1.3;
 
-        if (newK > 3) {
+        if (newK > this.maxZoomGraph) {
             return;
         }
 
@@ -1350,7 +1497,7 @@ class Graph extends React.PureComponent<Props, State> {
     zoomOut() {
         const newK = this.transform.k * .7;
 
-        if (newK < .3) {
+        if (newK < this.minZoomGraph) {
             return;
         }
 
@@ -1387,13 +1534,14 @@ class Graph extends React.PureComponent<Props, State> {
 
     render() {
         return (
-            <div className="graphComponent">
+            <div className="graphComponent" ref={ref => this.graphComponent = ref}>
                 <div
                     className="graphContainer"
                     ref={pixiContainer => this.pixiContainer = pixiContainer}
                     onContextMenu={this.onContextMenu.bind(this)}
                     onClick={this.hideContextMenu.bind(this)}
                 />
+				<div id="map" />
             </div>
         );
     }

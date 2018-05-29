@@ -23,7 +23,8 @@ module.exports = {
             "process.env": { 
                 NODE_ENV: JSON.stringify(process.env.NODE_ENV || "development"),
                 WEBSOCKET_URI: process.env.WEBSOCKET_URI ? JSON.stringify(process.env.WEBSOCKET_URI) : null,
-                CLIENT_VERSION: JSON.stringify(gitInfo.raw)
+                CLIENT_VERSION: JSON.stringify(gitInfo.raw),
+                MOCK_SERVER: JSON.stringify(process.env.MOCK_SERVER)
             }
         }),
         new HtmlWebpackPlugin({

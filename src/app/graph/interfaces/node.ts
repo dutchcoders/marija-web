@@ -48,4 +48,9 @@ export interface Node {
      * Whether user marked this node as important.
      */
     important: boolean;
+
+	/**
+     * If a node is a geo location, it can be displayed on a map.
+	 */
+	isGeoLocation: boolean;
 }

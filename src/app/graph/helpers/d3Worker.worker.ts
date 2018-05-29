@@ -63,10 +63,10 @@ onmessage = function(event) {
             .stop()
             .force("link", forceLink)
             .force("charge", forceManyBody)
-            .force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
+            // .force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
             .force('collide', d3.forceCollide((node: any) => node.r))
-            .force("vertical", d3.forceY().strength(0.018))
-            .force("horizontal", d3.forceX().strength(0.006))
+            // .force("vertical", d3.forceY().strength(0.018))
+            // .force("horizontal", d3.forceX().strength(0.006))
             .on("tick", () => {
                 postMessage({type: "tick", nodes: workerNodes, links: workerLinks });
             });
@@ -76,6 +76,8 @@ onmessage = function(event) {
     } else if (event.data.type === 'tick') {
     } else if (event.data.type === 'update') {
         let { nodes, links } = event.data;
+
+        console.log(nodes);
 
         const sizeRange = [15, 30];
 

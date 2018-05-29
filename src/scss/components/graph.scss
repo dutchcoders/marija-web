@@ -13,6 +13,13 @@ canvas.graph {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  width: 100%;
+}
+
+.graphContainer {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .stats {
@@ -21,4 +28,11 @@ canvas.graph {
   bottom: 30px;
   text-align: right;
   font-size: .9em;
+}
+
+#map {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }

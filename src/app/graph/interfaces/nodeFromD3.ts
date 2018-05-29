@@ -17,4 +17,5 @@ export interface NodeFromD3 {
     fx: number;
     fy: number;
     description: string;
+    isGeoLocation: boolean;
 }
