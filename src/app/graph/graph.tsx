@@ -403,13 +403,23 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedLinkLabels.removeChildren();
         this.renderedArrows.removeChildren();
 
-        this.renderedLinks.alpha = isHighlighting ? .1 : .7;
+        let alpha: number = .7;
+
+        if (isMapActive) {
+        	alpha = 1;
+		}
+
+        if (isHighlighting) {
+        	alpha = .1;
+		}
+
+        this.renderedLinks.alpha = alpha;
 
         this.linksFromD3.forEach(link => {
         	let thickness: number = link.thickness;
 
         	if (isMapActive) {
-        		thickness = thickness * (1 / this.transform.k);
+        		thickness = thickness * (1 / this.transform.k) * 2;
 			}
 
             this.renderedLinks.lineStyle(thickness, 0xFFFFFF);
