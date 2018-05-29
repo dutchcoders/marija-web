@@ -163,6 +163,11 @@ class Graph extends React.PureComponent<Props, State> {
         this.arrowTexture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
     }
 
+    resetZoom() {
+    	this.transform.k = 1;
+    	this.zoom(1, 0, 0);
+	}
+
     zoom(fraction: number, newX: number, newY: number) {
         [
             this.renderedNodesContainer,
@@ -332,6 +337,8 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedIcons.removeChildren();
 
         this.nodesFromD3.forEach(node => {
+			this.renderIcons(node);
+
 			if (isMapActive && node.isGeoLocation) {
         		return;
 			}
@@ -349,7 +356,6 @@ class Graph extends React.PureComponent<Props, State> {
             }
 
             this.renderedNodesContainer.addChild(renderedNode);
-            this.renderIcons(node);
         });
     }
 
@@ -641,11 +647,17 @@ class Graph extends React.PureComponent<Props, State> {
         const selectedNodes = this.getSelectedNodes();
         const nextSelected = nextProps.nodesForDisplay.filter(node => node.selected);
 
-        if (nextProps.isMapActive && !this.map) {
+        if (nextProps.isMapActive && !isMapActive) {
         	this.initMap();
 		}
 
+		if (!nextProps.isMapActive && isMapActive) {
+        	this.destroyMap();
+		}
+
 		if (nextProps.isMapActive !== isMapActive) {
+        	this.transform.k = 1;
+        	this.zoom(1, 0, 0);
 			this.setWorkerAreaForces(nextProps.isMapActive);
 		}
 
@@ -755,8 +767,10 @@ class Graph extends React.PureComponent<Props, State> {
             };
         });
 
-        const markers = nodesForDisplay.filter(node => node.isGeoLocation);
-        this.initMapMarkers(markers);
+        if (isMapActive) {
+			const markers = nodesForDisplay.filter(node => node.isGeoLocation);
+			this.initMapMarkers(markers);
+		}
 
         this.postWorkerMessage({
             type: 'update',
@@ -1153,6 +1167,10 @@ class Graph extends React.PureComponent<Props, State> {
 
 		this.map.on('zoom zoomend move moveend', this.mapZoomed.bind(this));
     }
+
+    destroyMap() {
+    	this.map.remove();
+	}
 
     componentDidMount() {
         const { zoomEvents, isMapActive } = this.props;

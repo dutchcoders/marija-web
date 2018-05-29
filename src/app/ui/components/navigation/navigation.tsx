@@ -34,9 +34,13 @@ class Navigation extends React.Component<any, any> {
     }
 
     toggleMapActive() {
-        const { dispatch, isMapActive } = this.props;
+        const { dispatch, isMapActive, isMapAvailable } = this.props;
 
-        dispatch(setMapActive(!isMapActive));
+        const active = !isMapActive;
+
+        if (isMapAvailable || !active) {
+			dispatch(setMapActive(active));
+        }
     }
 
     getButton(icon, tooltip, clickHandler, active, disabled: boolean = false) {

@@ -76,30 +76,24 @@ onmessage = function(event) {
 		workerNodes = [];
 		workerLinks = [];
 	} else if (event.data.type === 'setAreaForces') {
-		const { clientWidth, clientHeight } = event.data;
+		const { clientWidth, clientHeight, active } = event.data;
 
-		console.log(event.data.active);
-
-        if (event.data.active) {
-			simulation
+        if (active) {
+            simulation
 				.force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
 				.force("vertical", d3.forceY().strength(0.018))
 				.force("horizontal", d3.forceX().strength(0.006))
                 .restart();
         } else {
-			simulation
-                .stop()
+            simulation
 				.force("center", null)
 				.force("vertical", null)
 				.force("horizontal", null)
-                .restart()
-                .tick();
+                .restart();
         }
     } else if (event.data.type === 'tick') {
     } else if (event.data.type === 'update') {
         let { nodes, links } = event.data;
-
-        console.log(nodes);
 
         const sizeRange = [15, 30];
 
