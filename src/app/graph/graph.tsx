@@ -257,17 +257,20 @@ class Graph extends React.PureComponent<Props, State> {
             + node.searchIds.map(searchId => this.getSearchColor(searchId)).join('');
     }
 
-    getNodeTexture(node: NodeFromD3) {
-        let texture = this.nodeTextures[node.textureKey];
+    getNodeTexture(node: NodeFromD3, sizeMultiplier: number) {
+
+        let texture = this.nodeTextures[node.textureKey + sizeMultiplier];
 
         if (typeof texture !== 'undefined') {
             // Get from cache
             return texture;
         }
 
+        const radius = node.r * sizeMultiplier;
+
         const canvas = document.createElement('canvas');
-        canvas.width = node.r * 2;
-        canvas.height = node.r * 2;
+        canvas.width = radius * 2;
+        canvas.height = radius * 2;
         const ctx = canvas.getContext('2d');
 
         const fractionPerSearch = 1 / node.searchIds.length;
@@ -277,24 +280,24 @@ class Graph extends React.PureComponent<Props, State> {
         node.searchIds.forEach(searchId => {
             ctx.beginPath();
             ctx.fillStyle = this.getSearchColor(searchId);
-            ctx.moveTo(node.r, node.r);
-            ctx.arc(node.r, node.r, node.r, currentAngle, currentAngle + anglePerSearch);
+            ctx.moveTo(radius, radius);
+            ctx.arc(radius, radius, radius, currentAngle, currentAngle + anglePerSearch);
             ctx.fill();
 
             currentAngle += anglePerSearch;
         });
 
-        const fontSize = node.r;
+        const fontSize = radius;
 
         ctx.fillStyle = '#ffffff';
         ctx.font = fontSize + 'px Ionicons, Roboto, Helvetica, Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(node.icon, node.r - 1, node.r + (fontSize / 3));
+        ctx.fillText(node.icon, radius - 1, radius + (fontSize / 3));
 
         texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
 
         // Save in cache
-        this.nodeTextures[node.textureKey] = texture;
+        this.nodeTextures[node.textureKey + sizeMultiplier] = texture;
 
         return texture;
     }
@@ -336,6 +339,12 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedNodesContainer.removeChildren();
         this.renderedIcons.removeChildren();
 
+		let sizeMultiplier: number = 1;
+
+		if (isMapActive) {
+			sizeMultiplier = 1 / this.transform.k;
+		}
+
         this.nodesFromD3.forEach(node => {
 			this.renderIcons(node);
 
@@ -343,7 +352,7 @@ class Graph extends React.PureComponent<Props, State> {
         		return;
 			}
 
-            const texture = this.getNodeTexture(node);
+            const texture = this.getNodeTexture(node, sizeMultiplier);
             const renderedNode = new PIXI.Sprite(texture);
 
             renderedNode.anchor.x = 0.5;
@@ -387,7 +396,7 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     renderLinks() {
-        const { highlightedNodes } = this.props;
+        const { highlightedNodes, isMapActive } = this.props;
 
         const isHighlighting: boolean = highlightedNodes.length > 0;
         this.renderedLinks.clear();
@@ -397,7 +406,13 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedLinks.alpha = isHighlighting ? .1 : .7;
 
         this.linksFromD3.forEach(link => {
-            this.renderedLinks.lineStyle(link.thickness, 0xFFFFFF);
+        	let thickness: number = link.thickness;
+
+        	if (isMapActive) {
+        		thickness = thickness * (1 / this.transform.k);
+			}
+
+            this.renderedLinks.lineStyle(thickness, 0xFFFFFF);
             this.renderLink(link);
         });
     }
