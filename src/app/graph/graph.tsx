@@ -204,7 +204,9 @@ class Graph extends React.PureComponent<Props, State> {
 		this.transform = transform;
     }
 
-    mapZoomed() {
+    mapZoomed(event) {
+    	console.log(event);
+
     	this.mapOffset = this.map.latLngToContainerPoint(this.initialMapBounds.getNorthWest());
 
 		const graphZoom = this.map.getZoomScale(this.map.getZoom(), this.initialMapZoom);
@@ -1236,7 +1238,11 @@ class Graph extends React.PureComponent<Props, State> {
         this.map = Leaflet.map('map', {
         	minZoom: this.minZoomMap,
 			maxZoom: this.maxZoomMap,
-			zoomSnap: 0.1
+			zoomSnap: 1,
+			boxZoom: false,
+			doubleClickZoom: false,
+			zoomAnimation: true,
+			fadeAnimation: true
 		}).setView([51.505, -0.09], 10);
 
         this.initialMapZoom = this.map.getZoom();
@@ -1249,7 +1255,25 @@ class Graph extends React.PureComponent<Props, State> {
 		}).addTo(this.map);
 
 		this.map.on('zoom zoomend move moveend', this.mapZoomed.bind(this));
+		this.map.on('zoomstart', this.mapZoomStart.bind(this));
+		this.map.on('zoomend', this.mapZoomEnd.bind(this));
     }
+
+    mapZoomStart() {
+    	clearTimeout(this.zoomEndTimeout);
+    	this.pixiContainer.hidden = true;
+	}
+
+	zoomEndTimeout;
+
+	mapZoomEnd() {
+		clearTimeout(this.zoomEndTimeout);
+
+		this.zoomEndTimeout = setTimeout(
+			() => this.pixiContainer.hidden = false,
+			100
+		);
+	}
 
     destroyMap() {
     	this.map.remove();
