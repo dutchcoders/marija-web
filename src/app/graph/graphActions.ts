@@ -1,4 +1,21 @@
-import { FIELD_NODES_HIGHLIGHT, GRAPH_WORKER_OUTPUT, NODE_UPDATE, NODES_DELETE, NODES_DESELECT, NODES_HIGHLIGHT, NODES_SELECT, NODES_TOOLTIP, NORMALIZATION_ADD, NORMALIZATION_DELETE, SELECT_FIELD_NODES, SELECTION_CLEAR, TOGGLE_LABELS, VIA_ADD, VIA_DELETE } from './graphConstants';
+import {
+	FIELD_NODES_HIGHLIGHT,
+	GRAPH_WORKER_OUTPUT,
+	NODE_UPDATE,
+	NODES_DELETE,
+	NODES_DESELECT,
+	NODES_HIGHLIGHT,
+	NODES_SELECT,
+	NODES_TOOLTIP,
+	NORMALIZATION_ADD,
+	NORMALIZATION_DELETE,
+	SELECT_FIELD_NODES,
+	SELECTION_CLEAR,
+	SET_MAP_ACTIVE,
+	TOGGLE_LABELS,
+	VIA_ADD,
+	VIA_DELETE
+} from './graphConstants';
 import { GraphWorkerOutput } from './helpers/graphWorkerClass';
 import { Via } from './interfaces/via';
 
@@ -125,5 +142,14 @@ export function normalizationDelete(normalization) {
         type: NORMALIZATION_DELETE,
         receivedAt: Date.now(),
         normalization: normalization
+    };
+}
+
+export function setMapActive(active: boolean) {
+    return {
+        type: SET_MAP_ACTIVE,
+        payload: {
+            active
+        }
     };
 }

@@ -53,8 +53,6 @@ export default class GraphWorkerClass {
     onMessage(event: MessageEvent) {
         const action = event.data;
 
-        console.log(action);
-
         if (action.type !== SEARCH_RECEIVE && action.type !== LIVE_RECEIVE) {
             // These is the only action types we currently support in this worker
             return;

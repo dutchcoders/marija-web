@@ -36,3 +36,8 @@ export const getHighlightedNodes = createSelector(
     (state: AppState) => state.graph.nodes,
     (nodes: Node[]) => nodes.filter(node => node.highlighted)
 );
+
+export const isMapAvailable = createSelector(
+    (state: AppState) => state.graph.nodes,
+    (nodes: Node[]): boolean => typeof nodes.find(node => node.isGeoLocation) !== 'undefined'
+);

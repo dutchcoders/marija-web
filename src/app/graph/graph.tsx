@@ -48,6 +48,7 @@ interface Props {
     dispatch: Dispatch<any>;
     version: string;
     showLabels: boolean;
+    isMapActive: boolean;
 }
 
 interface State {
@@ -187,61 +188,12 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedSince.lastZoom = false;
     }
 
-    prevX;
-    prevY;
-    mapZoomTimeout;
-	initialCenter: Leaflet.LatLng;
-
     zoomed() {
-        clearTimeout(this.mapZoomTimeout);
-
 		const transform = d3.event.transform;
 
-		// this.zoom(transform.k, transform.x, transform.y);
+		this.zoom(transform.k, transform.x, transform.y);
 
-        this.mapZoomTimeout = setTimeout(() => {
-
-
-			const x = this.transform.applyX(transform.x);
-			const y = this.transform.applyY(transform.y);
-
-			if (!this.prevX) {
-				this.prevX = x;
-				this.prevY = y;
-			}
-
-			const rect = this.pixiContainer.getBoundingClientRect();
-			const deltaX = this.prevX - x;
-			const deltaY = this.prevY - y;
-
-			this.prevX = x;
-			this.prevY = y;
-
-			// console.log(transform.x, this.transform.applyX(transform.x), this.transform.invertX(transform.x));
-
-
-			// this.map.panTo(latLng);
-
-			// thi
-
-			console.log(x, y);
-			console.log(rect.width / 2 + x, rect.height / 2 + y);
-
-			// this.map.panBy(new Leaflet.Point(deltaX, deltaY));
-			// this.map.setView(
-			//     this.map.containerPointToLatLng(new Leaflet.Point(rect.width / 2 + deltaX, rect.height / 2 + deltaY)),
-             //    13, {
-			//         animate: true,
-             //        duration: .05
-             //    }
-			// );
-
-
-
-			// this.map.
-			// this.map.
-
-        }, 100);
+		this.transform = transform;
     }
 
     mapZoomed() {
@@ -373,14 +325,14 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     renderNodes() {
-        const { highlightedNodes } = this.props;
+        const { highlightedNodes, isMapActive } = this.props;
 
         const isHighlighting: boolean = highlightedNodes.length > 0;
         this.renderedNodesContainer.removeChildren();
         this.renderedIcons.removeChildren();
 
         this.nodesFromD3.forEach(node => {
-			if (node.icon === 'L') {
+			if (isMapActive && node.isGeoLocation) {
         		return;
 			}
 
@@ -627,9 +579,10 @@ class Graph extends React.PureComponent<Props, State> {
         return nodesForDisplay.filter(node => node.selected);
     }
 
-    shouldPostToWorker(prevNodes: Node[], nextNodes: Node[], prevLinks: Link[], nextLinks: Link[]): boolean {
+    shouldPostToWorker(prevNodes: Node[], nextNodes: Node[], prevLinks: Link[], nextLinks: Link[], prevIsMapActive: boolean, nextIsMapActive: boolean): boolean {
         return prevNodes.length !== nextNodes.length
-            || prevLinks.length !== nextLinks.length;
+            || prevLinks.length !== nextLinks.length
+			|| prevIsMapActive !== nextIsMapActive;
 
         // Todo: make this more intelligent than only looking at array length
         // Can the graph also change when properties of the nodes change?
@@ -662,7 +615,13 @@ class Graph extends React.PureComponent<Props, State> {
         return false;
     }
 
-    updateNodeProperties(nextNodes: Node[]) {
+	/**
+	 * When you need to update some properties like the description, but you
+	 * don't want to trigger a repositioning of the nodes.
+	 *
+	 * @param {Node[]} nextNodes
+	 */
+	updateNodeProperties(nextNodes: Node[]) {
         const nodesToPost = nextNodes.map(node => {
             return {
                 id: node.id,
@@ -678,9 +637,17 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     componentWillReceiveProps(nextProps: Props) {
-        const { searches, nodesForDisplay, linksForDisplay, fields, showLabels, highlightedNodes } = this.props;
+        const { searches, nodesForDisplay, linksForDisplay, fields, showLabels, highlightedNodes, isMapActive } = this.props;
         const selectedNodes = this.getSelectedNodes();
         const nextSelected = nextProps.nodesForDisplay.filter(node => node.selected);
+
+        if (nextProps.isMapActive && !this.map) {
+        	this.initMap();
+		}
+
+		if (nextProps.isMapActive !== isMapActive) {
+			this.setWorkerAreaForces(nextProps.isMapActive);
+		}
 
         if (!isEqual(nextSelected, selectedNodes)) {
             this.renderedSince.lastSelectedNodes = false;
@@ -711,8 +678,8 @@ class Graph extends React.PureComponent<Props, State> {
             this.renderedSince.lastFields = false;
         }
 
-        if (this.shouldPostToWorker(nextProps.nodesForDisplay, nodesForDisplay, nextProps.linksForDisplay, linksForDisplay)) {
-            this.postNodesAndLinksToWorker(nextProps.nodesForDisplay, nextProps.linksForDisplay);
+        if (this.shouldPostToWorker(nextProps.nodesForDisplay, nodesForDisplay, nextProps.linksForDisplay, linksForDisplay, isMapActive, nextProps.isMapActive)) {
+            this.postNodesAndLinksToWorker(nextProps.nodesForDisplay, nextProps.linksForDisplay, nextProps.isMapActive);
         } else if (this.shouldUpdateNodeProperties(nodesForDisplay, nextProps.nodesForDisplay)) {
             this.updateNodeProperties(nextProps.nodesForDisplay);
         }
@@ -732,7 +699,7 @@ class Graph extends React.PureComponent<Props, State> {
         }
     }
 
-    postNodesAndLinksToWorker(nodesForDisplay: Node[], linksForDisplay: Link[]) {
+    postNodesAndLinksToWorker(nodesForDisplay: Node[], linksForDisplay: Link[], isMapActive: boolean) {
         const maxLabelLength = 20;
 
         const nodesToPost = nodesForDisplay.map(node => {
@@ -745,7 +712,7 @@ class Graph extends React.PureComponent<Props, State> {
             let fx = undefined;
             let fy = undefined;
 
-			if (node.icon === 'L') {
+			if (isMapActive && node.isGeoLocation) {
             	const splitted = node.name.split(',');
             	const lat = parseFloat(splitted[0]);
             	const lng = parseFloat(splitted[1]);
@@ -1149,18 +1116,23 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     initWorker() {
-		const {width, height} = this.pixiContainer.getBoundingClientRect();
-		const {nodesForDisplay, linksForDisplay} = this.props;
 		this.worker = new myWorker();
 		this.worker.onmessage = (event) => this.onWorkerMessage(event);
 
 		this.postWorkerMessage({
-			type: 'init',
-			clientWidth: width,
-			clientHeight: height
+			type: 'init'
 		});
+	}
 
-		this.postNodesAndLinksToWorker(nodesForDisplay, linksForDisplay);
+	setWorkerAreaForces(isMapActive: boolean) {
+		const { width, height } = this.pixiContainer.getBoundingClientRect();
+
+		this.postWorkerMessage({
+			type: 'setAreaForces',
+			clientWidth: width,
+			clientHeight: height,
+			active: !isMapActive
+		});
 	}
 
     initMap() {
@@ -1183,12 +1155,12 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     componentDidMount() {
-        const { zoomEvents } = this.props;
+        const { zoomEvents, isMapActive } = this.props;
 
         this.createArrowTexture();
         this.initWorker();
+        this.setWorkerAreaForces(isMapActive);
         this.initGraph();
-        this.initMap();
 
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
         document.addEventListener('keyup', this.handleKeyUp.bind(this));
@@ -1365,9 +1337,7 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     onMouseMove(event: MouseEvent) {
-    	console.log('mouse move');
-
-        const { dispatch, nodesForDisplay, linksForDisplay } = this.props;
+    	const { dispatch, nodesForDisplay, linksForDisplay } = this.props;
 
         const {x, y} = this.getMouseCoordinates(event);
         const transformedX = this.transform.invertX(x);
@@ -1384,8 +1354,6 @@ class Graph extends React.PureComponent<Props, State> {
         } else {
             const tooltipNodes = this.getTooltipNodes();
             const tooltip = this.findNode(transformedX, transformedY);
-
-            console.log(tooltip);
 
             if (tooltipNodes[0] === tooltip) {
                 // Nothing changed
@@ -1533,15 +1501,17 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     render() {
+    	const { isMapActive } = this.props;
+
         return (
             <div className="graphComponent" ref={ref => this.graphComponent = ref}>
                 <div
-                    className="graphContainer"
+                    className={'graphContainer ' + (isMapActive ? 'mapIsActive' : 'mapIsNotActive')}
                     ref={pixiContainer => this.pixiContainer = pixiContainer}
                     onContextMenu={this.onContextMenu.bind(this)}
                     onClick={this.hideContextMenu.bind(this)}
                 />
-				<div id="map" />
+				<div id="map" className={isMapActive ? 'mapIsActive' : 'mapIsNotActive' } />
             </div>
         );
     }
@@ -1555,7 +1525,8 @@ const select = (state: AppState, ownProps) => {
         highlightedNodes: getHighlightedNodes(state),
         fields: state.graph.fields,
         searches: state.graph.searches,
-        showLabels: state.graph.showLabels
+        showLabels: state.graph.showLabels,
+		isMapActive: state.graph.isMapActive
     };
 };
 

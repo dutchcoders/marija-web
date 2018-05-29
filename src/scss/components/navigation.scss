@@ -22,6 +22,10 @@
       &.active {
         color: #5CA1E6;
       }
+
+      &.disabled {
+        opacity: .3;
+      }
     }
 
     i {

@@ -17,4 +17,5 @@ export interface GraphState {
     deletedNodes: Node[];
     via: Via[];
     showLabels: boolean;
+    isMapActive: boolean;
 }

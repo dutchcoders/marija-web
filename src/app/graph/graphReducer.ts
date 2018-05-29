@@ -26,21 +26,21 @@ import {
 } from '../search/searchConstants';
 import {TABLE_SORT} from '../table/tableConstants';
 import {
-    FIELD_NODES_HIGHLIGHT,
-    GRAPH_WORKER_OUTPUT,
-    NODE_UPDATE,
-    NODES_DELETE,
-    NODES_DESELECT,
-    NODES_HIGHLIGHT,
-    NODES_SELECT,
-    NODES_TOOLTIP,
-    NORMALIZATION_ADD,
-    NORMALIZATION_DELETE,
-    SELECT_FIELD_NODES,
-    SELECTION_CLEAR,
-    TOGGLE_LABELS,
-    VIA_ADD,
-    VIA_DELETE
+	FIELD_NODES_HIGHLIGHT,
+	GRAPH_WORKER_OUTPUT,
+	NODE_UPDATE,
+	NODES_DELETE,
+	NODES_DESELECT,
+	NODES_HIGHLIGHT,
+	NODES_SELECT,
+	NODES_TOOLTIP,
+	NORMALIZATION_ADD,
+	NORMALIZATION_DELETE,
+	SELECT_FIELD_NODES,
+	SELECTION_CLEAR, SET_MAP_ACTIVE,
+	TOGGLE_LABELS,
+	VIA_ADD,
+	VIA_DELETE
 } from './graphConstants';
 import applyVia from './helpers/applyVia';
 import deleteFieldFromNodes from './helpers/deleteFieldFromNodes';
@@ -71,7 +71,8 @@ export const defaultGraphState: GraphState = {
     links: [], // relations between nodes
     deletedNodes: [],
     via: [],
-    showLabels: false
+    showLabels: false,
+    isMapActive: false
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -616,7 +617,12 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             });
         }
 
-
+        case SET_MAP_ACTIVE: {
+            return {
+                ...state,
+                isMapActive: action.payload.active
+            }
+        }
 
         default:
             return state;

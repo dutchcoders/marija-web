@@ -5,9 +5,10 @@ import { connect } from 'react-redux';
 import { AppState } from '../../../main/interfaces/appState';
 import Icon from '../icon';
 import { closePane, openPane } from '../../uiActions';
-import { toggleLabels } from '../../../graph/graphActions';
+import { setMapActive, toggleLabels } from '../../../graph/graphActions';
 import Filter from '../../../graph/components/filter';
 import * as styles from './navigation.scss';
+import { isMapAvailable } from '../../../graph/graphSelectors';
 
 class Navigation extends React.Component<any, any> {
     togglePane(handle) {
@@ -32,9 +33,15 @@ class Navigation extends React.Component<any, any> {
         dispatch(toggleLabels(!showLabels));
     }
 
-    getButton(icon, tooltip, clickHandler, active) {
+    toggleMapActive() {
+        const { dispatch, isMapActive } = this.props;
+
+        dispatch(setMapActive(!isMapActive));
+    }
+
+    getButton(icon, tooltip, clickHandler, active, disabled: boolean = false) {
         return (
-            <li className={active ? 'active': ''}>
+            <li className={(active ? 'active': '') + ' ' + (disabled ? 'disabled' : '')}>
                 <Tooltip
                     overlay={tooltip}
                     placement="bottom"
@@ -58,7 +65,7 @@ class Navigation extends React.Component<any, any> {
     }
 
     render() {
-        const { zoomIn, zoomOut, showLabels } = this.props;
+        const { zoomIn, zoomOut, showLabels, isMapAvailable, isMapActive } = this.props;
 
         return (
             <nav className="navigation">
@@ -103,8 +110,15 @@ class Navigation extends React.Component<any, any> {
                 </ul>
                 <ul className="mapControls">
                     {this.getButton(
+						'ion-android-globe',
+						isMapAvailable ? 'Map' : 'Map is unavailable for this data',
+						() => this.toggleMapActive(),
+						isMapActive,
+                        !isMapAvailable
+					)}
+                    {this.getButton(
                         'ion-ios-pricetag',
-                        'Show labels',
+                        'Labels',
                         () => this.toggleLabels(),
                         showLabels
                     )}
@@ -142,7 +156,9 @@ const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
         panes: state.ui.panes,
-        showLabels: state.graph.showLabels
+        showLabels: state.graph.showLabels,
+        isMapAvailable: isMapAvailable(state),
+        isMapActive: state.graph.isMapActive
     };
 };
 

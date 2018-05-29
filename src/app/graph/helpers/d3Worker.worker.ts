@@ -36,43 +36,65 @@ onmessage = function(event) {
         
         // simulation.alpha(0);
     } else if (event.data.type === 'init') {
-        let { clientWidth, clientHeight } = event.data;
+		const forceLink = d3.forceLink()
+			.distance((link: any) => {
+				if (!link.label) {
+					return 80;
+				}
 
-        const forceLink = d3.forceLink()
-            .distance((link: any) => {
-                if (!link.label) {
-                    return 80;
-                }
+				let label = link.label;
 
-                let label = link.label;
+				if (Array.isArray(label)) {
+					label = label.join('');
+				}
 
-                if (Array.isArray(label)) {
-                    label = label.join('');
-                }
+				return label.length * 10 + 30;
+			})
+			.id((d: any) => d.id);
 
-                return label.length * 10 + 30;
-            })
-            .id((d: any) => d.id);
+		const forceManyBody = d3.forceManyBody()
+			.strength(-100)
+			.distanceMax(500)
+			.distanceMin(50);
 
-        const forceManyBody = d3.forceManyBody()
-            .strength(-100)
-            .distanceMax(500)
-            .distanceMin(50);
+		simulation = d3.forceSimulation()
+			.stop()
+			.force("link", forceLink)
+			.force("charge", forceManyBody)
+			// .force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
+			.force('collide', d3.forceCollide((node: any) => node.r))
+			// .force("vertical", d3.forceY().strength(0.018))
+			// .force("horizontal", d3.forceX().strength(0.006))
+			.on("tick", () => {
+				postMessage({
+					type: "tick",
+					nodes: workerNodes,
+					links: workerLinks
+				});
+			});
 
-        simulation = d3.forceSimulation()
-            .stop()
-            .force("link", forceLink)
-            .force("charge", forceManyBody)
-            // .force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
-            .force('collide', d3.forceCollide((node: any) => node.r))
-            // .force("vertical", d3.forceY().strength(0.018))
-            // .force("horizontal", d3.forceX().strength(0.006))
-            .on("tick", () => {
-                postMessage({type: "tick", nodes: workerNodes, links: workerLinks });
-            });
+		workerNodes = [];
+		workerLinks = [];
+	} else if (event.data.type === 'setAreaForces') {
+		const { clientWidth, clientHeight } = event.data;
 
-        workerNodes = [];
-        workerLinks = [];
+		console.log(event.data.active);
+
+        if (event.data.active) {
+			simulation
+				.force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
+				.force("vertical", d3.forceY().strength(0.018))
+				.force("horizontal", d3.forceX().strength(0.006))
+                .restart();
+        } else {
+			simulation
+                .stop()
+				.force("center", null)
+				.force("vertical", null)
+				.force("horizontal", null)
+                .restart()
+                .tick();
+        }
     } else if (event.data.type === 'tick') {
     } else if (event.data.type === 'update') {
         let { nodes, links } = event.data;
