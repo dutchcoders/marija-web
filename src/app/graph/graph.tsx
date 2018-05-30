@@ -28,6 +28,7 @@ import {Field} from "../fields/interfaces/field";
 import {getArrowPosition} from "./helpers/getArrowPosition";
 import {AppState} from "../main/interfaces/appState";
 import * as Leaflet from 'leaflet';
+import { isContextMenuActive } from '../contextMenu/contextMenuSelectors';
 const myWorker = require('./helpers/d3Worker.worker');
 
 interface TextureMap {
@@ -49,6 +50,7 @@ interface Props {
     version: string;
     showLabels: boolean;
     isMapActive: boolean;
+    isContextMenuActive: boolean;
 }
 
 interface State {
@@ -359,6 +361,16 @@ class Graph extends React.PureComponent<Props, State> {
 		}
 
 		return 1 / this.transform.k * .8;
+	}
+
+	getLabelSizeMultiplier(): number {
+		const { isMapActive } = this.props;
+
+		if (!isMapActive) {
+			return 1;
+		}
+
+		return 1 / this.transform.k * 1.2;
 	}
 
     renderNodes() {
@@ -828,17 +840,21 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     renderSelection() {
+		const { isMapActive } = this.props;
+
         this.renderedSelection.clear();
 
         if (this.selection) {
-            const x1 = this.transform.applyX(this.selection.x1);
-            const x2 = this.transform.applyX(this.selection.x2);
-            const y1 = this.transform.applyY(this.selection.y1);
-            const y2 = this.transform.applyY(this.selection.y2);
+            const x1 = this.applyX(this.selection.x1);
+            const x2 = this.applyX(this.selection.x2);
+            const y1 = this.applyY(this.selection.y1);
+            const y2 = this.applyY(this.selection.y2);
             const width = x2 - x1;
             const height = y2 - y1;
 
-            this.renderedSelection.beginFill(0xFFFFFF, .1);
+            const alpha: number = isMapActive ? .4 : .1;
+
+            this.renderedSelection.beginFill(0xFFFFFF, alpha);
             this.renderedSelection.drawRect(
                 x1,
                 y1,
@@ -1042,8 +1058,8 @@ class Graph extends React.PureComponent<Props, State> {
         });
     }
 
-    getNodeLabelTexture(label: string): PIXI.Texture {
-        const key = label;
+    getNodeLabelTexture(label: string, sizeMultiplier: number, isMapActive: boolean): PIXI.Texture {
+        const key = label + '-' + sizeMultiplier + isMapActive;
         let texture = this.nodeLabelTextures[key];
 
         if (typeof texture !== 'undefined') {
@@ -1051,14 +1067,18 @@ class Graph extends React.PureComponent<Props, State> {
             return texture;
         }
 
+        const fontSize = 12 * sizeMultiplier;
+        const dropShadowBlur = isMapActive ? 10 : 3;
+        const dropShadowAlpha = isMapActive ? 1 : .7;
+
         const text = new PIXI.Text(label, {
             fontFamily: 'Arial',
-            fontSize: '12px',
+            fontSize: fontSize + 'px',
             fill: '#ffffff',
             dropShadow: true,
             dropShadowDistance: 1,
-            dropShadowBlur: 3,
-            dropShadowAlpha: .7
+            dropShadowBlur: dropShadowBlur,
+            dropShadowAlpha: dropShadowAlpha
         });
 
         texture = PIXI.RenderTexture.create(text.width, text.height);
@@ -1071,18 +1091,20 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     renderNodeLabels() {
-        const { showLabels } = this.props;
+        const { showLabels, isMapActive } = this.props;
 
         this.renderedNodeLabels.removeChildren();
 
-        const tooSmallToRead: boolean = this.transform.k < .75;
+        // const tooSmallToRead: boolean = this.transform.k < .75;
 
-        if (!showLabels || tooSmallToRead) {
+        if (!showLabels) {
             return;
         }
 
+        const sizeMultiplier = this.getLabelSizeMultiplier();
+
         this.nodesFromD3.forEach(node => {
-            const texture = this.getNodeLabelTexture(node.label);
+            const texture = this.getNodeLabelTexture(node.label, sizeMultiplier, isMapActive);
             const sprite = new PIXI.Sprite(texture);
 
             sprite.x = node.x - (texture.width / 2);
@@ -1447,7 +1469,13 @@ class Graph extends React.PureComponent<Props, State> {
     onMouseMove(event: MouseEvent) {
 		event.preventDefault();
 
-    	const { dispatch, nodesForDisplay, linksForDisplay } = this.props;
+    	const { dispatch, nodesForDisplay, linksForDisplay, isContextMenuActive } = this.props;
+
+		if (isContextMenuActive) {
+			this.mainDragSubject = null;
+			this.isMouseDown = false;
+			return;
+		}
 
         const { x, y } = this.getMouseCoordinates(event);
 
@@ -1565,6 +1593,8 @@ class Graph extends React.PureComponent<Props, State> {
 
             dispatch(deselectNodes(selectedNodes));
         }
+
+        dispatch(hideContextMenu());
     }
 
     handleKeyDown(event: KeyboardEvent) {
@@ -1620,15 +1650,14 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     onContextMenu(event) {
-        const { dispatch } = this.props;
+		const { dispatch } = this.props;
 
         event.preventDefault();
 
         const rect: ClientRect = this.pixiContainer.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        const transformedX = this.transform.invertX(x);
-        const transformedY = this.transform.invertY(y);
+        const { x, y } = this.getMouseCoordinates(event);
+        const transformedX = this.invertX(x);
+        const transformedY = this.invertY(y);
         const node = this.findNode(transformedX, transformedY);
 
         if (node) {
@@ -1649,11 +1678,13 @@ class Graph extends React.PureComponent<Props, State> {
     	const { isMapActive } = this.props;
 
         return (
-			<div className="graphComponent" ref={ref => this.graphComponent = ref}>
+			<div
+				className="graphComponent"
+				onContextMenu={this.onContextMenu.bind(this)}
+				ref={ref => this.graphComponent = ref}>
 				<div
 					className={'graphContainer ' + (isMapActive ? 'mapIsActive' : 'mapIsNotActive')}
 					ref={pixiContainer => this.pixiContainer = pixiContainer}
-					onContextMenu={this.onContextMenu.bind(this)}
 					onClick={this.hideContextMenu.bind(this)}
 				/>
 				<div id="map" className={isMapActive ? 'mapIsActive' : 'mapIsNotActive' } />
@@ -1671,7 +1702,8 @@ const select = (state: AppState, ownProps) => {
         fields: state.graph.fields,
         searches: state.graph.searches,
         showLabels: state.graph.showLabels,
-		isMapActive: state.graph.isMapActive
+		isMapActive: state.graph.isMapActive,
+		isContextMenuActive: isContextMenuActive(state)
     };
 };
 
