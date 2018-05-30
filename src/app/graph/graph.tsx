@@ -116,6 +116,7 @@ class Graph extends React.PureComponent<Props, State> {
 	mapOffset: Leaflet.Point;
 	graphComponent;
 	isMouseDown: boolean = false;
+	isZooming: boolean = false;
 	mainDragSubject: NodeFromD3;
     readonly minZoomGraph: number = .3;
     readonly maxZoomGraph: number = 3;
@@ -175,8 +176,6 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
     zoom(fraction: number, newX: number, newY: number) {
-    	console.log('zoom', arguments);
-
     	[
             this.renderedNodesContainer,
             this.renderedLinks,
@@ -201,13 +200,25 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedSince.lastZoom = false;
     }
 
-    zoomed() {
+    d3ZoomStart() {
+		this.isZooming = true;
+	}
+
+    d3Zoomed() {
+    	if (!this.isZooming) {
+    		return;
+		}
+
     	const transform = d3.event.transform;
 
 		this.zoom(transform.k, transform.x, transform.y);
 
 		this.transform = transform;
     }
+
+    d3ZoomEnd() {
+    	this.isZooming = false;
+	}
 
     mapZoomed(event) {
     	this.mapOffset = this.map.latLngToContainerPoint(this.initialMapBounds.getNorthWest());
@@ -1195,22 +1206,37 @@ class Graph extends React.PureComponent<Props, State> {
         this.stage.addChild(this.renderedIcons);
         this.stage.addChild(this.renderedTooltip);
 
-
-        const canvas = this.pixiContainer.querySelector('canvas');
-
-        this.graphComponent.addEventListener('mousedown', this.onMouseDown.bind(this));
-        this.graphComponent.addEventListener('mousemove', this.onMouseMove.bind(this));
-        this.graphComponent.addEventListener('mouseup', this.onMouseUp.bind(this));
+        this.graphComponent.addEventListener('mousedown', this.onMouseDown.bind(this), true);
+        this.graphComponent.addEventListener('mousemove', this.onMouseMove.bind(this), true);
+        this.graphComponent.addEventListener('mouseup', this.onMouseUp.bind(this), true);
 
         this.renderGraph(false);
         this.enableD3Zooming();
     }
 
     enableD3Zooming() {
+    	this.resetZoom();
+
 		const zooming = d3.zoom()
-		    .filter(() => !this.shift)
+			.filter(() => {
+				if (this.isZooming) {
+					return true;
+				}
+
+				if (this.shift) {
+					return false;
+				}
+
+				const { x, y } = this.getMouseCoordinates(d3.event);
+				const transformedX = this.transform.invertX(x);
+				const transformedY = this.transform.invertY(y);
+
+				return typeof this.findNodeFromD3(transformedX, transformedY) === 'undefined';
+			})
 		    .scaleExtent([this.minZoomGraph, this.maxZoomGraph])
-		    .on("zoom", this.zoomed.bind(this));
+			.on('start', this.d3ZoomStart.bind(this))
+		    .on('zoom', this.d3Zoomed.bind(this))
+			.on('end', this.d3ZoomEnd.bind(this));
 
 		d3.select(this.graphComponent)
 		    .call(zooming)
@@ -1366,23 +1392,29 @@ class Graph extends React.PureComponent<Props, State> {
     getMouseCoordinates(event: MouseEvent) {
     	const rect = this.pixiContainer.getBoundingClientRect();
 
+    	let x = event.clientX - rect.left;
+
+    	if (x < 0 || x > rect.width) {
+    		x = null;
+		}
+
+		let y = event.clientY - rect.top;
+
+    	if (y < 0 || y > rect.height) {
+    		y = 0;
+		}
+
         return {
-			x: event.clientX - rect.left,
-			y: event.clientY - rect.top
+			x,
+			y
 		};
     }
 
     mouseDownCoordinates: { x: number; y: number };
 
-    /**
-     * Handles selecting/deselecting nodes.
-     * Is not involved with dragging nodes, d3 handles that.
-     */
     onMouseDown(event: MouseEvent) {
     	const { isMapActive } = this.props;
     	this.isMouseDown = true;
-
-        event.preventDefault();
 
         this.mouseDownCoordinates = this.getMouseCoordinates(event);
 		const transformedX = this.invertX(this.mouseDownCoordinates.x);
@@ -1413,6 +1445,15 @@ class Graph extends React.PureComponent<Props, State> {
     	const { dispatch, nodesForDisplay, linksForDisplay } = this.props;
 
         const { x, y } = this.getMouseCoordinates(event);
+
+        if (x === null || y === null) {
+        	// Cursor is outside graph container, cancel dragging
+			this.isMouseDown = false;
+			this.mainDragSubject = null;
+
+			return;
+		}
+
         const transformedX = this.invertX(x);
         const transformedY = this.invertY(y);
 
@@ -1602,15 +1643,15 @@ class Graph extends React.PureComponent<Props, State> {
     	const { isMapActive } = this.props;
 
         return (
-            <div className="graphComponent" ref={ref => this.graphComponent = ref}>
-                <div
-                    className={'graphContainer ' + (isMapActive ? 'mapIsActive' : 'mapIsNotActive')}
-                    ref={pixiContainer => this.pixiContainer = pixiContainer}
-                    onContextMenu={this.onContextMenu.bind(this)}
-                    onClick={this.hideContextMenu.bind(this)}
-                />
+			<div className="graphComponent" ref={ref => this.graphComponent = ref}>
+				<div
+					className={'graphContainer ' + (isMapActive ? 'mapIsActive' : 'mapIsNotActive')}
+					ref={pixiContainer => this.pixiContainer = pixiContainer}
+					onContextMenu={this.onContextMenu.bind(this)}
+					onClick={this.hideContextMenu.bind(this)}
+				/>
 				<div id="map" className={isMapActive ? 'mapIsActive' : 'mapIsNotActive' } />
-            </div>
+			</div>
         );
     }
 }
