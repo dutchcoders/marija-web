@@ -1206,9 +1206,10 @@ class Graph extends React.PureComponent<Props, State> {
         this.stage.addChild(this.renderedIcons);
         this.stage.addChild(this.renderedTooltip);
 
-        this.graphComponent.addEventListener('mousedown', this.onMouseDown.bind(this), true);
+        this.graphComponent.addEventListener('mousedown', this.onMouseDown.bind(this));
         this.graphComponent.addEventListener('mousemove', this.onMouseMove.bind(this), true);
         this.graphComponent.addEventListener('mouseup', this.onMouseUp.bind(this), true);
+        this.graphComponent.addEventListener('click', this.clickEnded.bind(this), true);
 
         this.renderGraph(false);
         this.enableD3Zooming();
@@ -1413,6 +1414,8 @@ class Graph extends React.PureComponent<Props, State> {
     mouseDownCoordinates: { x: number; y: number };
 
     onMouseDown(event: MouseEvent) {
+    	event.preventDefault();
+
     	const { isMapActive } = this.props;
     	this.isMouseDown = true;
 
@@ -1442,6 +1445,8 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     onMouseMove(event: MouseEvent) {
+		event.preventDefault();
+
     	const { dispatch, nodesForDisplay, linksForDisplay } = this.props;
 
         const { x, y } = this.getMouseCoordinates(event);
@@ -1501,15 +1506,9 @@ class Graph extends React.PureComponent<Props, State> {
 
     	const { x, y } = this.getMouseCoordinates(event);
 
-    	const isClick = Math.abs(x - this.mouseDownCoordinates.x) < 5 && Math.abs(y - this.mouseDownCoordinates.y) < 5;
-
-    	if (isClick) {
-			if (this.selection && this.shift) {
-				this.selectionEnded();
-			} else {
-				this.clickEnded(event);
-			}
-        }
+		if (this.selection && this.shift) {
+			this.selectionEnded();
+		}
 	}
 
     selectionEnded() {
@@ -1541,8 +1540,14 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     clickEnded(event: MouseEvent) {
-        const { dispatch } = this.props;
-        const {x, y} = this.getMouseCoordinates(event);
+    	const { dispatch } = this.props;
+        const { x, y } = this.getMouseCoordinates(event);
+
+		const isClick = Math.abs(x - this.mouseDownCoordinates.x) < 5 && Math.abs(y - this.mouseDownCoordinates.y) < 5;
+
+		if (!isClick) {
+			return;
+		}
 
         const transformedX = this.invertX(x);
         const transformedY = this.invertY(y);
@@ -1557,6 +1562,7 @@ class Graph extends React.PureComponent<Props, State> {
         } else {
             // Deselect all when clicking on empty space
             const selectedNodes = this.getSelectedNodes();
+
             dispatch(deselectNodes(selectedNodes));
         }
     }
