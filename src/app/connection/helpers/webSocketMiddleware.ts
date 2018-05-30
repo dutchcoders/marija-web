@@ -16,7 +16,7 @@ import {ITEMS_RECEIVE} from "../../items/itemsConstants";
 import {INITIAL_STATE_RECEIVE} from "../../datasources/datasourcesConstants";
 import {receiveInitialState} from "../../datasources/datasourcesActions";
 import Timer = NodeJS.Timer;
-import { getResponse } from './mockServer';
+import { getResponses } from './mockServer';
 
 let opened: Promise<ReconnectingWebsocket>;
 
@@ -41,14 +41,14 @@ export const webSocketMiddleware: Middleware = ({dispatch}) => next => action =>
         case WEB_SOCKET_SEND: {
             const payload: string = JSON.stringify(action.payload);
             console.log('Send', action.payload);
-            let mockedResponse;
+            let mockedResponses;
 
             if (process.env.MOCK_SERVER) {
-                mockedResponse = getResponse(action.payload) as MessageEvent;
+                mockedResponses = getResponses(action.payload) as MessageEvent[];
             }
 
-            if (mockedResponse) {
-                onMessage(mockedResponse, dispatch);
+            if (mockedResponses) {
+                mockedResponses.forEach(response => onMessage(response, dispatch));
             } else {
 				opened.then(socket => socket.send(payload));
             }
