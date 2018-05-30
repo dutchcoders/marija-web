@@ -173,32 +173,12 @@ class Graph extends React.PureComponent<Props, State> {
     	this.transform.k = 1;
     	this.transform.x = 0;
     	this.transform.y = 0;
+    	this.setContainerPositions(0, 0);
 
-    	this.zoom(1, 0, 0);
+    	this.zoom();
 	}
 
-    zoom(fraction: number, newX: number, newY: number) {
-    	[
-            this.renderedNodesContainer,
-            this.renderedLinks,
-            this.renderedSelectedNodes,
-            this.renderedLinkLabels,
-            this.renderedNodeLabels,
-            this.renderedArrows,
-            this.renderedIcons
-        ].forEach(zoomable => {
-            zoomable.scale.x = fraction;
-            zoomable.scale.y = fraction;
-
-            if (typeof newX !== 'undefined') {
-                zoomable.position.x = newX;
-            }
-
-            if (typeof newY !== 'undefined') {
-                zoomable.position.y = newY;
-            }
-        });
-
+    zoom() {
         this.renderedSince.lastZoom = false;
     }
 
@@ -213,7 +193,7 @@ class Graph extends React.PureComponent<Props, State> {
 
     	const transform = d3.event.transform;
 
-		this.zoom(transform.k, transform.x, transform.y);
+		this.zoom();
 
 		this.transform = transform;
     }
@@ -222,13 +202,29 @@ class Graph extends React.PureComponent<Props, State> {
     	this.isZooming = false;
 	}
 
+	setContainerPositions(x: number, y: number) {
+		[
+			this.renderedNodesContainer,
+			this.renderedSelectedNodes,
+			this.renderedLinkLabels,
+			this.renderedNodeLabels,
+			this.renderedArrows,
+			this.renderedIcons,
+			this.renderedLinks
+		].forEach(zoomable => {
+			zoomable.position.x = x;
+			zoomable.position.y = y;
+		});
+	}
+
     mapZoomed(event) {
     	this.mapOffset = this.map.latLngToContainerPoint(this.initialMapBounds.getNorthWest());
 
 		const graphZoom = this.map.getZoomScale(this.map.getZoom(), this.initialMapZoom);
 		this.transform.k = graphZoom;
+		this.setContainerPositions(this.mapOffset.x, this.mapOffset.y);
 
-		this.zoom(graphZoom, this.mapOffset.x, this.mapOffset.y);
+		this.zoom();
 	}
 
 	initMapMarkers(nodes: Node[]) {
@@ -279,8 +275,8 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     getNodeTexture(node: NodeFromD3, sizeMultiplier: number) {
-
-        let texture = this.nodeTextures[node.textureKey + sizeMultiplier];
+    	const key = node.textureKey + '-' + sizeMultiplier;
+        let texture = this.nodeTextures[key];
 
         if (typeof texture !== 'undefined') {
             // Get from cache
@@ -318,7 +314,7 @@ class Graph extends React.PureComponent<Props, State> {
         texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
 
         // Save in cache
-        this.nodeTextures[node.textureKey + sizeMultiplier] = texture;
+        this.nodeTextures[key] = texture;
 
         return texture;
     }
@@ -354,23 +350,16 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     getNodeSizeMultiplier(): number {
-    	const { isMapActive } = this.props;
+    	// Todo: make nodes smaller when zoomed out? Try first with lots of data
+    	return 1;
 
-    	if (!isMapActive) {
-    		return 1;
-		}
-
-		return 1 / this.transform.k * .8;
-	}
-
-	getLabelSizeMultiplier(): number {
-		const { isMapActive } = this.props;
-
-		if (!isMapActive) {
-			return 1;
-		}
-
-		return 1 / this.transform.k * 1.2;
+		// const { isMapActive } = this.props;
+		//
+		// if (!isMapActive) {
+    		// return 1;
+		// }
+		//
+		// return 1 / this.transform.k * .8;
 	}
 
     renderNodes() {
@@ -394,8 +383,8 @@ class Graph extends React.PureComponent<Props, State> {
 
             renderedNode.anchor.x = 0.5;
             renderedNode.anchor.y = 0.5;
-            renderedNode.x = node.x;
-            renderedNode.y = node.y;
+            renderedNode.x = this.getRenderX(node.x);
+            renderedNode.y = this.getRenderY(node.y);
 
             if (isHighlighting && !this.highlightedNodesMap[node.id]) {
                 renderedNode.alpha = .3;
@@ -423,8 +412,8 @@ class Graph extends React.PureComponent<Props, State> {
         let y = node.y - node.r - 5;
 
         icons.forEach(icon => {
-            icon.x = node.x + node.r - icon.width + 8;
-            icon.y = y - 5;
+            icon.x = this.getRenderX(node.x + node.r - icon.width + 8);
+            icon.y = this.getRenderY(y - 5);
 
             y += icon.height - 3;
 
@@ -453,13 +442,7 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedLinks.alpha = alpha;
 
         this.linksFromD3.forEach(link => {
-        	let thickness: number = link.thickness;
-
-        	if (isMapActive) {
-        		thickness = thickness * (1 / this.transform.k) * 2;
-			}
-
-            this.renderedLinks.lineStyle(thickness, 0xFFFFFF);
+            this.renderedLinks.lineStyle(link.thickness, 0xFFFFFF);
             this.renderLink(link);
         });
     }
@@ -484,15 +467,23 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedArrows.addChild(sprite);
     }
 
+    getRenderX(x: number): number {
+    	return x * this.transform.k + this.transform.x;
+	}
+
+	getRenderY(y: number): number {
+    	return y * this.transform.k + this.transform.y;
+	}
+
     renderLink(link: LinkFromD3) {
         if (link.total <= 1) {
             // When there's only 1 link between 2 nodes, we can draw a straight line
 
             this.renderStraightLine(
-                link.source.x,
-                link.source.y,
-                link.target.x,
-                link.target.y
+                this.getRenderX(link.source.x),
+                this.getRenderY(link.source.y),
+                this.getRenderX(link.target.x),
+                this.getRenderY(link.target.y)
             );
 
             if (link.label) {
@@ -1051,15 +1042,15 @@ class Graph extends React.PureComponent<Props, State> {
 
             sprite.anchor.x = 0.5;
             sprite.anchor.y = 0.5;
-            sprite.x = nodeFromD3.x;
-            sprite.y = nodeFromD3.y;
+            sprite.x = this.getRenderX(nodeFromD3.x);
+            sprite.y = this.getRenderY(nodeFromD3.y);
 
             this.renderedSelectedNodes.addChild(sprite);
         });
     }
 
-    getNodeLabelTexture(label: string, sizeMultiplier: number, isMapActive: boolean): PIXI.Texture {
-        const key = label + '-' + sizeMultiplier + isMapActive;
+    getNodeLabelTexture(label: string, isMapActive: boolean): PIXI.Texture {
+        const key = label + '-' + isMapActive;
         let texture = this.nodeLabelTextures[key];
 
         if (typeof texture !== 'undefined') {
@@ -1067,17 +1058,15 @@ class Graph extends React.PureComponent<Props, State> {
             return texture;
         }
 
-        const fontSize = 12 * sizeMultiplier;
-        const dropShadowBlur = isMapActive ? 10 : 3;
         const dropShadowAlpha = isMapActive ? 1 : .7;
 
         const text = new PIXI.Text(label, {
             fontFamily: 'Arial',
-            fontSize: fontSize + 'px',
+            fontSize: '12px',
             fill: '#ffffff',
             dropShadow: true,
             dropShadowDistance: 1,
-            dropShadowBlur: dropShadowBlur,
+            dropShadowBlur: 3,
             dropShadowAlpha: dropShadowAlpha
         });
 
@@ -1095,20 +1084,17 @@ class Graph extends React.PureComponent<Props, State> {
 
         this.renderedNodeLabels.removeChildren();
 
-        const tooSmallToRead: boolean = !isMapActive && this.transform.k < .75;
-
-        if (!showLabels || tooSmallToRead) {
+        if (!showLabels) {
             return;
         }
 
-        const sizeMultiplier = this.getLabelSizeMultiplier();
-
         this.nodesFromD3.forEach(node => {
-            const texture = this.getNodeLabelTexture(node.label, sizeMultiplier, isMapActive);
+            const texture = this.getNodeLabelTexture(node.label, isMapActive);
             const sprite = new PIXI.Sprite(texture);
 
-            sprite.x = node.x - (texture.width / 2);
-            sprite.y = node.y + node.r;
+            sprite.anchor.x = .5;
+            sprite.x = this.getRenderX(node.x);
+            sprite.y = this.getRenderY(node.y) + node.r;
 
             this.renderedNodeLabels.addChild(sprite);
         });
@@ -1378,7 +1364,7 @@ class Graph extends React.PureComponent<Props, State> {
             const dy = y - node.y;
             const d2 = dx * dx + dy * dy;
 
-            return d2 < Math.pow(node.r * sizeMultiplier, 2);
+            return d2 < Math.pow(node.r * sizeMultiplier / this.transform.k, 2);
         });
     }
 
@@ -1634,7 +1620,7 @@ class Graph extends React.PureComponent<Props, State> {
 
         this.transform.k = newK;
 
-        this.zoom(this.transform.k, undefined, undefined);
+        this.zoom();
     }
 
     zoomOut() {
@@ -1646,7 +1632,7 @@ class Graph extends React.PureComponent<Props, State> {
 
         this.transform.k = newK;
 
-        this.zoom(this.transform.k, undefined, undefined);
+        this.zoom();
     }
 
     onContextMenu(event) {
