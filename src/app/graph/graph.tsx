@@ -352,14 +352,6 @@ class Graph extends React.PureComponent<Props, State> {
     getNodeSizeMultiplier(): number {
     	// Todo: make nodes smaller when zoomed out? Try first with lots of data
     	return 1;
-
-		// const { isMapActive } = this.props;
-		//
-		// if (!isMapActive) {
-    		// return 1;
-		// }
-		//
-		// return 1 / this.transform.k * .8;
 	}
 
     renderNodes() {
@@ -442,7 +434,13 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedLinks.alpha = alpha;
 
         this.linksFromD3.forEach(link => {
-            this.renderedLinks.lineStyle(link.thickness, 0xFFFFFF);
+        	let thickness = link.thickness;
+
+        	if (isMapActive) {
+        		thickness = thickness * 2;
+			}
+
+            this.renderedLinks.lineStyle(thickness, 0xFFFFFF);
             this.renderLink(link);
         });
     }
@@ -1058,17 +1056,24 @@ class Graph extends React.PureComponent<Props, State> {
             return texture;
         }
 
-        const dropShadowAlpha = isMapActive ? 1 : .7;
+        let style: PIXI.TextStyle = new PIXI.TextStyle({
+			fontFamily: 'Arial',
+			fontSize: '12px'
+		});
 
-        const text = new PIXI.Text(label, {
-            fontFamily: 'Arial',
-            fontSize: '12px',
-            fill: '#ffffff',
-            dropShadow: true,
-            dropShadowDistance: 1,
-            dropShadowBlur: 3,
-            dropShadowAlpha: dropShadowAlpha
-        });
+        if (isMapActive) {
+			style.stroke = 0xFFFFFF;
+			style.strokeThickness = 3;
+			style.fill = 0x000000;
+		} else {
+			style.dropShadow = true;
+			style.dropShadowDistance = 1;
+			style.dropShadowBlur = 3;
+			style.dropShadowAlpha = .7;
+			style.fill = 0xFFFFFF;
+		}
+
+        const text = new PIXI.Text(label, style);
 
         texture = PIXI.RenderTexture.create(text.width, text.height);
         this.renderer.render(text, texture);
@@ -1094,7 +1099,16 @@ class Graph extends React.PureComponent<Props, State> {
 
             sprite.anchor.x = .5;
             sprite.x = this.getRenderX(node.x);
-            sprite.y = this.getRenderY(node.y) + node.r;
+
+            let y = this.getRenderY(node.y);
+
+            if (isMapActive && node.isGeoLocation) {
+            	y += 2;
+			} else {
+            	y += node.r;
+			}
+
+            sprite.y = y;
 
             this.renderedNodeLabels.addChild(sprite);
         });
