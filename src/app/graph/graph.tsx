@@ -1659,6 +1659,8 @@ class Graph extends React.PureComponent<Props, State> {
         const transformedX = this.invertX(x);
         const transformedY = this.invertY(y);
         const node = this.findNode(transformedX, transformedY);
+        this.isMouseDown = false;
+        this.mainDragSubject = null;
 
         if (node) {
             dispatch(showContextMenu(node.id, x, y));
