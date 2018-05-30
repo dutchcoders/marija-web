@@ -1095,9 +1095,9 @@ class Graph extends React.PureComponent<Props, State> {
 
         this.renderedNodeLabels.removeChildren();
 
-        // const tooSmallToRead: boolean = this.transform.k < .75;
+        const tooSmallToRead: boolean = !isMapActive && this.transform.k < .75;
 
-        if (!showLabels) {
+        if (!showLabels || tooSmallToRead) {
             return;
         }
 
