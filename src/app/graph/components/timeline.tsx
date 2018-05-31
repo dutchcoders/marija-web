@@ -282,14 +282,16 @@ class Timeline extends React.Component<Props, State> {
         return search.color;
     }
 
-    onSliderChanged(fraction: number) {
+    onSliderChanged(minFraction: number, maxFraction: number) {
 		const { dispatch } = this.props;
 
         const searchIds = this.getSearchIds();
         const chartData = this.getChartData(searchIds);
 
         const xAxis: SVGRect = this.container.querySelector('.recharts-xAxis line').getBBox();
-		const maxMiddlePoint: number = xAxis.width * fraction + xAxis.x;
+		const minMiddlePoint: number = xAxis.width * minFraction + xAxis.x;
+        const maxMiddlePoint: number = xAxis.width * maxFraction + xAxis.x;
+
         const bars: SVGRectElement[] = this.container.querySelectorAll('.recharts-bar-rectangle');
         const periods: string[] = [];
 
@@ -297,7 +299,7 @@ class Timeline extends React.Component<Props, State> {
             const rect = bar.getBBox();
             const middlePoint = rect.x + rect.width / 2;
 
-            if (middlePoint <= maxMiddlePoint) {
+            if (middlePoint <= maxMiddlePoint && middlePoint >= minMiddlePoint) {
                 periods.push(chartData[index].name);
             }
         });
