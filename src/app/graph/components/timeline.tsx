@@ -18,6 +18,8 @@ import {Search} from "../../search/interfaces/search";
 import {getNodesForDisplay} from "../graphSelectors";
 import {AppState} from "../../main/interfaces/appState";
 import {dateFieldAdd} from "../../fields/fieldsActions";
+import TimelineSlider from './timelineSlider/timelineSlider';
+import * as styles from './timeline.scss';
 
 interface Props {
     normalizations: Normalization[];
@@ -108,6 +110,8 @@ class Timeline extends React.Component<Props, State> {
     }
 
     componentDidMount() {
+        console.log(this.barChart);
+
         this.setGroupsAndPeriods(this.props.nodes, this.props.items);
     }
 
@@ -175,44 +179,55 @@ class Timeline extends React.Component<Props, State> {
         });
     }
 
+    getSearchIds(): string[] {
+		const { items } = this.props;
+
+        return items.reduce((previous, item: Item) => {
+			if (previous.indexOf(item.searchId) === -1) {
+				return previous.concat([item.searchId]);
+			}
+
+			return previous;
+		}, []);
+    }
+
+    getChartData(searchIds: string[]) {
+		const { periods, groupedNodes } = this.state;
+
+		return periods.map(period => {
+			const data = {
+				name: period
+			};
+
+			searchIds.forEach(searchId => {
+				const nodes: Node[] = groupedNodes[period].filter(node => node.searchIds.indexOf(searchId) !== -1);
+
+				data[searchId] = nodes.length
+			});
+
+			return data;
+		});
+    }
+
     getChart() {
         const { date_fields, items, containerHeight, containerWidth } = this.props;
-        const { periods, groupedNodes } = this.state;
 
         if (!items.length || !date_fields.length) {
             return;
         }
 
-        const searchIds: string[] = items.reduce((previous, item: Item) => {
-            if (previous.indexOf(item.searchId) === -1) {
-                return previous.concat([item.searchId]);
-            }
-
-            return previous;
-        }, []);
-
-        const chartData = periods.map(period => {
-            const data = {
-                name: period
-            };
-
-            searchIds.forEach(searchId => {
-                const nodes: Node[] = groupedNodes[period].filter(node => node.searchIds.indexOf(searchId) !== -1);
-
-                data[searchId] = nodes.length
-            });
-
-            return data;
-        });
+        const searchIds: string[] = this.getSearchIds();
+        const chartData = this.getChartData(searchIds);
 
         return (
             <BarChart
+				ref={ref => this.barChart = ref}
                 width={containerWidth}
                 height={containerHeight - 30}
                 margin={{top: 0, right: 0, bottom: 0, left: 0}}
                 data={chartData}>
-                <XAxis dataKey="name" stroke="white"/>
-                <YAxis stroke="white" width={35} />
+                <XAxis dataKey="name" />
+                <YAxis width={35} />
                 <Tooltip
                     isAnimationActive={false}
                     wrapperStyle={{background: '#425269'}}
@@ -233,6 +248,8 @@ class Timeline extends React.Component<Props, State> {
             </BarChart>
         );
     }
+
+    barChart;
 
     private getNodes(period: string): Node[] {
         const { groupedNodes } = this.state;
@@ -265,6 +282,37 @@ class Timeline extends React.Component<Props, State> {
         return search.color;
     }
 
+    onSliderChanged(fraction: number) {
+		const { dispatch } = this.props;
+
+        const searchIds = this.getSearchIds();
+        const chartData = this.getChartData(searchIds);
+
+        const xAxis: SVGRect = this.container.querySelector('.recharts-xAxis line').getBBox();
+		const maxMiddlePoint: number = xAxis.width * fraction + xAxis.x;
+        const bars: SVGRectElement[] = this.container.querySelectorAll('.recharts-bar-rectangle');
+        const periods: string[] = [];
+
+        bars.forEach((bar, index) => {
+            const rect = bar.getBBox();
+            const middlePoint = rect.x + rect.width / 2;
+
+            if (middlePoint <= maxMiddlePoint) {
+                periods.push(chartData[index].name);
+            }
+        });
+
+		let nodes = [];
+
+        periods.forEach(period =>
+            nodes = nodes.concat(this.getNodes(period))
+        );
+
+		dispatch(highlightNodes(nodes));
+    }
+
+    container;
+
     render() {
         const { nodes, date_fields } = this.props;
 
@@ -286,14 +334,18 @@ class Timeline extends React.Component<Props, State> {
         }
 
         return (
-            <div>
+            <div ref={ref => this.container = ref}>
                 { this.selectDateFields() }
                 { noNodes }
                 { noDateFields }
-                { chart }
+                <div className={styles.chartContainer}>
+                	{ chart }
+                	<div className={styles.sliderContainer}>
+						<TimelineSlider onChanged={this.onSliderChanged.bind(this)}/>
+					</div>
+				</div>
             </div>
         );
-
     }
 }
 

@@ -254,6 +254,13 @@
   version "16.0.38"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-16.0.38.tgz#76617433ea10274505f60bb86eddfdd0476ffdc2"
 
+"@types/recharts@^1.0.20":
+  version "1.0.20"
+  resolved "https://registry.yarnpkg.com/@types/recharts/-/recharts-1.0.20.tgz#3f31d456611002a4ed861d9ff97c162579b4c031"
+  dependencies:
+    "@types/d3-shape" "*"
+    "@types/react" "*"
+
 "@types/redux@^3.6.0":
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/@types/redux/-/redux-3.6.0.tgz#f1ebe1e5411518072e4fdfca5c76e16e74c1399a"

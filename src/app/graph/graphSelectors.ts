@@ -41,3 +41,7 @@ export const isMapAvailable = createSelector(
     (state: AppState) => state.graph.nodes,
     (nodes: Node[]): boolean => typeof nodes.find(node => node.isGeoLocation) !== 'undefined'
 );
+
+// export const getTimelineData = createSelector(
+//     (state: AppState) => state.graph
+// )
