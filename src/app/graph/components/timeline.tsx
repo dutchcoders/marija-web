@@ -43,6 +43,7 @@ interface State {
 }
 
 class Timeline extends React.Component<Props, State> {
+	isPlaying: boolean = false;
     state: State = {
         showAllFields: false,
         groupedNodes: {},
@@ -226,8 +227,8 @@ class Timeline extends React.Component<Props, State> {
                 height={containerHeight - 30}
                 margin={{top: 0, right: 0, bottom: 0, left: 0}}
                 data={chartData}>
-                <XAxis dataKey="name" />
-                <YAxis width={35} />
+                <XAxis dataKey="name" stroke="white" />
+                <YAxis width={35} stroke="white" />
                 <Tooltip
                     isAnimationActive={false}
                     wrapperStyle={{background: '#425269'}}
@@ -282,7 +283,7 @@ class Timeline extends React.Component<Props, State> {
         return search.color;
     }
 
-    onSliderChanged(minFraction: number, maxFraction: number) {
+    onSliderChange(minFraction: number, maxFraction: number) {
 		const { dispatch } = this.props;
 
         const searchIds = this.getSearchIds();
@@ -310,13 +311,26 @@ class Timeline extends React.Component<Props, State> {
             nodes = nodes.concat(this.getNodes(period))
         );
 
-		dispatch(highlightNodes(nodes));
+        if (nodes.length || !this.isPlaying) {
+        	// Dont highlight when there are no nodes while we're playing the
+			// slider animation
+			dispatch(highlightNodes(nodes));
+		}
     }
+
+    onStartPlaying() {
+    	this.isPlaying = true;
+	}
+
+	onFinishPlaying() {
+		this.isPlaying = false;
+	}
 
     container;
 
     render() {
         const { nodes, date_fields } = this.props;
+        const { periods } = this.state;
 
         let noNodes = null;
         if (nodes.length === 0) {
@@ -343,7 +357,13 @@ class Timeline extends React.Component<Props, State> {
                 <div className={styles.chartContainer}>
                 	{ chart }
                 	<div className={styles.sliderContainer}>
-						<TimelineSlider onChanged={this.onSliderChanged.bind(this)}/>
+						<TimelineSlider
+							playTime={periods.length * 600}
+							playWindowWidth={Math.round(1 / periods.length * 100) / 100}
+							onChange={this.onSliderChange.bind(this)}
+							onStartPlaying={this.onStartPlaying.bind(this)}
+							onFinishPlaying={this.onFinishPlaying.bind(this)}
+						/>
 					</div>
 				</div>
             </div>

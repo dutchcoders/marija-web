@@ -4,11 +4,15 @@ import * as styles from './timelineSlider.scss';
 import Icon from '../../../ui/components/icon';
 
 interface Props {
-	onChanged: (minFraction: number, maxFraction: number) => void
+	onChange: (minFraction: number, maxFraction: number) => void;
+	onStartPlaying: () => void;
+	onFinishPlaying: () => void;
+	playTime: number;
+	playWindowWidth: number;
 }
 
 interface State {
-
+	isPlaying: boolean;
 }
 
 class TimelineSlider extends React.Component<Props, State> {
@@ -24,6 +28,10 @@ class TimelineSlider extends React.Component<Props, State> {
 	container: HTMLElement;
 	containerRect: ClientRect;
 	overlay: HTMLDivElement;
+	startPlayingAt: number;
+	state: State = {
+		isPlaying: false
+	};
 
 	componentDidMount() {
 		this.container = findDOMNode(this).parentNode as HTMLElement;
@@ -46,7 +54,7 @@ class TimelineSlider extends React.Component<Props, State> {
 	}
 
 	dragHandleLeft(event: MouseEvent) {
-		const { onChanged } = this.props;
+		const { onChange } = this.props;
 
 		const relativePosition = event.clientX - this.containerRect.left;
 		const allowedOutside = 20;
@@ -60,11 +68,11 @@ class TimelineSlider extends React.Component<Props, State> {
 		}
 
 		this.minFraction = fraction;
-		onChanged(this.minFraction, this.maxFraction);
+		onChange(this.minFraction, this.maxFraction);
 	}
 
 	dragHandleRight(event: MouseEvent) {
-		const { onChanged } = this.props;
+		const { onChange } = this.props;
 
 		const relativePosition = event.clientX - this.containerRect.left;
 		const allowedOutside = 20;
@@ -78,12 +86,12 @@ class TimelineSlider extends React.Component<Props, State> {
 		}
 
 		this.maxFraction = fraction;
-		onChanged(this.minFraction, this.maxFraction);
+		onChange(this.minFraction, this.maxFraction);
 	}
 
 	dragArea(event: MouseEvent) {
-		const { onChanged } = this.props;
-		
+		const { onChange } = this.props;
+
 		const deltaCursor =  this.dragAreaStart - event.clientX;
 		const deltaCursorFraction = deltaCursor / this.containerRect.width;
 		const widthFraction = this.maxFractionDragStart - this.minFractionDragStart;
@@ -91,7 +99,7 @@ class TimelineSlider extends React.Component<Props, State> {
 		this.minFraction = Math.min(1 - widthFraction, Math.max(0, this.minFractionDragStart - deltaCursorFraction));
 		this.maxFraction = Math.max(widthFraction, Math.min(1, this.maxFractionDragStart - deltaCursorFraction));
 
-		onChanged(this.minFraction, this.maxFraction);
+		onChange(this.minFraction, this.maxFraction);
 	}
 
 	startDraggingHandleLeft = (event) => {
@@ -124,17 +132,69 @@ class TimelineSlider extends React.Component<Props, State> {
 	};
 
 	stopDragging = () => {
-		const { onChanged } = this.props;
+		const { onChange } = this.props;
 
 		this.isDraggingHandleLeft = false;
 		this.isDraggingHandleRight = false;
 		this.isDraggingArea = false;
-		onChanged(this.minFraction, this.maxFraction);
+		onChange(this.minFraction, this.maxFraction);
 	};
+
+	startPlaying() {
+		const { playWindowWidth, onStartPlaying } = this.props;
+
+		this.setState({
+			isPlaying: true
+		});
+
+		this.minFraction = 0;
+		this.maxFraction = playWindowWidth;
+		this.startPlayingAt = Date.now();
+		onStartPlaying();
+	}
+
+	finishPlaying() {
+		const { onFinishPlaying } = this.props;
+
+		this.setState({
+			isPlaying: false
+		});
+
+		onFinishPlaying();
+	}
+
+	reset() {
+		const { onChange } = this.props;
+
+		this.finishPlaying();
+
+		this.minFraction = 0;
+		this.maxFraction = 1;
+
+		onChange(this.minFraction, this.maxFraction);
+	}
 
 	ticker() {
 		if (!this.isComponentMounted) {
 			return;
+		}
+
+		const { playWindowWidth, playTime, onChange } = this.props;
+		const { isPlaying } = this.state;
+
+		if (isPlaying) {
+			const playingFinishedAt = this.startPlayingAt + playTime;
+			const minFractionDestination = 1 - playWindowWidth;
+			const playTimePassed = Date.now() - this.startPlayingAt;
+
+			this.minFraction = playTimePassed / playTime * minFractionDestination;
+			this.maxFraction = this.minFraction + playWindowWidth;
+
+			onChange(this.minFraction, this.maxFraction);
+
+			if (Date.now() > playingFinishedAt) {
+				this.finishPlaying();
+			}
 		}
 
 		const width = (this.maxFraction - this.minFraction) * 100;
@@ -145,6 +205,8 @@ class TimelineSlider extends React.Component<Props, State> {
 	}
 
 	render() {
+		const { isPlaying } = this.state;
+
 		return (
 			<div className={styles.timelineSlider}>
 				<div className={styles.overlay} style={{ transform: 'scaleX(1)' }} ref={ref => this.overlay = ref } onMouseDown={this.startDraggingArea}>
@@ -155,6 +217,24 @@ class TimelineSlider extends React.Component<Props, State> {
 						<Icon name="ion-arrow-swap" />
 					</button>
 				</div>
+				<nav className={styles.actions}>
+					{isPlaying && (
+						<button className={styles.stop}
+								onClick={this.finishPlaying.bind(this)}>
+							<Icon name="ion-stop"/>
+							Stop
+						</button>
+					)}
+
+					{!isPlaying && (
+						<button className={styles.play} onClick={this.startPlaying.bind(this)}>
+							<Icon name="ion-ios-play" />
+							Play
+						</button>
+					)}
+
+					<button className={styles.reset} onClick={this.reset.bind(this)}>Reset</button>
+				</nav>
 			</div>
 		);
 	}
