@@ -8,3 +8,8 @@ declare module '*.scss' {
     const classNames: IClassNames;
     export = classNames;
 }
+
+declare module '*.svg' {
+    const value: any;
+    export = value;
+}

@@ -30,6 +30,7 @@ import {AppState} from "../main/interfaces/appState";
 import * as Leaflet from 'leaflet';
 import { isContextMenuActive } from '../contextMenu/contextMenuSelectors';
 const myWorker = require('./helpers/d3Worker.worker');
+import * as markerSvgImage from './marker.svg';
 
 interface TextureMap {
     [hash: string]: PIXI.RenderTexture;
@@ -84,6 +85,7 @@ class Graph extends React.PureComponent<Props, State> {
     };
     nodesFromD3: NodeFromD3[] = [];
     nodeTextures: TextureMap = {};
+    nodeMarkerTextures: TextureMap = {};
     renderedNodesContainer: PIXI.Container = new PIXI.Container();
     linksFromD3: LinkFromD3[] = [];
     renderedLinks: PIXI.Graphics = new PIXI.Graphics();
@@ -204,38 +206,22 @@ class Graph extends React.PureComponent<Props, State> {
 
     mapZoomed(event) {
     	this.mapOffset = this.map.latLngToContainerPoint(this.initialMapBounds.getNorthWest());
-		this.transform.k = this.map.getZoomScale(this.map.getZoom(), this.initialMapZoom);;
+		this.transform.k = this.map.getZoomScale(this.map.getZoom(), this.initialMapZoom);
 
 		this.zoom();
 	}
 
-	initMapMarkers(nodes: Node[]) {
+	fitMapToMarkers(nodes: Node[]) {
     	if (!this.map || !nodes.length) {
     		return;
 		}
-
-		this.mapMarkers.clearLayers();
 
     	const coordinates: Leaflet.LatLng[] = nodes.map(node => {
 			const splitted = node.name.split(',');
 			const lat = parseFloat(splitted[0]);
 			const lng = parseFloat(splitted[1]);
 
-			const icon = new Leaflet.Icon({
-				iconUrl: 'https://unpkg.com/leaflet@1.3.1/dist/images/marker-icon.png',
-				iconSize: [25, 41],
-				iconAnchor: [12, 41]
-			});
-
-			const latLng = new Leaflet.LatLng(lat, lng);
-
-			const marker = Leaflet.marker(latLng, {
-				icon
-			});
-
-			marker.addTo(this.mapMarkers);
-
-			return latLng;
+			return new Leaflet.LatLng(lat, lng);
 		});
 
     	this.map.fitBounds(Leaflet.latLngBounds(coordinates).pad(.2));
@@ -301,6 +287,63 @@ class Graph extends React.PureComponent<Props, State> {
         return texture;
     }
 
+    static b64DecodeUnicode(str) {
+		// Going backwards: from bytestream, to percent-encoding, to original string.
+		return decodeURIComponent(window.atob(str).split('').map(function(c) {
+			return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+		}).join(''));
+	}
+
+	static b64EncodeUnicode(str) {
+		// first we use encodeURIComponent to get percent-encoded UTF-8,
+		// then we convert the percent encodings into raw bytes which
+		// can be fed into btoa.
+		return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+			function toSolidBytes(match, p1) {
+				const argument: any = '0x' + p1;
+				return String.fromCharCode(argument);
+			}));
+	}
+
+	getNodeMarkerTexture(node: NodeFromD3): PIXI.RenderTexture {
+    	const key = node.textureKey;
+        let texture = this.nodeMarkerTextures[key];
+
+        if (typeof texture !== 'undefined') {
+            // Get from cache
+            return texture;
+        }
+
+		const parser = new DOMParser();
+        const base64 = markerSvgImage.replace('data:image/svg+xml;base64,', '');
+		const doc = parser.parseFromString(Graph.b64DecodeUnicode(base64), 'image/svg+xml');
+		const marker = doc.getElementById('marker');
+		const color = this.getSearchColor(node.searchIds[0]);
+
+		marker.setAttribute('fill', color);
+
+		const minRadius = 15;
+		const maxRadius = 50;
+		const scale = 1.3 + 3 * ((node.r - minRadius) / (maxRadius - minRadius));
+		const originalWidthAndHeight = 24;
+
+		const container = doc.getElementById('container');
+		container.setAttribute('width', (scale * originalWidthAndHeight) + 'px');
+		container.setAttribute('height', (scale * originalWidthAndHeight) + 'px');
+
+		marker.setAttribute('transform', 'scale(' + scale + ')');
+
+		const serializer = new XMLSerializer();
+		const svgString = serializer.serializeToString(doc);
+
+		texture = PIXI.Texture.fromImage('data:image/svg+xml;charset=utf8;base64,' + Graph.b64EncodeUnicode(svgString)) as PIXI.RenderTexture;
+
+		// Save in cache
+		this.nodeMarkerTextures[key] = texture;
+
+		return texture;
+    }
+
     getIconTexture(icon: string): PIXI.RenderTexture {
         let texture: PIXI.RenderTexture = this.iconTextures[icon];
 
@@ -348,15 +391,21 @@ class Graph extends React.PureComponent<Props, State> {
         this.nodesFromD3.forEach(node => {
 			this.renderIcons(node);
 
+			let texture: PIXI.RenderTexture;
+			let anchorY: number;
+
 			if (isMapActive && node.isGeoLocation) {
-        		return;
+				texture = this.getNodeMarkerTexture(node);
+				anchorY = 1;
+			} else {
+				texture = this.getNodeTexture(node, sizeMultiplier);
+				anchorY = .5;
 			}
 
-            const texture = this.getNodeTexture(node, sizeMultiplier);
             const renderedNode = new PIXI.Sprite(texture);
 
             renderedNode.anchor.x = 0.5;
-            renderedNode.anchor.y = 0.5;
+            renderedNode.anchor.y = anchorY;
             renderedNode.x = this.getRenderX(node.x);
             renderedNode.y = this.getRenderY(node.y);
 
@@ -816,7 +865,7 @@ class Graph extends React.PureComponent<Props, State> {
 
         if (isMapActive) {
 			const markers = nodesForDisplay.filter(node => node.isGeoLocation);
-			this.initMapMarkers(markers);
+			this.fitMapToMarkers(markers);
 		}
 
         this.postWorkerMessage({
