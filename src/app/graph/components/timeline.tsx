@@ -20,16 +20,16 @@ import {AppState} from "../../main/interfaces/appState";
 import {dateFieldAdd} from "../../fields/fieldsActions";
 import TimelineSlider from './timelineSlider/timelineSlider';
 import * as styles from './timeline.scss';
+import { EventEmitter } from 'fbemitter';
 
 interface Props {
+	onPaneEvent?: EventEmitter;
     normalizations: Normalization[];
     availableFields: Field[];
     fields: Field[];
     date_fields: Field[];
     items: Item[];
     nodes: Node[];
-    containerWidth: number;
-    containerHeight: number;
     dispatch: Dispatch<any>;
     searches: Search[];
 }
@@ -113,6 +113,9 @@ class Timeline extends React.Component<Props, State> {
     }
 
     componentDidMount() {
+        const { onPaneEvent } = this.props;
+
+		onPaneEvent.addListener('resized', this.onResized.bind(this));
         this.setGroupsAndPeriods(this.props.nodes, this.props.items);
     }
 
@@ -211,7 +214,7 @@ class Timeline extends React.Component<Props, State> {
     }
 
     getChart() {
-        const { date_fields, items, containerHeight, containerWidth } = this.props;
+        const { date_fields, items } = this.props;
 
         if (!items.length || !date_fields.length) {
             return;
@@ -219,12 +222,13 @@ class Timeline extends React.Component<Props, State> {
 
         const searchIds: string[] = this.getSearchIds();
         const chartData = this.getChartData(searchIds);
+        const containerRect = this.container.getBoundingClientRect();
 
         return (
             <BarChart
 				ref={ref => this.barChart = ref}
-                width={containerWidth}
-                height={containerHeight - 30}
+                width={containerRect.width}
+                height={containerRect.height - 50}
                 margin={{top: 0, right: 0, bottom: 0, left: 0}}
                 data={chartData}>
                 <XAxis dataKey="name" stroke="white" />
@@ -244,6 +248,7 @@ class Timeline extends React.Component<Props, State> {
                         onMouseDown={this.mouseDownBar.bind(this)}
                         stackId="a"
                         fill={this.getSearchColor(searchId)}
+						isAnimationActive={false}
                     />
                 )}
             </BarChart>
@@ -324,6 +329,10 @@ class Timeline extends React.Component<Props, State> {
 		this.isPlaying = false;
 	}
 
+	onResized() {
+        this.forceUpdate();
+    }
+
     render() {
         const { nodes, date_fields } = this.props;
         const { periods } = this.state;
@@ -346,7 +355,7 @@ class Timeline extends React.Component<Props, State> {
         }
 
         return (
-            <div ref={ref => this.container = ref}>
+            <div ref={ref => this.container = ref} className={styles.componentContainer}>
                 { this.selectDateFields() }
                 { noNodes }
                 { noDateFields }
