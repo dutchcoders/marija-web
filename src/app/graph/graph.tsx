@@ -115,7 +115,7 @@ class Graph extends React.PureComponent<Props, State> {
     mapMarkers: Leaflet.LayerGroup;
 	initialMapZoom: number;
 	initialMapBounds: Leaflet.LatLngBounds;
-	mapOffset: Leaflet.Point;
+	mapOffset: Leaflet.Point = Leaflet.point(0, 0);
 	graphComponent;
 	isMouseDown: boolean = false;
 	isZooming: boolean = false;
@@ -173,7 +173,7 @@ class Graph extends React.PureComponent<Props, State> {
     	this.transform.k = 1;
     	this.transform.x = 0;
     	this.transform.y = 0;
-    	this.setContainerPositions(0, 0);
+    	this.mapOffset = Leaflet.point(0, 0);
 
     	this.zoom();
 	}
@@ -202,27 +202,9 @@ class Graph extends React.PureComponent<Props, State> {
     	this.isZooming = false;
 	}
 
-	setContainerPositions(x: number, y: number) {
-		[
-			this.renderedNodesContainer,
-			this.renderedSelectedNodes,
-			this.renderedLinkLabels,
-			this.renderedNodeLabels,
-			this.renderedArrows,
-			this.renderedIcons,
-			this.renderedLinks
-		].forEach(zoomable => {
-			zoomable.position.x = x;
-			zoomable.position.y = y;
-		});
-	}
-
     mapZoomed(event) {
     	this.mapOffset = this.map.latLngToContainerPoint(this.initialMapBounds.getNorthWest());
-
-		const graphZoom = this.map.getZoomScale(this.map.getZoom(), this.initialMapZoom);
-		this.transform.k = graphZoom;
-		this.setContainerPositions(this.mapOffset.x, this.mapOffset.y);
+		this.transform.k = this.map.getZoomScale(this.map.getZoom(), this.initialMapZoom);;
 
 		this.zoom();
 	}
@@ -466,11 +448,27 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     getRenderX(x: number): number {
-    	return x * this.transform.k + this.transform.x;
+    	const { isMapActive } = this.props;
+
+    	let renderX = x * this.transform.k + this.transform.x;
+
+    	if (isMapActive) {
+    		renderX += this.mapOffset.x;
+		}
+
+		return renderX;
 	}
 
 	getRenderY(y: number): number {
-    	return y * this.transform.k + this.transform.y;
+		const { isMapActive } = this.props;
+
+    	let renderY = y * this.transform.k + this.transform.y;
+
+		if (isMapActive) {
+			renderY += this.mapOffset.y;
+		}
+
+		return renderY;
 	}
 
     renderLink(link: LinkFromD3) {
