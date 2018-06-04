@@ -49,6 +49,7 @@ class Timeline extends React.Component<Props, State> {
         groupedNodes: {},
         periods: []
     };
+	container;
 
     getDate(node: Node, items: Item[]): Moment | undefined {
         const { date_fields } = this.props;
@@ -325,8 +326,6 @@ class Timeline extends React.Component<Props, State> {
 	onFinishPlaying() {
 		this.isPlaying = false;
 	}
-
-    container;
 
     render() {
         const { nodes, date_fields } = this.props;
