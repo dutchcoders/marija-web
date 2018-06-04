@@ -50,6 +50,7 @@ class Timeline extends React.Component<Props, State> {
         periods: []
     };
 	container;
+	barChart;
 
     getDate(node: Node, items: Item[]): Moment | undefined {
         const { date_fields } = this.props;
@@ -112,8 +113,6 @@ class Timeline extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        console.log(this.barChart);
-
         this.setGroupsAndPeriods(this.props.nodes, this.props.items);
     }
 
@@ -250,8 +249,6 @@ class Timeline extends React.Component<Props, State> {
             </BarChart>
         );
     }
-
-    barChart;
 
     private getNodes(period: string): Node[] {
         const { groupedNodes } = this.state;
