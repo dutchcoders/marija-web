@@ -85,7 +85,7 @@ class TimelineSlider extends React.Component<Props, State> {
 			return;
 		}
 
-		this.maxFraction = fraction;
+		this.maxFraction = Math.min(1, fraction);
 		onChange(this.minFraction, this.maxFraction);
 	}
 
