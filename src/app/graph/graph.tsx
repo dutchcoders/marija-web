@@ -1361,8 +1361,8 @@ class Graph extends React.PureComponent<Props, State> {
 		}).addTo(this.map);
 
 		this.map.on('zoom zoomend move moveend', this.mapZoomed.bind(this));
-		this.map.on('zoomstart', this.mapZoomStart.bind(this));
-		this.map.on('zoomend', this.mapZoomEnd.bind(this));
+		this.map.on('zoomstart movestart', this.mapZoomStart.bind(this));
+		this.map.on('zoomend moveend', this.mapZoomEnd.bind(this));
     }
 
     mapZoomStart() {
