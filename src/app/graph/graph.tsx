@@ -1348,7 +1348,8 @@ class Graph extends React.PureComponent<Props, State> {
 			boxZoom: false,
 			doubleClickZoom: false,
 			zoomAnimation: true,
-			fadeAnimation: true
+			fadeAnimation: true,
+			zoomControl: false
 		}).setView([51.505, -0.09], 10);
 
         this.initialMapZoom = this.map.getZoom();
