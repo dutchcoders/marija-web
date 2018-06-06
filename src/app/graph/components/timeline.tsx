@@ -306,30 +306,43 @@ class Timeline extends React.Component<Props, State> {
 			'month'
 		];
 
+        let grouping = null;
+        let slider = null;
+
+        if (!noNodes && !noDateFields) {
+        	grouping = (
+				<div className={styles.grouping}>
+					<label className={styles.groupingLabel}>Group by</label>
+					<select onChange={this.onGroupingChange.bind(this)} defaultValue={timelineGrouping} className={styles.selectGrouping}>
+						{groupOptions.map(option => (
+							<option value={option} key={option}>{option}</option>
+						))}
+					</select>
+				</div>
+			);
+
+        	slider = (
+				<div className={styles.sliderContainer}>
+					<TimelineSlider
+						playTime={periods.length * 600}
+						playWindowWidth={Math.round(1 / periods.length * 100) / 100}
+						onChange={this.onSliderChange.bind(this)}
+						onStartPlaying={this.onStartPlaying.bind(this)}
+						onFinishPlaying={this.onFinishPlaying.bind(this)}
+					/>
+				</div>
+			);
+		}
+
         return (
             <div ref={ref => this.container = ref} className={styles.componentContainer}>
                 { this.selectDateFields() }
                 { noNodes }
                 { noDateFields }
                 <div className={styles.chartContainer}>
-                	{ this.getChart() }
-                	<div className={styles.grouping}>
-						<label className={styles.groupingLabel}>Group by</label>
-						<select onChange={this.onGroupingChange.bind(this)} defaultValue={timelineGrouping} className={styles.selectGrouping}>
-							{groupOptions.map(option => (
-								<option value={option} key={option}>{option}</option>
-							))}
-						</select>
-					</div>
-                	<div className={styles.sliderContainer}>
-						<TimelineSlider
-							playTime={periods.length * 600}
-							playWindowWidth={Math.round(1 / periods.length * 100) / 100}
-							onChange={this.onSliderChange.bind(this)}
-							onStartPlaying={this.onStartPlaying.bind(this)}
-							onFinishPlaying={this.onFinishPlaying.bind(this)}
-						/>
-					</div>
+                	{this.getChart()}
+					{grouping}
+					{slider}
 				</div>
             </div>
         );
