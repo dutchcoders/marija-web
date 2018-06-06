@@ -89,8 +89,6 @@ function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {
             break;
         }
         case FIELDS_RECEIVE:
-            console.log(data);
-
             const defaults = data.default;
             let defaultFields;
             let defaultVia;
