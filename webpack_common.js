@@ -95,22 +95,23 @@ module.exports = {
                     },
                     {
                         loader: 'sass-loader'
-                    }
+                    },
                 ]
             },
             {
-                test: /\.(png|jpg|jpeg)$/,
-                loader: 'url-loader',
+                test: /\.(png|jpg|jpeg|svg)$/,
+                loader: 'file-loader',
                 options: {
                     name: 'images/[name].[ext]',
-                    limit: 9999999
+                    // limit: 9999999
                 }
             },
             {
-                test: /\.(woff|woff2|eot|ttf|svg)$/,
-                loader: 'url-loader',
+                test: /\.(woff|woff2|eot|ttf)$/,
+                loader: 'file-loader',
                 options: {
-                    limit: 9999999
+					name: 'fonts/[name].[ext]',
+                    // limit: 999
                 }
             }
         ]
