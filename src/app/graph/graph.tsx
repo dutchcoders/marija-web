@@ -375,8 +375,15 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     getNodeSizeMultiplier(): number {
-    	// Todo: make nodes smaller when zoomed out? Try first with lots of data
-    	return 1;
+    	const { isMapActive } = this.props;
+
+    	if (isMapActive) {
+    		// When the map is displayed, nodes always have the same size
+    		return 1;
+		}
+
+		// When the normal graph is displayed, nodes get smaller when you zoom out
+		return this.transform.k;
 	}
 
     renderNodes() {
@@ -1579,8 +1586,6 @@ class Graph extends React.PureComponent<Props, State> {
     onMouseUp(event) {
     	this.isMouseDown = false;
     	this.mainDragSubject = null;
-
-    	const { x, y } = this.getMouseCoordinates(event);
 
 		if (this.selection && this.shift) {
 			this.selectionEnded();
