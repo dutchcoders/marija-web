@@ -6,8 +6,8 @@
   "author": "",
   "main": "dist_npm/index.js",
   "scripts": {
-    "build": "webpack --config webpack_build.js --progress --colors",
-    "build:npm": "webpack --config webpack_build_npm.js --progress --colors",
+    "build": "rimraf ./dist && webpack --config webpack_build.js --progress --colors",
+    "build:npm": "rimraf ./dist_npm && webpack --config webpack_build_npm.js --progress --colors",
     "start": "webpack-dev-server --watch --progress --colors --port 1340 --config webpack_dev.js",
     "test": "jest --config=jest.config.json",
     "test:watch": "jest --watch --config=jest.config.json",
