@@ -6,6 +6,8 @@ import {Node} from "./node";
 import {Link} from "./link";
 import {Via} from "./via";
 
+export type TimelineGrouping = 'none' | 'minute' | 'hour' | 'day' | 'week' | 'month';
+
 export interface GraphState {
     fields: Field[];
     date_fields: Field[];
@@ -18,4 +20,5 @@ export interface GraphState {
     via: Via[];
     showLabels: boolean;
     isMapActive: boolean;
+    timelineGrouping: TimelineGrouping;
 }

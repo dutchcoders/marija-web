@@ -12,15 +12,24 @@ import {Moment} from "moment";
 import {FormEvent} from "react";
 import {dateFieldDelete} from '../../fields/fieldsActions';
 import {searchFieldsUpdate} from '../../search/searchActions';
-import {highlightNodes, nodesSelect} from '../graphActions';
+import {
+	highlightNodes,
+	nodesSelect,
+	setTimelineGrouping
+} from '../graphActions';
 import {BarChart, XAxis, YAxis, Bar, Tooltip} from 'recharts';
 import {Search} from "../../search/interfaces/search";
-import {getNodesForDisplay} from "../graphSelectors";
+import {
+	getNodesForDisplay,
+	getTimelineGroups,
+	TimelineGroups
+} from "../graphSelectors";
 import {AppState} from "../../main/interfaces/appState";
 import {dateFieldAdd} from "../../fields/fieldsActions";
 import TimelineSlider from './timelineSlider/timelineSlider';
 import * as styles from './timeline.scss';
 import { EventEmitter } from 'fbemitter';
+import { TimelineGrouping } from '../interfaces/graphState';
 
 interface Props {
 	onPaneEvent?: EventEmitter;
@@ -32,91 +41,27 @@ interface Props {
     nodes: Node[];
     dispatch: Dispatch<any>;
     searches: Search[];
+    timelineGroups: TimelineGroups;
+	timelineGrouping: TimelineGrouping;
 }
 
 interface State {
     showAllFields: boolean;
-    groupedNodes: {
-        [period: string]: Node[]
-    };
-    periods: string[]
 }
 
 class Timeline extends React.Component<Props, State> {
 	isPlaying: boolean = false;
     state: State = {
-        showAllFields: false,
-        groupedNodes: {},
-        periods: []
+        showAllFields: false
     };
 	container;
 	barChart;
 
-    getDate(node: Node, items: Item[]): Moment | undefined {
-        const { date_fields } = this.props;
-
-        /**
-         * Don't use forEach, because we want to be able to break out of the
-         * loops as soon as we find a date.
-         */
-        for (let i = 0; i < node.items.length; i ++) {
-            const item: Item = items.find(search => search.id === node.items[i]);
-
-            for (let j = 0; j < date_fields.length; j ++) {
-                const date: any = fieldLocator(item.fields, date_fields[j].path);
-
-                if (date) {
-                    return moment(date);
-                }
-            }
-        }
-    }
-
-    setGroupsAndPeriods(nodes: Node[], items: Item[]) {
-        const times: Moment[] = [];
-
-        const groupedNodes = groupBy(nodes, (node: Node) => {
-            const date: Moment = this.getDate(node, items);
-
-            if (typeof date === 'undefined') {
-                return 'unknown';
-            }
-
-            times.push(date);
-            return date.year() + '-' + (date.month() + 1);
-        });
-
-        times.sort((a: Moment, b: Moment) => {
-            return a.unix() - b.unix();
-        });
-
-        const periods: string[] = [];
-
-        times.forEach(moment => {
-            const string: string = moment.year() + '-' + (moment.month() + 1);
-
-            if (periods.indexOf(string) === -1) {
-                periods.push(string);
-            }
-        });
-
-        this.setState({
-            groupedNodes: groupedNodes,
-            periods: periods
-        });
-    }
-
-    componentWillReceiveProps(nextProps: Props) {
-        if (nextProps.nodes.length !== this.props.nodes.length) {
-            this.setGroupsAndPeriods(nextProps.nodes, nextProps.items);
-        }
-    }
 
     componentDidMount() {
         const { onPaneEvent } = this.props;
 
 		onPaneEvent.addListener('resized', this.onResized.bind(this));
-        this.setGroupsAndPeriods(this.props.nodes, this.props.items);
     }
 
     handleFieldChange(event: FormEvent<HTMLInputElement>, field: Field) {
@@ -196,7 +141,7 @@ class Timeline extends React.Component<Props, State> {
     }
 
     getChartData(searchIds: string[]) {
-		const { periods, groupedNodes } = this.state;
+		const { periods, groups } = this.props.timelineGroups;
 
 		return periods.map(period => {
 			const data = {
@@ -204,7 +149,7 @@ class Timeline extends React.Component<Props, State> {
 			};
 
 			searchIds.forEach(searchId => {
-				const nodes: Node[] = groupedNodes[period].filter(node => node.searchIds.indexOf(searchId) !== -1);
+				const nodes: Node[] = groups[period].filter(node => node.searchIds.indexOf(searchId) !== -1);
 
 				data[searchId] = nodes.length
 			});
@@ -243,9 +188,6 @@ class Timeline extends React.Component<Props, State> {
                     <Bar
                         key={searchId}
                         dataKey={searchId}
-                        onMouseEnter={this.mouseEnterBar.bind(this)}
-                        onMouseLeave={this.mouseLeaveBar.bind(this)}
-                        onMouseDown={this.mouseDownBar.bind(this)}
                         stackId="a"
                         fill={this.getSearchColor(searchId)}
 						isAnimationActive={false}
@@ -256,9 +198,9 @@ class Timeline extends React.Component<Props, State> {
     }
 
     private getNodes(period: string): Node[] {
-        const { groupedNodes } = this.state;
+        const { groups } = this.props.timelineGroups;
 
-        return groupedNodes[period];
+        return groups[period];
     }
 
     mouseEnterBar(bar) {
@@ -333,9 +275,15 @@ class Timeline extends React.Component<Props, State> {
         this.forceUpdate();
     }
 
+    onGroupingChange(ev: FormEvent<HTMLSelectElement>) {
+    	const { dispatch } = this.props;
+
+    	dispatch(setTimelineGrouping(ev.currentTarget.value as TimelineGrouping));
+	}
+
     render() {
-        const { nodes, date_fields } = this.props;
-        const { periods } = this.state;
+        const { nodes, date_fields, timelineGrouping } = this.props;
+        const { periods } = this.props.timelineGroups;
 
         let noNodes = null;
         if (nodes.length === 0) {
@@ -349,10 +297,14 @@ class Timeline extends React.Component<Props, State> {
             );
         }
 
-        let chart = null;
-        if (!noDateFields && !noNodes) {
-            chart = this.getChart();
-        }
+        const groupOptions: TimelineGrouping[] = [
+        	'none',
+			'minute',
+			'hour',
+			'day',
+			'week',
+			'month'
+		];
 
         return (
             <div ref={ref => this.container = ref} className={styles.componentContainer}>
@@ -360,7 +312,15 @@ class Timeline extends React.Component<Props, State> {
                 { noNodes }
                 { noDateFields }
                 <div className={styles.chartContainer}>
-                	{ chart }
+                	{ this.getChart() }
+                	<div className={styles.grouping}>
+						<label className={styles.groupingLabel}>Group by</label>
+						<select onChange={this.onGroupingChange.bind(this)} defaultValue={timelineGrouping} className={styles.selectGrouping}>
+							{groupOptions.map(option => (
+								<option value={option} key={option}>{option}</option>
+							))}
+						</select>
+					</div>
                 	<div className={styles.sliderContainer}>
 						<TimelineSlider
 							playTime={periods.length * 600}
@@ -385,7 +345,9 @@ const select = (state: AppState, ownProps) => {
         normalizations: state.graph.normalizations,
         date_fields: state.graph.date_fields,
         items: state.graph.items,
-        searches: state.graph.searches
+        searches: state.graph.searches,
+		timelineGrouping: state.graph.timelineGrouping,
+        timelineGroups: getTimelineGroups(state)
     };
 };
 

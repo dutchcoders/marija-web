@@ -11,13 +11,14 @@ import {
 	NORMALIZATION_DELETE,
 	SELECT_FIELD_NODES,
 	SELECTION_CLEAR,
-	SET_MAP_ACTIVE,
+	SET_MAP_ACTIVE, SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
 	VIA_ADD,
 	VIA_DELETE
 } from './graphConstants';
 import { GraphWorkerOutput } from './helpers/graphWorkerClass';
 import { Via } from './interfaces/via';
+import { TimelineGrouping } from './interfaces/graphState';
 
 export function deselectNodes(opts) {
     return {
@@ -152,4 +153,13 @@ export function setMapActive(active: boolean) {
             active
         }
     };
+}
+
+export function setTimelineGrouping(timelineGrouping: TimelineGrouping) {
+	return {
+		type: SET_TIMELINE_GROUPING,
+		payload: {
+			timelineGrouping
+		}
+	};
 }

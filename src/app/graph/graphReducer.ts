@@ -37,7 +37,7 @@ import {
 	NORMALIZATION_ADD,
 	NORMALIZATION_DELETE,
 	SELECT_FIELD_NODES,
-	SELECTION_CLEAR, SET_MAP_ACTIVE,
+	SELECTION_CLEAR, SET_MAP_ACTIVE, SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
 	VIA_ADD,
 	VIA_DELETE
@@ -72,7 +72,8 @@ export const defaultGraphState: GraphState = {
     deletedNodes: [],
     via: [],
     showLabels: false,
-    isMapActive: false
+    isMapActive: false,
+    timelineGrouping: 'month'
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -621,7 +622,14 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             return {
                 ...state,
                 isMapActive: action.payload.active
-            }
+            };
+        }
+
+        case SET_TIMELINE_GROUPING: {
+            return {
+                ...state,
+                timelineGrouping: action.payload.timelineGrouping
+            };
         }
 
         default:
