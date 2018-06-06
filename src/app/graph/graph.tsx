@@ -1673,6 +1673,13 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
     zoomIn() {
+    	const { isMapActive } = this.props;
+
+    	if (isMapActive) {
+    		this.map.zoomIn();
+    		return;
+		}
+
         const newK = this.transform.k * 1.3;
 
         if (newK > this.maxZoomGraph) {
@@ -1685,6 +1692,13 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     zoomOut() {
+		const { isMapActive } = this.props;
+
+		if (isMapActive) {
+			this.map.zoomOut();
+			return;
+		}
+
         const newK = this.transform.k * .7;
 
         if (newK < this.minZoomGraph) {

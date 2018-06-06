@@ -8,6 +8,11 @@ canvas.graph {
   }
 }
 
+.graphComponent {
+  position: relative;
+  z-index: 0;
+}
+
 .graphComponent,
 .graphContainer {
   display: flex;
