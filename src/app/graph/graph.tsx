@@ -344,8 +344,9 @@ class Graph extends React.PureComponent<Props, State> {
 		return texture;
     }
 
-    getIconTexture(icon: string): PIXI.RenderTexture {
-        let texture: PIXI.RenderTexture = this.iconTextures[icon];
+    getIconTexture(icon: string, sizeMultiplier: number): PIXI.RenderTexture {
+    	const key = icon + '-' + sizeMultiplier;
+        let texture: PIXI.RenderTexture = this.iconTextures[key];
 
         if (texture) {
             // Get from cache
@@ -353,7 +354,7 @@ class Graph extends React.PureComponent<Props, State> {
         }
 
         const style = new PIXI.TextStyle({
-            fontSize: 18,
+            fontSize: 18 * sizeMultiplier,
             fontFamily: 'Ionicons',
             fill: 0xfac04b,
             dropShadow: true,
@@ -369,7 +370,7 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderer.render(text, texture);
 
         // Save in cache
-        this.iconTextures[icon] = texture;
+        this.iconTextures[key] = texture;
 
         return texture;
     }
@@ -426,26 +427,27 @@ class Graph extends React.PureComponent<Props, State> {
 
     renderIcons(node: NodeFromD3) {
         const icons: PIXI.Sprite[] = [];
+        const sizeMultiplier = this.getNodeSizeMultiplier();
 
         if (node.important) {
             const warning = '\uF100';
-            const texture = this.getIconTexture(warning);
+            const texture = this.getIconTexture(warning, sizeMultiplier);
             icons.push(new PIXI.Sprite(texture));
         }
 
         if (node.description) {
             const note = '\uF482';
-            const texture = this.getIconTexture(note);
+            const texture = this.getIconTexture(note, sizeMultiplier);
             icons.push(new PIXI.Sprite(texture));
         }
 
-        let y = node.y - node.r - 5;
+        let y = this.getRenderY(node.y) - (node.r + 5) * sizeMultiplier;
 
         icons.forEach(icon => {
-            icon.x = this.getRenderX(node.x + node.r - icon.width + 8);
-            icon.y = this.getRenderY(y - 5);
+            icon.x = this.getRenderX(node.x) + node.r * sizeMultiplier - icon.width / 2;
+            icon.y = y;
 
-            y += icon.height - 3;
+            y += icon.height;
 
             this.renderedIcons.addChild(icon);
         });
