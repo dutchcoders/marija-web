@@ -95,7 +95,7 @@ export const getTimelineGroups = createSelector(
 			format = 'YYYY-M-D H';
 		} else if (timelineGrouping === 'minute') {
 			format = 'YYYY-M-D H:mm';
-		} else {
+		} else if (timelineGrouping === 'second') {
 			format = 'YYYY-M-D H:mm:ss'
 		}
 

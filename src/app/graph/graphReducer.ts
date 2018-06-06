@@ -73,7 +73,7 @@ export const defaultGraphState: GraphState = {
     via: [],
     showLabels: false,
     isMapActive: false,
-    timelineGrouping: 'month'
+    timelineGrouping: 'day'
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {

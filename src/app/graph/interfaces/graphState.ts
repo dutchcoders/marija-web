@@ -6,7 +6,7 @@ import {Node} from "./node";
 import {Link} from "./link";
 import {Via} from "./via";
 
-export type TimelineGrouping = 'none' | 'minute' | 'hour' | 'day' | 'week' | 'month';
+export type TimelineGrouping = 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month';
 
 export interface GraphState {
     fields: Field[];
