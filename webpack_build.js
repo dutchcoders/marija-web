@@ -21,5 +21,6 @@ module.exports = merge(baseConfig, {
             }
         }),
         new UglifyJSPlugin(),
-    ]
+    ],
+    mode: 'production'
 });

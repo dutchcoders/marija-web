@@ -11,14 +11,9 @@ const SRC_DIR = path.resolve(__dirname, 'src');
 
 module.exports = {
     entry: {
-        vendor: SRC_DIR + '/app/vendor.ts',
         app: SRC_DIR + '/demo/index.tsx'
     },
     plugins: [
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'vendor',
-            filename: 'vendor.[hash].js'
-        }),
         new webpack.DefinePlugin({
             "process.env": { 
                 NODE_ENV: JSON.stringify(process.env.NODE_ENV || "development"),
@@ -124,5 +119,12 @@ module.exports = {
         fs: 'empty',
         child_process: 'empty'
     },
+	optimization: {
+		splitChunks: {
+			cacheGroups: {
+				commons: { test: /[\\/]node_modules[\\/]/, name: "vendors", chunks: "all" }
+			}
+		}
+	},
 };
 

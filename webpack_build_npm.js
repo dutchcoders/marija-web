@@ -29,5 +29,6 @@ module.exports = Object.assign(commonConfig, {
     ],
     externals: {
         react: 'commonjs react'
-    }
+    },
+	mode: 'production'
 });

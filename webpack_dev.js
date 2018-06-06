@@ -7,7 +7,7 @@ const merge = require('webpack-merge');
 const common = require('./webpack_common.js');
 
 module.exports = merge(common, {
-    devtool: 'source-map',
+    devtool: 'eval-cheap-module-source-map',
     target: 'web',
     plugins: [
         new webpack.DefinePlugin({
@@ -22,5 +22,6 @@ module.exports = merge(common, {
     devServer: {
         publicPath: "/",
         contentBase: "./src"
-    }
+    },
+    mode: 'development'
 });
