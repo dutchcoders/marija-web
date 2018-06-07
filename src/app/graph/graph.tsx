@@ -132,7 +132,7 @@ class Graph extends React.PureComponent<Props, State> {
     readonly maxZoomMap: number = 18;
 
     postWorkerMessage(message) {
-    	this.worker.postMessage(message);
+    	this.worker.postMessage(JSON.stringify(message));
     }
 
     onWorkerMessage(event) {

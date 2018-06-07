@@ -7,8 +7,10 @@ let workerNodes = [];
 let workerLinks = [];
 
 onmessage = function(event) {
-    if (event.data.type === "restart") {
-        let { nodes } = event.data;
+	const data = JSON.parse(event.data);
+
+    if (data.type === "restart") {
+        let { nodes } = data;
 
         for (let n1 of workerNodes) {
             for (let n2 of nodes) {
@@ -21,8 +23,8 @@ onmessage = function(event) {
         }
         
         simulation.alpha(0.3).restart();
-    } else if (event.data.type === 'stop') {
-        let { nodes } = event.data;
+    } else if (data.type === 'stop') {
+        let { nodes } = data;
 
         for (let n1 of workerNodes) {
             for (let n2 of nodes) {
@@ -35,7 +37,7 @@ onmessage = function(event) {
         }
         
         // simulation.alpha(0);
-    } else if (event.data.type === 'init') {
+    } else if (data.type === 'init') {
 		const forceLink = d3.forceLink()
 			.distance((link: any) => {
 				if (!link.label) {
@@ -82,8 +84,8 @@ onmessage = function(event) {
 
 		workerNodes = [];
 		workerLinks = [];
-	} else if (event.data.type === 'setAreaForces') {
-		const { clientWidth, clientHeight, active } = event.data;
+	} else if (data.type === 'setAreaForces') {
+		const { clientWidth, clientHeight, active } = data;
 
         if (active) {
             simulation
@@ -98,9 +100,9 @@ onmessage = function(event) {
 				.force("horizontal", null)
                 .restart();
         }
-    } else if (event.data.type === 'tick') {
-    } else if (event.data.type === 'update') {
-        let { nodes, links } = event.data;
+    } else if (data.type === 'tick') {
+    } else if (data.type === 'update') {
+        let { nodes, links } = data;
 
         const sizeRange = [15, 30];
 
@@ -223,8 +225,8 @@ onmessage = function(event) {
             // .alphaDecay(.0428)
             // .velocityDecay(.2)
             .restart();
-    } else if (event.data.type === 'updateNodeProperties') {
-        const { nodes } = event.data;
+    } else if (data.type === 'updateNodeProperties') {
+        const { nodes } = data;
 
         nodes.forEach(node => {
             const existing = workerNodes.find(search => search.id === node.id);
