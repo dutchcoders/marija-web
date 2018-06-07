@@ -147,10 +147,6 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     onWorkerTick(data) {
-        data.nodes.forEach(node => {
-            node.textureKey = this.getNodeTextureKey(node);
-        });
-
         this.nodesFromD3 = data.nodes;
         this.linksFromD3 = data.links;
         this.renderedSince.lastTick = false;
@@ -240,9 +236,9 @@ class Graph extends React.PureComponent<Props, State> {
         }
     }
 
-    getNodeTextureKey(node: NodeFromD3) {
+    getNodeTextureKey(node: Node) {
         return node.icon
-            + node.r
+            + node.count
             + node.searchIds.map(searchId => this.getSearchColor(searchId)).join('');
     }
 
@@ -792,7 +788,7 @@ class Graph extends React.PureComponent<Props, State> {
                 }
 
                 nodeFromD3.icon = node.icon;
-                nodeFromD3.textureKey = this.getNodeTextureKey(nodeFromD3);
+                nodeFromD3.textureKey = this.getNodeTextureKey(node);
             });
 
             this.nodeTextures = {};
@@ -848,14 +844,15 @@ class Graph extends React.PureComponent<Props, State> {
                 id: node.id,
                 count: node.count,
                 hash: node.hash,
-                searchIds: node.searchIds,
-                icon: node.icon,
-                label: label,
-                important: node.important,
-                description: node.description,
+				searchIds: node.searchIds,
+				icon: node.icon,
+				label: label,
+				important: node.important,
+				description: node.description,
 				isGeoLocation: node.isGeoLocation,
 				fx: fx,
 				fy: fy,
+				textureKey: this.getNodeTextureKey(node)
             };
         });
 
