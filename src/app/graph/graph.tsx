@@ -31,6 +31,10 @@ import * as Leaflet from 'leaflet';
 import { isContextMenuActive } from '../contextMenu/contextMenuSelectors';
 const myWorker = require('./helpers/d3Worker.worker');
 import * as markerSvgImage from './marker.svg';
+import {
+	markPerformance,
+	measurePerformance
+} from '../main/helpers/performance';
 
 interface TextureMap {
     [hash: string]: PIXI.RenderTexture;
@@ -137,7 +141,7 @@ class Graph extends React.PureComponent<Props, State> {
                 this.onWorkerTick(event.data);
                 break;
             case 'end':
-                // this.ended(event.data);
+				// this.onWorkerTick(event.data);
                 break;
         }
     }
@@ -877,11 +881,17 @@ class Graph extends React.PureComponent<Props, State> {
 			this.fitMapToMarkers(markers);
 		}
 
+		markPerformance('beforePostNodesAndLinksToD3Worker');
+        measurePerformance('graphWorkerOutput', 'beforePostNodesAndLinksToD3Worker');
+
         this.postWorkerMessage({
             type: 'update',
             nodes: nodesToPost,
             links: linksToPost
         });
+
+		markPerformance('afterPostNodesAndLinksToD3Worker');
+		measurePerformance('beforePostNodesAndLinksToD3Worker', 'afterPostNodesAndLinksToD3Worker');
     }
 
     renderSelection() {

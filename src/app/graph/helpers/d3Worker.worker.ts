@@ -71,6 +71,13 @@ onmessage = function(event) {
 					nodes: workerNodes,
 					links: workerLinks
 				});
+			})
+			.on("end", () => {
+				postMessage({
+					type: "end",
+					nodes: workerNodes,
+					links: workerLinks
+				});
 			});
 
 		workerNodes = [];

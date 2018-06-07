@@ -60,6 +60,7 @@ import {Node} from './interfaces/node';
 import {Normalization} from './interfaces/normalization';
 import {Via} from './interfaces/via';
 import {GraphState} from "./interfaces/graphState";
+import { markPerformance } from '../main/helpers/performance';
 
 export const defaultGraphState: GraphState = {
     fields: [],
@@ -408,6 +409,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             };
         }
         case GRAPH_WORKER_OUTPUT: {
+        	markPerformance('graphWorkerOutput');
+
             const updates: any = {
                 nodes: action.nodes,
                 links: action.links,
