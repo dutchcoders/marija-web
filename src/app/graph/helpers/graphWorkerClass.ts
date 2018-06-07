@@ -50,9 +50,7 @@ export interface GraphWorkerOutput {
 export default class GraphWorkerClass {
     output: EventEmitter = new EventEmitter();
 
-    onMessage(event: MessageEvent) {
-        const action = event.data;
-
+    onMessage(action) {
         if (action.type !== SEARCH_RECEIVE && action.type !== LIVE_RECEIVE) {
             // These is the only action types we currently support in this worker
             return;

@@ -1,15 +1,22 @@
-type Marker =
-	'graphWorkerOutput' |
-	'beforePostNodesAndLinksToD3Worker' |
-	'afterPostNodesAndLinksToD3Worker' |
-	''
-	;
+const markers: string[] = [];
 
-export function markPerformance(marker: Marker) {
+export function markPerformance(marker: string) {
+	if (markers.indexOf(marker) === -1) {
+		markers.push(marker);
+	}
+
 	window.performance.mark(marker);
 }
 
-export function measurePerformance(from: Marker, to: Marker) {
+export function measurePerformance(from: string, to: string) {
+	if (markers.indexOf(from) === -1) {
+		throw new Error('Trying to measure non-existing marker: ' + from);
+	}
+
+	if (markers.indexOf(to) === -1) {
+		throw new Error('Trying to measure non-existing marker: ' + to);
+	}
+
 	window.performance.measure(from + ' -> ' + to, from, to);
 }
 
@@ -49,7 +56,7 @@ window.getPerformance = () => {
 		}
 	});
 
-	stats.sort((a, b) => b.highestDuration - a.highestDuration);
+	stats.sort((a, b) => b.averageDuration - a.averageDuration);
 
 	console.log(
 		'Description'.padEnd(longestNameLength + 3) +

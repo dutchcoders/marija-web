@@ -881,8 +881,8 @@ class Graph extends React.PureComponent<Props, State> {
 			this.fitMapToMarkers(markers);
 		}
 
-		markPerformance('beforePostNodesAndLinksToD3Worker');
-        measurePerformance('graphWorkerOutput', 'beforePostNodesAndLinksToD3Worker');
+		markPerformance('beforePostToD3Worker');
+        measurePerformance('graphWorkerOutput', 'beforePostToD3Worker');
 
         this.postWorkerMessage({
             type: 'update',
@@ -890,8 +890,8 @@ class Graph extends React.PureComponent<Props, State> {
             links: linksToPost
         });
 
-		markPerformance('afterPostNodesAndLinksToD3Worker');
-		measurePerformance('beforePostNodesAndLinksToD3Worker', 'afterPostNodesAndLinksToD3Worker');
+		markPerformance('afterPostToD3Worker');
+		measurePerformance('beforePostToD3Worker', 'afterPostToD3Worker');
     }
 
     renderSelection() {
@@ -1181,9 +1181,14 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     renderGraph(renderStage: boolean) {
-        if (renderStage) {
+    	if (renderStage) {
+    		markPerformance('renderStart');
             this.renderer.render(this.stage);
+			markPerformance('renderEnd');
+			measurePerformance('renderStart', 'renderEnd');//
         }
+
+		markPerformance('drawStart');
 
         const shouldRender = (key) => {
             return !this.renderedSince[key];
@@ -1196,10 +1201,16 @@ class Graph extends React.PureComponent<Props, State> {
             || shouldRender('lastQueries')
             || shouldRender('lastFields')
             || shouldRender('lastHighlights')) {
+
+        	markPerformance('drawNodesStart');
+
             this.renderNodes();
             this.renderLinks();
             this.renderTooltip();
             this.renderNodeLabels();
+
+			markPerformance('drawNodesEnd');
+			measurePerformance('drawNodesStart', 'drawNodesEnd');
 
             stateUpdates.lastTick = true;
             stateUpdates.lastZoom = true;
@@ -1240,6 +1251,9 @@ class Graph extends React.PureComponent<Props, State> {
         }
 
         this.measureFps();
+
+        markPerformance('drawEnd');
+        measurePerformance('drawStart', 'drawEnd');
 
         requestAnimationFrame(() => this.renderGraph(hasStateUpdates));
     }

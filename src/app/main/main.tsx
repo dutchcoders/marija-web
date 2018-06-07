@@ -6,8 +6,6 @@ import { routerReducer, syncHistoryWithStore } from 'react-router-redux';
 import { applyMiddleware, combineReducers, compose, createStore } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import thunk from 'redux-thunk';
-import createWorkerMiddleware from 'redux-worker-middleware';
-
 import { webSocketMiddleware } from '../connection/helpers/webSocketMiddleware';
 import { defaultContextMenuState } from '../contextMenu/contextMenuReducer';
 import { defaultDatasourcesState } from '../datasources/datasourcesReducer';
@@ -24,6 +22,7 @@ import { AppState } from './interfaces/appState';
 import root from './rootReducer';
 import {defaultConnectionState} from "../connection/connectionReducer";
 import {setBackendUri} from "../connection/connectionActions";
+import { createWorkerMiddleware } from './helpers/createWorkerMiddleware';
 
 require('../../scss/app.scss');
 require('../../images/favicon.png');
