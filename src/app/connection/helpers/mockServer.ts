@@ -45,7 +45,11 @@ export const responders: Responder[] = [
 		}
 	},
 	{
-		willRespond: (action) => action.type === 'SEARCH_REQUEST' && action.query === 'location',
+		willRespond: (action) => {
+			console.log(action);
+
+			return action.type === 'FIELDS_REQUEST';
+		},
 		getResponse: (action) => {
 			return {
 				type: 'FIELDS_RECEIVE',

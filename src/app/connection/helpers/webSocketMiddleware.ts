@@ -48,7 +48,10 @@ export const webSocketMiddleware: Middleware = ({dispatch}) => next => action =>
             }
 
             if (mockedResponses) {
-                mockedResponses.forEach(response => onMessage(response, dispatch));
+                mockedResponses.forEach(response => {
+                    console.log('Mocking server response', response);
+                    onMessage(response, dispatch);
+				});
             } else {
 				opened.then(socket => socket.send(payload));
             }

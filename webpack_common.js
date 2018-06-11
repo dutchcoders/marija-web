@@ -99,11 +99,19 @@ module.exports = {
                 ]
             },
             {
-                test: /\.(png|jpg|jpeg|svg)$/,
+                test: /\.(png|jpg|jpeg)$/,
                 loader: 'file-loader',
                 options: {
                     name: 'images/[name].[ext]',
                     // limit: 9999999
+                }
+            },
+            {
+                test: /\.(svg)$/,
+                loader: 'url-loader',
+                options: {
+                    name: 'images/[name].[ext]',
+                    limit: 999999999
                 }
             },
             {
