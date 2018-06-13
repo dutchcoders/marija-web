@@ -1223,10 +1223,13 @@ class Graph extends React.PureComponent<Props, State> {
         });
     }
 
-    renderGraph(renderStage: boolean) {
-    	if (renderStage) {
+    shouldRenderGraph: boolean = true;
+
+    renderGraph() {
+    	if (this.shouldRenderGraph) {
     		markPerformance('renderStart');
             this.renderer.render(this.stage);
+            this.shouldRenderGraph = false;
 			markPerformance('renderEnd');
 			measurePerformance('renderStart', 'renderEnd');//
         }
@@ -1236,8 +1239,6 @@ class Graph extends React.PureComponent<Props, State> {
         const shouldRender = (key) => {
             return !this.lockRendering && !this.renderedSince[key];
         };
-
-        const stateUpdates: any = {};
 
         if (shouldRender('lastTick')
             || shouldRender('lastZoom')
@@ -1255,28 +1256,34 @@ class Graph extends React.PureComponent<Props, State> {
 			markPerformance('drawNodesEnd');
 			measurePerformance('drawNodesStart', 'drawNodesEnd');
 
-            stateUpdates.lastTick = true;
-            stateUpdates.lastZoom = true;
-            stateUpdates.lastQueries = true;
-            stateUpdates.lastNodeLableToggle = true;
+			this.shouldRenderGraph = true;
+
+            this.renderedSince.lastTick = true;
+            this.renderedSince.lastZoom = true;
+            this.renderedSince.lastQueries = true;
+            this.renderedSince.lastFields = true;
+            this.renderedSince.lastHighlights = true;
         }
 
         if (shouldRender('lastNodeLableToggle')) {
             this.renderNodeLabels();
 
-            stateUpdates.lastNodeLableToggle = true;
+			this.shouldRenderGraph = true;
+            this.renderedSince.lastNodeLableToggle = true;
         }
 
         if (shouldRender('lastSelection')) {
             this.renderSelection();
 
-            stateUpdates.lastSelection = true;
+			this.shouldRenderGraph = true;
+            this.renderedSince.lastSelection = true;
         }
 
         if (shouldRender('lastTooltip')) {
             this.renderTooltip();
 
-            stateUpdates.lastTooltip = true;
+			this.shouldRenderGraph = true;
+            this.renderedSince.lastTooltip = true;
         }
 
         if (shouldRender('lastSelectedNodes')
@@ -1284,13 +1291,8 @@ class Graph extends React.PureComponent<Props, State> {
             || shouldRender('lastZoom')) {
             this.renderSelectedNodes();
 
-            stateUpdates.lastSelectedNodes = true;
-        }
-
-        const hasStateUpdates: boolean = !isEmpty(stateUpdates);
-
-        if (hasStateUpdates) {
-            Object.assign(this.renderedSince, stateUpdates);
+			this.shouldRenderGraph = true;
+            this.renderedSince.lastSelectedNodes = true;
         }
 
         this.measureFps();
@@ -1298,7 +1300,7 @@ class Graph extends React.PureComponent<Props, State> {
         markPerformance('drawEnd');
         measurePerformance('drawStart', 'drawEnd');
 
-        requestAnimationFrame(() => this.renderGraph(hasStateUpdates));
+        requestAnimationFrame(this.renderGraph.bind(this));
     }
 
     measureFps() {
@@ -1358,7 +1360,7 @@ class Graph extends React.PureComponent<Props, State> {
         this.graphComponent.addEventListener('mouseup', this.onMouseUp.bind(this), true);
         this.graphComponent.addEventListener('click', this.clickEnded.bind(this), true);
 
-        this.renderGraph(false);
+        this.renderGraph();
         this.enableD3Zooming();
     }
 
