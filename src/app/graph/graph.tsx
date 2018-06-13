@@ -295,8 +295,8 @@ class Graph extends React.PureComponent<Props, State> {
         const radius = node.r * sizeMultiplier;
 
         const canvas = document.createElement('canvas');
-        canvas.width = radius * 2;
-        canvas.height = radius * 2;
+        canvas.width = radius * 2 + 1;
+        canvas.height = radius * 2 + 1;
         const ctx = canvas.getContext('2d');
 
         const fractionPerSearch = 1 / node.searchIds.length;
