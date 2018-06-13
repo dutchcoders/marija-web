@@ -527,7 +527,7 @@ class Graph extends React.PureComponent<Props, State> {
 
     renderArrow(x: number, y: number, angle: number) {
         const sprite = new PIXI.Sprite(this.arrowTexture);
-        const offset = 15;
+        const offset = 15 * this.nodeSizeMultiplier;
 
         sprite.x = x + Math.cos(angle) * offset;
         sprite.y = y + Math.sin(angle) * offset;
