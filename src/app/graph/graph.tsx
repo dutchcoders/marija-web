@@ -12,8 +12,6 @@ import * as PIXI from 'pixi.js';
 import {Search} from "../search/interfaces/search";
 import {Node} from "./interfaces/node";
 import {Link} from "./interfaces/link";
-import {NodeFromD3} from "./interfaces/nodeFromD3";
-import {LinkFromD3} from "./interfaces/linkFromD3";
 import {
     hideContextMenu,
     showContextMenu
@@ -38,10 +36,6 @@ import {
 
 interface TextureMap {
     [hash: string]: PIXI.RenderTexture;
-}
-
-interface HighlightedNodesMap {
-    [nodeId: string]: true
 }
 
 interface Props {
@@ -87,11 +81,10 @@ class Graph extends React.PureComponent<Props, State> {
         lastFields: true,
         lastNodeLableToggle: true
     };
-    nodesFromD3: NodeFromD3[] = [];
     nodeTextures: TextureMap = {};
     nodeMarkerTextures: TextureMap = {};
     renderedNodesContainer: PIXI.Container = new PIXI.Container();
-    linksFromD3: LinkFromD3[] = [];
+    renderedNodesContainers: Map<string, PIXI.particles.ParticleContainer> = new Map<string, PIXI.particles.ParticleContainer>();
     renderedLinks: PIXI.Graphics = new PIXI.Graphics();
     renderedLinkLabels: PIXI.Container = new PIXI.Container();
     renderedArrows: PIXI.Container = new PIXI.Container();
@@ -115,8 +108,7 @@ class Graph extends React.PureComponent<Props, State> {
     lastDispatchedFpsTimestamp: number = 0;
     linkLabelTextures: TextureMap = {};
     tooltipTextures: TextureMap = {};
-    dragSubjects: NodeFromD3[];
-    highlightedNodesMap: HighlightedNodesMap;
+    // dragSubjects: NodeFromD3[];
     map: Leaflet.Map;
     mapMarkers: Leaflet.LayerGroup;
 	initialMapZoom: number;
@@ -125,30 +117,79 @@ class Graph extends React.PureComponent<Props, State> {
 	graphComponent;
 	isMouseDown: boolean = false;
 	isZooming: boolean = false;
-	mainDragSubject: NodeFromD3;
+	mainDragSubject: Node;
     readonly minZoomGraph: number = .3;
     readonly maxZoomGraph: number = 3;
     readonly minZoomMap: number = 1;
     readonly maxZoomMap: number = 18;
+    nodeMap = new Map();
+    linkMap = new Map();
+    lockRendering: boolean = false;
 
     postWorkerMessage(message) {
     	this.worker.postMessage(JSON.stringify(message));
     }
 
     onWorkerMessage(event) {
-        switch (event.data.type) {
-            case 'tick':
-                this.onWorkerTick(event.data);
-                break;
-            case 'end':
-				// this.onWorkerTick(event.data);
-                break;
-        }
+    	if (event.data instanceof Float64Array) {
+    		this.onWorkerTick(event.data);
+    		return;
+		}
+
+        // switch (event.data.type) {
+        //     case 'tick':
+        //         break;
+        //     case 'end':
+        //         break;
+        // }
     }
 
-    onWorkerTick(data) {
-        this.nodesFromD3 = data.nodes;
-        this.linksFromD3 = data.links;
+	/**
+	 * This is aggressively optimized because it's executed on every frame.
+	 * The normal way of sending data back and forth between workers and the main
+	 * thread can be very slow. What we're doing instead is converting the data
+	 * into a Float64Array, so that the data can be transferred in binary format.
+	 * In this function the data is being parsed again, and attached to the nodes.
+	 *
+	 * @param data
+	 */
+	onWorkerTick(data: Float64Array) {
+		const numNodes: number = data[0];
+    	const propertiesPerNode: number = 4;
+    	const nodesStopAt: number = numNodes * propertiesPerNode;
+
+    	for (let i = 1; i <= nodesStopAt; i += propertiesPerNode) {
+			const id: number = data[i];
+			const nodeInMap: Node = this.nodeMap.get(id);
+
+			if (!nodeInMap) {
+				// Node is outdated
+				break;
+			}
+
+			nodeInMap.x = data[i + 1];
+			nodeInMap.y = data[i + 2];
+			nodeInMap.r = data[i + 3];
+		}
+
+		const propertiesPerLink: number = 5;
+
+		for (let i = nodesStopAt + 1; i < data.length; i += propertiesPerLink) {
+			const hash: number = data[i];
+			const linkInMap: Link = this.linkMap.get(hash);
+
+			if (!linkInMap) {
+				// Link is outdated
+				break;
+			}
+
+			linkInMap.sourceX = data[i + 1];
+			linkInMap.sourceY = data[i + 2];
+			linkInMap.targetX = data[i + 3];
+			linkInMap.targetY = data[i + 4];
+		}
+
+		this.lockRendering = false;
         this.renderedSince.lastTick = false;
     }
 
@@ -242,7 +283,7 @@ class Graph extends React.PureComponent<Props, State> {
             + node.searchIds.map(searchId => this.getSearchColor(searchId)).join('');
     }
 
-    getNodeTexture(node: NodeFromD3, sizeMultiplier: number) {
+    getNodeTexture(node: Node, sizeMultiplier: number) {
     	const key = node.textureKey + '-' + sizeMultiplier;
         let texture = this.nodeTextures[key];
 
@@ -305,7 +346,7 @@ class Graph extends React.PureComponent<Props, State> {
 			}));
 	}
 
-	getNodeMarkerTexture(node: NodeFromD3): PIXI.RenderTexture {
+	getNodeMarkerTexture(node: Node): PIXI.RenderTexture {
     	const key = node.textureKey;
         let texture = this.nodeMarkerTextures[key];
 
@@ -387,45 +428,54 @@ class Graph extends React.PureComponent<Props, State> {
 		return this.transform.k;
 	}
 
-    renderNodes() {
-        const { highlightedNodes, isMapActive } = this.props;
+	nodeSizeMultiplier: number;
 
-        const isHighlighting: boolean = highlightedNodes.length > 0;
+    renderNodes() {
         this.renderedNodesContainer.removeChildren();
         this.renderedIcons.removeChildren();
+		this.nodeSizeMultiplier = this.getNodeSizeMultiplier();
 
-		const sizeMultiplier = this.getNodeSizeMultiplier();
-
-        this.nodesFromD3.forEach(node => {
-			this.renderIcons(node);
-
-			let texture: PIXI.RenderTexture;
-			let anchorY: number;
-
-			if (isMapActive && node.isGeoLocation) {
-				texture = this.getNodeMarkerTexture(node);
-				anchorY = 1;
-			} else {
-				texture = this.getNodeTexture(node, sizeMultiplier);
-				anchorY = .5;
-			}
-
-            const renderedNode = new PIXI.Sprite(texture);
-
-            renderedNode.anchor.x = 0.5;
-            renderedNode.anchor.y = anchorY;
-            renderedNode.x = this.getRenderX(node.x);
-            renderedNode.y = this.getRenderY(node.y);
-
-            if (isHighlighting && !this.highlightedNodesMap[node.id]) {
-                renderedNode.alpha = .3;
-            }
-
-            this.renderedNodesContainer.addChild(renderedNode);
-        });
+        this.nodeMap.forEach(this.renderNode.bind(this));
     }
 
-    renderIcons(node: NodeFromD3) {
+    renderNode(node: Node) {
+		const { highlightedNodes, isMapActive } = this.props;
+		const isHighlighting: boolean = highlightedNodes.length > 0;
+
+		if (typeof node.x === 'undefined') {
+			return;
+		}
+
+		this.renderIcons(node);
+
+		let texture: PIXI.RenderTexture;
+		let anchorY: number;
+
+		if (isMapActive && node.isGeoLocation) {
+			texture = this.getNodeMarkerTexture(node);
+			anchorY = 1;
+		} else {
+			texture = this.getNodeTexture(node, this.nodeSizeMultiplier);
+			anchorY = .5;
+		}
+
+		const renderedNode = new PIXI.Sprite(texture);
+
+		renderedNode.anchor.x = 0.5;
+		renderedNode.anchor.y = anchorY;
+		renderedNode.x = this.getRenderX(node.x);
+		renderedNode.y = this.getRenderY(node.y);
+
+		if (!isHighlighting) {
+			renderedNode.alpha = 1;
+		} else {
+			renderedNode.alpha = node.highlighted ? 1 : .3;
+		}
+
+		this.renderedNodesContainer.addChild(renderedNode);
+	}
+
+    renderIcons(node: Node) {
         const icons: PIXI.Sprite[] = [];
         const sizeMultiplier = this.getNodeSizeMultiplier();
 
@@ -472,17 +522,7 @@ class Graph extends React.PureComponent<Props, State> {
 		}
 
         this.renderedLinks.alpha = alpha;
-
-        this.linksFromD3.forEach(link => {
-        	let thickness = link.thickness;
-
-        	if (isMapActive) {
-        		thickness = thickness * 2;
-			}
-
-            this.renderedLinks.lineStyle(thickness, 0xFFFFFF);
-            this.renderLink(link);
-        });
+        this.linkMap.forEach(this.renderLink.bind(this));
     }
 
     renderArrow(x: number, y: number, angle: number) {
@@ -529,31 +569,45 @@ class Graph extends React.PureComponent<Props, State> {
 		return renderY;
 	}
 
-    renderLink(link: LinkFromD3) {
+    renderLink(link: Link) {
+		if (typeof link.sourceX === 'undefined') {
+			return;
+		}
+
+		const { isMapActive } = this.props;
+
+		let thickness = Math.min(link.itemIds.length, 15);
+
+		if (isMapActive) {
+			thickness = thickness * 2;
+		}
+
+		this.renderedLinks.lineStyle(thickness, 0xFFFFFF);
+
         if (link.total <= 1) {
             // When there's only 1 link between 2 nodes, we can draw a straight line
 
             this.renderStraightLine(
-                this.getRenderX(link.source.x),
-                this.getRenderY(link.source.y),
-                this.getRenderX(link.target.x),
-                this.getRenderY(link.target.y)
+                this.getRenderX(link.sourceX),
+                this.getRenderY(link.sourceY),
+                this.getRenderX(link.targetX),
+                this.getRenderY(link.targetY)
             );
 
             if (link.label) {
                 this.renderTextAlongStraightLine(
                     link.label,
-                    link.source.x,
-                    link.source.y,
-                    link.target.x,
-                    link.target.y
+                    link.sourceX,
+                    link.sourceY,
+                    link.targetX,
+                    link.targetY
                 );
 
-                const deltaX = link.source.x - link.target.x;
-                const deltaY = link.source.y - link.target.y;
+                const deltaX = link.sourceX - link.targetX;
+                const deltaY = link.sourceY - link.targetY;
                 const angle = Math.atan2(deltaY, deltaX);
 
-                this.renderArrow(link.target.x, link.target.y, angle);
+                this.renderArrow(link.targetX, link.targetY, angle);
             }
         } else {
             // When there are multiple links between 2 nodes, we need to draw arcs
@@ -568,16 +622,16 @@ class Graph extends React.PureComponent<Props, State> {
 
             const {centerX, centerY, radius, startAngle, endAngle} =
                 getArcParams(
-                    link.source.x,
-                    link.source.y,
-                    link.target.x,
-                    link.target.y,
+                    link.sourceX,
+                    link.sourceY,
+                    link.targetX,
+                    link.targetY,
                     bend
                 );
 
             const normalizedEndAngle = (endAngle + Math.PI * 2) % (Math.PI * 2);
             const counterClockwise = bend < 0;
-            const arrowPosition = getArrowPosition(centerX, centerY, radius, normalizedEndAngle, counterClockwise, link.target.x, link.target.y);
+            const arrowPosition = getArrowPosition(centerX, centerY, radius, normalizedEndAngle, counterClockwise, link.targetX, link.targetY);
 
             this.renderArrow2(arrowPosition.x, arrowPosition.y, arrowPosition.angle);
             this.renderArc(centerX, centerY, radius, startAngle, endAngle, counterClockwise);
@@ -780,20 +834,28 @@ class Graph extends React.PureComponent<Props, State> {
         }
 
         if (!isEqual(nextProps.fields, fields)) {
-            this.nodesFromD3.forEach(nodeFromD3 => {
-                const node = nextProps.nodesForDisplay.find(search => search.id === nodeFromD3.id);
-
-                if (!node) {
-                    return;
-                }
-
-                nodeFromD3.icon = node.icon;
-                nodeFromD3.textureKey = this.getNodeTextureKey(node);
-            });
-
             this.nodeTextures = {};
             this.renderedSince.lastFields = false;
         }
+
+        if (nextProps.nodesForDisplay !== nodesForDisplay) {
+        	const textureKeys: string[] = [];
+
+        	this.nodeMap.clear();
+        	nextProps.nodesForDisplay.forEach(node => {
+        		node.textureKey = this.getNodeTextureKey(node);
+        		this.nodeMap.set(node.id, node);
+
+        		if (textureKeys.indexOf(node.textureKey) === -1) {
+        			textureKeys.push(node.textureKey);
+				}
+			});
+		}
+
+		if (nextProps.linksForDisplay !== linksForDisplay) {
+        	this.linkMap.clear();
+        	nextProps.linksForDisplay.forEach(link => this.linkMap.set(link.hash, link));
+		}
 
         if (this.shouldPostToWorker(nextProps.nodesForDisplay, nodesForDisplay, nextProps.linksForDisplay, linksForDisplay, isMapActive, nextProps.isMapActive)) {
             this.postNodesAndLinksToWorker(nextProps.nodesForDisplay, nextProps.linksForDisplay, nextProps.isMapActive);
@@ -802,12 +864,6 @@ class Graph extends React.PureComponent<Props, State> {
         }
 
         if (nextProps.highlightedNodes !== highlightedNodes) {
-            this.highlightedNodesMap = {};
-
-            nextProps.highlightedNodes.forEach(node =>
-                this.highlightedNodesMap[node.id] = true
-            );
-
             this.renderedSince.lastHighlights = false;
         }
 
@@ -840,36 +896,19 @@ class Graph extends React.PureComponent<Props, State> {
 				fy = this.transform.invertY(containerPoint.y);
 			}
 
-            return {
-                id: node.id,
-                count: node.count,
-                hash: node.hash,
-				searchIds: node.searchIds,
-				icon: node.icon,
-				label: label,
-				important: node.important,
-				description: node.description,
-				isGeoLocation: node.isGeoLocation,
+			return {
+				id: node.id,
+				count: node.count,
 				fx: fx,
-				fy: fy,
-				textureKey: this.getNodeTextureKey(node)
-            };
+				fy: fy
+			};
         });
 
         const linksToPost = linksForDisplay.map(link => {
-            let thickness: number = 1;
-
-            if (link.itemIds.length > 1) {
-                thickness = Math.min(link.itemIds.length, 15);
-            }
-
             return {
+            	hash: link.hash,
                 source: link.source,
-                target: link.target,
-                label: link.label,
-                total: link.total,
-                current: link.current,
-                thickness: thickness
+                target: link.target
             };
         });
 
@@ -880,6 +919,8 @@ class Graph extends React.PureComponent<Props, State> {
 
 		markPerformance('beforePostToD3Worker');
         measurePerformance('graphWorkerOutput', 'beforePostToD3Worker');
+
+        this.lockRendering = true;
 
         this.postWorkerMessage({
             type: 'update',
@@ -985,17 +1026,15 @@ class Graph extends React.PureComponent<Props, State> {
         }
 
         tooltipNodes.forEach(node => {
-            const nodeFromD3 = this.nodesFromD3.find(search => search.hash === node.hash);
-
-            if (typeof nodeFromD3 === 'undefined') {
-                return;
-            }
+        	if (!node.x) {
+        		return;
+			}
 
             const texture = this.getTooltipTexture(node);
             const sprite = new PIXI.Sprite(texture);
 
-            sprite.x = this.applyX(nodeFromD3.x);
-            sprite.y = this.applyY(nodeFromD3.y);
+            sprite.x = this.applyX(node.x);
+            sprite.y = this.applyY(node.y);
 
             this.renderedTooltip.addChild(sprite);
         });
@@ -1091,20 +1130,18 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedSelectedNodes.removeChildren();
         const sizeMultiplier = this.getNodeSizeMultiplier();
 
-        selectedNodes.forEach(selected => {
-            const nodeFromD3 = this.nodesFromD3.find(search => search.hash === selected.hash);
+        selectedNodes.forEach(node => {
+        	if (!node.x) {
+        		return;
+			}
 
-            if (typeof nodeFromD3 === 'undefined') {
-                return;
-            }
-
-            const texture = this.getSelectedNodeTexture(nodeFromD3.r, sizeMultiplier);
+            const texture = this.getSelectedNodeTexture(node.r, sizeMultiplier);
             const sprite = new PIXI.Sprite(texture);
 
             sprite.anchor.x = 0.5;
             sprite.anchor.y = 0.5;
-            sprite.x = this.getRenderX(nodeFromD3.x);
-            sprite.y = this.getRenderY(nodeFromD3.y);
+            sprite.x = this.getRenderX(node.x);
+            sprite.y = this.getRenderY(node.y);
 
             this.renderedSelectedNodes.addChild(sprite);
         });
@@ -1148,16 +1185,21 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     renderNodeLabels() {
-        const { showLabels, isMapActive } = this.props;
+        const { showLabels, isMapActive, nodesForDisplay } = this.props;
 
         this.renderedNodeLabels.removeChildren();
 
         if (!showLabels) {
+        	this.nodeLabelTextures = {};
             return;
         }
 
-        this.nodesFromD3.forEach(node => {
-            const texture = this.getNodeLabelTexture(node.label, isMapActive);
+        nodesForDisplay.forEach(node => {
+        	if (!node.x) {
+        		return;
+			}
+
+            const texture = this.getNodeLabelTexture(node.abbreviated, isMapActive);
             const sprite = new PIXI.Sprite(texture);
 
             sprite.anchor.x = .5;
@@ -1188,7 +1230,7 @@ class Graph extends React.PureComponent<Props, State> {
 		markPerformance('drawStart');
 
         const shouldRender = (key) => {
-            return !this.renderedSince[key];
+            return !this.lockRendering && !this.renderedSince[key];
         };
 
         const stateUpdates: any = {};
@@ -1295,6 +1337,8 @@ class Graph extends React.PureComponent<Props, State> {
 
         this.pixiContainer.appendChild(this.renderer.view);
 
+		this.renderedLinks.nativeLines = true;
+
         this.stage.addChild(this.renderedLinks);
         this.stage.addChild(this.renderedLinkLabels);
         this.stage.addChild(this.renderedNodesContainer);
@@ -1331,7 +1375,7 @@ class Graph extends React.PureComponent<Props, State> {
 				const transformedX = this.transform.invertX(x);
 				const transformedY = this.transform.invertY(y);
 
-				return typeof this.findNodeFromD3(transformedX, transformedY) === 'undefined';
+				return typeof this.findNode(transformedX, transformedY) === 'undefined';
 			})
 		    .scaleExtent([this.minZoomGraph, this.maxZoomGraph])
 			.on('start', this.d3ZoomStart.bind(this))
@@ -1448,28 +1492,22 @@ class Graph extends React.PureComponent<Props, State> {
     }, 500);
 
 
-    findNodeFromD3(x: number, y: number): NodeFromD3 {
-    	const sizeMultiplier = this.getNodeSizeMultiplier();
-
-        return this.nodesFromD3.find(node => {
-            const dx = x - node.x;
-            const dy = y - node.y;
-            const d2 = dx * dx + dy * dy;
-
-            return d2 < Math.pow(node.r * sizeMultiplier / this.transform.k, 2);
-        });
-    }
-
     findNode(x, y): Node {
-		const nodeFromD3 = this.findNodeFromD3(x, y);
+    	const { nodesForDisplay } = this.props;
 
-        if (typeof nodeFromD3 === 'undefined') {
-            return;
-        }
+		const sizeMultiplier = this.getNodeSizeMultiplier();
 
-        const { nodesForDisplay } = this.props;
+		return nodesForDisplay.find(node => {
+			if (!node.x) {
+				return false;
+			}
 
-        return nodesForDisplay.find(node => node.hash === nodeFromD3.hash);
+			const dx = x - node.x;
+			const dy = y - node.y;
+			const d2 = dx * dx + dy * dy;
+
+			return d2 < Math.pow(node.r * sizeMultiplier / this.transform.k, 2);
+		});
     }
 
     tooltipNode(node: Node) {
@@ -1522,7 +1560,7 @@ class Graph extends React.PureComponent<Props, State> {
         this.mouseDownCoordinates = this.getMouseCoordinates(event);
 		const transformedX = this.invertX(this.mouseDownCoordinates.x);
 		const transformedY = this.invertY(this.mouseDownCoordinates.y);
-		const node = this.findNodeFromD3(transformedX, transformedY);
+		const node = this.findNode(transformedX, transformedY);
 
         // When dragging a node, prevent also dragging the map at the same time
 		if (isMapActive) {
@@ -1620,19 +1658,16 @@ class Graph extends React.PureComponent<Props, State> {
 
         const willSelect: Node[] = [];
 
-        this.nodesFromD3.forEach(nodeFromD3 => {
+        nodesForDisplay.forEach(node => {
             const withinX: boolean =
-                (nodeFromD3.x > this.selection.x1 && nodeFromD3.x < this.selection.x2)
-                || (nodeFromD3.x > this.selection.x2 && nodeFromD3.x < this.selection.x1);
+                (node.x > this.selection.x1 && node.x < this.selection.x2)
+                || (node.x > this.selection.x2 && node.x < this.selection.x1);
 
             const withinY: boolean =
-                (nodeFromD3.y > this.selection.y1 && nodeFromD3.y < this.selection.y2)
-                || (nodeFromD3.y > this.selection.y2 && nodeFromD3.y < this.selection.y1);
-
+                (node.y > this.selection.y1 && node.y < this.selection.y2)
+                || (node.y > this.selection.y2 && node.y < this.selection.y1);
 
             if (withinX && withinY) {
-                const node = nodesForDisplay.find(search => search.hash === nodeFromD3.hash);
-
                 willSelect.push(node);
             }
         });

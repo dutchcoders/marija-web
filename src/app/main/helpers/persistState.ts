@@ -1,7 +1,7 @@
 import Url from './url';
 import Workspaces from './workspaces';
 
-export default function persistState() {
+export default function persistState(): any {
     return (next) => (reducer, initialState, enhancer) => {
 
         initialState = Workspaces.loadCurrentWorkspace(initialState);

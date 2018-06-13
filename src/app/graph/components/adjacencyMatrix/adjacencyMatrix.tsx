@@ -59,8 +59,8 @@ class AdjacencyMatrix extends React.Component<Props, State> {
 
         if (sort === 'alphabetically') {
             nodes.sort((a, b) => {
-                const aLower = a.id.toLowerCase();
-                const bLower = b.id.toLowerCase();
+                const aLower = a.name.toLowerCase();
+                const bLower = b.name.toLowerCase();
 
                 if (aLower < bLower) return -1;
                 if (aLower > bLower) return 1;
@@ -179,7 +179,7 @@ class AdjacencyMatrix extends React.Component<Props, State> {
 
     detectCommunities(nodes: Node[], links: Link[]) {
         const nodeMap = {};
-        const nodeIds = nodes.map(node => {
+        const nodeIds: any = nodes.map(node => {
             nodeMap[node.id] = true;
             return node.id;
         });
@@ -189,7 +189,7 @@ class AdjacencyMatrix extends React.Component<Props, State> {
             && typeof nodeMap[link.target] !== 'undefined'
         );
 
-        const louvainLinks = links.map(link => {
+        const louvainLinks: any = links.map(link => {
             return {
                 source: link.source,
                 target: link.target,

@@ -21,4 +21,5 @@ export interface GraphState {
     showLabels: boolean;
     isMapActive: boolean;
     timelineGrouping: TimelineGrouping;
+    graphWorkerCacheIsValid: boolean;
 }

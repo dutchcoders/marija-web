@@ -1,6 +1,10 @@
 const markers: string[] = [];
 
 export function markPerformance(marker: string) {
+	if (!process.env.MEASURE_PERFORMANCE) {
+		return;
+	}
+
 	if (markers.indexOf(marker) === -1) {
 		markers.push(marker);
 	}
@@ -9,6 +13,10 @@ export function markPerformance(marker: string) {
 }
 
 export function measurePerformance(from: string, to: string) {
+	if (!process.env.MEASURE_PERFORMANCE) {
+		return;
+	}
+
 	if (markers.indexOf(from) === -1) {
 		throw new Error('Trying to measure non-existing marker: ' + from);
 	}

@@ -4,7 +4,32 @@ import { assign, clone, difference, each, find, forEach, groupBy, includes, isEq
 let simulation = null;
 let timer = null;
 let workerNodes = [];
+let workerNodeMap = new Map();
 let workerLinks = [];
+let workerLinkMap = new Map();
+
+function getTickMessage() {
+	const message = [];
+
+	message.push(workerNodes.length);
+
+	workerNodes.forEach(node => {
+		message.push(node.id);
+		message.push(node.x);
+		message.push(node.y);
+		message.push(node.r);
+	});
+
+	workerLinks.forEach(link => {
+		message.push(link.hash);
+		message.push(link.source.x);
+		message.push(link.source.y);
+		message.push(link.target.x);
+		message.push(link.target.y);
+	});
+
+	return new Float64Array(message);
+}
 
 onmessage = function(event) {
 	const data = JSON.parse(event.data);
@@ -68,11 +93,14 @@ onmessage = function(event) {
 			// .force("vertical", d3.forceY().strength(0.018))
 			// .force("horizontal", d3.forceX().strength(0.006))
 			.on("tick", () => {
-				postMessage({
-					type: "tick",
-					nodes: workerNodes,
-					links: workerLinks
-				});
+				postMessage(getTickMessage());
+				//
+				//
+				// postMessage({
+				// 	type: "tick",
+				// 	nodes: workerNodes,
+				// 	links: workerLinks
+				// });
 			})
 			.on("end", () => {
 				postMessage({
@@ -100,7 +128,6 @@ onmessage = function(event) {
 				.force("horizontal", null)
                 .restart();
         }
-    } else if (data.type === 'tick') {
     } else if (data.type === 'update') {
         let { nodes, links } = data;
 
@@ -118,20 +145,28 @@ onmessage = function(event) {
 
         var newNodes = false;
 
-        var that = this;
+        let removed = 0;
+
+        const newWorkerNodeMap = new Map();
+        nodes.forEach(node => newWorkerNodeMap.set(node.id, node));
 
         // remove deleted nodes
         remove(workerNodes, (n) => {
-            return !find(nodes, (o) => {
-                return (o.id==n.id);
-            });
+        	const shouldRemove = !newWorkerNodeMap.has(n.id);
+
+            if (shouldRemove) {
+            	workerNodeMap.delete(n.id);
+            	removed ++;
+			}
+
+			return shouldRemove;
         });
 
         for (let i=0; i < nodes.length; i++) {
             let node = nodes[i];
             // todo(nl5887): cleanup
 
-            var n = find(workerNodes, {id: node.id});
+            var n = workerNodeMap.get(node.id);
             if (n) {
                 n = assign(n, node);
                 n = assign(n, {force: forceScale(n), r: radiusScale(n.count)});
@@ -144,22 +179,29 @@ onmessage = function(event) {
             node2 = assign(node2, {force: forceScale(node2), r: radiusScale(node2.count)});
 
             workerNodes.push(node2);
+            workerNodeMap.set(node2.id, node2);
 
             newNodes = true;
         }
 
+        let newLinkMap = new Map();
+        links.forEach(link => newLinkMap.set(link.hash, true));
+
+
         remove(workerLinks, (link) => {
-            return !find(links, (o) => {
-                return (link.source.id == o.source && link.target.id == o.target);
-            });
+        	const shouldRemove = !newLinkMap.has(link.hash);
+
+        	if (shouldRemove) {
+        		workerLinkMap.delete(link.hash);
+			}
+
+			return shouldRemove;
         });
 
         for (let i=0; i < links.length; i++) {
             let link = links[i];
 
-            var n = find(workerLinks, (o) => {
-                return o.source.id == link.source && o.target.id == link.target;
-            });
+            var n = workerLinkMap.get(link.hash);
             
             if (n) {
                 Object.assign(n, link);
@@ -170,14 +212,11 @@ onmessage = function(event) {
             const add = {
                 source: link.source,
                 target: link.target,
-                color: link.color,
-                label: link.label,
-                total: link.total,
-                current: link.current,
-                thickness: link.thickness
+				hash: link.hash
             };
 
             workerLinks.push(add);
+            workerLinkMap.set(link.hash, link);
         }
 
         simulation

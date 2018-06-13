@@ -1,8 +1,9 @@
 import { Node } from './node';
 
 export interface Link {
-    source: string;
-    target: string;
+    hash: number;
+    source: number;
+    target: number;
     color: string;
     total: number; // total number of links between source and target
     current: number; // current link number between source and target
@@ -25,7 +26,7 @@ export interface Link {
      * When the link was created due to a normalization, we store which one it
      * was. This is helpful if we want to delete the normalization later.
      */
-    normalizationId: string | null;
+    normalizationIds: string[];
 
     /**
      * Whether this link is the parent of some other links that are normalized.
@@ -42,4 +43,10 @@ export interface Link {
     viaId: string | null;
 
     replacedNode: Node;
+    sourceX?: number;
+    sourceY?: number;
+    targetX?: number;
+    targetY?: number;
+    thickness?: number;
+    batch?: number;
 }

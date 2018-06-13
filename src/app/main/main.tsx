@@ -4,7 +4,6 @@ import { Provider } from 'react-redux';
 import { Route, Router } from 'react-router';
 import { routerReducer, syncHistoryWithStore } from 'react-router-redux';
 import { applyMiddleware, combineReducers, compose, createStore } from 'redux';
-import { composeWithDevTools } from 'redux-devtools-extension';
 import thunk from 'redux-thunk';
 import { webSocketMiddleware } from '../connection/helpers/webSocketMiddleware';
 import { defaultContextMenuState } from '../contextMenu/contextMenuReducer';
@@ -46,13 +45,13 @@ function configureStore() {
     return createStore(
         root,
         defaultState,
-        composeWithDevTools(
-            persistState(),
-            applyMiddleware(
-                webSocketMiddleware,
-                thunk,
-                graphWorkerMiddleware
-            )
+        compose(
+			persistState(),
+			applyMiddleware(
+				webSocketMiddleware,
+				thunk,
+				graphWorkerMiddleware
+			)
         )
     );
 }

@@ -6,7 +6,7 @@ import { Link } from '../interfaces/link';
 import { Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';
 
-function getHash(string) {
+export function getHash(string) {
     let hash = 0, i, chr;
     string += '';
 
@@ -42,11 +42,11 @@ export default function getNodesAndLinks(
     nodes: Node[],
     links: Link[]
 } {
-    const nodeMap: NodeMap = {};
-    previousNodes.forEach(node => nodeMap[node.id] = node);
+    const nodeMap = new Map<number, Node>();
+    previousNodes.forEach(node => nodeMap.set(node.id, node));
 
-    const linkMap: LinkMap = {};
-    previousLinks.forEach(link => linkMap[link.source + link.target] = link);
+    const linkMap = new Map<number, Link>();
+    previousLinks.forEach(link => linkMap.set(link.hash, link));
 
     const deletedMap = {};
     deletedNodes.forEach(node => deletedMap[node.id] = true);
@@ -90,7 +90,7 @@ export default function getNodesAndLinks(
                     return;
                 }
 
-                const existingSource: Node = nodeMap[sourceValue];
+                const existingSource: Node = nodeMap.get(getHash(sourceValue));
 
                 if (existingSource) {
                     if (existingSource.items.indexOf(item.id) === -1){
@@ -105,9 +105,11 @@ export default function getNodesAndLinks(
                         existingSource.searchIds.push(searchId);
                     }
                 } else {
+                    const hash = getHash(sourceValue);
+
                     // Create new node
-                    nodeMap[sourceValue] = {
-                        id: sourceValue,
+                    nodeMap.set(hash, {
+                        id: hash,
                         searchIds: [searchId],
                         items: [item.id],
                         count: item.count,
@@ -116,7 +118,7 @@ export default function getNodesAndLinks(
                         description: '',
                         icon: sourceField.icon,
                         fields: [sourceField.path],
-                        hash: getHash(sourceValue),
+                        hash: hash,
                         normalizationId: null,
                         display: true,
                         selected: false,
@@ -125,7 +127,7 @@ export default function getNodesAndLinks(
                         isNormalizationParent: false,
                         important: false,
                         isGeoLocation: sourceField.type === 'location'
-                    };
+                    });
                 }
 
                 fields.forEach(targetField => {
@@ -160,7 +162,7 @@ export default function getNodesAndLinks(
                             return;
                         }
 
-                        const existingTarget: Node = nodeMap[targetValue];
+                        const existingTarget: Node = nodeMap.get(getHash(targetValue));
                         if (existingTarget) {
                             if (existingTarget.items.indexOf(item.id) === -1){
                                 existingTarget.items.push(item.id);
@@ -174,9 +176,11 @@ export default function getNodesAndLinks(
                                 existingTarget.searchIds.push(searchId);
                             }
                         } else {
+                            const hash = getHash(targetValue);
+
                             // Create new node
-                            nodeMap[targetValue] = {
-                                id: targetValue,
+                            nodeMap.set(hash, {
+                                id: hash,
                                 searchIds: [searchId],
                                 items: [item.id],
                                 count: item.count,
@@ -185,7 +189,7 @@ export default function getNodesAndLinks(
                                 description: '',
                                 icon: targetField.icon,
                                 fields: [targetField.path],
-                                hash: getHash(targetValue),
+                                hash: hash,
                                 normalizationId: null,
                                 display: true,
                                 selected: false,
@@ -194,7 +198,7 @@ export default function getNodesAndLinks(
                                 isNormalizationParent: false,
                                 important: false,
 								isGeoLocation: targetField.type === 'location'
-                            };
+                            });
                         }
 
                         if (sourceValues.length > 1) {
@@ -209,8 +213,10 @@ export default function getNodesAndLinks(
                             return;
                         }
 
-                        const linkExists = (key: string): boolean => {
-                            if (!linkMap[key]) {
+                        const linkExists = (key: number): boolean => {
+                            // console.log(linkMap);
+
+                            if (!linkMap.has(key)) {
                                 // Link does not exist
                                 return false;
                             }
@@ -219,36 +225,40 @@ export default function getNodesAndLinks(
                             // existing link, so we can keep track of which items
                             // are associated with which links. We can use that to
                             // determine line thickness.
-                            if (linkMap[key].itemIds.indexOf(item.id) === -1) {
-                                linkMap[key] = Object.assign({}, linkMap[key], {
-                                    itemIds: linkMap[key].itemIds.concat([item.id])
-                                });
+
+                            const existingLink = linkMap.get(key);
+
+                            if (existingLink.itemIds.indexOf(item.id) === -1) {
+                                existingLink.itemIds = existingLink.itemIds.concat([item.id]);
                             }
 
                             return true;
                         };
 
-                        const key: string = sourceValue + targetValue;
-                        const oppositeKey: string = targetValue + sourceValue;
 
-                        if (linkExists(key) || linkExists(oppositeKey)) {
+						const sourceHash = getHash(sourceValue);
+						const targetHash = getHash(targetValue);
+						const linkHash = sourceHash + targetHash;
+
+                        if (linkExists(linkHash)) {
                             return;
                         }
 
                         // Create new link
-                        linkMap[key] = {
-                            source: sourceValue,
-                            target: targetValue,
+                        linkMap.set(linkHash, {
+                            hash: linkHash,
+                            source: sourceHash,
+                            target: targetHash,
                             color: '#ccc',
                             total: 1,
                             current: 1,
-                            normalizationId: null,
+                            normalizationIds: [],
                             display: true,
                             isNormalizationParent: false,
                             viaId: null,
                             replacedNode: null,
                             itemIds: [item.id]
-                        };
+                        });
                     });
                 });
             });
@@ -256,8 +266,11 @@ export default function getNodesAndLinks(
     });
 
     // Turn maps into plain arrays
-    const nodes: Node[] = Object.keys(nodeMap).map(key => nodeMap[key]);
-    const links: Link[] = Object.keys(linkMap).map(key => linkMap[key]);
+    const nodes: Node[] = [];
+    nodeMap.forEach(node => nodes.push(node));
+
+    const links: Link[] = [];
+    linkMap.forEach(link => links.push(link));
 
     return {
         nodes: nodes,

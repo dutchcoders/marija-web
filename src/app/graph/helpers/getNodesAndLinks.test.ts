@@ -1,6 +1,6 @@
 import { uniqueId } from 'lodash';
 
-import getNodesAndLinks from './getNodesAndLinks';
+import getNodesAndLinks, { getHash } from './getNodesAndLinks';
 import {Item} from "../../items/interfaces/item";
 import {Field} from "../../fields/interfaces/field";
 import {Search} from "../../search/interfaces/search";
@@ -190,19 +190,20 @@ test('should filter nodes that are not directly related when searching around a 
 
 test('should not filter nodes that are directly related when searching around a node', () => {
     const previousNodes = [{
-        id: 1,
+        id: getHash(1),
         items: [],
         fields: [],
         searchIds: []
     }, {
-        id: 2,
+        id: getHash(2),
         items: [],
         fields: [],
         searchIds: []
     }];
     const previousLinks = [{
-        source: 1,
-        target: 2
+        source: getHash(1),
+        target: getHash(2),
+        hash: getHash(1) + getHash(2)
     }];
 
     const items = [

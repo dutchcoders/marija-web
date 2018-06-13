@@ -312,7 +312,7 @@ class Nodes extends React.Component<Props, State> {
         });
     }
 
-    escapeRegExp(text) {
+    escapeRegExp(text: string) {
         return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
     }
 
@@ -320,7 +320,7 @@ class Nodes extends React.Component<Props, State> {
         const { nodes, dispatch } = this.props;
         const selectedNodes = nodes.filter(node => node.selected);
 
-        const ids = selectedNodes.map(node => this.escapeRegExp(node.id));
+        const ids = selectedNodes.map(node => this.escapeRegExp(node.name));
         const regex = '^' + ids.join('$|^') + '$';
         const maxLength = 200;
         const name =

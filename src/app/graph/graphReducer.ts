@@ -74,7 +74,8 @@ export const defaultGraphState: GraphState = {
     via: [],
     showLabels: false,
     isMapActive: false,
-    timelineGrouping: 'day'
+    timelineGrouping: 'day',
+    graphWorkerCacheIsValid: false
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -100,7 +101,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 items: items,
                 nodes: nodes,
                 links: links,
-                deletedNodes: state.deletedNodes.concat(action.nodes)
+                deletedNodes: state.deletedNodes.concat(action.nodes),
+				graphWorkerCacheIsValid: false
             });
         }
         case SEARCH_DELETE: {
@@ -118,7 +120,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 searches: searches,
                 items: items,
                 nodes: nodes,
-                links: links
+                links: links,
+				graphWorkerCacheIsValid: false
             });
         }
         case FIELD_ADD: {
@@ -141,7 +144,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             return {
                 ...state,
                 fields: state.fields.concat([newField]),
-                date_fields: dateFields
+                date_fields: dateFields,
+				graphWorkerCacheIsValid: false
             };
         }
 
@@ -170,10 +174,12 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 });
             }
 
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 fields: fields,
-                nodes: nodes
-            });
+                nodes: nodes,
+				graphWorkerCacheIsValid: false
+            };
         }
         case FIELD_DELETE: {
             const nodes = deleteFieldFromNodes(action.field.path, state.nodes);
@@ -183,7 +189,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 ...state,
                 fields: without(state.fields, action.field),
                 nodes: nodes,
-                links: links
+                links: links,
+				graphWorkerCacheIsValid: false
             };
         }
         case NORMALIZATION_ADD: {
@@ -195,23 +202,27 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             const normalizations = state.normalizations.concat([normalization]);
             const nodes = normalizeNodes(state.nodes, normalizations);
-            const links = normalizeLinks(state.links, normalizations);
+            const links = normalizeLinks(nodes, state.links, normalizations);
 
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 normalizations: normalizations,
                 nodes: nodes,
-                links: links
-            });
+                links: links,
+				graphWorkerCacheIsValid: false
+            };
         }
         case NORMALIZATION_DELETE: {
             const nodes = denormalizeNodes(state.nodes, action.normalization);
             const links = denormalizeLinks(state.links, action.normalization);
 
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 normalizations: without(state.normalizations, action.normalization),
                 nodes: nodes,
-                links: links
-            });
+                links: links,
+                graphWorkerCacheIsValid: false
+            };
         }
         case VIA_ADD: {
             const newVia: Via = {
@@ -238,18 +249,21 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             return Object.assign({}, state, {
                 via: via,
                 nodes: nodes,
-                links: links
+                links: links,
+				graphWorkerCacheIsValid: false
             });
         }
         case VIA_DELETE: {
             const via: Via[] = state.via.filter(search => search.id !== action.via.id);
             const { nodes, links } = removeVia(state.nodes, state.links, action.via);
 
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 via: via,
                 nodes: nodes,
-                links: links
-            });
+                links: links,
+				graphWorkerCacheIsValid: false
+            };
         }
         case DATE_FIELD_ADD: {
             const existing = state.date_fields.find(search => search.path === action.field.path);
@@ -258,9 +272,10 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 return state;
             }
 
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 date_fields: concat(state.date_fields, action.field)
-            });
+            };
         }
         case DATE_FIELD_DELETE: {
             const dateFields: Field[] = state.date_fields.filter(field =>
@@ -298,7 +313,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             return {
                 ...state,
-                nodes: nodes
+                nodes: nodes,
+				graphWorkerCacheIsValid: false
             };
         }
         case NODES_DESELECT: {
@@ -306,7 +322,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             return {
                 ...state,
-                nodes: nodes
+                nodes: nodes,
+				graphWorkerCacheIsValid: false
             };
         }
         case SELECTION_CLEAR: {
@@ -320,9 +337,11 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 }
             });
 
-            return Object.assign({}, state, {
-                nodes: nodes
-            });
+            return {
+                ...state,
+                nodes: nodes,
+				graphWorkerCacheIsValid: false
+            };
         }
         case SELECT_FIELD_NODES: {
             const fieldPath: string = action.payload.fieldPath;
@@ -343,18 +362,22 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             return {
                 ...state,
-                nodes: nodes
+                nodes: nodes,
+				graphWorkerCacheIsValid: false
             };
         }
-        case NODE_UPDATE:
-            const nodes = state.nodes.concat([]);
-            const index = nodes.findIndex(node => node.id === action.node_id);
+        case NODE_UPDATE: {
+			const nodes = state.nodes.concat([]);
+			const index = nodes.findIndex(node => node.id === action.node_id);
 
-            nodes[index] = Object.assign({}, nodes[index], action.params);
+			nodes[index] = Object.assign({}, nodes[index], action.params);
 
-            return Object.assign({}, state, {
-                nodes: nodes
-            });
+			return {
+				...state,
+				nodes: nodes,
+				graphWorkerCacheIsValid: false
+			};
+		}
         case SEARCH_REQUEST: {
             const searches = state.searches.concat([]);
 
@@ -415,7 +438,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 nodes: action.nodes,
                 links: action.links,
                 items: action.items,
-                searches: action.searches
+                searches: action.searches,
+				graphWorkerHasValidNodes: true
             };
 
             // Fields are only updated by the graph worker if it was a live search
@@ -501,9 +525,11 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 });
             });
 
-            return Object.assign({}, state, {
-                items: newItems
-            });
+            return {
+                ...state,
+                items: newItems,
+				graphWorkerCacheIsValid: false
+            };
         }
         case ITEMS_RECEIVE: {
             if (!action.payload.items) {
@@ -537,10 +563,12 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 items = sortItems(items, action.payload.sortColumn, action.payload.sortType);
             }
 
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 nodes: nodes,
-                items: items
-            });
+                items: items,
+				graphWorkerCacheIsValid: false
+            };
         }
 
         case TABLE_SORT: {
@@ -548,7 +576,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             return {
                 ...state,
-                items: items
+                items: items,
+				graphWorkerCacheIsValid: false
             };
         }
 

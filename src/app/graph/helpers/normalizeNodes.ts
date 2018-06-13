@@ -1,5 +1,6 @@
 import { Node } from '../interfaces/node';
 import { Normalization } from '../interfaces/normalization';
+import { getHash } from './getNodesAndLinks';
 
 export default function normalizeNodes(
     nodes: Node[],
@@ -20,14 +21,14 @@ export default function normalizeNodes(
         const updates: any = {};
 
         normalizations.forEach((normalization, nIndex) => {
-            if (regexes[nIndex].test(node.id)) {
+            if (regexes[nIndex].test(node.name)) {
                 const parent: Node = parents.find(node =>
                     node.normalizationId === normalization.id
                 );
 
                 if (typeof parent === 'undefined') {
                     const newParent: Node = Object.assign({}, node, {
-                        id: normalization.replaceWith,
+                        id: getHash(normalization.replaceWith),
                         name: normalization.replaceWith,
                         abbreviated: normalization.replaceWith,
                         normalizationId: normalization.id,

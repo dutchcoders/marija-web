@@ -2,27 +2,28 @@ import {Node} from "../interfaces/node";
 import {Link} from "../interfaces/link";
 import {Via} from "../interfaces/via";
 
-const getLink = (source: string, target: string): Link => {
+const getLink = (source: number, target: number): Link => {
     return {
         source: source,
         target: target,
         label: null,
         viaId: null,
         display: true,
-        normalizationId: null,
+        normalizationIds: [],
         isNormalizationParent: false,
         total: 1,
         current: 1,
         color: '',
         replacedNode: null,
-        itemIds: []
+        itemIds: [],
+        hash: 1
     };
 };
 
 export default function removeVia(nodes: Node[], links: Link[], remove: Via): {nodes: Node[], links: Link[]} {
     const removed: Link[] = [];
 
-    const linkExists = (source: string, target: string): boolean => {
+    const linkExists = (source: number, target: number): boolean => {
         const link = links.find(search =>
             ((search.source === source && search.target === target)
             || (search.target === source && search.source === target))
@@ -32,7 +33,7 @@ export default function removeVia(nodes: Node[], links: Link[], remove: Via): {n
         return typeof link !== 'undefined';
     };
 
-    const nodeExists = (id: string): boolean => {
+    const nodeExists = (id: number): boolean => {
         const node = nodes.find(search => search.id === id);
         return typeof node !== 'undefined';
     };

@@ -157,7 +157,7 @@ class ChordDiagram extends React.Component<Props, State> {
         dispatch(deselectNodes([node.data]));
     }
 
-    getThickness(links: Link[], source: string, target: string): number {
+    getThickness(links: Link[], source: number, target: number): number {
         const link = links.find(search =>
             (search.source === source && search.target === target)
             || (search.target === source && search.source === target)

@@ -1,6 +1,7 @@
 import { Link } from '../interfaces/link';
 import { Node } from '../interfaces/node';
 import { Via } from '../interfaces/via';
+import { getHash } from './getNodesAndLinks';
 
 function getConnectedNodes(node, nodes, links) {
     const connected = [];
@@ -91,12 +92,13 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
 
                     if (typeof existing === 'undefined') {
                         links.push({
+                            hash: getHash(step1Node.id + step3Node.id),
                             source: step1Node.id,
                             target: step3Node.id,
                             label: label,
                             viaId: viaItem.id,
                             display: true,
-                            normalizationId: null,
+                            normalizationIds: [],
                             isNormalizationParent: false,
                             total: 1,
                             current: 1,
@@ -128,7 +130,7 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
         let current = counter[key] ? counter[key] : 0;
 
         // Don't count links that won't be rendered
-        if (link.isNormalizationParent || link.normalizationId === null) {
+        if (link.isNormalizationParent || !link.normalizationIds.length) {
             current += 1;
         }
 

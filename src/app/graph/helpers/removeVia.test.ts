@@ -8,7 +8,7 @@ const generateNode = (id: string, fields: string[]) => {
         id: id,
         name: id,
         fields: fields
-    } as Node
+    } as any
 };
 
 const generateLink = (source: string, target: string, label?: string, viaId?: string, replacedNode?: Node) => {
@@ -18,7 +18,7 @@ const generateLink = (source: string, target: string, label?: string, viaId?: st
         label: label,
         viaId: viaId,
         replacedNode: replacedNode
-    } as Link;
+    } as any;
 };
 
 test('should remove labeled links',  () => {

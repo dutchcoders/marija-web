@@ -10,28 +10,21 @@ import fieldLocator from '../fields/helpers/fieldLocator';
 import { Field } from '../fields/interfaces/field';
 import * as moment from 'moment';
 
-/**
- * Returns a collection of nodes or links that are meant to be displayed on the
- * graph.
- *
- * @param {Array<Node | Link>} collection
- * @returns {Array<Node | Link>}
- */
-const displayFilter = (collection: Array<Node|Link>): Array<Node|Link> => {
-    return collection.filter(item =>
-        item.display
-        && (item.normalizationId === null || item.isNormalizationParent)
-    );
-};
 
 export const getNodesForDisplay = createSelector(
     (state: AppState) => state.graph.nodes,
-    (nodes: Node[]) => displayFilter(nodes) as Node[]
+    (nodes: Node[]) => nodes.filter(node =>
+		node.display
+		&& (!node.normalizationId || node.isNormalizationParent)
+	)
 );
 
 export const getLinksForDisplay = createSelector(
     (state: AppState) => state.graph.links,
-    (links: Link[]) => displayFilter(links) as Link[]
+    (links: Link[]) => links.filter(link =>
+		link.display
+		&& (!link.normalizationIds.length || link.isNormalizationParent)
+	)
 );
 
 export const getSelectedNodes = createSelector(

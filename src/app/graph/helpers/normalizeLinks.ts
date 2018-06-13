@@ -1,7 +1,10 @@
 import {Link} from "../interfaces/link";
 import {Normalization} from "../interfaces/normalization";
+import { Node } from '../interfaces/node';
+import { union } from 'lodash';
 
 export default function normalizeLinks(
+    nodes: Node[],
     links: Link[],
     normalizations: Normalization[]
 ): Link[] {
@@ -9,59 +12,70 @@ export default function normalizeLinks(
         return links;
     }
 
-    const regexes = normalizations.map(normalization => new RegExp(normalization.regex, 'i'));
-    const parents = links.filter(link => link.isNormalizationParent);
-    let children = links.filter(link => !link.isNormalizationParent);
+    const nodeMap = new Map<number, Node>();
+    nodes.forEach(node => nodeMap.set(node.id, node));
 
-    const parentLinkMap = {};
-    parents.forEach(link => parentLinkMap[link.source + link.target] = true);
+    const nodeParentsMap = new Map<string, number>();
+    nodes.filter(node => node.isNormalizationParent)
+        .forEach(node => nodeParentsMap.set(node.normalizationId, node.id));
 
-    const exists = (source, target): boolean => {
-        return parentLinkMap[source + target]
-            || parentLinkMap[target + source];
-    };
+    let newLinks: Link[] = [];
 
-    normalizations.forEach((normalization, nIndex) => {
-        children = children.map(link => {
-            if (link.normalizationId) {
-                // This link is already normalized, don't add the same link to
-                // two normalizations, because then things get very weird.
-                return link;
-            }
+    links.forEach(link => {
+        if (link.normalizationIds.length) {
+            newLinks.push(link);
+            return;
+        }
 
-            const updates: any = {};
+		const source: Node = nodeMap.get(link.source);
+        const target: Node = nodeMap.get(link.target);
 
-            const check = (property: 'source' | 'target', oppositeProperty: 'source' | 'target') => {
-                if (regexes[nIndex].test(link[property])) {
-                    updates.normalizationId = normalization.id;
+        let newTarget: number = link.target;
+        let newSource: number = link.source;
 
-                    const wouldLinkToSelf: boolean =
-                        link[oppositeProperty] === normalization.replaceWith
-                        || regexes[nIndex].test(link[oppositeProperty]);
-
-                    if (!wouldLinkToSelf && !exists(link[oppositeProperty], normalization.replaceWith)) {
-                        const parentLink: Link = Object.assign({}, link, {
-                            [property]: normalization.replaceWith,
-                            isNormalizationParent: true,
-                            normalizationId: normalization.id
-                        });
-
-                        parents.push(parentLink);
-                        parentLinkMap[parentLink.source + parentLink.target] = true;
-                    }
-                }
+        if (target.normalizationId && !target.isNormalizationParent) {
+            link = {
+                ...link,
+                normalizationIds: link.normalizationIds.concat([target.normalizationId])
             };
 
-            check('source', 'target');
-            check('target', 'source');
+			newTarget = nodeParentsMap.get(target.normalizationId);
+        }
 
-            if (updates) {
-                return Object.assign({}, link, updates);
+        if (source.normalizationId && !source.isNormalizationParent) {
+			link = {
+				...link,
+				normalizationIds: link.normalizationIds.concat([source.normalizationId])
+			};
+
+			newSource = nodeParentsMap.get(source.normalizationId);
+		}
+
+		const propertyChanged: boolean = newTarget !== link.target || newSource !== link.source;
+        const wouldLinkToSelf: boolean = newTarget === newSource;
+
+		if (propertyChanged && !wouldLinkToSelf) {
+            const parent = {
+                ...link,
+                isNormalizationParent: true,
+                source: newSource,
+                target: newTarget,
+                hash: newSource + newTarget
+            };
+
+            const existingParent = newLinks.find(link =>
+                link.hash === parent.hash
+            );
+
+            if (existingParent) {
+			    existingParent.normalizationIds = union(existingParent.normalizationIds, parent.normalizationIds);
+			} else {
+				newLinks.push(parent);
             }
+        }
 
-            return link;
-        });
+		newLinks.push(link);
     });
 
-    return children.concat(parents);
+    return newLinks;
 }

@@ -26,9 +26,9 @@ import {sortItems} from "../../items/helpers/sortItems";
 export interface GraphWorkerPayload {
     items: Item[];
     searchId: string;
-    prevNodes: Node[];
-    prevLinks: Link[];
-    prevItems: Item[];
+    prevNodes?: Node[];
+    prevLinks?: Link[];
+    prevItems?: Item[];
     fields: Field[];
     normalizations: Normalization[];
     searches: Search[];
@@ -47,31 +47,33 @@ export interface GraphWorkerOutput {
     searches: Search[]
 }
 
+let prevNodeCache: Node[];
+let prevLinkCache: Link[];
+let prevItemCache: Item[];
+
 export default class GraphWorkerClass {
     output: EventEmitter = new EventEmitter();
 
     onMessage(action) {
-        if (action.type !== SEARCH_RECEIVE && action.type !== LIVE_RECEIVE) {
-            // These is the only action types we currently support in this worker
-            return;
-        }
-
         const isLive: boolean = action.type === LIVE_RECEIVE;
         const payload: GraphWorkerPayload = action.payload;
 
-        if (!payload.items) {
-            return;
-        }
+		if (payload.prevNodes) {
+			prevNodeCache = payload.prevNodes;
+		}
+
+		if (payload.prevLinks) {
+			prevLinkCache = payload.prevLinks;
+		}
+
+		if (payload.prevItems) {
+			prevItemCache = payload.prevItems;
+		}
 
         const searchIndex: number = payload.searches.findIndex(loop =>
             loop.searchId === payload.searchId
             && !loop.paused
         );
-
-        if (searchIndex === -1) {
-            // received items for a query we were not searching for
-            return;
-        }
 
         const searches = payload.searches.concat([]);
         const search = Object.assign({}, searches[searchIndex]);
@@ -93,8 +95,8 @@ export default class GraphWorkerClass {
 
         // update nodes and links
         const result = getNodesAndLinks(
-            payload.prevNodes,
-            payload.prevLinks,
+            prevNodeCache,
+            prevLinkCache,
             payload.items,
             fields,
             search,
@@ -104,6 +106,12 @@ export default class GraphWorkerClass {
 
         // For live searches we display everything, we don't filter boring components etc.
         if (!isLive) {
+        	result.links.forEach(link => {
+        		if (!link.source || !link.target) {
+        			console.error(link);
+				}
+			});
+
             result.nodes = GraphWorkerClass.filterBoringNodes(result.nodes, result.links);
             result.links = removeDeadLinks(result.nodes, result.links);
 
@@ -121,14 +129,14 @@ export default class GraphWorkerClass {
         result.links = markLinksForDisplay(result.nodes, result.links);
 
         const normalizedNodes = normalizeNodes(result.nodes, payload.normalizations);
-        const normalizedLinks = normalizeLinks(result.links, payload.normalizations);
+        const normalizedLinks = normalizeLinks(normalizedNodes, result.links, payload.normalizations);
 
         result.nodes = normalizedNodes;
         result.links = removeDeadLinks(result.nodes, normalizedLinks);
 
         let { nodes, links } = applyVia(result.nodes, result.links, payload.via);
 
-        let items = payload.prevItems.concat(payload.items);
+        let items = prevItemCache.concat(payload.items);
         if (payload.sortColumn) {
             items = sortItems(items, payload.sortColumn, payload.sortType);
         }
@@ -140,6 +148,10 @@ export default class GraphWorkerClass {
             fields: fields,
             searches: searches
         };
+
+        prevNodeCache = nodes;
+        prevLinkCache = links;
+        prevItemCache = items;
 
         this.output.emit('output', output);
     }

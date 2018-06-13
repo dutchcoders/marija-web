@@ -9,6 +9,7 @@ import {uniqueId} from 'lodash';
 import {Field} from "../../fields/interfaces/field";
 import {Search} from "../../search/interfaces/search";
 import {Link} from "../interfaces/link";
+import { getHash } from './getNodesAndLinks';
 
 
 const getItem = (data, query = 'query', id = uniqueId()) => {
@@ -40,7 +41,7 @@ const getSearch = (query, liveDatasource = null, aroundNodeId = null) => {
 
 const getNode = (id, query, itemIds) => {
     return {
-        id: id,
+        id: getHash(id),
         name: id,
         searchIds: [query],
         items: itemIds,
@@ -52,8 +53,10 @@ const getNode = (id, query, itemIds) => {
 
 const getLink = (source, target) => {
     return {
-        source: source,
-        target: target
+        hash: getHash(source) + getHash(target),
+        source: getHash(source),
+        target: getHash(target),
+        normalizationIds: []
     } as Link;
 };
 
@@ -78,13 +81,11 @@ const defaultPayload: GraphWorkerPayload = {
     sortType: 'asc'
 };
 
-const getEvent = (payload: GraphWorkerPayload) => {
+const getAction = (payload: GraphWorkerPayload) => {
     return {
-        data: {
-            payload: payload,
-            type: SEARCH_RECEIVE
-        }
-    } as MessageEvent;
+        payload: payload,
+        type: SEARCH_RECEIVE
+    };
 };
 
 test('should output nodes and links', (done) => {
@@ -105,17 +106,17 @@ test('should output nodes and links', (done) => {
         ]
     };
 
-    graphWorker.onMessage(getEvent(payload));
+    graphWorker.onMessage(getAction(payload));
 });
 
 test('should correctly output nodes when there are multiple searchIds', (done) => {
     const graphWorker = new GraphWorkerClass();
 
     graphWorker.output.addListener('output', (output: GraphWorkerOutput) => {
-        const node1 = output.nodes.find(node => node.id === '1');
-        const node2 = output.nodes.find(node => node.id === '2');
-        const node3 = output.nodes.find(node => node.id === '3');
-        const node4 = output.nodes.find(node => node.id === '4');
+        const node1 = output.nodes.find(node => node.id === getHash(1));
+        const node2 = output.nodes.find(node => node.id === getHash(2));
+        const node3 = output.nodes.find(node => node.id === getHash(3));
+        const node4 = output.nodes.find(node => node.id === getHash(4));
 
         expect(output.nodes.length).toBe(4);
         expect(node1.searchIds).toEqual(['query1']);
@@ -133,13 +134,13 @@ test('should correctly output nodes when there are multiple searchIds', (done) =
             getSearch('query2')
         ],
         prevNodes: [
-            getNode('1', 'query1', ['a']),
-            getNode('2', 'query1', ['a', 'b']),
-            getNode('3', 'query1', ['b']),
+            getNode(1, 'query1', ['a']),
+            getNode(2, 'query1', ['a', 'b']),
+            getNode(3, 'query1', ['b']),
         ],
         prevLinks: [
-            getLink('1', '2'),
-            getLink('3', '2')
+            getLink(1, 2),
+            getLink(3, 2)
         ],
         prevItems: [
             getItem({client: 1, server: 2}, 'query1', 'a'),
@@ -151,7 +152,7 @@ test('should correctly output nodes when there are multiple searchIds', (done) =
         searchId: 'query2'
     };
 
-    graphWorker.onMessage(getEvent(payload));
+    graphWorker.onMessage(getAction(payload));
 });
 
 test('should not filter secondary components if there is 1 live datasource, and 1 normal search', (done) => {
@@ -191,7 +192,7 @@ test('should not filter secondary components if there is 1 live datasource, and 
         searchId: 'query2'
     };
 
-    graphWorker.onMessage(getEvent(payload));
+    graphWorker.onMessage(getAction(payload));
 });
 
 
@@ -235,7 +236,7 @@ test('should work with "search around" searchIds', (done) => {
         searchId: 'node1'
     };
 
-    graphWorker.onMessage(getEvent(payload));
+    graphWorker.onMessage(getAction(payload));
 });
 
 test('should sort items', (done) => {
@@ -272,5 +273,5 @@ test('should sort items', (done) => {
         sortColumn: 'client'
     };
 
-    graphWorker.onMessage(getEvent(payload));
+    graphWorker.onMessage(getAction(payload));
 });

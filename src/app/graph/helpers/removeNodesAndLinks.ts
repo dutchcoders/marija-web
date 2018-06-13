@@ -2,6 +2,7 @@ import { concat, pull, slice, without } from 'lodash';
 
 import { Link } from '../interfaces/link';
 import { Node } from '../interfaces/node';
+import removeDeadLinks from './removeDeadLinks';
 
 const removeNodes = (nodes: Node[], removedSearchId: string) => {
     nodes.forEach((node, index) => {
@@ -30,18 +31,7 @@ export default function removeNodesAndLinks(previousNodes: Node[], previousLinks
     let links = concat(previousLinks, []);
 
     nodes = removeNodes(nodes, removedSearchId);
-
-    // todo: use removeDeadLinks function instead
-
-    links.forEach(link => {
-        const sourceNode = nodes.find(node => node.name === link.source);
-        const targetNode = nodes.find(node => node.name === link.target);
-
-        // Remove the link when either the source or the target node no longer exists
-        if (!sourceNode || !targetNode) {
-            links = without(links, link);
-        }
-    });
+    links = removeDeadLinks(nodes, links);
 
     return {
         nodes,

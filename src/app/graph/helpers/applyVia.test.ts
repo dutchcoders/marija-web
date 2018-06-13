@@ -2,15 +2,16 @@ import applyVia from "./applyVia";
 import {Node} from "../interfaces/node";
 import {Link} from "../interfaces/link";
 
-const generateNode = (id: string, fields: string[]): Node => {
+const generateNode = (id: any, fields: string[]): Node => {
     return {
         id: id,
         name: id,
-        fields: fields
-    } as Node
+        fields: fields,
+        searchIds: []
+    } as any
 };
 
-const generateLink = (source: string, target: string): Link => {
+const generateLink = (source: any, target: any): Link => {
     return {
         source: source,
         target: target
@@ -18,7 +19,7 @@ const generateLink = (source: string, target: string): Link => {
 };
 
 // test if a link exists between a source and a target
-const expectLink = (links: Link[], source: string, target: string) => {
+const expectLink = (links: Link[], source: any, target: any) => {
     const link = links.find(link =>
         (link.source === source && link.target === target)
         || (link.target === source && link.source === target)

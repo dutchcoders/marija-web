@@ -49,7 +49,8 @@ export default class Workspaces {
                         links: [],
                         searches: [],
                         deletedNodes: [],
-                        isMapActive: false
+                        isMapActive: false,
+						graphWorkerHasValidNodes: false
                     }
                 }
             });

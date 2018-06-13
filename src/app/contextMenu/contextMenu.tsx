@@ -16,7 +16,7 @@ import * as styles from './contextMenu.scss';
 import { hideContextMenu } from './contextMenuActions';
 
 interface Props {
-    nodeId: string;
+    nodeId: number;
     nodes: Node[];
     links: Link[];
     x: number;
@@ -42,7 +42,7 @@ class ContextMenu extends React.Component<Props, State> {
         forceNoteOpen: false
     };
 
-    getNode(nodeId: string): Node {
+    getNode(nodeId: number): Node {
         const { nodes } = this.props;
 
         return nodes.find(search => search.id === nodeId);

@@ -1,5 +1,5 @@
 export interface Node {
-    id: string;
+    id: number;
     searchIds: string[];
     items: string[]; // array of item ids
     count: number;
@@ -53,4 +53,12 @@ export interface Node {
      * If a node is a geo location, it can be displayed on a map.
 	 */
 	isGeoLocation: boolean;
+
+	textureKey?: string;
+	r?: number;
+	x?: number;
+	y?: number;
+	fx?: number;
+	fy?: number;
+	batch?: number;
 }

@@ -1,7 +1,7 @@
 import getConnectedComponents from './getConnectedComponents';
 
 test('should identify the separate components that make up the graph', () => {
-    const nodes = [
+    const nodes: any = [
         {
             id: 'a'
         },
@@ -16,7 +16,7 @@ test('should identify the separate components that make up the graph', () => {
         },
     ];
 
-    const links = [
+    const links: any = [
         {
             source: 'a',
             target: 'b'
