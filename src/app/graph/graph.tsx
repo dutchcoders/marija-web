@@ -1244,7 +1244,8 @@ class Graph extends React.PureComponent<Props, State> {
             || shouldRender('lastZoom')
             || shouldRender('lastQueries')
             || shouldRender('lastFields')
-            || shouldRender('lastHighlights')) {
+            || shouldRender('lastHighlights')
+			|| shouldRender('lastSelectedNodes')) {
 
         	markPerformance('drawNodesStart');
 
@@ -1252,6 +1253,7 @@ class Graph extends React.PureComponent<Props, State> {
             this.renderLinks();
             this.renderTooltip();
             this.renderNodeLabels();
+            this.renderSelectedNodes();
 
 			markPerformance('drawNodesEnd');
 			measurePerformance('drawNodesStart', 'drawNodesEnd');
@@ -1263,6 +1265,7 @@ class Graph extends React.PureComponent<Props, State> {
             this.renderedSince.lastQueries = true;
             this.renderedSince.lastFields = true;
             this.renderedSince.lastHighlights = true;
+            this.renderedSince.lastSelectedNodes = true;
         }
 
         if (shouldRender('lastNodeLableToggle')) {
@@ -1284,15 +1287,6 @@ class Graph extends React.PureComponent<Props, State> {
 
 			this.shouldRenderGraph = true;
             this.renderedSince.lastTooltip = true;
-        }
-
-        if (shouldRender('lastSelectedNodes')
-            || shouldRender('lastTick')
-            || shouldRender('lastZoom')) {
-            this.renderSelectedNodes();
-
-			this.shouldRenderGraph = true;
-            this.renderedSince.lastSelectedNodes = true;
         }
 
         this.measureFps();
