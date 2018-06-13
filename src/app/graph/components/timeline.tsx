@@ -82,7 +82,7 @@ class Timeline extends React.Component<Props, State> {
         ) !== 'undefined';
 
         return (
-            <label className="dateField" key={field.path}>
+            <label className="dateField" key={field.path + field.datasourceId}>
                 <input
                     type="checkbox"
                     defaultChecked={isSelected}
