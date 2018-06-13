@@ -576,7 +576,7 @@ class Graph extends React.PureComponent<Props, State> {
 
 		const { isMapActive } = this.props;
 
-		let thickness = Math.min(link.itemIds.length, 15);
+		let thickness = Math.max(1, Math.min(link.itemIds.length, 15));
 
 		if (isMapActive) {
 			thickness = thickness * 2;
@@ -584,30 +584,34 @@ class Graph extends React.PureComponent<Props, State> {
 
 		this.renderedLinks.lineStyle(thickness, 0xFFFFFF);
 
+		const sourceX = this.getRenderX(link.sourceX);
+		const sourceY = this.getRenderY(link.sourceY);
+		const targetX = this.getRenderX(link.targetX);
+		const targetY = this.getRenderY(link.targetY);
+
         if (link.total <= 1) {
             // When there's only 1 link between 2 nodes, we can draw a straight line
-
             this.renderStraightLine(
-                this.getRenderX(link.sourceX),
-                this.getRenderY(link.sourceY),
-                this.getRenderX(link.targetX),
-                this.getRenderY(link.targetY)
+                sourceX,
+                sourceY,
+                targetX,
+                targetY
             );
 
             if (link.label) {
                 this.renderTextAlongStraightLine(
                     link.label,
-                    link.sourceX,
-                    link.sourceY,
-                    link.targetX,
-                    link.targetY
+                    sourceX,
+                    sourceY,
+                    targetX,
+                    targetY
                 );
 
-                const deltaX = link.sourceX - link.targetX;
-                const deltaY = link.sourceY - link.targetY;
+                const deltaX = sourceX - targetX;
+                const deltaY = sourceY - targetY;
                 const angle = Math.atan2(deltaY, deltaX);
 
-                this.renderArrow(link.targetX, link.targetY, angle);
+                this.renderArrow(targetX, targetY, angle);
             }
         } else {
             // When there are multiple links between 2 nodes, we need to draw arcs
@@ -622,16 +626,16 @@ class Graph extends React.PureComponent<Props, State> {
 
             const {centerX, centerY, radius, startAngle, endAngle} =
                 getArcParams(
-                    link.sourceX,
-                    link.sourceY,
-                    link.targetX,
-                    link.targetY,
+                    sourceX,
+                    sourceY,
+                    targetX,
+                    targetY,
                     bend
                 );
 
             const normalizedEndAngle = (endAngle + Math.PI * 2) % (Math.PI * 2);
             const counterClockwise = bend < 0;
-            const arrowPosition = getArrowPosition(centerX, centerY, radius, normalizedEndAngle, counterClockwise, link.targetX, link.targetY);
+            const arrowPosition = getArrowPosition(centerX, centerY, radius, normalizedEndAngle, counterClockwise, targetX, targetY);
 
             this.renderArrow2(arrowPosition.x, arrowPosition.y, arrowPosition.angle);
             this.renderArc(centerX, centerY, radius, startAngle, endAngle, counterClockwise);
