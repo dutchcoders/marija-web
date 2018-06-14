@@ -9,17 +9,11 @@
   .filterHeader {
     position: absolute;
     right: 0;
-    width: 127px;
     transition: width .2s;
     background: #4D657E;
     @include shadow();
     border-radius: 4px;
     margin: 0 5px;
-
-    &.focused,
-    &.opened {
-      width: 180px;
-    }
 
     &.opened {
       border-bottom-right-radius: 0;
@@ -28,13 +22,16 @@
 
     input {
       border: none;
-      background: none;
-      padding: 0 7px 0 31px;
-      height: 39px;
+      padding: 0 7px;
+      height: 30px;//
       font-size: 14px;
       color: white;
       box-sizing: border-box;
-      width: 100%;
+      width: 120px;
+      margin: 5px 30px;
+      background: #3C5168;
+      border-radius: 3px;
+      box-shadow: inset 2px 2px 5px 0px rgba(0,0,0,0.4);
 
       &::placeholder {
         color: white;

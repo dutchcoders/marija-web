@@ -169,7 +169,7 @@ class Filter extends React.Component<any, any> {
                             onChange={ this.handleFindNodeChange.bind(this) }
                             onFocus={this.onFocus.bind(this)}
                             onBlur={this.onBlur.bind(this)}
-                            placeholder="Filter nodes"
+                            placeholder="Type to filter"
                         />
                         <Icon
                             name={opened ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down'}
