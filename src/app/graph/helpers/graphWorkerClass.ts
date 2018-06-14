@@ -141,6 +141,10 @@ export default class GraphWorkerClass {
             items = sortItems(items, payload.sortColumn, payload.sortType);
         }
 
+        // Sort on line thickness for performance improvement
+        // The renderer is faster when it doesnt need to switch line styles so often
+        links.sort((a, b) => a.itemIds.length - b.itemIds.length);
+
         const output: GraphWorkerOutput = {
             nodes: nodes,
             links: links,

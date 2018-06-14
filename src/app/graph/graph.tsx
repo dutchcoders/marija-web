@@ -505,7 +505,7 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     renderLinks() {
-        const { highlightedNodes, isMapActive } = this.props;
+        const { highlightedNodes, isMapActive, linksForDisplay } = this.props;
 
         const isHighlighting: boolean = highlightedNodes.length > 0;
         this.renderedLinks.clear();
@@ -520,11 +520,29 @@ class Graph extends React.PureComponent<Props, State> {
 
         if (isMapActive) {
         	alpha = 1;
+			this.renderedLinks.lineStyle(1, 0xFFFFFF);
 		}
 
         this.renderedLinks.alpha = alpha;
-        this.linkMap.forEach(this.renderLink.bind(this));
+
+		linksForDisplay.forEach(this.linkThicknessManager.bind(this));
     }
+
+	// The renderer is faster when it doesnt need to switch line styles so often
+    linkThicknessManager(link: Link, index: number) {
+    	const { linksForDisplay, isMapActive } = this.props;
+
+    	if (!isMapActive) {
+			const prevLink = linksForDisplay[index - 1];
+
+			if (!prevLink || prevLink && link.itemIds.length !== prevLink.itemIds.length) {
+				let thickness = Math.max(1, Math.min(link.itemIds.length, 15));
+				this.renderedLinks.lineStyle(thickness, 0xFFFFFF);
+			}
+		}
+
+		this.renderLink(link);
+	}
 
     renderArrow(x: number, y: number, angle: number) {
         const sprite = new PIXI.Sprite(this.arrowTexture);
@@ -576,14 +594,6 @@ class Graph extends React.PureComponent<Props, State> {
 		}
 
 		const { isMapActive } = this.props;
-
-		let thickness = Math.max(1, Math.min(link.itemIds.length, 15));
-
-		if (isMapActive) {
-			thickness = thickness * 2;
-		}
-
-		this.renderedLinks.lineStyle(thickness, 0xFFFFFF);
 
 		const sourceX = this.getRenderX(link.sourceX);
 		const sourceY = this.getRenderY(link.sourceY);
