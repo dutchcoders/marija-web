@@ -234,9 +234,15 @@ class Timeline extends React.Component<Props, State> {
         const searchIds = this.getSearchIds();
         const chartData = this.getChartData(searchIds);
 
-        const xAxis: SVGRect = this.container.querySelector('.recharts-xAxis line').getBBox();
-		const minMiddlePoint: number = xAxis.width * minFraction + xAxis.x;
-        const maxMiddlePoint: number = xAxis.width * maxFraction + xAxis.x;
+        const xAxis = this.container.querySelector('.recharts-xAxis line');
+
+        if (!xAxis) {
+        	return;
+		}
+
+        const xAxisRect: SVGRect = xAxis.getBBox();
+		const minMiddlePoint: number = xAxisRect.width * minFraction + xAxisRect.x;
+        const maxMiddlePoint: number = xAxisRect.width * maxFraction + xAxisRect.x;
 
         const bars: SVGRectElement[] = this.container.querySelectorAll('.recharts-bar-rectangle');
         const periods: string[] = [];

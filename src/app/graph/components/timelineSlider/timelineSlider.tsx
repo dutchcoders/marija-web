@@ -137,7 +137,15 @@ class TimelineSlider extends React.Component<Props, State> {
 		this.isDraggingHandleLeft = false;
 		this.isDraggingHandleRight = false;
 		this.isDraggingArea = false;
-		onChange(this.minFraction, this.maxFraction);
+
+		const wasDragging: boolean = this.isDraggingHandleRight || this.isDraggingHandleLeft || this.isDraggingArea;
+		const draggedFarEnough: boolean =
+			Math.abs(this.minFractionDragStart - this.minFraction) > 1
+			|| Math.abs(this.maxFractionDragStart - this.maxFraction) > 1;
+
+		if (wasDragging || draggedFarEnough) {
+			onChange(this.minFraction, this.maxFraction);
+		}
 	};
 
 	startPlaying() {
