@@ -1214,7 +1214,7 @@ class Graph extends React.PureComponent<Props, State> {
             if (isMapActive && node.isGeoLocation) {
             	y += 2;
 			} else {
-            	y += node.r;
+            	y += node.r * this.nodeSizeMultiplier;
 			}
 
             sprite.y = y;
