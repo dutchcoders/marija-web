@@ -1371,10 +1371,16 @@ class Graph extends React.PureComponent<Props, State> {
 					return false;
 				}
 
+				if (d3.event instanceof WheelEvent) {
+					// We can always zoom, even if the cursor is on a node
+					return true;
+				}
+
 				const { x, y } = this.getMouseCoordinates(d3.event);
 				const transformedX = this.transform.invertX(x);
 				const transformedY = this.transform.invertY(y);
 
+				// We can only move around if the cursor is not on a node (because the user might be dragging that node)
 				return typeof this.findNode(transformedX, transformedY) === 'undefined';
 			})
 		    .scaleExtent([this.minZoomGraph, this.maxZoomGraph])
