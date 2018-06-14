@@ -63,6 +63,11 @@ onmessage = function(event) {
         
         // simulation.alpha(0);
     } else if (data.type === 'init') {
+    	workerLinks = [];
+    	workerNodes = [];
+    	workerLinkMap.clear();
+    	workerNodeMap.clear();
+
 		const forceLink = d3.forceLink()
 			.distance((link: any) => {
 				if (!link.label) {

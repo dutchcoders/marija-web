@@ -812,6 +812,10 @@ class Graph extends React.PureComponent<Props, State> {
 
 		if (!nextProps.isMapActive && isMapActive) {
         	this.destroyMap();
+			this.postWorkerMessage({
+				type: 'init'
+			});
+        	this.resetFixedNodePositions(nextProps.nodesForDisplay);
 		}
 
 		if (nextProps.isMapActive !== isMapActive) {
@@ -1411,6 +1415,13 @@ class Graph extends React.PureComponent<Props, State> {
 			clientWidth: width,
 			clientHeight: height,
 			active: !isMapActive
+		});
+	}
+
+	resetFixedNodePositions(nodes: Node[]) {
+    	nodes.forEach(node => {
+    		node.fx = undefined;
+    		node.fy = undefined;
 		});
 	}
 
