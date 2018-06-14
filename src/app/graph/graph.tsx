@@ -34,6 +34,24 @@ import {
 	measurePerformance
 } from '../main/helpers/performance';
 
+var oldMethod = PIXI.GraphicsRenderer.prototype.getWebGLData;
+PIXI.GraphicsRenderer.prototype.getWebGLData = function(gl: any, type, nativeLines) {
+	let rgl = this.renderer.gl;
+	let oldLen = gl.data.length;
+	let res = oldMethod.call(this, gl, type, nativeLines);
+	if (oldLen !== gl.data.length) {
+		let data = gl.data[gl.data.length-1];
+		data.buffer.destroy();
+		data.indexBuffer.destroy();
+		data.buffer = PIXI.glCore.GLBuffer.createVertexBuffer(rgl, undefined, rgl.DYNAMIC_DRAW);
+		data.indexBuffer = PIXI.glCore.GLBuffer.createIndexBuffer(rgl, undefined, rgl.DYNAMIC_DRAW);
+		data.vao.indexBuffer = data.indexBuffer;
+		data.vao.attributes[0].buffer = data.buffer;
+		data.vao.attributes[1].buffer = data.buffer;
+	}
+	return res;
+}
+
 interface TextureMap {
     [hash: string]: PIXI.RenderTexture;
 }
