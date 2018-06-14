@@ -109,7 +109,6 @@ class Graph extends React.PureComponent<Props, State> {
     lastDispatchedFpsTimestamp: number = 0;
     linkLabelTextures: TextureMap = {};
     tooltipTextures: TextureMap = {};
-    dragSubjects: Node[];
     map: Leaflet.Map;
     mapMarkers: Leaflet.LayerGroup;
 	initialMapZoom: number;
@@ -1618,15 +1617,31 @@ class Graph extends React.PureComponent<Props, State> {
             this.renderedSince.lastSelection = false;
         } else if (this.isMouseDown && this.mainDragSubject) {
         	// Dragging
-        	this.mainDragSubject.fx = transformedX;
+			this.mainDragSubject.fx = transformedX;
         	this.mainDragSubject.fy = transformedY;
 
+        	const subjects: Node[] = [this.mainDragSubject];
+
         	if (this.mainDragSubject.selected) {
-        		const { } = this.props;
+        		const { selectedNodes } = this.props;
+
+				const deltaX = transformedX - this.mainDragSubject.x;
+				const deltaY = transformedY - this.mainDragSubject.y;
+
+        		selectedNodes.forEach(node => {
+        			if (node.id === this.mainDragSubject.id) {
+        				return;
+					}
+
+        			node.fx = node.x + deltaX;
+        			node.fy = node.y + deltaY;
+
+        			subjects.push(node);
+				});
 			}
 
 			this.postWorkerMessage({
-				nodes: [this.mainDragSubject],
+				nodes: subjects,
 				type: 'restart'
 			});
 		} else {
