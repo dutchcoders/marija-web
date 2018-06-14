@@ -14,11 +14,13 @@ import getRelatedNodes from '../helpers/getRelatedNodes';
 import { Link } from '../interfaces/link';
 import { Node } from '../interfaces/node';
 import { Normalization } from '../interfaces/normalization';
+import { getSelectedNodes } from '../graphSelectors';
 
 interface Props {
     dispatch: Dispatch<any>;
     searches: Search[];
     nodes: Node[];
+    selectedNodes: Node[];
     links: Link[];
     normalizations: Normalization[];
     datasources: Datasource[];
@@ -76,8 +78,7 @@ class Nodes extends React.Component<Props, State> {
     }
 
     handleDeleteAllButSelectedNodes() {
-        const { dispatch, nodes } = this.props;
-        const selectedNodes = nodes.filter(node => node.selected);
+        const { dispatch, nodes, selectedNodes } = this.props;
 
         const delete_nodes = differenceWith(nodes, selectedNodes, (n1, n2) => {
             return n1.id == n2.id;
@@ -93,16 +94,14 @@ class Nodes extends React.Component<Props, State> {
     }
 
     handleSelectRelatedNodes() {
-        const { dispatch, nodes, links } = this.props;
-        const selectedNodes = nodes.filter(node => node.selected);
+        const { dispatch, selectedNodes, nodes, links } = this.props;
 
         const relatedNodes = getRelatedNodes(selectedNodes, nodes, links);
         dispatch(nodesSelect(relatedNodes));
     }
 
     handleSelectDirectlyRelatedNodes() {
-        const { dispatch, nodes, links } = this.props;
-        const selectedNodes = nodes.filter(node => node.selected);
+        const { dispatch, nodes, links, selectedNodes } = this.props;
 
         const relatedNodes = getDirectlyRelatedNodes(selectedNodes, nodes, links);
         dispatch(nodesSelect(relatedNodes));
@@ -117,8 +116,7 @@ class Nodes extends React.Component<Props, State> {
     }
 
     handleDeleteAllNodes() {
-        const { dispatch, nodes } = this.props;
-        const selectedNodes = nodes.filter(node => node.selected);
+        const { dispatch, selectedNodes } = this.props;
 
         dispatch(deleteNodes(selectedNodes));
     }
@@ -208,15 +206,14 @@ class Nodes extends React.Component<Props, State> {
         });
     }
 
-    componentWillReceiveProps(nextProps) {
-        const selectedNodes = nextProps.nodes.filter(node => node.selected);
+    componentWillReceiveProps(nextProps: Props) {
+        const { selectedNodes } = nextProps;
 
         this.prepareImages(selectedNodes);
     }
 
     componentWillMount() {
-        const { nodes } = this.props;
-        const selectedNodes = nodes.filter(node => node.selected);
+        const { selectedNodes } = this.props;
 
         this.prepareImages(selectedNodes);
     }
@@ -260,8 +257,7 @@ class Nodes extends React.Component<Props, State> {
     }
 
     renderSelected() {
-        const { nodes } = this.props;
-        const selectedNodes = nodes.filter(node => node.selected);
+        const { selectedNodes } = this.props;
 
         return (
             selectedNodes.length > 0 ?
@@ -299,9 +295,8 @@ class Nodes extends React.Component<Props, State> {
     }
 
     searchAround() {
-        const { dispatch, nodes, datasources } = this.props;
+        const { dispatch, datasources, selectedNodes } = this.props;
 
-        const selectedNodes = nodes.filter(node => node.selected);
         const useDatasources = datasources.filter(datasource =>
             datasource.active && datasource.type !== 'live'
         );
@@ -317,8 +312,7 @@ class Nodes extends React.Component<Props, State> {
     }
 
     merge() {
-        const { nodes, dispatch } = this.props;
-        const selectedNodes = nodes.filter(node => node.selected);
+        const { dispatch, selectedNodes } = this.props;
 
         const ids = selectedNodes.map(node => this.escapeRegExp(node.name));
         const regex = '^' + ids.join('$|^') + '$';
@@ -336,8 +330,7 @@ class Nodes extends React.Component<Props, State> {
     }
 
     markImportant() {
-        const { nodes, dispatch } = this.props;
-        const selectedNodes = nodes.filter(node => node.selected);
+        const { dispatch, selectedNodes } = this.props;
 
         selectedNodes.forEach(node => {
             if (node.important) {
@@ -351,8 +344,7 @@ class Nodes extends React.Component<Props, State> {
     }
 
     markNotImportant() {
-        const { nodes, dispatch } = this.props;
-        const selectedNodes = nodes.filter(node => node.selected);
+        const { dispatch, selectedNodes } = this.props;
 
         selectedNodes.forEach(node => {
             if (!node.important) {
@@ -375,8 +367,7 @@ class Nodes extends React.Component<Props, State> {
 
     render() {
         const { editNode, value, description } = this.state;
-        const { nodes } = this.props;
-        const selectedNodes = nodes.filter(node => node.selected);
+        const { selectedNodes } = this.props;
 
         const updateNodeDialogStyles = {
             backgroundColor: '#fff',
@@ -427,6 +418,8 @@ class Nodes extends React.Component<Props, State> {
             );
         }
 
+        const searchAroundPossible = selectedNodes.length <= 10;
+
         return (
             <div className="form-group toolbar">
                 <div className="nodes-btn-group" role="group">
@@ -436,7 +429,7 @@ class Nodes extends React.Component<Props, State> {
                     <button type="button" className="btn btn-default" aria-label="Select directly related nodes" onClick={() => this.handleSelectDirectlyRelatedNodes()}>directly related</button>
                     <button type="button" className="btn btn-default" aria-label="Delete selected nodes" onClick={() => this.handleDeleteAllNodes()}>delete</button>
                     <button type="button" className="btn btn-default" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}>delete others</button>
-                    <button type="button" className="btn btn-default" aria-label="Search around" onClick={() => this.searchAround()}>search around</button>
+                    <button type="button" className="btn btn-default" aria-label="Search around" onClick={() => this.searchAround()} disabled={!searchAroundPossible}>search around</button>
                     <button type="button" className="btn btn-default" aria-label="Merge" onClick={() => this.merge()}>merge</button>
                     <button type="button" className="btn btn-default" aria-label="Select all nodes" onClick={() => this.selectImportant()}>select important</button>
                     {important}
@@ -458,6 +451,7 @@ class Nodes extends React.Component<Props, State> {
 function select(state: AppState) {
     return {
         nodes: state.graph.nodes,
+        selectedNodes: getSelectedNodes(state),
         links: state.graph.links,
         searches: state.graph.searches,
         normalizations: state.graph.normalizations,
