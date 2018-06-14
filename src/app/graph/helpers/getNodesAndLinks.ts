@@ -36,7 +36,7 @@ export default function getNodesAndLinks(
     items: Item[],
     fields: Field[],
     search: Search,
-    aroundNodeId: string = undefined,
+    aroundNodeId: number | undefined = undefined,
     deletedNodes: Node[] = []
 ): {
     nodes: Node[],
@@ -83,10 +83,6 @@ export default function getNodesAndLinks(
                 }
 
                 if (deletedMap[sourceValue]) {
-                    return;
-                }
-
-                if (aroundNodeId && aroundNodeId !== sourceValue) {
                     return;
                 }
 

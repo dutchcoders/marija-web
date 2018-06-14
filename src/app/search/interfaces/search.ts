@@ -1,7 +1,7 @@
 import { Item } from '../../items/interfaces/item';
 
 export interface Search {
-    aroundNodeId: null|string;
+    aroundNodeId: null|number;
     color: string;
     completed: boolean;
     displayNodes: number;

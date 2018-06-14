@@ -223,7 +223,7 @@ test('should not filter nodes that are directly related when searching around a 
 
     const query = generateQuery(items);
 
-    const aroundNodeId = '1';
+    const aroundNodeId = getHash(1);
 
     const {nodes, links } = getNodesAndLinks(previousNodes as any, previousLinks as any, items as any, fields, query, aroundNodeId);
 

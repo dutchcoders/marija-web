@@ -38,14 +38,32 @@ export function searchRequest(query: string, datasourceIds: string[]) {
 }
 
 export function searchAround(node: Node, datasourceIds: string[]) {
-    return {
-        type: SEARCH_REQUEST,
-        receivedAt: Date.now(),
-        query: node.name,
-        aroundNodeId: node.id,
-        displayNodes: 500,
-        datasourceIds: datasourceIds
-    };
+    return (dispatch, getState) => {
+        const state: AppState = getState();
+		let fieldPaths: string[] = state.graph.fields.map(field => field.path);
+		fieldPaths = fieldPaths.concat(state.graph.date_fields.map(field => field.path));
+
+		const query = node.name;
+		const requestId = uniqueId();
+
+		dispatch(webSocketSend({
+			type: SEARCH_REQUEST,
+			datasources: datasourceIds,
+			fields: fieldPaths,
+			query: query,
+			'request-id': requestId
+		}));
+
+		dispatch({
+			type: SEARCH_REQUEST,
+			receivedAt: Date.now(),
+			query: query,
+			aroundNodeId: node.id,
+			displayNodes: 500,
+			datasourceIds: datasourceIds,
+			requestId: requestId
+		});
+    }
 }
 
 function getGraphWorkerPayload(state: AppState, items: Item[], searchId: string): GraphWorkerPayload {
