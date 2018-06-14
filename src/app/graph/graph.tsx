@@ -17,9 +17,9 @@ import {
     showContextMenu
 } from "../contextMenu/contextMenuActions";
 import {
-    getHighlightedNodes,
-    getLinksForDisplay,
-    getNodesForDisplay
+	getHighlightedNodes,
+	getLinksForDisplay,
+	getNodesForDisplay, getSelectedNodes
 } from "./graphSelectors";
 import {setFps} from "../stats/statsActions";
 import {Field} from "../fields/interfaces/field";
@@ -42,6 +42,7 @@ interface Props {
     searches: Search[];
     nodesForDisplay: Node[];
     linksForDisplay: Link[];
+    selectedNodes: Node[];
     highlightedNodes: Node[];
     fields: Field[];
     zoomEvents: any;
@@ -85,7 +86,7 @@ class Graph extends React.PureComponent<Props, State> {
     nodeMarkerTextures: TextureMap = {};
     renderedNodesContainer: PIXI.Container = new PIXI.Container();
     renderedNodesContainers: Map<string, PIXI.particles.ParticleContainer> = new Map<string, PIXI.particles.ParticleContainer>();
-    renderedLinks: PIXI.Graphics = new PIXI.Graphics();
+    renderedLinks: PIXI.Graphics = new PIXI.Graphics(true);
     renderedLinkLabels: PIXI.Container = new PIXI.Container();
     renderedArrows: PIXI.Container = new PIXI.Container();
     arrowTexture: PIXI.RenderTexture;
@@ -108,7 +109,7 @@ class Graph extends React.PureComponent<Props, State> {
     lastDispatchedFpsTimestamp: number = 0;
     linkLabelTextures: TextureMap = {};
     tooltipTextures: TextureMap = {};
-    // dragSubjects: NodeFromD3[];
+    dragSubjects: Node[];
     map: Leaflet.Map;
     mapMarkers: Leaflet.LayerGroup;
 	initialMapZoom: number;
@@ -744,12 +745,6 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedLinkLabels.addChild(rope);
     }
 
-    getSelectedNodes() {
-        const { nodesForDisplay } = this.props;
-
-        return nodesForDisplay.filter(node => node.selected);
-    }
-
     shouldPostToWorker(prevNodes: Node[], nextNodes: Node[], prevLinks: Link[], nextLinks: Link[], prevIsMapActive: boolean, nextIsMapActive: boolean): boolean {
         return prevNodes.length !== nextNodes.length
             || prevLinks.length !== nextLinks.length
@@ -808,8 +803,7 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     componentWillReceiveProps(nextProps: Props) {
-        const { searches, nodesForDisplay, linksForDisplay, fields, showLabels, highlightedNodes, isMapActive } = this.props;
-        const selectedNodes = this.getSelectedNodes();
+        const { searches, nodesForDisplay, linksForDisplay, fields, showLabels, highlightedNodes, isMapActive, selectedNodes } = this.props;
         const nextSelected = nextProps.nodesForDisplay.filter(node => node.selected);
 
         if (nextProps.isMapActive && !isMapActive) {
@@ -1107,14 +1101,16 @@ class Graph extends React.PureComponent<Props, State> {
 
         const canvas = document.createElement('canvas');
         const multipliedRadius = radius * sizeMultiplier;
+        const lineWidth = 3;
+        const margin = 2;
 
-        canvas.width = multipliedRadius * 2 + 4;
-        canvas.height = multipliedRadius * 2 + 4;
+        canvas.width = multipliedRadius * 2 + lineWidth + margin;
+        canvas.height = multipliedRadius * 2 + lineWidth + margin;
 
         const ctx = canvas.getContext('2d');
-        ctx.lineWidth = 3 * sizeMultiplier;
+        ctx.lineWidth = lineWidth;
         ctx.strokeStyle = '#fac04b';
-        ctx.arc(multipliedRadius + 2, multipliedRadius + 2, multipliedRadius, 0, 2 * Math.PI);
+        ctx.arc(multipliedRadius + margin, multipliedRadius + margin, multipliedRadius, 0, 2 * Math.PI);
         ctx.stroke();
 
         texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
@@ -1129,7 +1125,7 @@ class Graph extends React.PureComponent<Props, State> {
      * Draws a border around selected nodes
      */
     renderSelectedNodes() {
-        const selectedNodes = this.getSelectedNodes();
+        const { selectedNodes } = this.props;
 
         this.renderedSelectedNodes.removeChildren();
         const sizeMultiplier = this.getNodeSizeMultiplier();
@@ -1625,6 +1621,10 @@ class Graph extends React.PureComponent<Props, State> {
         	this.mainDragSubject.fx = transformedX;
         	this.mainDragSubject.fy = transformedY;
 
+        	if (this.mainDragSubject.selected) {
+        		const { } = this.props;
+			}
+
 			this.postWorkerMessage({
 				nodes: [this.mainDragSubject],
 				type: 'restart'
@@ -1706,7 +1706,7 @@ class Graph extends React.PureComponent<Props, State> {
             }
         } else {
             // Deselect all when clicking on empty space
-            const selectedNodes = this.getSelectedNodes();
+            const { selectedNodes } = this.props;
 
             dispatch(deselectNodes(selectedNodes));
         }
@@ -1831,6 +1831,7 @@ const select = (state: AppState, ownProps) => {
         ...ownProps,
         nodesForDisplay: getNodesForDisplay(state),
         linksForDisplay: getLinksForDisplay(state),
+		selectedNodes: getSelectedNodes(state),
         highlightedNodes: getHighlightedNodes(state),
         fields: state.graph.fields,
         searches: state.graph.searches,
