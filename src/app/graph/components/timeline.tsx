@@ -161,7 +161,7 @@ class Timeline extends React.Component<Props, State> {
     getChart() {
         const { date_fields, items } = this.props;
 
-        if (!items.length || !date_fields.length) {
+        if (!items.length || !date_fields.length || !this.container) {
             return;
         }
 
