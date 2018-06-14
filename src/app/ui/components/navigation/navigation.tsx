@@ -69,7 +69,7 @@ class Navigation extends React.Component<any, any> {
     }
 
     render() {
-        const { zoomIn, zoomOut, showLabels, isMapAvailable, isMapActive } = this.props;
+        const { zoomIn, zoomOut, showLabels, isMapAvailable, isMapActive, center } = this.props;
 
         return (
             <nav className="navigation">
@@ -136,6 +136,12 @@ class Navigation extends React.Component<any, any> {
                         'ion-ios-plus',
                         'Zoom in',
                         () => zoomIn(),
+                        false
+                    )}
+                    {this.getButton(
+                        'ion-android-locate',
+                        'Center',
+                        () => center(),
                         false
                     )}
                 </ul>

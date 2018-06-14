@@ -46,6 +46,7 @@ interface Props {
     highlightedNodes: Node[];
     fields: Field[];
     zoomEvents: any;
+    centerEvents: any;
     dispatch: Dispatch<any>;
     version: string;
     showLabels: boolean;
@@ -1463,7 +1464,7 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
     componentDidMount() {
-        const { zoomEvents, isMapActive } = this.props;
+        const { zoomEvents, isMapActive, centerEvents } = this.props;
 
         this.createArrowTexture();
         this.initWorker();
@@ -1475,6 +1476,7 @@ class Graph extends React.PureComponent<Props, State> {
         window.addEventListener('resize', this.handleWindowResize.bind(this));
         zoomEvents.addListener('zoomIn', this.zoomIn.bind(this));
         zoomEvents.addListener('zoomOut', this.zoomOut.bind(this));
+        centerEvents.addListener('center', this.centerView.bind(this));
         window.addEventListener('blur', this.onBlur.bind(this));
     }
 
@@ -1483,6 +1485,63 @@ class Graph extends React.PureComponent<Props, State> {
         document.removeEventListener('keyup', this.handleKeyUp.bind(this));
         window.removeEventListener('resize', this.handleWindowResize.bind(this));
     }
+
+    centerView() {
+		const { nodesForDisplay, isMapActive } = this.props;
+
+		if (isMapActive) {
+			this.fitMapToMarkers(nodesForDisplay.filter(node => node.isGeoLocation));
+			return;
+		}
+
+		let minX: number;
+		let maxX: number;
+		let minY: number;
+		let maxY: number;
+
+		nodesForDisplay.forEach(node => {
+			if (!node.x) {
+				return;
+			}
+
+			if (!minX) {
+				minX = node.x;
+				maxX = node.x;
+				minY = node.y;
+				maxY = node.y;
+			}
+
+			minX = Math.min(node.x, minX);
+			maxX = Math.max(node.x, maxX);
+			minY = Math.min(node.y, minY);
+			maxY = Math.max(node.y, maxY);
+		});
+
+		// Top margin because of graph buttons
+		const topMargin = 70;
+		const bottomMargin = 20 * this.nodeSizeMultiplier;
+		const sideMargin = 20 * this.nodeSizeMultiplier;
+
+		let { width, height } = this.pixiContainer.getBoundingClientRect();
+		height -= (topMargin + bottomMargin);
+		width -= sideMargin * 2;
+
+		const naturalWidth = maxX - minX;
+		const horizontalZoom = width / naturalWidth;
+		const naturalHeight = maxY - minY;
+		const verticalZoom = height / naturalHeight;
+		let zoom = Math.min(horizontalZoom, verticalZoom);
+		zoom = Math.min(this.maxZoomGraph, zoom);
+		zoom = Math.max(this.minZoomGraph, zoom);
+
+		const leftOverWidth = width - zoom * naturalWidth;
+		const leftOverHeight = height - zoom * naturalHeight;
+
+		this.transform.k = zoom;
+		this.transform.x = -1 * zoom * minX + sideMargin + leftOverWidth / 2;
+		this.transform.y = -1 * zoom * minY + topMargin + leftOverHeight / 2;
+		this.renderedSince.lastZoom = false;
+	}
 
     handleWindowResize = debounce(() => {
         const { width, height } = this.pixiContainer.getBoundingClientRect();

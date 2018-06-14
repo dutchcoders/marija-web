@@ -21,6 +21,7 @@ import AdjacencyMatrix from "../../graph/components/adjacencyMatrix/adjacencyMat
 
 class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();
+    centerEvents = new EventEmitter();
     exportTableEvents = new EventEmitter();
     main: any;
 
@@ -57,11 +58,13 @@ class RootView extends React.Component<any, any> {
                     <Navigation
                         zoomIn={() => this.zoomEvents.emit('zoomIn')}
                         zoomOut={() => this.zoomEvents.emit('zoomOut')}
+                        center={() => this.centerEvents.emit('center')}
                     />
 
                     <Graph
                         className="graph"
                         zoomEvents={this.zoomEvents}
+                        centerEvents={this.centerEvents}
                     />
 
                     <Stats />
