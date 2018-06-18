@@ -354,7 +354,7 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
 	getNodeMarkerTexture(node: Node): PIXI.RenderTexture {
-    	const key = node.textureKey;
+    	const key = node.textureKey + '-' + (node.selected ? '1' : '0');
         let texture = this.nodeMarkerTextures[key];
 
         if (typeof texture !== 'undefined') {
@@ -369,6 +369,13 @@ class Graph extends React.PureComponent<Props, State> {
 		const color = this.getSearchColor(node.searchIds[0]);
 
 		marker.setAttribute('fill', color);
+		let strokeWidth: number = 0;
+
+		if (node.selected) {
+			strokeWidth = 2;
+			marker.setAttribute('stroke', '#fac04b');
+			marker.setAttribute('stroke-width', strokeWidth.toString());
+		}
 
 		const minRadius = 15;
 		const maxRadius = 50;
@@ -376,10 +383,10 @@ class Graph extends React.PureComponent<Props, State> {
 		const originalWidthAndHeight = 24;
 
 		const container = doc.getElementById('container');
-		container.setAttribute('width', (scale * originalWidthAndHeight) + 'px');
-		container.setAttribute('height', (scale * originalWidthAndHeight) + 'px');
+		container.setAttribute('width', (scale * (originalWidthAndHeight) + strokeWidth * 2) + 'px');
+		container.setAttribute('height', (scale * (originalWidthAndHeight) + strokeWidth * 2) + 'px');
 
-		marker.setAttribute('transform', 'scale(' + scale + ')');
+		marker.setAttribute('transform', 'scale(' + scale + ') translate(' + strokeWidth + ', ' + strokeWidth + ')');
 
 		const serializer = new XMLSerializer();
 		const svgString = serializer.serializeToString(doc);
