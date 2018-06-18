@@ -150,6 +150,8 @@ class ContextMenu extends React.Component<Props, State> {
         dispatch(nodeUpdate(nodeId, {
             important: true
         }));
+
+		dispatch(hideContextMenu());
     }
 
     handleNotImportant() {
@@ -158,6 +160,8 @@ class ContextMenu extends React.Component<Props, State> {
         dispatch(nodeUpdate(nodeId, {
             important: false
         }));
+
+		dispatch(hideContextMenu());
     }
 
     renderSearchAround() {
