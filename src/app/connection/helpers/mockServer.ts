@@ -45,6 +45,46 @@ export const responders: Responder[] = [
 		}
 	},
 	{
+		willRespond: (action) => action.type === 'SEARCH_REQUEST' && action.query === 'location2',
+		getResponse: (action) => {
+			return {
+				type: 'SEARCH_RECEIVE',
+				'request-id': action['request-id'],
+				datasource: 'twitter-tweets',
+				query: 'location',
+				results: [
+					{
+						id: '1',
+						count: 1,
+						fields: {
+							name: 'yolo',
+							location: '5.505,-0.09',
+							created2: '2018-05-30T15:07:20Z'
+						}
+					},
+					{
+						id: '2',
+						count: 1,
+						fields: {
+							name: 'yolo',
+							location: '51,3',
+							created2: '2018-06-20T15:07:20Z'
+						}
+					},
+					{
+						id: '3',
+						count: 1,
+						fields: {
+							name: 'yolo',
+							location: '37.7,122.4',
+							created2: '2018-07-20T15:07:20Z'
+						}
+					}
+				]
+			}
+		}
+	},
+	{
 		willRespond: (action) => {
 			console.log(action);
 
