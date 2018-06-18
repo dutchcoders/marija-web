@@ -108,8 +108,6 @@ class FieldRow extends React.Component<Props, State> {
         let addButton = null;
 
         if (!isActive) {
-            console.log(maxFieldsReached);
-
             if (maxFieldsReached) {
 				addButton = (
 					<td className={styles.buttonTd}>
