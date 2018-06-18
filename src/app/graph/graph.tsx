@@ -62,7 +62,6 @@ interface RenderedSince {
     lastZoom: boolean;
     lastTooltip: boolean;
     lastSelection: boolean;
-    lastSelectedNodes: boolean;
     lastQueries: boolean;
     lastHighlights: boolean;
     lastFields: boolean;
@@ -77,7 +76,6 @@ class Graph extends React.PureComponent<Props, State> {
         lastZoom: true,
         lastTooltip: true,
         lastSelection: true,
-        lastSelectedNodes: true,
         lastQueries: true,
         lastHighlights: true,
         lastFields: true,
@@ -95,8 +93,6 @@ class Graph extends React.PureComponent<Props, State> {
     renderedSelection: PIXI.Graphics = new PIXI.Graphics();
     renderer: PIXI.WebGLRenderer;
     renderedTooltip: PIXI.Container = new PIXI.Graphics();
-    renderedSelectedNodes: PIXI.Container = new PIXI.Graphics();
-    selectedNodeTextures: TextureMap = {};
     nodeLabelTextures: TextureMap = {};
     renderedNodeLabels: PIXI.Container = new PIXI.Container();
     iconTextures: TextureMap = {};
@@ -285,7 +281,7 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     getNodeTexture(node: Node, sizeMultiplier: number) {
-    	const key = node.textureKey + '-' + sizeMultiplier;
+    	const key = node.textureKey + '-' + sizeMultiplier + '-' + (node.selected ? '1' : '0');
         let texture = this.nodeTextures[key];
 
         if (typeof texture !== 'undefined') {
@@ -296,8 +292,10 @@ class Graph extends React.PureComponent<Props, State> {
         const radius = node.r * sizeMultiplier;
 
         const canvas = document.createElement('canvas');
-        canvas.width = radius * 2 + 1;
-        canvas.height = radius * 2 + 1;
+		const lineWidth = 3;
+		const margin = 2;
+		canvas.width = radius * 2 + lineWidth + margin;
+		canvas.height = radius * 2 + lineWidth + margin;
         const ctx = canvas.getContext('2d');
 
         const fractionPerSearch = 1 / node.searchIds.length;
@@ -308,7 +306,7 @@ class Graph extends React.PureComponent<Props, State> {
             ctx.beginPath();
             ctx.fillStyle = this.getSearchColor(searchId);
             ctx.moveTo(radius, radius);
-            ctx.arc(radius, radius, radius, currentAngle, currentAngle + anglePerSearch);
+            ctx.arc(radius + margin, radius + margin, radius, currentAngle, currentAngle + anglePerSearch);
             ctx.fill();
 
             currentAngle += anglePerSearch;
@@ -319,9 +317,17 @@ class Graph extends React.PureComponent<Props, State> {
         ctx.fillStyle = '#ffffff';
         ctx.font = fontSize + 'px Ionicons, Roboto, Helvetica, Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(node.icon, radius - 1, radius + (fontSize / 3));
+        ctx.fillText(node.icon, radius - 1 + margin, radius + margin + (fontSize / 3));
 
         texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
+
+		if (node.selected) {
+			ctx.lineWidth = lineWidth;
+			ctx.strokeStyle = '#fac04b';
+			ctx.beginPath();
+			ctx.arc(radius + margin, radius + margin, radius, 0, 2 * Math.PI);
+			ctx.stroke();
+		}
 
         // Save in cache
         this.nodeTextures[key] = texture;
@@ -833,7 +839,7 @@ class Graph extends React.PureComponent<Props, State> {
 		}
 
         if (!isEqual(nextSelected, selectedNodes)) {
-            this.renderedSince.lastSelectedNodes = false;
+            this.renderedSince.lastTick = false;
         }
 
         if (nextProps.nodesForDisplay.filter(node => node.displayTooltip) !== this.getTooltipNodes()) {
@@ -1079,8 +1085,6 @@ class Graph extends React.PureComponent<Props, State> {
 	invertX(x: number): number {
 		const { isMapActive } = this.props;
 
-		// let offset = 0;
-
 		if (isMapActive) {
 			x -= this.mapOffset.x;
 		}
@@ -1088,14 +1092,11 @@ class Graph extends React.PureComponent<Props, State> {
 
 		let transformed: number = this.transform.invertX(x );
 
-
 		return transformed;
 	}
 
 	invertY(y: number): number {
 		const { isMapActive } = this.props;
-
-		// let transformed: number = ;
 
 		if (isMapActive) {
 			y -= this.mapOffset.y;
@@ -1103,63 +1104,6 @@ class Graph extends React.PureComponent<Props, State> {
 
 		return this.transform.invertY(y);
 	}
-
-    getSelectedNodeTexture(radius: number, sizeMultiplier: number) {
-		const textureKey = radius + '-' + sizeMultiplier;
-        let texture = this.selectedNodeTextures[textureKey];
-
-        if (texture) {
-            // Get from cache
-            return texture;
-        }
-
-        const canvas = document.createElement('canvas');
-        const multipliedRadius = radius * sizeMultiplier;
-        const lineWidth = 3;
-        const margin = 2;
-
-        canvas.width = multipliedRadius * 2 + lineWidth + margin;
-        canvas.height = multipliedRadius * 2 + lineWidth + margin;
-
-        const ctx = canvas.getContext('2d');
-        ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = '#fac04b';
-        ctx.arc(multipliedRadius + margin, multipliedRadius + margin, multipliedRadius, 0, 2 * Math.PI);
-        ctx.stroke();
-
-        texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
-
-        // Save in cache
-        this.selectedNodeTextures[textureKey] = texture;
-
-        return texture;
-    }
-
-    /**
-     * Draws a border around selected nodes
-     */
-    renderSelectedNodes() {
-        const { selectedNodes } = this.props;
-
-        this.renderedSelectedNodes.removeChildren();
-        const sizeMultiplier = this.getNodeSizeMultiplier();
-
-        selectedNodes.forEach(node => {
-        	if (!node.x) {
-        		return;
-			}
-
-            const texture = this.getSelectedNodeTexture(node.r, sizeMultiplier);
-            const sprite = new PIXI.Sprite(texture);
-
-            sprite.anchor.x = 0.5;
-            sprite.anchor.y = 0.5;
-            sprite.x = this.getRenderX(node.x);
-            sprite.y = this.getRenderY(node.y);
-
-            this.renderedSelectedNodes.addChild(sprite);
-        });
-    }
 
     getNodeLabelTexture(label: string, isMapActive: boolean): PIXI.Texture {
         const key = label + '-' + isMapActive;
@@ -1254,8 +1198,7 @@ class Graph extends React.PureComponent<Props, State> {
             || shouldRender('lastZoom')
             || shouldRender('lastQueries')
             || shouldRender('lastFields')
-            || shouldRender('lastHighlights')
-			|| shouldRender('lastSelectedNodes')) {
+            || shouldRender('lastHighlights')) {
 
         	markPerformance('drawNodesStart');
 
@@ -1263,7 +1206,6 @@ class Graph extends React.PureComponent<Props, State> {
             this.renderLinks();
             this.renderTooltip();
             this.renderNodeLabels();
-            this.renderSelectedNodes();
 
 			markPerformance('drawNodesEnd');
 			measurePerformance('drawNodesStart', 'drawNodesEnd');
@@ -1275,7 +1217,6 @@ class Graph extends React.PureComponent<Props, State> {
             this.renderedSince.lastQueries = true;
             this.renderedSince.lastFields = true;
             this.renderedSince.lastHighlights = true;
-            this.renderedSince.lastSelectedNodes = true;
         }
 
         if (shouldRender('lastNodeLableToggle')) {
@@ -1353,7 +1294,6 @@ class Graph extends React.PureComponent<Props, State> {
         this.stage.addChild(this.renderedLinkLabels);
         this.stage.addChild(this.renderedNodesContainer);
         this.stage.addChild(this.renderedSelection);
-        this.stage.addChild(this.renderedSelectedNodes);
         this.stage.addChild(this.renderedNodeLabels);
         this.stage.addChild(this.renderedArrows);
         this.stage.addChild(this.renderedIcons);
