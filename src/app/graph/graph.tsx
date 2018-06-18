@@ -366,7 +366,7 @@ class Graph extends React.PureComponent<Props, State> {
 
 		const minRadius = 15;
 		const maxRadius = 50;
-		const scale = 1.3 + 3 * ((node.r - minRadius) / (maxRadius - minRadius));
+		const scale = 1.7 + 3 * ((node.r - minRadius) / (maxRadius - minRadius));
 		const originalWidthAndHeight = 24;
 
 		const container = doc.getElementById('container');
