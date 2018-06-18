@@ -1,37 +1,60 @@
 @import '../../../scss/variables';
 
-.form {
-  position: relative;
+
+.queriesContainer {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 5px 5px 5px 25px;
+  margin-left: 10px;
   background: url(../../../images/search-icon.png) center left no-repeat;
   background-size: 22px 21px;
-  padding-left: 30px;
-  margin: 0 10px;
+  background-position: 0 18px;
+}
+
+.formWrapper {
+  width: 300px;
+  position: relative;
+  margin: 0 10px 0 5px;
+}
+
+.form {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
   min-height: 48px;
+  background: #455B73;
+  box-shadow: 0px 4px 6px 0px rgba(0,0,0,0.4);
+  position: absolute;
+  width: 100%;
+  border-radius: 3px;
+  z-index: 10;
+}
+
+.formCollapsed {
+  justify-content: center;
+  background: transparent;
+  box-shadow: none;
+}
+
+.queryInputWrapper {
+  padding: 10px;
 }
 
 .queryInput {
   box-sizing: border-box;
-  height: 26px;
-  background-color: $input-background-color;
+  background-color: white;
   outline: none;
   border: none;
   font-size: 15px;
   color: #fff;
-  margin: 0;
-  padding: 0 5px;
+  margin: 10px 0;
+  padding: 0 10px;
+  height: 30px;
   border-radius: 3px;
-  width: 100%;
-
-  &:focus {
-    color: $input-color-focus;
-    outline: none;
-    box-shadow: none;
-    border-color: $input-border-color-focus;
-  }
+  width: 280px;
+  background: rgba(0,0,0,.2);
+  box-shadow: inset 2px 2px 5px 0px rgba(0,0,0,0.3);
 
   &::placeholder {
     color: #fff;
@@ -40,12 +63,15 @@
 
 .datasources {
   display: flex;
-  min-width: 100%;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  left: 30px;
+  top: 26px;
+  padding: 5px 15px 15px;
 }
 
 .datasourcesHidden {
-  height: 0;
-  overflow: hidden;
+  display: none;
 }
 
 .datasourceLabel {

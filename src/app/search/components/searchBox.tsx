@@ -44,6 +44,7 @@ class SearchBox extends React.Component<Props, State> {
     };
     refs: any;
     searchForm: HTMLFormElement;
+    queryInput: HTMLInputElement;
     clickHandlerRef;
 
     onInputFocus() {
@@ -56,12 +57,20 @@ class SearchBox extends React.Component<Props, State> {
         window.addEventListener('click', this.clickHandlerRef)
     }
 
+    onInputBlur() {
+		this.setState({
+			formExpanded: false
+		});
+	}
+
     collapseForm(e) {
         if (!this.searchForm.contains(e.target)) {
             // User clicked outside the search form, close it
             this.setState({
                 formExpanded: false
             });
+
+            this.queryInput.blur();
 
             window.removeEventListener('click', this.clickHandlerRef);
         }
@@ -140,37 +149,35 @@ class SearchBox extends React.Component<Props, State> {
                     const datasourceFields = fields.filter(field => field.datasourceId === datasource.id);
                     const disabled = datasourceFields.length === 0;
 
-                    let content = (
-                        <div>
-                            <input
-                                name="datasource"
-                                type="checkbox"
-                                className={styles.datasourceCheckbox}
-                                checked={datasource.active}
-                                onChange={event => this.handleDatasourceChange(event, datasource)}
-                                disabled={disabled}
-                            />
-                            {datasource.name}
-                        </div>
+                    const label = (
+						<label key={datasource.id} className={styles.datasourceLabel}>
+							<input
+								key={0}
+								name="datasource"
+								type="checkbox"
+								className={styles.datasourceCheckbox}
+								checked={datasource.active}
+								onChange={event => this.handleDatasourceChange(event, datasource)}
+								disabled={disabled}
+							/>
+							<span key={1}>{datasource.name}</span>
+						</label>
                     );
 
                     if (disabled) {
-                        content = (
+                        return (
                             <Tooltip
+                                key={datasource.id}
                                 overlay={'First select fields for this datasource in the configuration'}
                                 placement="bottom"
                                 mouseLeaveDelay={0}
                                 arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                                {content}
+                                {label}
                             </Tooltip>
                         );
                     }
 
-                    return (
-                        <label key={datasource.id} className={styles.datasourceLabel}>
-                            {content}
-                        </label>
-                    );
+                    return label;
                 })}
             </div>
         );
@@ -178,7 +185,7 @@ class SearchBox extends React.Component<Props, State> {
 
     render() {
         const { connected, searches, nodes } = this.props;
-        const { query, editSearchValue, searchAroundOpen } = this.state;
+        const { query, editSearchValue, searchAroundOpen, formExpanded } = this.state;
 
         const editQueryDialogStyles = {
             backgroundColor: '#fff',
@@ -245,17 +252,20 @@ class SearchBox extends React.Component<Props, State> {
                 <div className="logoContainer">
                     <img className={`logo ${connected ? 'connected' : 'not-connected'}`} src={logo} title={connected ? "Marija is connected to the backendservice" : "No connection to Marija backend available" } />
                 </div>
-                <div className="queriesContainer">
-                    <form onSubmit={this.handleSubmit.bind(this)} className={styles.form} ref={form => this.searchForm = form}>
-                        <input
-                            className={styles.queryInput}
-                            placeholder="Search"
-                            value={ query }
-                            onChange={this.handleQueryChange.bind(this)}
-                            onFocus={this.onInputFocus.bind(this)}
-                        />
-                        {this.renderDatasourceForm()}
-                    </form>
+                <div className={styles.queriesContainer}>
+                    <div className={styles.formWrapper}>
+                        <form onSubmit={this.handleSubmit.bind(this)} className={styles.form + (formExpanded ? '' : ' ' + styles.formCollapsed)} ref={form => this.searchForm = form}>
+                            <input
+								ref={ref => this.queryInput = ref}
+                                className={styles.queryInput}
+                                placeholder="Search"
+                                value={ query }
+                                onChange={this.handleQueryChange.bind(this)}
+                                onFocus={this.onInputFocus.bind(this)}
+                            />
+                            {this.renderDatasourceForm()}
+                        </form>
+                    </div>
 
                     {searchAroundContainer}
                     {userQueries}
