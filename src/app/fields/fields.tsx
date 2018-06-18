@@ -10,6 +10,7 @@ import Loader from '../ui/components/loader';
 import FieldRow from './components/fieldRow/fieldRow';
 import * as styles from './fields.scss';
 import { Field } from './interfaces/field';
+import { MAX_FIELDS } from '../graph/graphConstants';
 
 interface State {
     currentFieldSearchValue: string;
@@ -313,6 +314,8 @@ class Fields extends React.Component<Props, State> {
         }
 
         const firstX = searchResults.slice(0, maxSearchResults);
+		const maxFieldsReached = fields.length >= MAX_FIELDS;
+
         const available = ([
             <table key={1} className={styles.fieldTable}>
                 <thead>
@@ -329,6 +332,7 @@ class Fields extends React.Component<Props, State> {
                             key={'available_fields_' + item.path + i}
                             field={item}
                             isActive={false}
+							maxFieldsReached={maxFieldsReached}
                         />
                     )}
                 </tbody>
@@ -358,6 +362,8 @@ class Fields extends React.Component<Props, State> {
     }
 
     renderSelectedFields(fields: Field[]) {
+		const maxFieldsReached = fields.length >= MAX_FIELDS;
+
         return (
             <table
                 onMouseLeave={this.removeHighlightNodes.bind(this)}
@@ -377,6 +383,7 @@ class Fields extends React.Component<Props, State> {
                         key={field.path}
                         isActive={true}
                         field={field}
+                        maxFieldsReached={maxFieldsReached}
                     />
                 )}
                 </tbody>

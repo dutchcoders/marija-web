@@ -15,3 +15,4 @@ export const VIA_ADD = "VIA_ADD";
 export const VIA_DELETE = "VIA_DELETE";
 export const SET_MAP_ACTIVE = 'SET_MAP_ACTIVE';
 export const SET_TIMELINE_GROUPING = 'SET_TIMELINE_GROUPING';
+export const MAX_FIELDS = 20;

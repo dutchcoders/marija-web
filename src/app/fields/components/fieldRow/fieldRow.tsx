@@ -12,11 +12,13 @@ import { Field } from '../../interfaces/field';
 import FieldType from '../fieldType';
 import IconSelector from '../iconSelector/iconSelector';
 import * as styles from './fieldRow.scss';
+import { MAX_FIELDS } from '../../../graph/graphConstants';
 
 interface Props {
     field: Field;
     isActive: boolean;
     dispatch: Dispatch<any>;
+    maxFieldsReached: boolean;
 }
 
 interface State {
@@ -87,7 +89,7 @@ class FieldRow extends React.Component<Props, State> {
     }
 
     render() {
-        const { field, isActive } = this.props;
+        const { field, isActive, maxFieldsReached } = this.props;
         const { iconSelectorOpened } = this.state;
 
         let deleteButton = null;
@@ -106,14 +108,29 @@ class FieldRow extends React.Component<Props, State> {
         let addButton = null;
 
         if (!isActive) {
-            addButton = (
-                <td className={styles.buttonTd}>
-                    <Icon
-                        onClick={this.add.bind(this)}
-                        name={styles.add + ' ion-ios-plus'}
-                    />
-                </td>
-            );
+            console.log(maxFieldsReached);
+
+            if (maxFieldsReached) {
+				addButton = (
+					<td className={styles.buttonTd}>
+                        <Tooltip
+                            overlay={'You can not add more than ' + MAX_FIELDS + ' fields'}>
+                            <Icon
+                                name={styles.add + ' ' + styles.addDisabled + ' ion-ios-plus'}
+                            />
+                        </Tooltip>
+					</td>
+				);
+            } else {
+				addButton = (
+					<td className={styles.buttonTd}>
+						<Icon
+							onClick={this.add.bind(this)}
+							name={styles.add + ' ion-ios-plus'}
+						/>
+					</td>
+				);
+            }
         }
 
         let selectIconButton = null;

@@ -27,7 +27,7 @@ import {
 import {TABLE_SORT} from '../table/tableConstants';
 import {
 	FIELD_NODES_HIGHLIGHT,
-	GRAPH_WORKER_OUTPUT,
+	GRAPH_WORKER_OUTPUT, MAX_FIELDS,
 	NODE_UPDATE,
 	NODES_DELETE,
 	NODES_DESELECT,
@@ -129,6 +129,10 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             if (existing) {
                 // Field was already in store, don't add duplicates
+                return state;
+            }
+
+            if (state.fields.length >= MAX_FIELDS) {
                 return state;
             }
 
