@@ -1259,7 +1259,7 @@ class Graph extends React.PureComponent<Props, State> {
         const { dispatch } = this.props;
 
         if (!this.lastLoopTimestamp) {
-            this.lastLoopTimestamp = Date.now() - 16000;
+            this.lastLoopTimestamp = Date.now() - 16;
         }
 
         const filterStrength = 10;
@@ -1282,6 +1282,8 @@ class Graph extends React.PureComponent<Props, State> {
 
     initGraph() {
         const { width, height } = this.pixiContainer.getBoundingClientRect();
+
+		PIXI.ticker.shared.autoStart = false;
 
         this.renderer = new PIXI.WebGLRenderer({
             antialias: true,
