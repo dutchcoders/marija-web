@@ -23,12 +23,13 @@ class Stats extends React.Component<Props, State> {
     render() {
         const { serverVersion, fps, nodesForDisplay, linksForDisplay } = this.props;
         const clientVersion = process.env.CLIENT_VERSION;
+        const lastCommitDate = process.env.LAST_COMMIT_DATE;
 
         return (
             <p className="stats">
                 {fps.toFixed(1)} FPS {nodesForDisplay.length} nodes {linksForDisplay.length} links<br />
-                SERVER VERSION: {serverVersion}<br />
-                CLIENT VERSION: {clientVersion}
+                Server: {serverVersion}<br />
+                Client: {clientVersion} ({lastCommitDate})
             </p>
         );
     }
