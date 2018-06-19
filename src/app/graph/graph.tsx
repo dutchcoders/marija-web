@@ -85,7 +85,7 @@ class Graph extends React.PureComponent<Props, State> {
     nodeMarkerTextures: TextureMap = {};
     renderedNodesContainer: PIXI.Container = new PIXI.Container();
     renderedNodesContainers: Map<string, PIXI.particles.ParticleContainer> = new Map<string, PIXI.particles.ParticleContainer>();
-    renderedLinks: PIXI.Graphics = new PIXI.Graphics(true);
+    renderedLinks: PIXI.Graphics = new PIXI.Graphics();
     renderedLinkLabels: PIXI.Container = new PIXI.Container();
     renderedArrows: PIXI.Container = new PIXI.Container();
     arrowTexture: PIXI.RenderTexture;
@@ -533,7 +533,7 @@ class Graph extends React.PureComponent<Props, State> {
 
         if (isMapActive) {
         	alpha = 1;
-			this.renderedLinks.lineStyle(1, 0xFFFFFF);
+			this.renderedLinks.lineStyle(2, 0x4A5B71);
 		}
 
         this.renderedLinks.alpha = alpha;
@@ -1301,7 +1301,7 @@ class Graph extends React.PureComponent<Props, State> {
 
         this.pixiContainer.appendChild(this.renderer.view);
 
-		this.renderedLinks.nativeLines = true;
+		// this.renderedLinks.nativeLines = true;
 
         this.stage.addChild(this.renderedLinks);
         this.stage.addChild(this.renderedLinkLabels);
