@@ -1164,6 +1164,10 @@ class Graph extends React.PureComponent<Props, State> {
         		return;
 			}
 
+			if (isMapActive && node.isGeoLocation) {
+        		return;
+			}
+
             const texture = this.getNodeLabelTexture(node.abbreviated, isMapActive);
             const sprite = new PIXI.Sprite(texture);
 
