@@ -44,7 +44,7 @@ class SearchBox extends React.Component<Props, State> {
     };
     refs: any;
     searchForm: HTMLFormElement;
-    queryInput: HTMLInputElement;
+    queryInput: HTMLTextAreaElement;
     clickHandlerRef;
 
     onInputFocus() {
@@ -53,15 +53,21 @@ class SearchBox extends React.Component<Props, State> {
         });
 
         this.clickHandlerRef = this.collapseForm.bind(this);
+        this.adjustInputHeight();
 
         window.addEventListener('click', this.clickHandlerRef)
     }
 
-    onInputBlur() {
-		this.setState({
-			formExpanded: false
-		});
-	}
+    adjustInputHeight() {
+		const maxHeight = 300;
+
+		this.queryInput.style.height = 'auto';
+		this.queryInput.style.height = Math.min(this.queryInput.scrollHeight, maxHeight) + 'px';
+    }
+
+    resetInputHeight() {
+		this.queryInput.style.height = 'auto';
+    }
 
     collapseForm(e) {
         if (!this.searchForm.contains(e.target)) {
@@ -71,6 +77,7 @@ class SearchBox extends React.Component<Props, State> {
             });
 
             this.queryInput.blur();
+            this.resetInputHeight();
 
             window.removeEventListener('click', this.clickHandlerRef);
         }
@@ -86,16 +93,30 @@ class SearchBox extends React.Component<Props, State> {
             datasource.active
         );
 
-        if (query === '' || activeDatasources.length === 0) {
+        const trimmed = query.trim();
+
+        if (trimmed === '' || activeDatasources.length === 0) {
             return;
         }
 
         this.setState({query: ''});
-        this.props.onSubmit(query);
+		this.adjustInputHeight();
+        this.props.onSubmit(trimmed);
     }
 
-    handleQueryChange(e) {
-        this.setState({query: e.target.value});
+    handleQueryChange(event) {
+		this.setState({
+			query: event.target.value
+		});
+
+		this.adjustInputHeight();
+    }
+
+    handleQueryKeyDown(event) {
+		if (event.keyCode === 13 && !event.shiftKey) {
+			this.handleSubmit(event);
+			return;
+		}
     }
 
     handleEditSearch(search) {
@@ -255,12 +276,14 @@ class SearchBox extends React.Component<Props, State> {
                 <div className={styles.queriesContainer}>
                     <div className={styles.formWrapper}>
                         <form onSubmit={this.handleSubmit.bind(this)} className={styles.form + (formExpanded ? '' : ' ' + styles.formCollapsed)} ref={form => this.searchForm = form}>
-                            <input
+                            <textarea
 								ref={ref => this.queryInput = ref}
                                 className={styles.queryInput}
                                 placeholder="Search"
+                                rows={1}
                                 value={ query }
                                 onChange={this.handleQueryChange.bind(this)}
+                                onKeyDown={this.handleQueryKeyDown.bind(this)}
                                 onFocus={this.onInputFocus.bind(this)}
                             />
 							<Icon name="ion-ios-search" className={'ion-ios-search ' + styles.searchIcon} />
