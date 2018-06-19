@@ -4,11 +4,7 @@
 .queriesContainer {
   display: flex;
   flex-wrap: wrap;
-  padding: 5px 5px 5px 25px;
-  margin-left: 10px;
-  background: url(../../../images/search-icon.png) center left no-repeat;
-  background-size: 22px 21px;
-  background-position: 0 18px;
+  padding: 5px;
 }
 
 .formWrapper {
@@ -49,7 +45,7 @@
   font-size: 15px;
   color: #fff;
   margin: 10px 0;
-  padding: 0 10px;
+  padding: 0 30px 0 10px;
   height: 30px;
   border-radius: 3px;
   width: 280px;
@@ -86,4 +82,11 @@
 
 .datasourceCheckbox[type=checkbox] {
   margin-right: 2px;
+}
+
+.searchIcon {
+  position: absolute;
+  right: 20px;
+  font-size: 18px;
+  top: 13px;
 }

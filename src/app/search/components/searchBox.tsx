@@ -263,6 +263,8 @@ class SearchBox extends React.Component<Props, State> {
                                 onChange={this.handleQueryChange.bind(this)}
                                 onFocus={this.onInputFocus.bind(this)}
                             />
+							<Icon name="ion-ios-search" className={'ion-ios-search ' + styles.searchIcon} />
+
                             {this.renderDatasourceForm()}
                         </form>
                     </div>
