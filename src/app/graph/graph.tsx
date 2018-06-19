@@ -1401,8 +1401,23 @@ class Graph extends React.PureComponent<Props, State> {
         this.mapMarkers = Leaflet.layerGroup();
         this.mapMarkers.addTo(this.map);
 
-		Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		const street = Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		}).addTo(this.map);
+
+		const satellite = Leaflet.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+			minZoom: 1,
+			maxZoom: 22,
+			attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+		});
+
+		const overlays = {
+			'Satellite': satellite,
+			'Map': street
+		};
+
+		Leaflet.control.layers(overlays, null, {
+			collapsed: false
 		}).addTo(this.map);
 
 		this.map.on('zoom zoomend move moveend', this.mapZoomed.bind(this));
@@ -1727,6 +1742,10 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     clickEnded(event: MouseEvent) {
+    	if (!this.mouseDownCoordinates) {
+    		return;
+		}
+
     	const { dispatch } = this.props;
         const { x, y } = this.getMouseCoordinates(event);
 
