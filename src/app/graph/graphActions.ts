@@ -10,7 +10,7 @@ import {
 	NORMALIZATION_ADD,
 	NORMALIZATION_DELETE,
 	SELECT_FIELD_NODES,
-	SELECTION_CLEAR,
+	SELECTION_CLEAR, SET_FILTER_BORING_NODES, SET_FILTER_SECONDARY_QUERIES,
 	SET_MAP_ACTIVE, SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
 	VIA_ADD,
@@ -160,6 +160,24 @@ export function setTimelineGrouping(timelineGrouping: TimelineGrouping) {
 		type: SET_TIMELINE_GROUPING,
 		payload: {
 			timelineGrouping
+		}
+	};
+}
+
+export function setFilterBoringNodes(enabled: boolean) {
+	return {
+		type: SET_FILTER_BORING_NODES,
+		payload: {
+			enabled
+		}
+	};
+}
+
+export function setFilterSecondaryQueries(enabled: boolean) {
+	return {
+		type: SET_FILTER_SECONDARY_QUERIES,
+		payload: {
+			enabled
 		}
 	};
 }

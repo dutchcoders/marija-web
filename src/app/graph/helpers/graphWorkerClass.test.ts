@@ -78,7 +78,9 @@ const defaultPayload: GraphWorkerPayload = {
     via: [],
     receivedAt: 0,
     sortColumn: null,
-    sortType: 'asc'
+    sortType: 'asc',
+    filterBoringNodes: true,
+    filterSecondaryQueries: true
 };
 
 const getAction = (payload: GraphWorkerPayload) => {

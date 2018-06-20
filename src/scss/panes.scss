@@ -80,6 +80,14 @@
         .importFile {
             display: none;
         }
+
+        .graph-option {
+            font-weight: 300;
+
+            input {
+                margin-right: 5px;
+            }
+        }
     }
 
     &.nodes {

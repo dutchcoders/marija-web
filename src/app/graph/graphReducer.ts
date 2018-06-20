@@ -27,7 +27,8 @@ import {
 import {TABLE_SORT} from '../table/tableConstants';
 import {
 	FIELD_NODES_HIGHLIGHT,
-	GRAPH_WORKER_OUTPUT, MAX_FIELDS,
+	GRAPH_WORKER_OUTPUT,
+	MAX_FIELDS,
 	NODE_UPDATE,
 	NODES_DELETE,
 	NODES_DESELECT,
@@ -37,7 +38,10 @@ import {
 	NORMALIZATION_ADD,
 	NORMALIZATION_DELETE,
 	SELECT_FIELD_NODES,
-	SELECTION_CLEAR, SET_MAP_ACTIVE, SET_TIMELINE_GROUPING,
+	SELECTION_CLEAR,
+	SET_FILTER_BORING_NODES, SET_FILTER_SECONDARY_QUERIES,
+	SET_MAP_ACTIVE,
+	SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
 	VIA_ADD,
 	VIA_DELETE
@@ -75,7 +79,9 @@ export const defaultGraphState: GraphState = {
     showLabels: false,
     isMapActive: false,
     timelineGrouping: 'day',
-    graphWorkerCacheIsValid: false
+    graphWorkerCacheIsValid: false,
+	filterBoringNodes: true,
+	filterSecondaryQueries: true
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -670,6 +676,20 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 timelineGrouping: action.payload.timelineGrouping
             };
         }
+
+		case SET_FILTER_BORING_NODES: {
+			return {
+				...state,
+				filterBoringNodes: action.payload.enabled
+			};
+		}
+
+		case SET_FILTER_SECONDARY_QUERIES: {
+			return {
+				...state,
+				filterSecondaryQueries: action.payload.enabled
+			};
+		}
 
         default:
             return state;

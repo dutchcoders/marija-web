@@ -80,7 +80,9 @@ function getGraphWorkerPayload(state: AppState, items: Item[], searchId: string)
         via: state.graph.via,
         receivedAt: Date.now(),
         sortType: state.table.sortType,
-        sortColumn: state.table.sortColumn
+        sortColumn: state.table.sortColumn,
+        filterBoringNodes: state.graph.filterBoringNodes,
+        filterSecondaryQueries: state.graph.filterSecondaryQueries
     };
 }
 

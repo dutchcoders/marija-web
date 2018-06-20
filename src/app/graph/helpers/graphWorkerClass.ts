@@ -37,6 +37,8 @@ export interface GraphWorkerPayload {
     receivedAt: number;
     sortColumn: Column;
     sortType: SortType;
+    filterBoringNodes: boolean;
+    filterSecondaryQueries: boolean;
 }
 
 export interface GraphWorkerOutput {
@@ -106,23 +108,21 @@ export default class GraphWorkerClass {
 
         // For live searches we display everything, we don't filter boring components etc.
         if (!isLive) {
-        	result.links.forEach(link => {
-        		if (!link.source || !link.target) {
-        			console.error(link);
-				}
-			});
+            if (payload.filterBoringNodes) {
+				result.nodes = GraphWorkerClass.filterBoringNodes(result.nodes, result.links);
+				result.links = removeDeadLinks(result.nodes, result.links);
+            }
 
-            result.nodes = GraphWorkerClass.filterBoringNodes(result.nodes, result.links);
-            result.links = removeDeadLinks(result.nodes, result.links);
+            if (payload.filterSecondaryQueries) {
+				const secondaryFilterResult = GraphWorkerClass.filterSecondaryQueries(
+					result.nodes,
+					result.links,
+					payload.searches
+				);
 
-            const secondaryFilterResult = GraphWorkerClass.filterSecondaryQueries(
-                result.nodes,
-                result.links,
-                payload.searches
-            );
-
-            result.nodes = secondaryFilterResult.nodes;
-            result.links = secondaryFilterResult.links;
+				result.nodes = secondaryFilterResult.nodes;
+				result.links = secondaryFilterResult.links;
+            }
         }
 
         result.nodes = markNodesForDisplay(result.nodes, payload.searches || []);

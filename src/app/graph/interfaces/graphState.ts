@@ -22,4 +22,6 @@ export interface GraphState {
     isMapActive: boolean;
     timelineGrouping: TimelineGrouping;
     graphWorkerCacheIsValid: boolean;
+    filterBoringNodes: boolean;
+    filterSecondaryQueries: boolean;
 }

@@ -5,7 +5,13 @@ import { connect, Dispatch } from 'react-redux';
 
 import { Datasource } from '../../../datasources/interfaces/datasource';
 import Fields from '../../../fields/fields';
-import { normalizationAdd, normalizationDelete, viaAdd, viaDelete } from '../../../graph/graphActions';
+import {
+	normalizationAdd,
+	normalizationDelete,
+	setFilterBoringNodes, setFilterSecondaryQueries,
+	viaAdd,
+	viaDelete
+} from '../../../graph/graphActions';
 import { Normalization } from '../../../graph/interfaces/normalization';
 import { Via } from '../../../graph/interfaces/via';
 import Icon from '../../../ui/components/icon';
@@ -13,6 +19,7 @@ import Url from '../../helpers/url';
 import Workspaces from '../../helpers/workspaces';
 import { AppState } from '../../interfaces/appState';
 import { exportData, importData } from '../../mainActions';
+import { FormEvent } from 'react';
 
 interface State {
     normalization_error: string;
@@ -29,6 +36,8 @@ interface Props {
     via: Via[];
     datasources: Datasource[];
     fieldsFetching: boolean;
+    filterBoringNodes: boolean;
+    filterSecondaryQueries: boolean;
 }
 
 class Configuration extends React.Component<Props, State> {
@@ -367,8 +376,20 @@ class Configuration extends React.Component<Props, State> {
         reader.readAsText(event.target.files[0]);
     }
 
+    onFilterBoringNodesChange(event: FormEvent<HTMLInputElement>) {
+        const { dispatch } = this.props;
+
+        dispatch(setFilterBoringNodes(event.currentTarget.checked));
+    }
+
+    onFilterSecondaryQueriesChange(event: FormEvent<HTMLInputElement>) {
+        const { dispatch } = this.props;
+
+        dispatch(setFilterSecondaryQueries(event.currentTarget.checked));
+    }
+
     render() {
-        const { normalizations } = this.props;
+        const { normalizations, filterBoringNodes, filterSecondaryQueries } = this.props;
 
         return (
             <div>
@@ -384,6 +405,18 @@ class Configuration extends React.Component<Props, State> {
                 <div className="form-group">
                     <h2>Via</h2>
                     { this.renderVia() }
+                </div>
+
+                <div className="form-group">
+                    <h2>Graph options</h2>
+                    <label className="graph-option">
+                        <input type="checkbox" onChange={this.onFilterBoringNodesChange.bind(this)} defaultChecked={filterBoringNodes} />
+                        Only display nodes that have a relation to nodes from a different record.
+                    </label>
+					<label className="graph-option">
+						<input type="checkbox" onChange={this.onFilterSecondaryQueriesChange.bind(this)} defaultChecked={filterSecondaryQueries} />
+						Only display nodes if they are related to nodes from the <strong>first</strong> query.
+					</label>
                 </div>
 
                 <div className="form-group">
@@ -407,7 +440,9 @@ function select(state: AppState) {
         normalizations: state.graph.normalizations,
         via: state.graph.via,
         datasources: state.datasources.datasources,
-        fieldsFetching: state.fields.fieldsFetching
+        fieldsFetching: state.fields.fieldsFetching,
+        filterBoringNodes: state.graph.filterBoringNodes,
+        filterSecondaryQueries: state.graph.filterSecondaryQueries,
     };
 }
 
