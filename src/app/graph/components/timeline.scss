@@ -29,3 +29,28 @@
 .selectGrouping {
   color: black;
 }
+
+.dateFieldGroup {
+  display: flex;
+}
+
+.dateFieldTitle {
+  font-size: 1em;
+  font-weight: 500;
+  margin: 4px 10px 0 0;
+}
+
+.selectFields {
+  font-size: 1em;
+  background: #6C9FE0;
+  border-radius: 3px;
+  padding: 5px;
+  display: inline-block;
+  margin: 0 0 10px;
+  cursor: pointer;
+
+  i {
+    font-size: 1.2em;
+    margin-left: 5px;
+  }
+}

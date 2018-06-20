@@ -30,6 +30,11 @@ import TimelineSlider from './timelineSlider/timelineSlider';
 import * as styles from './timeline.scss';
 import { EventEmitter } from 'fbemitter';
 import { TimelineGrouping } from '../interfaces/graphState';
+import {
+	DateFieldGroups,
+	getDateFieldGroups
+} from '../../fields/fieldsSelectors';
+import Icon from '../../ui/components/icon';
 
 interface Props {
 	onPaneEvent?: EventEmitter;
@@ -43,6 +48,7 @@ interface Props {
     searches: Search[];
     timelineGroups: TimelineGroups;
 	timelineGrouping: TimelineGrouping;
+	dateFieldGroups: DateFieldGroups;
 }
 
 interface State {
@@ -94,30 +100,31 @@ class Timeline extends React.Component<Props, State> {
     }
 
     selectDateFields() {
-        const { availableFields } = this.props;
+        const { dateFieldGroups } = this.props;
         const { showAllFields } = this.state;
-        const availableDateFields = availableFields.filter(field => field.type === 'date');
 
-        let toggleAllFieldsButton = null;
-
-        if (availableDateFields.length > 10) {
-            toggleAllFieldsButton = (
-                <button
-                    onClick={this.toggleAllFields.bind(this)}
-                    className="toggleAllFields">
-                    {showAllFields ? 'Show less' : 'Show all'}
-                </button>
-            );
-
-            if (!showAllFields) {
-                availableDateFields.splice(10);
-            }
-        }
+		const datasources = Object.keys(dateFieldGroups);
+		const toggleIcon = showAllFields ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down';
 
         return (
             <div className="dateFields">
-                {availableDateFields.map(field => this.renderDateField(field))}
-                {toggleAllFieldsButton}
+				<h1 className={styles.selectFields} onClick={this.toggleAllFields.bind(this)}>
+					Select date fields
+					<Icon name={toggleIcon} />
+				</h1>
+
+				{showAllFields && (
+					datasources.map(datasourceId => (
+						<div className={styles.dateFieldGroup}>
+							<h2 className={styles.dateFieldTitle}>{datasourceId}</h2>
+							<div className={styles.dateFields}>
+								{dateFieldGroups[datasourceId].map(field =>
+									this.renderDateField(field)
+								)}
+							</div>
+						</div>
+					))
+				)}
             </div>
         );
     }
@@ -366,7 +373,8 @@ const select = (state: AppState, ownProps) => {
         items: state.graph.items,
         searches: state.graph.searches,
 		timelineGrouping: state.graph.timelineGrouping,
-        timelineGroups: getTimelineGroups(state)
+        timelineGroups: getTimelineGroups(state),
+		dateFieldGroups: getDateFieldGroups(state)
     };
 };
 
