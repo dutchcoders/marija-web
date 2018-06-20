@@ -5,8 +5,10 @@ import * as React from 'react';
 import fieldLocator from '../../fields/helpers/fieldLocator';
 import Icon from '../../ui/components/icon';
 import Expandable from './expandable/expandable';
+import { connect } from 'react-redux';
+import { AppState } from '../../main/interfaces/appState';
 
-export default class Record extends React.Component<any, any> {
+class RecordDetail extends React.Component<any, any> {
     constructor(props) {
         super(props);
 
@@ -64,8 +66,10 @@ export default class Record extends React.Component<any, any> {
         return /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*$)/.test(value);
     }
 
-    renderFieldValue(value: any) {
-        if (typeof value === 'number') {
+    renderFieldValue(value: any, fieldPath: string) {
+    	if (this.isImage(fieldPath)) {
+    		return <img src={value} />;
+		} else if (typeof value === 'number') {
             return value;
         }
         else if (typeof value === 'string') {
@@ -80,12 +84,12 @@ export default class Record extends React.Component<any, any> {
             return value ? 'yes' : 'no';
         } else if (Array.isArray(value)) {
             if (value.length === 1) {
-                return this.renderFieldValue(value[0]);
+                return this.renderFieldValue(value[0], fieldPath);
             } else {
                 return (
                     <ul>
                         {value.map((element, i) =>
-                            <li key={i}>{this.renderFieldValue(element)}</li>
+                            <li key={i}>{this.renderFieldValue(element, fieldPath)}</li>
                         )}
                     </ul>
                 );
@@ -101,7 +105,7 @@ export default class Record extends React.Component<any, any> {
                 elements.push(
                     <div>
                         <strong>{key}: </strong>
-                        {this.renderFieldValue(value[key])}
+                        {this.renderFieldValue(value[key], fieldPath)}
                     </div>
                 );
             }
@@ -124,9 +128,9 @@ export default class Record extends React.Component<any, any> {
         const { record, activeFields } = this.props;
         const allFields = this.extractAllFields(record.fields, false);
 
-        const expandedFields = map(allFields, (value: any, key) => {
+        const expandedFields = map(allFields, (value: any) => {
             const highlight = record.highlight || {};
-            let field_value = highlight[value] || fieldLocator(record.fields, value) ;
+            let field_value = highlight[value] || fieldLocator(record.fields, value);
 
             const activeAsColumn: boolean = columns.indexOf(value) !== -1;
             const activeAsField: boolean = activeFields.indexOf(value) !== -1;
@@ -158,7 +162,7 @@ export default class Record extends React.Component<any, any> {
                             </Tooltip>
                         </div>
                     </td>
-                    <td colSpan={3} className="fieldValue">{this.renderFieldValue(field_value)}</td>
+                    <td colSpan={3} className="fieldValue">{this.renderFieldValue(field_value, value)}</td>
                 </tr>
             );
         });
@@ -174,9 +178,16 @@ export default class Record extends React.Component<any, any> {
         );
     }
 
+    isImage(fieldPath: string): boolean {
+    	const { fields } = this.props;
+    	const field = fields.find(field => field.path === fieldPath);
+
+    	return field.type === 'image';
+	}
 
     render() {
         const { record, columns, node, expanded, className } = this.props;
+
         if (!expanded) {
             return null;
         }
@@ -188,3 +199,10 @@ export default class Record extends React.Component<any, any> {
         );
     }
 }
+
+const select = (state: AppState, ownProps) => ({
+	...ownProps,
+	fields: state.graph.fields
+});
+
+export default connect(select)(RecordDetail);
