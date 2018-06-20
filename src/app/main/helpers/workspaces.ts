@@ -51,6 +51,10 @@ export default class Workspaces {
                         deletedNodes: [],
                         isMapActive: false,
 						graphWorkerHasValidNodes: false
+                    },
+                    ui: {
+                        ...state.ui,
+                        lightboxImageUrl: null
                     }
                 }
             });

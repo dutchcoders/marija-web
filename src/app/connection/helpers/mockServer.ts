@@ -70,7 +70,7 @@ export const responders: Responder[] = [
 							name: 'Remco',
 							location: '51,3',
 							created2: '2018-06-20T15:07:20Z',
-							profile: 'https://cdn-images-1.medium.com/fit/c/120/120/0*dIQhJQRSpKOSCrid.jpg'
+							profile: 'https://transfer.sh/yapQU/NoCode.png'
 						}
 					},
 					{

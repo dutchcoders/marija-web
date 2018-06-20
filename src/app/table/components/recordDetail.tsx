@@ -7,6 +7,7 @@ import Icon from '../../ui/components/icon';
 import Expandable from './expandable/expandable';
 import { connect } from 'react-redux';
 import { AppState } from '../../main/interfaces/appState';
+import Lightbox from '../../ui/components/lightbox/lightbox';
 
 class RecordDetail extends React.Component<any, any> {
     constructor(props) {
@@ -68,7 +69,7 @@ class RecordDetail extends React.Component<any, any> {
 
     renderFieldValue(value: any, fieldPath: string) {
     	if (this.isImage(fieldPath)) {
-    		return <img src={value} />;
+    		return <Lightbox imageUrl={value} />
 		} else if (typeof value === 'number') {
             return value;
         }

@@ -1,8 +1,9 @@
 import {
-    CLOSE_PANE,
-    MOVE_PANE_TO_TOP,
-    OPEN_PANE,
-    SET_PANE_CONFIG
+	CLOSE_LIGHTBOX,
+	CLOSE_PANE,
+	MOVE_PANE_TO_TOP, OPEN_LIGHTBOX,
+	OPEN_PANE,
+	SET_PANE_CONFIG
 } from './uiConstants';
 
 export function openPane(pane) {
@@ -31,5 +32,20 @@ export function movePaneToTop(key) {
     return {
         type: MOVE_PANE_TO_TOP,
         key: key
+    };
+}
+
+export function openLightbox(imageUrl: string) {
+    return {
+        type: OPEN_LIGHTBOX,
+        payload: {
+            imageUrl
+        }
+    };
+}
+
+export function closeLightbox() {
+    return {
+        type: CLOSE_LIGHTBOX
     };
 }

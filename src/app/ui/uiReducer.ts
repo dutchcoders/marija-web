@@ -1,10 +1,11 @@
 import {each} from 'lodash';
 
 import {
-    CLOSE_PANE,
-    MOVE_PANE_TO_TOP,
-    OPEN_PANE,
-    SET_PANE_CONFIG
+	CLOSE_LIGHTBOX,
+	CLOSE_PANE,
+	MOVE_PANE_TO_TOP, OPEN_LIGHTBOX,
+	OPEN_PANE,
+	SET_PANE_CONFIG
 } from './uiConstants';
 import {UiState} from "./interfaces/uiState";
 import {PaneInterface} from "./interfaces/paneInterface";
@@ -71,7 +72,8 @@ export const defaultUiState: UiState = {
             width: 500,
             height: 500,
         }
-    }
+    },
+	lightboxImageUrl: null
 };
 
 export default function uiReducer(state: UiState = defaultUiState, action): UiState {
@@ -126,6 +128,21 @@ export default function uiReducer(state: UiState = defaultUiState, action): UiSt
                 }
             });
         }
+
+        case OPEN_LIGHTBOX: {
+            return {
+                ...state,
+                lightboxImageUrl: action.payload.imageUrl
+            };
+        }
+
+        case CLOSE_LIGHTBOX: {
+            return {
+                ...state,
+                lightboxImageUrl: null
+            };
+        }
+
         default:
             return state;
     }

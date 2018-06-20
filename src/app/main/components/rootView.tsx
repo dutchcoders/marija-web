@@ -18,6 +18,7 @@ import Pane from '../../ui/components/pane';
 import { AppState } from '../interfaces/appState';
 import Configuration from './configuration/configuration';
 import AdjacencyMatrix from "../../graph/components/adjacencyMatrix/adjacencyMatrix";
+import LightboxOutlet from '../../ui/components/lightboxOutlet/lightboxOutlet';
 
 class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();
@@ -153,6 +154,8 @@ class RootView extends React.Component<any, any> {
                 <main className="main" ref={main => this.main = main}>
                     {mainContent}
                 </main>
+
+                <LightboxOutlet />
             </div>
         );
     }
