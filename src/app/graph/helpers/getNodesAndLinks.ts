@@ -122,7 +122,8 @@ export default function getNodesAndLinks(
                         displayTooltip: false,
                         isNormalizationParent: false,
                         important: false,
-                        isGeoLocation: sourceField.type === 'location'
+                        isGeoLocation: sourceField.type === 'location',
+                        isImage: sourceField.type === 'image',
                     });
                 }
 
@@ -193,7 +194,8 @@ export default function getNodesAndLinks(
                                 displayTooltip: false,
                                 isNormalizationParent: false,
                                 important: false,
-								isGeoLocation: targetField.type === 'location'
+								isGeoLocation: targetField.type === 'location',
+								isImage: targetField.type === 'image'
                             });
                         }
 

@@ -54,6 +54,8 @@ export interface Node {
 	 */
 	isGeoLocation: boolean;
 
+	isImage: boolean;
+
 	textureKey?: string;
 	r?: number;
 	x?: number;
