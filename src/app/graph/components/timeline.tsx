@@ -65,9 +65,15 @@ class Timeline extends React.Component<Props, State> {
 
 
     componentDidMount() {
-        const { onPaneEvent } = this.props;
+        const { onPaneEvent, date_fields } = this.props;
 
 		onPaneEvent.addListener('resized', this.onResized.bind(this));
+
+		if (date_fields.length === 0) {
+			this.setState({
+				showAllFields: true
+			});
+		}
     }
 
     handleFieldChange(event: FormEvent<HTMLInputElement>, field: Field) {
