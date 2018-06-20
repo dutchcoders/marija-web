@@ -150,44 +150,6 @@ test('when nodes have exactly the same fields they should not be duplicated', ()
     expect(nodes.length).toBe(1);
 });
 
-test('should filter nodes that are not directly related when searching around a node', () => {
-    const previousNodes = [{
-        id: 1,
-    }, {
-        id: 2
-    }];
-    const previousLinks = [{
-        source: 1,
-        target: 2
-    }];
-
-    const items = [
-        {
-            id: 3,
-            fields: {
-                client: 1,
-                server: 3
-            }
-        }
-    ];
-
-    const fields = [
-        generateField('client'),
-        generateField('server')
-    ];
-
-    const query = generateQuery(items);
-
-    const aroundNodeId = 2;
-
-    const {nodes, links } = getNodesAndLinks(previousNodes as any, previousLinks as any, items as any, fields, query, aroundNodeId as any);
-
-    // Nothing should be added, because the new items were not directly related to node id 2
-    expect(nodes.length).toBe(2);
-    expect(links.length).toBe(1);
-});
-
-
 test('should not filter nodes that are directly related when searching around a node', () => {
     const previousNodes = [{
         id: getHash(1),

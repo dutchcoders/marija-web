@@ -9,6 +9,7 @@ import abbreviateNodeName from './abbreviateNodeName';
 export function getHash(string) {
     let hash = 0, i, chr;
     string += '';
+    string = string.toLowerCase();
 
     if (string.length === 0) {
         return hash;
@@ -20,14 +21,6 @@ export function getHash(string) {
         hash |= 0; // Convert to 32bit integer
     }
     return hash;
-}
-
-interface NodeMap {
-    [id: string]: Node;
-}
-
-interface LinkMap {
-    [sourceTarget: string]: Link
 }
 
 export default function getNodesAndLinks(
