@@ -45,6 +45,49 @@ export const responders: Responder[] = [
 		}
 	},
 	{
+		willRespond: (action) => action.type === 'SEARCH_REQUEST' && action.query === 'images',
+		getResponse: (action) => {
+			return {
+				type: 'SEARCH_RECEIVE',
+				'request-id': action['request-id'],
+				datasource: 'twitter-tweets',
+				query: 'location',
+				results: [
+					{
+						id: '1',
+						count: 1,
+						fields: {
+							name: 'Thomas',
+							location: '51,3',
+							created2: '2018-05-30T15:07:20Z',
+							profile: 'https://avatars2.githubusercontent.com/u/1392370?s=460&v=4'
+						}
+					},
+					{
+						id: '2',
+						count: 1,
+						fields: {
+							name: 'Remco',
+							location: '51,3',
+							created2: '2018-06-20T15:07:20Z',
+							profile: 'https://cdn-images-1.medium.com/fit/c/120/120/0*dIQhJQRSpKOSCrid.jpg'
+						}
+					},
+					{
+						id: '3',
+						count: 1,
+						fields: {
+							name: 'Bouke',
+							location: '51,3',
+							created2: '2018-07-20T15:07:20Z',
+							profile: 'https://media.licdn.com/dms/image/C5103AQFGu53SZi7qTA/profile-displayphoto-shrink_200_200/0?e=1534982400&v=beta&t=CEvoYDNvYJDx2dtpa3NlR52OF4GX1itOhuMEvEbxbFo'
+						}
+					}
+				]
+			}
+		}
+	},
+	{
 		willRespond: (action) => action.type === 'SEARCH_REQUEST' && action.query === 'location2',
 		getResponse: (action) => {
 			return {
@@ -110,6 +153,11 @@ export const responders: Responder[] = [
 						datasourceId: 'twitter-tweets',
 						path: 'created2',
 						type: 'date'
+					},
+					{
+						datasourceId: 'twitter-tweets',
+						path: 'profile',
+						type: 'image'
 					}
 				]
 			}
