@@ -124,3 +124,10 @@ export const getTimelineGroups = createSelector(
 		};
     }
 );
+
+export const isTableLoading = createSelector(
+	(state: AppState) => state.graph.items,
+
+	(items: Item[]) =>
+		typeof items.find(item => item.requestedExtraData) !== 'undefined'
+);

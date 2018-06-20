@@ -180,8 +180,12 @@ class RecordDetail extends React.Component<any, any> {
     }
 
     isImage(fieldPath: string): boolean {
-    	const { fields } = this.props;
-    	const field = fields.find(field => field.path === fieldPath);
+    	const { availableFields } = this.props;
+    	const field = availableFields.find(field => field.path === fieldPath);
+
+    	if (!field) {
+    	    return false;
+        }
 
     	return field.type === 'image';
 	}
@@ -199,11 +203,11 @@ class RecordDetail extends React.Component<any, any> {
             </tr>
         );
     }
-}
+}//
 
 const select = (state: AppState, ownProps) => ({
 	...ownProps,
-	fields: state.graph.fields
+	availableFields: state.fields.availableFields
 });
 
 export default connect(select)(RecordDetail);

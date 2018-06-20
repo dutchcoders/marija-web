@@ -6,7 +6,7 @@ import { connect, Dispatch } from 'react-redux';
 
 import { fieldAdd } from '../fields/fieldsActions';
 import { Field } from '../fields/interfaces/field';
-import { getSelectedNodes } from '../graph/graphSelectors';
+import { getSelectedNodes, isTableLoading } from '../graph/graphSelectors';
 import { Node } from '../graph/interfaces/node';
 import { Normalization } from '../graph/interfaces/normalization';
 import { Item } from '../items/interfaces/item';
@@ -20,6 +20,7 @@ import RecordDetail from './components/recordDetail';
 import { Column } from './interfaces/column';
 import { SortType } from './interfaces/sortType';
 import { tableColumnAdd, tableColumnRemove, tableSort } from './tableActions';
+import Loader from '../ui/components/loader';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -33,6 +34,7 @@ interface Props {
     searches: Search[];
     availableFields: Field[];
     exportEvents: EventEmitter;
+    isTableLoading: boolean;
 }
 
 interface State {
@@ -111,7 +113,7 @@ class Table extends React.Component<Props, State> {
         const selectedItems = this.getSelectedItems(selectedNodes, items);
         const { dispatch } = this.props;
 
-        const request = selectedItems.filter(item => !item.requestedExtraData);
+        const request = selectedItems.filter(item => !item.requestedExtraData && !item.receivedExtraData);
 
         if (request.length > 0) {
             dispatch(requestItems(request));
@@ -184,8 +186,9 @@ class Table extends React.Component<Props, State> {
         const { items, queryColorMap } = this.state;
 
         const activeFields = fields.map(field => field.path);
+        const receivedItems = items.filter(item => item.receivedExtraData);
 
-        return map(items, (record, i) => {
+        return map(receivedItems, (record, i) => {
             const expanded = (findIndex(this.state.expandedItems, function(o) { return o == record.id; }) >= 0);
             const className = (i % 2 === 0 ? 'odd' : 'even') + (columns.length ? '' : ' noColumns');
 
@@ -293,7 +296,7 @@ class Table extends React.Component<Props, State> {
 
     render() {
         const { items } = this.state;
-        const { selectedNodes } = this.props;
+        const { selectedNodes, isTableLoading } = this.props;
 
         if (!selectedNodes.length) {
             return <p className="noNodes">Select some nodes first</p>;
@@ -305,6 +308,13 @@ class Table extends React.Component<Props, State> {
 
         return (
             <div className="form-group">
+                {isTableLoading && (
+                    <div className="tableLoader">
+                        <Loader show={true} />
+						<span>Fetching extra data</span>
+                    </div>
+                )}
+
                 <table className="tableView">
                     <tbody>
                     <tr>
@@ -331,7 +341,8 @@ function select(state: AppState) {
         columns: state.table.columns,
         sortColumn: state.table.sortColumn,
         sortType: state.table.sortType,
-        availableFields: state.fields.availableFields
+        availableFields: state.fields.availableFields,
+        isTableLoading: isTableLoading(state)
     };
 }
 

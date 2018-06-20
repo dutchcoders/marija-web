@@ -20,7 +20,8 @@ const generateItem = (fields: any = undefined) => {
         searchId: null,
         count: 0,
         requestedExtraData: false,
-        nodes: []
+        nodes: [],
+        receivedExtraData: false
     } as Item;
 };
 

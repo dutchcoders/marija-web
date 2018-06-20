@@ -541,6 +541,9 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             }
 
             let nodes: Node[] = state.nodes.concat([]);
+
+            action.payload.items.forEach(item => item.receivedExtraData = true);
+
             let items = state.items.concat(action.payload.items);
 
             // We might need to delete the previous item

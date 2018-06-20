@@ -9,5 +9,6 @@ export interface Item {
         [key: string]: any
     };
     requestedExtraData: boolean;
+    receivedExtraData: boolean;
     nodes: Node[];
 }

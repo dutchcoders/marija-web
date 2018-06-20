@@ -281,6 +281,20 @@
             }
         }
 
+        .tableLoader {
+            display: flex;
+            margin: 1em 0;
+
+            .loader {
+                margin: 0;
+            }
+
+            span {
+                margin-left: 10px;
+                line-height: 18px;
+            }
+        }
+
         table {
             &.tableView {
                 width: calc(100% + 28px);
