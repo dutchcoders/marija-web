@@ -1,0 +1,32 @@
+.filter {
+  position: relative;
+  width: 200px;
+  float: right;
+}
+
+.filterInput {
+  box-sizing: border-box;
+  background-color: white;
+  outline: none;
+  border: none;
+  font-size: 15px;
+  color: #fff;
+  margin: 10px 0;
+  padding: 5px 30px 5px 10px;
+  border-radius: 3px;
+  background: rgba(0,0,0,.2);
+  box-shadow: inset 2px 2px 5px 0px rgba(0,0,0,0.3);
+  resize: none;
+  width: 100%;
+
+  &::placeholder {
+    color: #fff;
+  }
+}
+
+.searchIcon {
+  position: absolute;
+  top: 13px;
+  right: 8px;
+  font-size: 18px;
+}

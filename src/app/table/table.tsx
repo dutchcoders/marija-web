@@ -1,6 +1,6 @@
 import { EventEmitter } from 'fbemitter';
 import { saveAs } from 'file-saver';
-import { concat, findIndex, map, pull } from 'lodash';
+import { concat, findIndex, map, pull, forEach } from 'lodash';
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 
@@ -21,6 +21,8 @@ import { Column } from './interfaces/column';
 import { SortType } from './interfaces/sortType';
 import { tableColumnAdd, tableColumnRemove, tableSort } from './tableActions';
 import Loader from '../ui/components/loader';
+import * as styles from './table.scss';
+import { FormEvent } from 'react';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -41,6 +43,7 @@ interface State {
     items: Item[];
     expandedItems: any[];
     queryColorMap: QueryColorMap;
+    filter: string;
 }
 
 export interface QueryColorMap {
@@ -51,7 +54,8 @@ class Table extends React.Component<Props, State> {
     state: State = {
         items: [],
         expandedItems: [],
-        queryColorMap: {}
+        queryColorMap: {},
+		filter: ''
     };
 
     toggleExpand(id) {
@@ -183,10 +187,36 @@ class Table extends React.Component<Props, State> {
 
     renderBody() {
         const { columns, searches, fields, selectedNodes } = this.props;
-        const { items, queryColorMap } = this.state;
+        const { items, queryColorMap, filter } = this.state;
 
         const activeFields = fields.map(field => field.path);
-        const receivedItems = items.filter(item => item.receivedExtraData);
+        let receivedItems = items.filter(item => item.receivedExtraData);
+
+        if (filter.length > 0) {
+        	receivedItems = receivedItems.filter(item => {
+        		const keys = Object.keys(item.fields);
+        		const lowercaseFilter: string = filter.toLowerCase();
+
+        		for (let i = 0; i < keys.length; i ++) {
+        			const value: any = item.fields[keys[i]];
+        			let transformed: string;
+
+        			if (typeof value === 'number') {
+        				transformed = value.toString();
+					} else if (typeof value === 'string') {
+        				transformed = value;
+					} else {
+        				continue;
+					}
+
+        			if (transformed.toLowerCase().includes(lowercaseFilter)) {
+        				return true;
+					}
+				}
+
+				return false;
+			});
+		}
 
         return map(receivedItems, (record, i) => {
             const expanded = (findIndex(this.state.expandedItems, function(o) { return o == record.id; }) >= 0);
@@ -294,8 +324,14 @@ class Table extends React.Component<Props, State> {
         saveAs(blob, filename);
     }
 
+    onFilterChange(event: FormEvent<HTMLInputElement>) {
+		this.setState({
+			filter: event.currentTarget.value
+		});
+	}
+
     render() {
-        const { items } = this.state;
+        const { items, filter } = this.state;
         const { selectedNodes, isTableLoading } = this.props;
 
         if (!selectedNodes.length) {
@@ -308,6 +344,16 @@ class Table extends React.Component<Props, State> {
 
         return (
             <div className="form-group">
+				<form className={styles.filter}>
+					<input
+						className={styles.filterInput}
+						placeholder="Filter"
+						onChange={this.onFilterChange.bind(this) }
+						value={filter}
+					/>
+					<Icon name="ion-ios-search" className={'ion-ios-search ' + styles.searchIcon} />
+				</form>
+
                 {isTableLoading && (
                     <div className="tableLoader">
                         <Loader show={true} />
