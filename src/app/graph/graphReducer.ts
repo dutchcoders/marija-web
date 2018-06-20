@@ -536,7 +536,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             };
         }
         case ITEMS_RECEIVE: {
-            if (!action.payload.items) {
+            if (!action.payload.items || !action.payload.items.length) {
                 return state;
             }
 
@@ -555,7 +555,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                     }
 
                     const itemIds = node.items.concat([]);
-                    itemIds[itemIndex] = action.items[0].id;
+                    itemIds[itemIndex] = action.payload.items[0].id;
 
                     return Object.assign({}, node, {
                         items: itemIds

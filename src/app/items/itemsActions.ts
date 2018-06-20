@@ -11,14 +11,10 @@ export function requestItems(items: Item[]) {
         const chunks = chunk(ids, 10);
 
         chunks.forEach(batch => {
-            const payload = {
-                'request-id': uniqueId(),
-                items: batch
-            };
-
             dispatch(webSocketSend({
                 type: ITEMS_REQUEST,
-                payload: payload
+				'request-id': uniqueId(),
+				items: batch
             }));
         });
 
