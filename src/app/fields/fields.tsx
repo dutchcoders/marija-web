@@ -11,6 +11,7 @@ import FieldRow from './components/fieldRow/fieldRow';
 import * as styles from './fields.scss';
 import { Field } from './interfaces/field';
 import { MAX_FIELDS } from '../graph/graphConstants';
+import { getNonDateFields } from './fieldsSelectors';
 
 interface State {
     currentFieldSearchValue: string;
@@ -25,7 +26,6 @@ interface Props {
     dispatch: Dispatch<any>;
     fields: Field[];
     availableFields: Field[];
-    date_fields: Field[];
     datasources: Datasource[];
     fieldsFetching: boolean;
 }
@@ -420,8 +420,7 @@ class Fields extends React.Component<Props, State> {
 function select(state: AppState) {
     return {
         fields: state.graph.fields,
-        availableFields: state.fields.availableFields,
-        date_fields: state.graph.date_fields,
+        availableFields: getNonDateFields(state),
         fieldsFetching: state.fields.fieldsFetching,
         datasources: state.datasources.datasources,
     };

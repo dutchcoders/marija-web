@@ -24,3 +24,9 @@ export const getDateFieldGroups = createSelector(
 		return groups;
 	}
 );
+
+export const getNonDateFields = createSelector(
+	(state: AppState) => state.fields.availableFields,
+
+	(fields: Field[]) => fields.filter(field => field.type !== 'date')
+);
