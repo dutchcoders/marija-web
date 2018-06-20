@@ -126,8 +126,9 @@ class RecordDetail extends React.Component<any, any> {
     }
 
     renderDetails(columns) {
-        const { record, activeFields } = this.props;
+        const { record, activeFields, filter } = this.props;
         const allFields = this.extractAllFields(record.fields, false);
+        const isHighlighting = filter.length > 0;
 
         const expandedFields = map(allFields, (value: any) => {
             const highlight = record.highlight || {};
@@ -135,9 +136,14 @@ class RecordDetail extends React.Component<any, any> {
 
             const activeAsColumn: boolean = columns.indexOf(value) !== -1;
             const activeAsField: boolean = activeFields.indexOf(value) !== -1;
+            let newHighlight: boolean = false;
+
+            if (isHighlighting) {
+            	newHighlight = JSON.stringify(field_value).toLowerCase().includes(filter);
+			}
 
             return (
-                <tr key={ 'field_' + value }>
+                <tr key={ 'field_' + value } className={newHighlight ? 'highlight' : ''}>
                     <td>{value}
                         <div className="fieldButtons">
                             <Tooltip
@@ -191,19 +197,21 @@ class RecordDetail extends React.Component<any, any> {
 	}
 
     render() {
-        const { record, columns, node, expanded, className } = this.props;
+        const { record, columns, node, expanded, className, filter } = this.props;
 
         if (!expanded) {
             return null;
         }
 
+        const isHighlighting = filter.length > 0;
+
         return (
-            <tr className={className + ' recordDetail'} key={`record_detail_${record.id}`} >
+            <tr className={className + ' recordDetail ' + (isHighlighting ? 'isHighlighting' : '')} key={`record_detail_${record.id}`} >
                 { this.renderDetails(columns) }
             </tr>
         );
     }
-}//
+}
 
 const select = (state: AppState, ownProps) => ({
 	...ownProps,

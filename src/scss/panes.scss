@@ -368,6 +368,14 @@
                     max-width: 150px;
                     max-height: 150px;
                 }
+
+                &.isHighlighting tr {
+                    opacity: .3;
+                }
+
+                &.isHighlighting tr.highlight {
+                    opacity: 1;
+                }
             }
 
             tr.recordDetail > td {

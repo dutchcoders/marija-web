@@ -243,6 +243,7 @@ class Table extends React.Component<Props, State> {
                     onAddField={field => this.handleAddField(field)}
                     expanded = { expanded }
                     className={className}
+					filter={filter}
                     activeFields={activeFields}
                 />
             ];
