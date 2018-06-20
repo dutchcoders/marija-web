@@ -3,18 +3,29 @@ import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 import SkyLight from 'react-skylight';
 
-import { Datasource } from '../../datasources/interfaces/datasource';
-import { AppState } from '../../main/interfaces/appState';
-import { Search } from '../../search/interfaces/search';
-import { searchAround } from '../../search/searchActions';
-import Icon from '../../ui/components/icon';
-import { clearSelection, deleteNodes, deselectNodes, highlightNodes, nodesSelect, nodeUpdate, normalizationAdd, normalizationDelete, showTooltip } from '../graphActions';
-import getDirectlyRelatedNodes from '../helpers/getDirectlyRelatedNodes';
-import getRelatedNodes from '../helpers/getRelatedNodes';
-import { Link } from '../interfaces/link';
-import { Node } from '../interfaces/node';
-import { Normalization } from '../interfaces/normalization';
-import { getSelectedNodes } from '../graphSelectors';
+import { Datasource } from '../../../datasources/interfaces/datasource';
+import { AppState } from '../../../main/interfaces/appState';
+import { Search } from '../../../search/interfaces/search';
+import { searchAround } from '../../../search/searchActions';
+import Icon from '../../../ui/components/icon';
+import {
+	clearSelection,
+	deleteNodes,
+	deselectNodes,
+	highlightNodes,
+	nodesSelect,
+	nodeUpdate,
+	normalizationAdd,
+	normalizationDelete,
+	showTooltip
+} from '../../graphActions';
+import getDirectlyRelatedNodes from '../../helpers/getDirectlyRelatedNodes';
+import getRelatedNodes from '../../helpers/getRelatedNodes';
+import { Link } from '../../interfaces/link';
+import { Node } from '../../interfaces/node';
+import { Normalization } from '../../interfaces/normalization';
+import { getSelectedNodes } from '../../graphSelectors';
+import * as styles from './nodes.scss';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -256,6 +267,19 @@ class Nodes extends React.Component<Props, State> {
         dispatch(normalizationDelete(normalization));
     }
 
+    focus(node: Node) {
+		const { dispatch, selectedNodes } = this.props;
+
+		dispatch(deselectNodes(selectedNodes));
+		dispatch(nodesSelect([node]));
+    }
+
+    deselect(node: Node) {
+        const { dispatch } = this.props;
+
+        dispatch(deselectNodes([node]));
+    }
+
     renderSelected() {
         const { selectedNodes } = this.props;
 
@@ -285,6 +309,8 @@ class Nodes extends React.Component<Props, State> {
                                 <span className='description'>{i_node.description}</span>
                             </div>
                             {merged}
+                            <button className={styles.focus} onClick={() => this.focus(i_node)}>Focus</button>
+                            <button className={styles.deselect} onClick={() => this.deselect(i_node)}>Deselect</button>
                         </li>
                     );
 

@@ -1,10 +1,9 @@
 import { Node } from '../interfaces/node';
 
 export function selectNodes(nodesToSelect: Node[], allNodes: Node[]): Node[] {
-    const select: Node[] = nodesToSelect.filter(node => !node.selected);
     const nodes: Node[] = allNodes.concat([]);
 
-    select.forEach(node => {
+    nodesToSelect.forEach(node => {
         const index = nodes.findIndex(searchNode =>
             searchNode.id === node.id
             && searchNode.display

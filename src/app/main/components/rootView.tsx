@@ -7,7 +7,7 @@ import ContextMenu from '../../contextMenu/contextMenu';
 import ChordDiagram from '../../graph/components/chordDiagram/chordDiagram';
 import Filter from '../../graph/components/filter';
 import Navigation from '../../ui/components/navigation/navigation';
-import Nodes from '../../graph/components/nodes';
+import Nodes from '../../graph/components/nodes/nodes';
 import Timeline from '../../graph/components/timeline';
 import Graph from '../../graph/graph';
 import Header from '../../search/components/header';

@@ -319,7 +319,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             });
         }
         case NODES_SELECT: {
-            const nodes: Node[] = selectNodes(action.nodes, state.nodes);
+			const nodes: Node[] = selectNodes(action.nodes, state.nodes);
 
             return {
                 ...state,
