@@ -115,7 +115,7 @@ class Timeline extends React.Component<Props, State> {
 
 				{showAllFields && (
 					datasources.map(datasourceId => (
-						<div className={styles.dateFieldGroup}>
+						<div className={styles.dateFieldGroup} key={datasourceId}>
 							<h2 className={styles.dateFieldTitle}>{datasourceId}</h2>
 							<div className={styles.dateFields}>
 								{dateFieldGroups[datasourceId].map(field =>
