@@ -231,11 +231,18 @@ class Graph extends React.PureComponent<Props, State> {
     		return;
 		}
 
+		const { nodesForDisplay } = this.props;
     	const transform = d3.event.transform;
 
 		this.zoom();
 
 		this.transform = transform;
+
+		this.preProcessTextures(nodesForDisplay, this.transform.k)
+			.then(() => {
+				this.nodeSizeMultiplier = this.transform.k;
+				this.renderedSince.lastTick = false;
+			});
     }
 
     d3ZoomEnd() {
@@ -280,48 +287,67 @@ class Graph extends React.PureComponent<Props, State> {
             + node.searchIds.map(searchId => this.getSearchColor(searchId)).join('');
     }
 
-    getNodeTexture(node: Node, sizeMultiplier: number) {
+    getNodeTexture(node: Node, sizeMultiplier: number): PIXI.RenderTexture {
     	const key = node.textureKey + '-' + sizeMultiplier + '-' + (node.selected ? '1' : '0');
         let texture = this.nodeTextures[key];
 
-        if (typeof texture !== 'undefined') {
-            // Get from cache
-            return texture;
+        if (typeof texture === 'undefined') {
+            throw new Error('Texture not found for ' + key);
         }
 
-        const radius = node.r * sizeMultiplier;
+		return texture;
+    }
 
-        const canvas = document.createElement('canvas');
+    async setNodeTexture(node: Node, sizeMultiplier: number, selected: boolean): Promise<true> {
+		const key = node.textureKey + '-' + sizeMultiplier + '-' + (selected ? '1' : '0');
+		let texture = this.nodeTextures[key];
+
+		if (typeof texture !== 'undefined') {
+			// Already exists
+			return true;
+		}
+
+		const minRadius = 15;
+		const maxRadius = 40;
+		const maxRadiusAtItemCount = 10;
+		const preMultipliedRadius = Math.min(
+			maxRadius,
+			minRadius + node.items.length / maxRadiusAtItemCount * (maxRadius - minRadius)
+		);
+
+		const radius = preMultipliedRadius * sizeMultiplier;
+
+		const canvas = document.createElement('canvas');
 		const lineWidth = 3;
 		const margin = 2;
 		canvas.width = radius * 2 + lineWidth + margin;
 		canvas.height = radius * 2 + lineWidth + margin;
-        const ctx = canvas.getContext('2d');
+		const ctx = canvas.getContext('2d');
 
-        const fractionPerSearch = 1 / node.searchIds.length;
-        const anglePerSearch = 2 * Math.PI * fractionPerSearch;
-        let currentAngle = .5 * Math.PI;
+		const fractionPerSearch = 1 / node.searchIds.length;
+		const anglePerSearch = 2 * Math.PI * fractionPerSearch;
+		let currentAngle = .5 * Math.PI;
 
-        node.searchIds.forEach(searchId => {
-            ctx.beginPath();
-            ctx.fillStyle = this.getSearchColor(searchId);
-            ctx.moveTo(radius, radius);
-            ctx.arc(radius + margin, radius + margin, radius, currentAngle, currentAngle + anglePerSearch);
-            ctx.fill();
+		node.searchIds.forEach(searchId => {
+			ctx.beginPath();
+			ctx.fillStyle = this.getSearchColor(searchId);
+			ctx.moveTo(radius, radius);
+			ctx.arc(radius + margin, radius + margin, radius, currentAngle, currentAngle + anglePerSearch);
+			ctx.fill();
 
-            currentAngle += anglePerSearch;
-        });
+			currentAngle += anglePerSearch;
+		});
 
-        const fontSize = radius;
+		const fontSize = radius;
 
-        ctx.fillStyle = '#ffffff';
-        ctx.font = fontSize + 'px Ionicons, Roboto, Helvetica, Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(node.icon, radius - 1 + margin, radius + margin + (fontSize / 3));
+		ctx.fillStyle = '#ffffff';
+		ctx.font = fontSize + 'px Ionicons, Roboto, Helvetica, Arial';
+		ctx.textAlign = 'center';
+		ctx.fillText(node.icon, radius - 1 + margin, radius + margin + (fontSize / 3));
 
-        texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
+		texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
 
-		if (node.selected) {
+		if (selected) {
 			ctx.lineWidth = lineWidth;
 			ctx.strokeStyle = '#fac04b';
 			ctx.beginPath();
@@ -329,11 +355,11 @@ class Graph extends React.PureComponent<Props, State> {
 			ctx.stroke();
 		}
 
-        // Save in cache
-        this.nodeTextures[key] = texture;
+		// Save in cache
+		this.nodeTextures[key] = texture;
 
-        return texture;
-    }
+		return true;
+	}
 
     static b64DecodeUnicode(str) {
 		// Going backwards: from bytestream, to percent-encoding, to original string.
@@ -357,13 +383,24 @@ class Graph extends React.PureComponent<Props, State> {
     	const key = node.textureKey + '-' + (node.selected ? '1' : '0');
         let texture = this.nodeMarkerTextures[key];
 
-        if (typeof texture !== 'undefined') {
-            // Get from cache
-            return texture;
+        if (typeof texture === 'undefined') {
+            throw new Error('Could not find node marker texture ' + key);
         }
 
+        return texture;
+    }
+
+    async setNodeMarkerTexture(node: Node, selected: boolean): Promise<true> {
+		const key = node.textureKey + '-' + (selected ? '1' : '0');
+		let texture = this.nodeMarkerTextures[key];
+
+		if (typeof texture !== 'undefined') {
+			// Already exists
+			return true;
+		}
+
 		const parser = new DOMParser();
-        const base64 = markerSvgImage.replace('data:image/svg+xml;base64,', '');
+		const base64 = markerSvgImage.replace('data:image/svg+xml;base64,', '');
 		const doc = parser.parseFromString(Graph.b64DecodeUnicode(base64), 'image/svg+xml');
 		const marker = doc.getElementById('marker');
 		const color = this.getSearchColor(node.searchIds[0]);
@@ -371,7 +408,7 @@ class Graph extends React.PureComponent<Props, State> {
 		marker.setAttribute('fill', color);
 		let strokeWidth: number = 0;
 
-		if (node.selected) {
+		if (selected) {
 			strokeWidth = 2;
 			marker.setAttribute('stroke', '#fac04b');
 			marker.setAttribute('stroke-width', strokeWidth.toString());
@@ -396,8 +433,8 @@ class Graph extends React.PureComponent<Props, State> {
 		// Save in cache
 		this.nodeMarkerTextures[key] = texture;
 
-		return texture;
-    }
+		return true;
+	}
 
     getIconTexture(icon: string, sizeMultiplier: number): PIXI.RenderTexture {
     	const key = icon + '-' + sizeMultiplier;
@@ -442,12 +479,12 @@ class Graph extends React.PureComponent<Props, State> {
 		return this.transform.k;
 	}
 
-	nodeSizeMultiplier: number;
+	nodeSizeMultiplier: number = 1;
 
     renderNodes() {
         this.renderedNodesContainer.removeChildren();
         this.renderedIcons.removeChildren();
-		this.nodeSizeMultiplier = this.getNodeSizeMultiplier();
+		// this.nodeSizeMultiplier = this.getNodeSizeMultiplier();
 
         this.nodeMap.forEach(this.renderNode.bind(this));
     }
@@ -825,6 +862,24 @@ class Graph extends React.PureComponent<Props, State> {
         });
     }
 
+    async preProcessTextures(nodes: Node[], sizeMultiplier: number): Promise<any> {
+		const { isMapActive } = this.props;
+
+		const promises: Promise<any>[] = [];
+
+		nodes.forEach(node => {
+			if (isMapActive && node.isGeoLocation) {
+				promises.push(this.setNodeMarkerTexture(node, true));
+				promises.push(this.setNodeMarkerTexture(node, false));
+			} else {
+				promises.push(this.setNodeTexture(node, sizeMultiplier, true));
+				promises.push(this.setNodeTexture(node, sizeMultiplier, false));
+			}
+		});
+
+		return Promise.all(promises);
+	}
+
     componentWillReceiveProps(nextProps: Props) {
         const { searches, nodesForDisplay, linksForDisplay, fields, showLabels, highlightedNodes, isMapActive, selectedNodes } = this.props;
         const nextSelected = nextProps.nodesForDisplay.filter(node => node.selected);
@@ -883,7 +938,14 @@ class Graph extends React.PureComponent<Props, State> {
 		}
 
         if (this.shouldPostToWorker(nextProps.nodesForDisplay, nodesForDisplay, nextProps.linksForDisplay, linksForDisplay, isMapActive, nextProps.isMapActive)) {
-            this.postNodesAndLinksToWorker(nextProps.nodesForDisplay, nextProps.linksForDisplay, nextProps.isMapActive);
+        	this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
+				.then(() =>
+					this.postNodesAndLinksToWorker(
+						nextProps.nodesForDisplay,
+						nextProps.linksForDisplay,
+						nextProps.isMapActive
+					)
+				);
         } else if (this.shouldUpdateNodeProperties(nodesForDisplay, nextProps.nodesForDisplay)) {
             this.updateNodeProperties(nextProps.nodesForDisplay);
         }

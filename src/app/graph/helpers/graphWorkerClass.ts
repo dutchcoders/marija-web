@@ -72,6 +72,8 @@ export default class GraphWorkerClass {
 			prevItemCache = payload.prevItems;
 		}
 
+
+
         const searchIndex: number = payload.searches.findIndex(loop =>
             loop.searchId === payload.searchId
             && !loop.paused
