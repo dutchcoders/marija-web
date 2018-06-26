@@ -56,6 +56,10 @@ export interface Node {
 
 	isImage: boolean;
 
+	childData?: {
+		[field: string]: string
+	}
+
 	textureKey?: string;
 	r?: number;
 	x?: number;

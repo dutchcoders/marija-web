@@ -25,10 +25,11 @@ const generateItem = (fields: any = undefined) => {
     } as Item;
 };
 
-const generateField = (field) => {
+const generateField = (field, childOf = '') => {
     return {
         icon: 'a',
-        path: field
+        path: field,
+        childOf
     } as Field;
 };
 
@@ -319,4 +320,180 @@ test('should build links between array values', () => {
 
     expect(nodes.length).toBe(4);
     expect(links.length).toBe(3);
+});
+
+test('parents', () => {
+	const previousNodes = [];
+	const previousLinks = [];
+
+	const items = [
+		{
+			id: '1',
+			fields: {
+				first_name: 'Thomas',
+				last_name: 'Kuipers',
+                organisation: 'DutchSec'
+			}
+		},
+		{
+			id: '2',
+			fields: {
+				first_name: 'Remco',
+				last_name: 'Verhoef',
+				organisation: 'DutchSec'
+			}
+		}
+	];
+
+	const fields = [
+		generateField('last_name'),
+		generateField('first_name', 'last_name'),
+		generateField('organisation'),
+	];
+
+	const query = generateQuery(items);
+
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+
+	expect(nodes.length).toBe(3);
+	expect(links.length).toBe(2);
+});
+
+test('parents 2', () => {
+	const previousNodes = [];
+	const previousLinks = [];
+
+	const items = [
+		{
+			id: '1',
+			fields: {
+				first_name: 'Thomas',
+				last_name: 'Kuipers',
+                organisation: 'DutchSec'
+			}
+		},
+		{
+			id: '2',
+			fields: {
+				first_name: 'Harry',
+				last_name: 'Kuipers',
+				organisation: 'Hovenier'
+			}
+		}
+	];
+
+	const fields = [
+		generateField('last_name'),
+		generateField('first_name', 'last_name'),
+		generateField('organisation'),
+	];
+
+	const query = generateQuery(items);
+
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+
+	/**
+     * Expect:
+     * Kuipers --- Dutchsec
+     * |
+     * |
+     * Hovenier
+     *
+	 */
+	expect(nodes.length).toBe(3);
+	expect(links.length).toBe(2);
+});
+
+test('parents 3', () => {
+	const previousNodes = [];
+	const previousLinks = [];
+
+	const items = [
+		{
+			id: '1',
+			fields: {
+				first_name: 'Thomas',
+				born: 1990,
+                organisation: 'DutchSec'
+			}
+		},
+		{
+			id: '2',
+			fields: {
+				first_name: 'Harry',
+				born: 1990,
+				organisation: 'Hovenier'
+			}
+		}
+	];
+
+	const fields = [
+		generateField('first_name'),
+	    generateField('born', 'first_name'),
+		generateField('organisation'),
+	];
+
+	const query = generateQuery(items);
+
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+
+	/**
+     * Expect:
+     * Thomas --- Dutchsec
+     * |
+     * |
+     * Harry --- Hovenier
+     *
+	 */
+	expect(nodes.length).toBe(4);
+	expect(links.length).toBe(3);
+});
+
+test('parents 4', () => {
+	const previousNodes = [];
+	const previousLinks = [];
+
+	const items = [
+		{
+			id: '1',
+			fields: {
+				first_name: 'Thomas',
+				born: 1990
+			}
+		},
+		{
+			id: '2',
+			fields: {
+				first_name: 'Harry',
+				born: 1990
+			}
+		}
+	];
+
+	const fields = [
+		generateField('first_name'),
+	    generateField('born', 'first_name'),
+	];
+
+	const query = generateQuery(items);
+
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+
+	console.log(nodes.map(node => ({
+	    name: node.name,
+        childData: node.childData
+    })));
+
+	/**
+     * Expect:
+     * Thomas
+     * |
+     * |
+     * Harry
+     *
+	 */
+	expect(nodes.length).toBe(2);
+	expect(links.length).toBe(1);
+	expect(nodes[0].childData).toEqual({ born: '1990' });
+	expect(nodes[1].childData).toEqual({ born: '1990' });
 });

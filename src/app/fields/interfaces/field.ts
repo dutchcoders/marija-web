@@ -3,4 +3,5 @@ export interface Field {
     type: string;
     datasourceId: string;
     icon?: string;
+    childOf?: string;
 }
