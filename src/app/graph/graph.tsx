@@ -33,6 +33,7 @@ import {
 	markPerformance,
 	measurePerformance
 } from '../main/helpers/performance';
+import { loadImage } from './helpers/loadImage';
 
 interface TextureMap {
     [hash: string]: PIXI.RenderTexture;
@@ -238,9 +239,11 @@ class Graph extends React.PureComponent<Props, State> {
 
 		this.transform = transform;
 
-		this.preProcessTextures(nodesForDisplay, this.transform.k)
+		const newK = this.transform.k;
+
+		this.preProcessTextures(nodesForDisplay, newK)
 			.then(() => {
-				this.nodeSizeMultiplier = this.transform.k;
+				this.nodeSizeMultiplier = newK;
 				this.renderedSince.lastTick = false;
 			});
     }
@@ -436,6 +439,91 @@ class Graph extends React.PureComponent<Props, State> {
 		return true;
 	}
 
+	getNodeImageTexture(node: Node, sizeMultiplier: number): PIXI.RenderTexture {
+		const key = node.name + '-' + sizeMultiplier + '-' + (node.selected ? '1' : '0');
+		let texture = this.nodeTextures[key];
+
+		if (typeof texture === 'undefined') {
+			throw new Error('Texture not found for node image ' + key);
+		}
+
+		return texture;
+	}
+
+	async setNodeImageTexture(node: Node, sizeMultiplier: number, selected: boolean): Promise<true> {
+		const key = node.name + '-' + sizeMultiplier + '-' + (selected ? '1' : '0');
+		let texture = this.nodeTextures[key];
+
+		if (typeof texture !== 'undefined') {
+			// Already exists
+			return true;
+		}
+
+		const minRadius = 30;
+		const maxRadius = 40;
+		const maxRadiusAtItemCount = 10;
+		const preMultipliedRadius = Math.min(
+			maxRadius,
+			minRadius + node.items.length / maxRadiusAtItemCount * (maxRadius - minRadius)
+		);
+
+		const radius = preMultipliedRadius * sizeMultiplier;
+
+		const canvas = document.createElement('canvas');
+		const lineWidth = 3;
+		const margin = 2;
+		canvas.width = radius * 2 + lineWidth + margin;
+		canvas.height = radius * 2 + lineWidth + margin;
+		const ctx = canvas.getContext('2d');
+
+		ctx.beginPath();
+		ctx.arc(canvas.width / 2, canvas.height / 2, radius, 0, Math.PI * 2, false);
+		ctx.clip();
+
+		const image = await loadImage(node.name);
+
+		const diameter = radius * 2;
+		let newImageWidth: number;
+		let newImageHeight: number;
+
+		if (image.width > diameter) {
+			newImageWidth = diameter;
+			newImageHeight = newImageWidth / image.width * image.height;
+		} else if (image.height > diameter) {
+			newImageHeight = diameter;
+			newImageWidth = newImageHeight / image.height * image.width;
+		} else {
+			newImageWidth = diameter;
+			newImageHeight = diameter;
+		}
+
+		const imageX = canvas.width / 2 - (newImageWidth / 2);
+		const imageY = canvas.height / 2 - (newImageHeight / 2);
+
+		ctx.drawImage(
+			image,
+			0, 0,
+			image.width, image.height,
+			imageX, imageY,
+			newImageWidth, newImageHeight
+		);
+
+		texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
+
+		if (selected) {
+			ctx.lineWidth = lineWidth;
+			ctx.strokeStyle = '#fac04b';
+			ctx.beginPath();
+			ctx.arc(radius + margin, radius + margin, radius, 0, 2 * Math.PI);
+			ctx.stroke();
+		}
+
+		// Save in cache
+		this.nodeTextures[key] = texture;
+
+		return true;
+	}
+
     getIconTexture(icon: string, sizeMultiplier: number): PIXI.RenderTexture {
     	const key = icon + '-' + sizeMultiplier;
         let texture: PIXI.RenderTexture = this.iconTextures[key];
@@ -505,6 +593,9 @@ class Graph extends React.PureComponent<Props, State> {
 		if (isMapActive && node.isGeoLocation) {
 			texture = this.getNodeMarkerTexture(node);
 			anchorY = 1;
+		} else if (node.isImage) {
+			texture = this.getNodeImageTexture(node, this.nodeSizeMultiplier);
+			anchorY = .5;
 		} else {
 			texture = this.getNodeTexture(node, this.nodeSizeMultiplier);
 			anchorY = .5;
@@ -871,6 +962,9 @@ class Graph extends React.PureComponent<Props, State> {
 			if (isMapActive && node.isGeoLocation) {
 				promises.push(this.setNodeMarkerTexture(node, true));
 				promises.push(this.setNodeMarkerTexture(node, false));
+			} else if (node.isImage) {
+				promises.push(this.setNodeImageTexture(node, sizeMultiplier, true));
+				promises.push(this.setNodeImageTexture(node, sizeMultiplier, false));
 			} else {
 				promises.push(this.setNodeTexture(node, sizeMultiplier, true));
 				promises.push(this.setNodeTexture(node, sizeMultiplier, false));
