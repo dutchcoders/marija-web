@@ -5,6 +5,8 @@ import { Via } from '../graph/interfaces/via';
 import { AppState } from '../main/interfaces/appState';
 import { DATE_FIELD_ADD, DATE_FIELD_DELETE, FIELD_ADD, FIELD_DELETE, FIELD_UPDATE, FIELDS_CLEAR, FIELDS_RECEIVE, FIELDS_REQUEST } from './fieldsConstants';
 import { Field } from './interfaces/field';
+import { triggerGraphWorker } from '../graph/graphActions';
+import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 
 export function clearFields(datasource){
     return {
@@ -87,6 +89,11 @@ export function fieldDelete(field) {
         });
 
         const state: AppState = getState();
+
+        const graphWorkerPayload = getGraphWorkerPayload(state);
+
+        dispatch(triggerGraphWorker(graphWorkerPayload));
+
         const fields: Field[] = state.graph.fields;
         const datasources: Datasource[] = state.datasources.datasources;
 

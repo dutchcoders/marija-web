@@ -213,14 +213,15 @@ export function setFieldParent(child: string, parent: string) {
 
 		const state: AppState = getState();
 		const payload = getGraphWorkerPayload(state, [], null);
-		payload.prevNodes = [];
-		payload.prevLinks = [];
 
 		dispatch(triggerGraphWorker(payload));
 	};
 }
 
 export function triggerGraphWorker(payload: GraphWorkerPayload) {
+	payload.prevNodes = [];
+	payload.prevLinks = [];
+
 	return {
 		type: TRIGGER_GRAPH_WORKER,
 		meta: {

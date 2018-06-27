@@ -60,19 +60,19 @@ export function createWorkerMiddleware(worker) {
 							// received items for a query we were not searching for
 							return;
 						}
+
+						const state: AppState = getState();
+
+						// Dont send data to the graph worker that it already has available, to save on CPU
+						// Posting messages to workers can be very heavy
+						if (state.graph.graphWorkerCacheIsValid) {
+							delete payload.prevItems;
+							delete payload.prevLinks;
+							delete payload.prevNodes;
+						}
 					}
 
 					markPerformance('beforePostToGraphWorker');
-
-					const state: AppState = getState();
-
-					// Dont send data to the graph worker that it already has available, to save on CPU
-					// Posting messages to workers can be very heavy
-					if (state.graph.graphWorkerCacheIsValid) {
-						delete payload.prevItems;
-						delete payload.prevLinks;
-						delete payload.prevNodes;
-					}
 
 					worker.postMessage(action);
 

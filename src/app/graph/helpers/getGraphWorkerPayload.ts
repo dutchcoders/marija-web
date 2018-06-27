@@ -2,7 +2,7 @@ import { Item } from '../../items/interfaces/item';
 import { AppState } from '../../main/interfaces/appState';
 import { GraphWorkerPayload } from './graphWorkerClass';
 
-export function getGraphWorkerPayload(state: AppState, items: Item[], searchId: string): GraphWorkerPayload {
+export function getGraphWorkerPayload(state: AppState, items: Item[] = [], searchId: string = null): GraphWorkerPayload {
 	return {
 		items: items,
 		searchId: searchId,

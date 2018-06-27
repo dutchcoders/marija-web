@@ -49,7 +49,6 @@ import {
 	VIA_DELETE
 } from './graphConstants';
 import applyVia from './helpers/applyVia';
-import deleteFieldFromNodes from './helpers/deleteFieldFromNodes';
 import denormalizeLinks from './helpers/denormalizeLinks';
 import denormalizeNodes from './helpers/denormalizeNodes';
 import {deselectNodes} from './helpers/deselectNodes';
@@ -58,7 +57,6 @@ import markLinksForDisplay from './helpers/markLinksForDisplay';
 import markNodesForDisplay from './helpers/markNodesForDisplay';
 import normalizeLinks from './helpers/normalizeLinks';
 import normalizeNodes from './helpers/normalizeNodes';
-import removeDeadLinks from './helpers/removeDeadLinks';
 import removeNodesAndLinks from './helpers/removeNodesAndLinks';
 import removeVia from './helpers/removeVia';
 import {selectNodes} from './helpers/selectNodes';
@@ -195,14 +193,25 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             };
         }
         case FIELD_DELETE: {
-            const nodes = deleteFieldFromNodes(action.field.path, state.nodes);
-            const links = removeDeadLinks(nodes, state.links);
+            const pathToDelete: string = action.field.path;
+            let fields = state.fields.filter(field => field.path !== pathToDelete);
+
+            fields = fields.map(field => {
+                // Reset all the children of this field. They can not have non-existing parent of course.
+
+                if (field.childOf === pathToDelete) {
+                    return {
+                        ...field,
+                        childOf: null
+                    };
+                }
+
+                return field;
+            });
 
             return {
                 ...state,
-                fields: without(state.fields, action.field),
-                nodes: nodes,
-                links: links,
+                fields: fields,
 				graphWorkerCacheIsValid: false
             };
         }
