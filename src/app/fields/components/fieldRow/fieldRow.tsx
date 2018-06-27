@@ -167,7 +167,10 @@ class FieldRow extends React.Component<Props, State> {
         let selectIconButton = null;
         let selectNodesButton = null;
 
-        if (isActive) {
+        if (isActive && field.childOf) {
+			selectIconButton = <td />;
+			selectNodesButton = <td />;
+		} else if (isActive && !field.childOf) {
             selectIconButton = (
                 <td className={styles.td}>
                     <i className={styles.icon}

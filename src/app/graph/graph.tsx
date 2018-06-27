@@ -954,6 +954,10 @@ class Graph extends React.PureComponent<Props, State> {
     async preProcessTextures(nodes: Node[], sizeMultiplier: number, forceRefresh: boolean = false): Promise<any> {
 		const { isMapActive } = this.props;
 
+		nodes.forEach(node => {
+			node.textureKey = this.getNodeTextureKey(node);
+		});
+
 		const promises: Promise<any>[] = [];
 
 		nodes.forEach(node => {
@@ -1001,28 +1005,14 @@ class Graph extends React.PureComponent<Props, State> {
         }
 
         if (!isEqual(nextProps.searches, searches)) {
-            this.nodeTextures = {};
-            this.renderedSince.lastQueries = false;
+            this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
+				.then(() => this.renderedSince.lastQueries = false);
         }
 
         if (!isEqual(nextProps.fields, fields)) {
 			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
 				.then(() => this.renderedSince.lastFields = false);
         }
-
-        if (nextProps.nodesForDisplay !== nodesForDisplay) {
-        	const textureKeys: string[] = [];
-
-        	this.nodeMap.clear();
-        	nextProps.nodesForDisplay.forEach(node => {
-        		node.textureKey = this.getNodeTextureKey(node);
-        		this.nodeMap.set(node.id, node);
-
-        		if (textureKeys.indexOf(node.textureKey) === -1) {
-        			textureKeys.push(node.textureKey);
-				}
-			});
-		}
 
 		if (nextProps.linksForDisplay !== linksForDisplay) {
         	this.linkMap.clear();
@@ -1031,13 +1021,19 @@ class Graph extends React.PureComponent<Props, State> {
 
         if (this.shouldPostToWorker(nextProps.nodesForDisplay, nodesForDisplay, nextProps.linksForDisplay, linksForDisplay, isMapActive, nextProps.isMapActive)) {
         	this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
-				.then(() =>
+				.then(() => {
+					this.nodeMap.clear();
+
+					nextProps.nodesForDisplay.forEach(node => {
+						this.nodeMap.set(node.id, node);
+					});
+
 					this.postNodesAndLinksToWorker(
 						nextProps.nodesForDisplay,
 						nextProps.linksForDisplay,
 						nextProps.isMapActive
-					)
-				);
+					);
+				});
         } else if (this.shouldUpdateNodeProperties(nodesForDisplay, nextProps.nodesForDisplay)) {
             this.updateNodeProperties(nextProps.nodesForDisplay);
         }
