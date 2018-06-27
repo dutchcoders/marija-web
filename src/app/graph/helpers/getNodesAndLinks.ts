@@ -58,7 +58,7 @@ export default function getNodesAndLinks(
 					}
 				});
 			});
-			
+
 		} else {
     		activeField = field;
     		childData = {};

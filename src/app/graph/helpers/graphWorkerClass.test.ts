@@ -47,8 +47,9 @@ const getNode = (id, query, itemIds) => {
         items: itemIds,
         count: 0,
         fields: [],
-        display: true
-    } as Node;
+        display: true,
+        itemIds: []
+    } as any;
 };
 
 const getLink = (source, target) => {
@@ -56,7 +57,8 @@ const getLink = (source, target) => {
         hash: getHash(source) + getHash(target),
         source: getHash(source),
         target: getHash(target),
-        normalizationIds: []
+        normalizationIds: [],
+        itemIds: []
     } as Link;
 };
 
