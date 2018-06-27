@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
 import * as d3 from 'd3';
-import { concat, debounce, remove, includes, assign, isEqual, isEmpty, isEqualWith } from 'lodash';
+import { concat, debounce, remove, includes, assign, isEqual, isEmpty, forEach } from 'lodash';
 import {
     nodesSelect, highlightNodes, deselectNodes, showTooltip,
     clearSelection
@@ -301,11 +301,11 @@ class Graph extends React.PureComponent<Props, State> {
 		return texture;
     }
 
-    async setNodeTexture(node: Node, sizeMultiplier: number, selected: boolean): Promise<true> {
+    async setNodeTexture(node: Node, sizeMultiplier: number, selected: boolean, forceRefresh: boolean): Promise<true> {
 		const key = node.textureKey + '-' + sizeMultiplier + '-' + (selected ? '1' : '0');
 		let texture = this.nodeTextures[key];
 
-		if (typeof texture !== 'undefined') {
+		if (!forceRefresh && typeof texture !== 'undefined') {
 			// Already exists
 			return true;
 		}
@@ -734,8 +734,6 @@ class Graph extends React.PureComponent<Props, State> {
 			return;
 		}
 
-		const { isMapActive } = this.props;
-
 		const sourceX = this.getRenderX(link.sourceX);
 		const sourceY = this.getRenderY(link.sourceY);
 		const targetX = this.getRenderX(link.targetX);
@@ -953,7 +951,7 @@ class Graph extends React.PureComponent<Props, State> {
         });
     }
 
-    async preProcessTextures(nodes: Node[], sizeMultiplier: number): Promise<any> {
+    async preProcessTextures(nodes: Node[], sizeMultiplier: number, forceRefresh: boolean = false): Promise<any> {
 		const { isMapActive } = this.props;
 
 		const promises: Promise<any>[] = [];
@@ -966,8 +964,8 @@ class Graph extends React.PureComponent<Props, State> {
 				promises.push(this.setNodeImageTexture(node, sizeMultiplier, true));
 				promises.push(this.setNodeImageTexture(node, sizeMultiplier, false));
 			} else {
-				promises.push(this.setNodeTexture(node, sizeMultiplier, true));
-				promises.push(this.setNodeTexture(node, sizeMultiplier, false));
+				promises.push(this.setNodeTexture(node, sizeMultiplier, true, forceRefresh));
+				promises.push(this.setNodeTexture(node, sizeMultiplier, false, forceRefresh));
 			}
 		});
 
@@ -1008,8 +1006,8 @@ class Graph extends React.PureComponent<Props, State> {
         }
 
         if (!isEqual(nextProps.fields, fields)) {
-            this.nodeTextures = {};
-            this.renderedSince.lastFields = false;
+			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
+				.then(() => this.renderedSince.lastFields = false);
         }
 
         if (nextProps.nodesForDisplay !== nodesForDisplay) {
@@ -1164,9 +1162,16 @@ class Graph extends React.PureComponent<Props, State> {
             accumulator.concat(search.datasources)
         , []);
 
-        const description =
-            node.fields.join(', ') + ': ' + node.abbreviated + "\n"
-            + 'Queries: ' + queries.join(', ') + "\n"
+        let description =
+            node.fields.join(', ') + ': ' + node.abbreviated + "\n";
+
+        if (node.childData) {
+        	forEach(node.childData, (value, key) => {
+        		description += key + ': ' + value.join(', ') + "\n";
+			});
+		}
+
+        description += 'Queries: ' + queries.join(', ') + "\n"
             + 'Datasources: ' + datasources.join(', ');
 
         const text = new PIXI.Text(description, {

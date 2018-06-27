@@ -42,3 +42,21 @@
 .addDisabled {
   opacity: .3;
 }
+
+.draggable {
+  cursor: move;
+}
+
+.draggable * {
+  cursor: move;
+}
+
+.dropable {
+  border: 1px dashed rgba(255, 255, 255, .3);
+  padding: 5px;
+  margin: 5px 0 10px;
+}
+
+.hovering {
+  background: rgba(255, 255, 255, .3);
+}

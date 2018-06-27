@@ -322,7 +322,7 @@ test('should build links between array values', () => {
     expect(links.length).toBe(3);
 });
 
-test('parents', () => {
+test('parents 1', () => {
 	const previousNodes = [];
 	const previousLinks = [];
 
@@ -479,11 +479,6 @@ test('parents 4', () => {
 
 	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
 
-	console.log(nodes.map(node => ({
-	    name: node.name,
-        childData: node.childData
-    })));
-
 	/**
      * Expect:
      * Thomas
@@ -494,6 +489,42 @@ test('parents 4', () => {
 	 */
 	expect(nodes.length).toBe(2);
 	expect(links.length).toBe(1);
-	expect(nodes[0].childData).toEqual({ born: '1990' });
-	expect(nodes[1].childData).toEqual({ born: '1990' });
+	expect(nodes[0].childData).toEqual({ born: ['1990'] });
+	expect(nodes[1].childData).toEqual({ born: ['1990'] });
+});
+
+test('parents 5 - child data should contain array of all seen values', () => {
+	const previousNodes = [];
+	const previousLinks = [];
+
+	const items = [
+		{
+			id: '1',
+			fields: {
+				first_name: 'Thomas',
+				last_name: 'Kuipers'
+			}
+		},
+		{
+			id: '2',
+			fields: {
+				first_name: 'Barry',
+				last_name: 'Kuipers'
+			}
+		}
+	];
+
+	const fields = [
+		generateField('last_name'),
+		generateField('first_name', 'last_name')
+	];
+
+	const query = generateQuery(items);
+
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+
+	expect(nodes.length).toBe(1);
+	expect(links.length).toBe(0);
+
+	expect(nodes[0].childData.first_name).toContain('Thomas');
 });

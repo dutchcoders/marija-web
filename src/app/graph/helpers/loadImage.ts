@@ -9,6 +9,8 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
 			return;
 		}
 
+		const onError = () => reject(new Error('Failed to load image: ' + url));
+
 		const image = new Image();
 
 		image.addEventListener('load', () => {
@@ -16,11 +18,14 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
 			cache[url] = image;
 		});
 
-		image.addEventListener('error', () =>
-			reject(new Error('Failed to load image: ' + url))
-		);
+		image.addEventListener('error', onError);
 
 		image.crossOrigin = 'anonymous';
-		image.src = url;
+
+		try {
+			image.src = url;
+		} catch (e) {
+			onError();
+		}
 	});
 }

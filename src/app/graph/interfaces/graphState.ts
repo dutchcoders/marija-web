@@ -24,4 +24,5 @@ export interface GraphState {
     graphWorkerCacheIsValid: boolean;
     filterBoringNodes: boolean;
     filterSecondaryQueries: boolean;
+    isDraggingSubFields: boolean;
 }

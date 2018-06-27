@@ -38,8 +38,10 @@ import {
 	NORMALIZATION_ADD,
 	NORMALIZATION_DELETE,
 	SELECT_FIELD_NODES,
-	SELECTION_CLEAR,
-	SET_FILTER_BORING_NODES, SET_FILTER_SECONDARY_QUERIES,
+	SELECTION_CLEAR, SET_FIELD_PARENT,
+	SET_FILTER_BORING_NODES,
+	SET_FILTER_SECONDARY_QUERIES,
+	SET_IS_DRAGGING_SUB_FIELDS,
 	SET_MAP_ACTIVE,
 	SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
@@ -81,7 +83,8 @@ export const defaultGraphState: GraphState = {
     timelineGrouping: 'day',
     graphWorkerCacheIsValid: false,
 	filterBoringNodes: true,
-	filterSecondaryQueries: true
+	filterSecondaryQueries: true,
+	isDraggingSubFields: false
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -688,6 +691,28 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			return {
 				...state,
 				filterSecondaryQueries: action.payload.enabled
+			};
+		}
+
+        case SET_IS_DRAGGING_SUB_FIELDS: {
+            return {
+                ...state,
+                isDraggingSubFields: action.payload.enabled
+            };
+        }
+
+		case SET_FIELD_PARENT: {
+			const index = state.fields.findIndex(field => field.path === action.payload.child);
+			const fields = state.fields.concat([]);
+
+			fields[index] = {
+				...fields[index],
+				childOf: action.payload.parent
+			};
+
+			return {
+				...state,
+				fields
 			};
 		}
 

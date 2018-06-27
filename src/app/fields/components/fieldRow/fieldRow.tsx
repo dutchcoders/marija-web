@@ -3,7 +3,11 @@ import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 
 import { datasourceActivated } from '../../../datasources/datasourcesActions';
-import { fieldNodesHighlight, selectFieldNodes } from '../../../graph/graphActions';
+import {
+	fieldNodesHighlight,
+	selectFieldNodes,
+	setIsDraggingSubFields
+} from '../../../graph/graphActions';
 import Url from '../../../main/helpers/url';
 import { searchFieldsUpdate } from '../../../search/searchActions';
 import Icon from '../../../ui/components/icon';
@@ -13,21 +17,25 @@ import FieldType from '../fieldType';
 import IconSelector from '../iconSelector/iconSelector';
 import * as styles from './fieldRow.scss';
 import { MAX_FIELDS } from '../../../graph/graphConstants';
+import { AppState } from '../../../main/interfaces/appState';
 
 interface Props {
     field: Field;
     isActive: boolean;
     dispatch: Dispatch<any>;
     maxFieldsReached: boolean;
+    isDraggingSubFields: boolean;
 }
 
 interface State {
     iconSelectorOpened: boolean;
+    hoveringOnDropArea: boolean;
 }
 
 class FieldRow extends React.Component<Props, State> {
     state: State = {
-        iconSelectorOpened: false
+        iconSelectorOpened: false,
+		hoveringOnDropArea: false
     };
 
     add() {
@@ -88,9 +96,34 @@ class FieldRow extends React.Component<Props, State> {
         dispatch(selectFieldNodes(field.path));
     }
 
+    onDragStart() {
+    	const { dispatch } = this.props;
+
+    	console.log('start');
+
+    	dispatch(setIsDraggingSubFields(true));
+	}
+
+    onDragEnter() {
+		this.setState({
+			hoveringOnDropArea: true
+		});
+	}
+
+
+    onDragLeave() {
+		this.setState({
+			hoveringOnDropArea: false
+		});
+	}
+
+	onDrop() {
+
+	}
+
     render() {
-        const { field, isActive, maxFieldsReached } = this.props;
-        const { iconSelectorOpened } = this.state;
+        const { field, isActive, maxFieldsReached, isDraggingSubFields } = this.props;
+        const { iconSelectorOpened, hoveringOnDropArea } = this.state;
 
         let deleteButton = null;
 
@@ -159,25 +192,46 @@ class FieldRow extends React.Component<Props, State> {
             );
         }
 
-        return (
-            <tr className={styles.tr}
-                onMouseEnter={this.highlightNodes.bind(this)}>
+        const ret = [
+			<tr className={styles.tr + (isDraggingSubFields ? ' ' + styles.draggable : '') + ' ' + (hoveringOnDropArea ? styles.hovering : '')}
+				draggable={true}
+				onDragStart={this.onDragStart.bind(this)}
+				onMouseEnter={this.highlightNodes.bind(this)}
+				key="main">
 
-                <td className={styles.td}><FieldType type={field.type} /></td>
-                <td className={styles.td}>{field.path}</td>
-                <td className={styles.td}>{field.datasourceId}</td>
-                {selectIconButton}
-                {selectNodesButton}
-                {deleteButton}
-                {addButton}
-            </tr>
-        );
+				<td className={styles.td}><FieldType type={field.type} /></td>
+				<td className={styles.td}>{field.path}</td>
+				<td className={styles.td}>{field.datasourceId}</td>
+				{selectIconButton}
+				{selectNodesButton}
+				{deleteButton}
+				{addButton}
+			</tr>
+		];
+
+        if (isDraggingSubFields && isActive) {
+        	ret.push(
+        		<tr>
+					<td />
+					<td colSpan={999}>
+						<div onDragEnter={this.onDragEnter.bind(this)}
+							onDragLeave={this.onDragLeave.bind(this)}
+							className={styles.dropable + ' ' + (hoveringOnDropArea ? styles.hovering : '')}>
+							Drag here
+						</div>
+					</td>
+				</tr>
+			);
+		}
+
+		return ret;
     }
 }
 
-const select = (state, ownProps) => {
+const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
+		// isDraggingSubFields: state.graph.isDraggingSubFields
     }
 };
 

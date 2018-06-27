@@ -3,25 +3,8 @@ import { Field } from '../../fields/interfaces/field';
 import { Item } from '../../items/interfaces/item';
 import { Search } from '../../search/interfaces/search';
 import { Link } from '../interfaces/link';
-import { Node } from '../interfaces/node';
+import { ChildData, Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';
-
-export function getHash(string) {
-    let hash = 0, i, chr;
-    string += '';
-    string = string.toLowerCase();
-
-    if (string.length === 0) {
-        return hash;
-    }
-
-    for (i = 0; i < string.length; i++) {
-        chr   = string.charCodeAt(i);
-        hash  = ((hash << 5) - hash) + chr;
-        hash |= 0; // Convert to 32bit integer
-    }
-    return hash;
-}
 
 export default function getNodesAndLinks(
     previousNodes: Node[],
@@ -47,7 +30,46 @@ export default function getNodesAndLinks(
     const searchId: string = search.searchId;
 
     const createNode = (field: Field, item: Item) => {
+    	let hash: number;
+    	let name: string;
+    	let activeField: Field;
+    	let childData: ChildData;
 
+    	if (field.childOf) {
+			name = fieldLocator(item.fields, field.childOf);
+			activeField = fields.find(field =>
+				field.path === field.childOf
+			);
+		} else {
+    		name = fieldLocator(item.fields, field.path);
+    		activeField = field;
+    		childData = {};
+		}
+
+		hash = getHash(name);
+
+		const node: Node = {
+			id: hash,
+			searchIds: [searchId],
+			items: [item.id],
+			count: item.count,
+			name: name,
+			abbreviated: abbreviateNodeName(name, searchId, 40),
+			description: '',
+			icon: activeField.icon,
+			fields: [activeField.path],
+			hash: hash,
+			normalizationId: null,
+			display: true,
+			selected: false,
+			highlighted: false,
+			displayTooltip: false,
+			isNormalizationParent: false,
+			important: false,
+			isGeoLocation: activeField.type === 'location',
+			isImage: activeField.type === 'image',
+			childData: childData
+		};
 	};
 
     items.forEach(item => {
@@ -71,15 +93,17 @@ export default function getNodesAndLinks(
 							existingParentSource.items.push(item.id);
 						}
 
-						if (existingParentSource.fields.indexOf(sourceField.path) === -1) {
-							existingParentSource.fields.push(sourceField.path);
-						}
-
 						if (existingParentSource.searchIds.indexOf(searchId) === -1) {
 							existingParentSource.searchIds.push(searchId);
 						}
 
-						existingParentSource.childData[sourceField.path] = sourceValue;
+						if (existingParentSource.childData[sourceField.path]) {
+							if (existingParentSource.childData[sourceField.path].indexOf(sourceValue) === -1) {
+								existingParentSource.childData[sourceField.path].push(sourceValue);
+							}
+						} else {
+							existingParentSource.childData[sourceField.path] = [sourceValue];
+						}
 
 						nodeMap.set(getHash(sourceValue), existingParentSource);
 
@@ -91,7 +115,7 @@ export default function getNodesAndLinks(
 							items: [item.id],
 							count: item.count,
 							name: parentSourceValue,
-							abbreviated: abbreviateNodeName(parentSourceHash, searchId, 40),
+							abbreviated: abbreviateNodeName(parentSourceValue, searchId, 40),
 							description: '',
 							icon: parentSourceField.icon,
 							fields: [parentSourceField.path],
@@ -106,7 +130,7 @@ export default function getNodesAndLinks(
 							isGeoLocation: parentSourceField.type === 'location',
 							isImage: parentSourceField.type === 'image',
 							childData: {
-								[sourceField.path]: sourceValue
+								[sourceField.path]: [sourceValue]
 							}
 						};
 
@@ -171,9 +195,11 @@ export default function getNodesAndLinks(
 							const parentTargetValue = fieldLocator(item.fields, targetField.childOf);
 							const parentTargetHash = getHash(parentTargetValue);
 
-							// activeTargetValue = parentTargetValue;
+							let existingParentTarget: Node = nodeMap.get(getHash(targetValue));
 
-							const existingParentTarget: Node = nodeMap.get(getHash(targetValue));
+							if (!existingParentTarget) {
+								existingParentTarget = nodeMap.get(parentTargetHash);
+							}
 
 							if (existingParentTarget) {
 								activeTargetValue = existingParentTarget.name;
@@ -182,29 +208,32 @@ export default function getNodesAndLinks(
 									existingParentTarget.items.push(item.id);
 								}
 
-								if (existingParentTarget.fields.indexOf(targetField.path) === -1) {
-									existingParentTarget.fields.push(targetField.path);
-								}
-
 								if (existingParentTarget.searchIds.indexOf(searchId) === -1) {
 									existingParentTarget.searchIds.push(searchId);
 								}
 
-								// .childData[targetField.path] = targetValue;
+								if (existingParentTarget.childData[targetField.path]) {
+									if (existingParentTarget.childData[targetField.path].indexOf(targetValue) === -1) {
+										existingParentTarget.childData[targetField.path].push(targetValue);
+									}
+								} else {
+									existingParentTarget.childData[targetField.path] = [targetValue];
+								}
 
 								nodeMap.set(getHash(targetValue), existingParentTarget);
 
 							} else {
+
 								activeTargetValue = parentTargetValue;
 
 								// Create new node
-								const newNode = {
+								const newNode: Node = {
 									id: parentTargetHash,
 									searchIds: [searchId],
 									items: [item.id],
 									count: item.count,
 									name: parentTargetValue,
-									abbreviated: abbreviateNodeName(parentTargetHash, searchId, 40),
+									abbreviated: abbreviateNodeName(parentTargetValue, searchId, 40),
 									description: '',
 									icon: parentTargetField.icon,
 									fields: [parentTargetField.path],
@@ -219,7 +248,7 @@ export default function getNodesAndLinks(
 									isGeoLocation: parentTargetField.type === 'location',
 									isImage: parentTargetField.type === 'image',
 									childData: {
-										[targetField.path]: targetValue
+										[targetField.path]: [targetValue]
 									}
 								};
 
@@ -383,4 +412,21 @@ function getIterableFieldValues(rawValue: any, deleted: Map<string, true>): stri
 
 	// Filter empty values
 	return rawValue.filter(value => value !== '');
+}
+
+export function getHash(string) {
+	let hash = 0, i, chr;
+	string += '';
+	string = string.toLowerCase();
+
+	if (string.length === 0) {
+		return hash;
+	}
+
+	for (i = 0; i < string.length; i++) {
+		chr   = string.charCodeAt(i);
+		hash  = ((hash << 5) - hash) + chr;
+		hash |= 0; // Convert to 32bit integer
+	}
+	return hash;
 }

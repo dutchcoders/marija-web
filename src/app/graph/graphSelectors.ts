@@ -131,3 +131,28 @@ export const isTableLoading = createSelector(
 	(items: Item[]) =>
 		typeof items.find(item => item.requestedExtraData) !== 'undefined'
 );
+
+export interface FieldHierarchy {
+	parent: Field,
+	children: Field[]
+}
+
+export const getFieldHierarchy = createSelector(
+	(state: AppState) => state.graph.fields,
+
+	(fields: Field[]): FieldHierarchy[] => {
+		const hierarchy: FieldHierarchy[] = [];
+
+		fields.filter(field => !field.childOf)
+			.forEach(field => hierarchy.push({
+			parent: field,
+			children: []
+		}));
+
+		hierarchy.forEach(item => {
+			item.children = fields.filter(field => field.childOf === item.parent.path);
+		});
+
+		return hierarchy;
+	}
+);

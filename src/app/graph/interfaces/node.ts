@@ -56,9 +56,7 @@ export interface Node {
 
 	isImage: boolean;
 
-	childData?: {
-		[field: string]: string
-	}
+	childData?: ChildData;
 
 	textureKey?: string;
 	r?: number;
@@ -67,4 +65,8 @@ export interface Node {
 	fx?: number;
 	fy?: number;
 	batch?: number;
+}
+
+export interface ChildData {
+	[field: string]: string[]
 }

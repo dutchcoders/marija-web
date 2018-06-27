@@ -10,8 +10,12 @@ import {
 	NORMALIZATION_ADD,
 	NORMALIZATION_DELETE,
 	SELECT_FIELD_NODES,
-	SELECTION_CLEAR, SET_FILTER_BORING_NODES, SET_FILTER_SECONDARY_QUERIES,
-	SET_MAP_ACTIVE, SET_TIMELINE_GROUPING,
+	SELECTION_CLEAR, SET_FIELD_PARENT,
+	SET_FILTER_BORING_NODES,
+	SET_FILTER_SECONDARY_QUERIES,
+	SET_IS_DRAGGING_SUB_FIELDS,
+	SET_MAP_ACTIVE,
+	SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
 	VIA_ADD,
 	VIA_DELETE
@@ -178,6 +182,25 @@ export function setFilterSecondaryQueries(enabled: boolean) {
 		type: SET_FILTER_SECONDARY_QUERIES,
 		payload: {
 			enabled
+		}
+	};
+}
+
+export function setIsDraggingSubFields(enabled: boolean) {
+	return {
+		type: SET_IS_DRAGGING_SUB_FIELDS,
+		payload: {
+			enabled
+		}
+	};
+}
+
+export function setFieldParent(child: string, parent: string) {
+	return {
+		type: SET_FIELD_PARENT,
+		payload: {
+			child,
+			parent
 		}
 	};
 }

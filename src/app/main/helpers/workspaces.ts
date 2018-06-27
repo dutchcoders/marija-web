@@ -50,7 +50,8 @@ export default class Workspaces {
                         searches: [],
                         deletedNodes: [],
                         isMapActive: false,
-						graphWorkerHasValidNodes: false
+						graphWorkerHasValidNodes: false,
+                        isDraggingSubFields: false
                     },
                     ui: {
                         ...state.ui,
