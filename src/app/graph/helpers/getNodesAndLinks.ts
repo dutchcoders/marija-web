@@ -5,6 +5,7 @@ import { Search } from '../../search/interfaces/search';
 import { Link } from '../interfaces/link';
 import { ChildData, Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';
+import {forEach, merge} from 'lodash';
 
 export default function getNodesAndLinks(
     previousNodes: Node[],
@@ -29,24 +30,50 @@ export default function getNodesAndLinks(
 
     const searchId: string = search.searchId;
 
-    const createNode = (field: Field, item: Item) => {
-    	let hash: number;
-    	let name: string;
+    const createNode = (name: string, field: Field, item: Item): string[] => {
     	let activeField: Field;
     	let childData: ChildData;
+    	let existing: Node;
+    	const linkables: string[] = [];
 
     	if (field.childOf) {
+			childData = {
+				[field.path]: [name]
+			};
+
 			name = fieldLocator(item.fields, field.childOf);
-			activeField = fields.find(field =>
-				field.path === field.childOf
+			activeField = fields.find(search =>
+				search.path === field.childOf
 			);
+
+			existing = nodeMap.get(getHash(name));
+
+			forEach(childData, values => {
+				values.forEach(value => {
+					existing = nodeMap.get(getHash(value));
+
+					if (existing) {
+						linkables.push(existing.name);
+						addDataToNode(existing, item, childData);
+					}
+				});
+			});
+			
 		} else {
-    		name = fieldLocator(item.fields, field.path);
     		activeField = field;
     		childData = {};
 		}
 
-		hash = getHash(name);
+		if (name) {
+			linkables.push(name);
+		}
+
+		const hash = getHash(name);
+
+    	if (nodeMap.has(hash)) {
+    		addDataToNode(nodeMap.get(hash), item, childData);
+			return linkables;
+		}
 
 		const node: Node = {
 			id: hash,
@@ -70,6 +97,42 @@ export default function getNodesAndLinks(
 			isImage: activeField.type === 'image',
 			childData: childData
 		};
+
+		nodeMap.set(hash, node);
+
+		forEach(childData, values => {
+			values.forEach(value => {
+				nodeMap.set(getHash(value), node);
+			});
+		});
+
+		return linkables;
+	};
+
+    const addDataToNode = (node: Node, item: Item, childData?: ChildData): void => {
+		if (node.items.indexOf(item.id) === -1) {
+			node.items.push(item.id);
+		}
+
+		if (node.searchIds.indexOf(searchId) === -1) {
+			node.searchIds.push(searchId);
+		}
+
+		if (childData) {
+			forEach(childData, (values, key) => {
+				values.forEach(value => {
+					if (node.childData[key]) {
+						if (node.childData[key].indexOf(value) === -1) {
+							node.childData[key].push(value)
+						}
+					} else {
+						node.childData[key] = [value];
+					}
+
+					nodeMap.set(getHash(value), node);
+				});
+			});
+		}
 	};
 
     items.forEach(item => {
@@ -77,288 +140,75 @@ export default function getNodesAndLinks(
             const sourceValues = getIterableFieldValues(fieldLocator(item.fields, sourceField.path), deletedMap);
 
             sourceValues.forEach(sourceValue => {
-                let activeSourceValue: string;
+                const linkableSources = createNode(sourceValue, sourceField, item);
 
-                if (sourceField.childOf) {
-                    const parentSourceField = fields.find(field => field.path === sourceField.childOf);
-                    const parentSourceValue = fieldLocator(item.fields, sourceField.childOf);
-                    const parentSourceHash = getHash(parentSourceValue);
+				linkableSources.forEach(linkableSource => {
+					fields.forEach(targetField => {
+						let targetValues = getIterableFieldValues(fieldLocator(item.fields, targetField.path), deletedMap);
 
-					activeSourceValue = parentSourceValue;
+						targetValues.forEach(targetValue => {
+							const linkableTargets = createNode(targetValue, targetField, item);
 
-                    const existingParentSource: Node = nodeMap.get(parentSourceHash);
-
-					if (existingParentSource) {
-						if (existingParentSource.items.indexOf(item.id) === -1) {
-							existingParentSource.items.push(item.id);
-						}
-
-						if (existingParentSource.searchIds.indexOf(searchId) === -1) {
-							existingParentSource.searchIds.push(searchId);
-						}
-
-						if (existingParentSource.childData[sourceField.path]) {
-							if (existingParentSource.childData[sourceField.path].indexOf(sourceValue) === -1) {
-								existingParentSource.childData[sourceField.path].push(sourceValue);
-							}
-						} else {
-							existingParentSource.childData[sourceField.path] = [sourceValue];
-						}
-
-						nodeMap.set(getHash(sourceValue), existingParentSource);
-
-					} else {
-						// Create new node
-						const newNode = {
-							id: parentSourceHash,
-							searchIds: [searchId],
-							items: [item.id],
-							count: item.count,
-							name: parentSourceValue,
-							abbreviated: abbreviateNodeName(parentSourceValue, searchId, 40),
-							description: '',
-							icon: parentSourceField.icon,
-							fields: [parentSourceField.path],
-							hash: parentSourceHash,
-							normalizationId: null,
-							display: true,
-							selected: false,
-							highlighted: false,
-							displayTooltip: false,
-							isNormalizationParent: false,
-							important: false,
-							isGeoLocation: parentSourceField.type === 'location',
-							isImage: parentSourceField.type === 'image',
-							childData: {
-								[sourceField.path]: [sourceValue]
-							}
-						};
-
-						nodeMap.set(parentSourceHash, newNode);
-						nodeMap.set(getHash(sourceValue), newNode);
-					}
-                } else {
-                	activeSourceValue = sourceValue;
-
-					const existingSource: Node = nodeMap.get(getHash(sourceValue));
-
-					if (existingSource) {
-						if (existingSource.items.indexOf(item.id) === -1) {
-							existingSource.items.push(item.id);
-						}
-
-						if (existingSource.fields.indexOf(sourceField.path) === -1) {
-							existingSource.fields.push(sourceField.path);
-						}
-
-						if (existingSource.searchIds.indexOf(searchId) === -1) {
-							existingSource.searchIds.push(searchId);
-						}
-					} else {
-						const hash = getHash(sourceValue);
-
-						// Create new node
-						nodeMap.set(hash, {
-							id: hash,
-							searchIds: [searchId],
-							items: [item.id],
-							count: item.count,
-							name: sourceValue,
-							abbreviated: abbreviateNodeName(sourceValue, searchId, 40),
-							description: '',
-							icon: sourceField.icon,
-							fields: [sourceField.path],
-							hash: hash,
-							normalizationId: null,
-							display: true,
-							selected: false,
-							highlighted: false,
-							displayTooltip: false,
-							isNormalizationParent: false,
-							important: false,
-							isGeoLocation: sourceField.type === 'location',
-							isImage: sourceField.type === 'image',
-							childData: {}
-						});
-					}
-				}
-
-                fields.forEach(targetField => {
-                    let targetValues = getIterableFieldValues(fieldLocator(item.fields, targetField.path), deletedMap);
-
-                    // we need to keep track of the fields the value is in as well.
-                    targetValues.forEach(targetValue => {
-						let activeTargetValue: string;
-
-						if (targetField.childOf) {
-							const parentTargetField = fields.find(field => field.path === targetField.childOf);
-							const parentTargetValue = fieldLocator(item.fields, targetField.childOf);
-							const parentTargetHash = getHash(parentTargetValue);
-
-							let existingParentTarget: Node = nodeMap.get(getHash(targetValue));
-
-							if (!existingParentTarget) {
-								existingParentTarget = nodeMap.get(parentTargetHash);
-							}
-
-							if (existingParentTarget) {
-								activeTargetValue = existingParentTarget.name;
-
-								if (existingParentTarget.items.indexOf(item.id) === -1) {
-									existingParentTarget.items.push(item.id);
+							linkableTargets.forEach(linkableTarget => {
+								if (sourceValues.length > 1) {
+									// we don't want all individual arrays to be linked together
+									// those individual arrays being linked are (I assume) irrelevant
+									// otherwise this needs to be a configuration option
+									return;
 								}
 
-								if (existingParentTarget.searchIds.indexOf(searchId) === -1) {
-									existingParentTarget.searchIds.push(searchId);
+								// Dont create links from a node to itself
+								if (linkableSource === linkableTarget) {
+									return;
 								}
 
-								if (existingParentTarget.childData[targetField.path]) {
-									if (existingParentTarget.childData[targetField.path].indexOf(targetValue) === -1) {
-										existingParentTarget.childData[targetField.path].push(targetValue);
+								const linkExists = (key: number): boolean => {
+									if (!linkMap.has(key)) {
+										// Link does not exist
+										return false;
 									}
-								} else {
-									existingParentTarget.childData[targetField.path] = [targetValue];
-								}
 
-								nodeMap.set(getHash(targetValue), existingParentTarget);
+									// If the link already exists, save the item id to the
+									// existing link, so we can keep track of which items
+									// are associated with which links. We can use that to
+									// determine line thickness.
 
-							} else {
+									const existingLink = linkMap.get(key);
 
-								activeTargetValue = parentTargetValue;
-
-								// Create new node
-								const newNode: Node = {
-									id: parentTargetHash,
-									searchIds: [searchId],
-									items: [item.id],
-									count: item.count,
-									name: parentTargetValue,
-									abbreviated: abbreviateNodeName(parentTargetValue, searchId, 40),
-									description: '',
-									icon: parentTargetField.icon,
-									fields: [parentTargetField.path],
-									hash: parentTargetHash,
-									normalizationId: null,
-									display: true,
-									selected: false,
-									highlighted: false,
-									displayTooltip: false,
-									isNormalizationParent: false,
-									important: false,
-									isGeoLocation: parentTargetField.type === 'location',
-									isImage: parentTargetField.type === 'image',
-									childData: {
-										[targetField.path]: [targetValue]
+									if (existingLink.itemIds.indexOf(item.id) === -1) {
+										existingLink.itemIds = existingLink.itemIds.concat([item.id]);
 									}
+
+									return true;
 								};
 
-								nodeMap.set(parentTargetHash, newNode);
-								nodeMap.set(getHash(targetValue), newNode);
-							}
+								const sourceHash = getHash(linkableSource);
+								const targetHash = getHash(linkableTarget);
+								const linkHash = sourceHash + targetHash;
 
-                        } else {
-							activeTargetValue = targetValue;
-
-							const existingTarget: Node = nodeMap.get(getHash(targetValue));
-							if (existingTarget) {
-								if (existingTarget.items.indexOf(item.id) === -1){
-									existingTarget.items.push(item.id);
+								if (linkExists(linkHash)) {
+									return;
 								}
 
-								if (existingTarget.fields.indexOf(targetField.path) === -1){
-									existingTarget.fields.push(targetField.path);
-								}
-
-								if (existingTarget.searchIds.indexOf(searchId) === -1) {
-									existingTarget.searchIds.push(searchId);
-								}
-							} else {
-								const hash = getHash(targetValue);
-
-								// Create new node
-								nodeMap.set(hash, {
-									id: hash,
-									searchIds: [searchId],
-									items: [item.id],
-									count: item.count,
-									name: targetValue,
-									abbreviated: abbreviateNodeName(targetValue, searchId, 40),
-									description: '',
-									icon: targetField.icon,
-									fields: [targetField.path],
-									hash: hash,
-									normalizationId: null,
+								// Create new link
+								linkMap.set(linkHash, {
+									hash: linkHash,
+									source: sourceHash,
+									target: targetHash,
+									color: '#ccc',
+									total: 1,
+									current: 1,
+									normalizationIds: [],
 									display: true,
-									selected: false,
-									highlighted: false,
-									displayTooltip: false,
 									isNormalizationParent: false,
-									important: false,
-									isGeoLocation: targetField.type === 'location',
-									isImage: targetField.type === 'image',
-									childData: {}
+									viaId: null,
+									replacedNode: null,
+									itemIds: [item.id]
 								});
-							}
-                        }
-
-                        if (sourceValues.length > 1) {
-                            // we don't want all individual arrays to be linked together
-                            // those individual arrays being linked are (I assume) irrelevant
-                            // otherwise this needs to be a configuration option
-                            return;
-                        }
-
-                        // Dont create links from a node to itself
-                        if (activeSourceValue === activeTargetValue) {
-							return;
-                        }
-
-                        const linkExists = (key: number): boolean => {
-                            if (!linkMap.has(key)) {
-                                // Link does not exist
-                                return false;
-                            }
-
-                            // If the link already exists, save the item id to the
-                            // existing link, so we can keep track of which items
-                            // are associated with which links. We can use that to
-                            // determine line thickness.
-
-                            const existingLink = linkMap.get(key);
-
-                            if (existingLink.itemIds.indexOf(item.id) === -1) {
-                                existingLink.itemIds = existingLink.itemIds.concat([item.id]);
-                            }
-
-                            return true;
-                        };
-
-
-						const sourceHash = getHash(activeSourceValue);
-						const targetHash = getHash(activeTargetValue);
-						const linkHash = sourceHash + targetHash;
-
-                        if (linkExists(linkHash)) {
-                            return;
-                        }
-
-                        // Create new link
-                        linkMap.set(linkHash, {
-                            hash: linkHash,
-                            source: sourceHash,
-                            target: targetHash,
-                            color: '#ccc',
-                            total: 1,
-                            current: 1,
-                            normalizationIds: [],
-                            display: true,
-                            isNormalizationParent: false,
-                            viaId: null,
-                            replacedNode: null,
-                            itemIds: [item.id]
-                        });
-                    });
-                });
+							});
+						});
+					});
+				});
             });
         });
     });

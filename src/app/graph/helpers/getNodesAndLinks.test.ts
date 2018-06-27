@@ -196,7 +196,7 @@ test('should not filter nodes that are directly related when searching around a 
     expect(links.length).toBe(2);
 });
 
-test('should not not create nodes for empty field values', () => {
+test('should not create nodes for empty field values', () => {
     const previousNodes = [];
     const previousLinks = [];
 
@@ -295,7 +295,7 @@ test('should not add the same item id multiple times when function is run twice'
     expect(result.links[0].itemIds.length).toBe(2);
 });
 
-test('should build links between array values', () => {
+test('should create nodes for array values', () => {
     const previousNodes = [];
     const previousLinks = [];
 
@@ -319,6 +319,31 @@ test('should build links between array values', () => {
     const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
 
     expect(nodes.length).toBe(4);
+});
+
+test('should build links between array values', () => {
+    const previousNodes = [];
+    const previousLinks = [];
+
+    const items = [
+        {
+            id: '1',
+            fields: {
+                client: [1, 2, 3],
+                server: 4
+            }
+        }
+    ];
+
+    const fields = [
+        generateField('client'),
+        generateField('server')
+    ];
+
+    const query = generateQuery(items);
+
+    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+
     expect(links.length).toBe(3);
 });
 
