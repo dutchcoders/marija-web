@@ -12,7 +12,6 @@ export default function getNodesAndLinks(
     previousLinks: Link[],
     items: Item[],
     fields: Field[],
-    search: Search,
     aroundNodeId: number | undefined = undefined,
     deletedNodes: Node[] = []
 ): {
@@ -27,8 +26,6 @@ export default function getNodesAndLinks(
 
     const deletedMap = new Map<string, true>();
     deletedNodes.forEach(node => deletedMap.set(node.name, true));
-
-    const searchId: string = search.searchId;
 
     const createNode = (name: string, field: Field, item: Item): string[] => {
     	let activeField: Field;
@@ -77,11 +74,11 @@ export default function getNodesAndLinks(
 
 		const node: Node = {
 			id: hash,
-			searchIds: [searchId],
+			searchIds: [item.searchId],
 			items: [item.id],
 			count: item.count,
 			name: name,
-			abbreviated: abbreviateNodeName(name, searchId, 40),
+			abbreviated: abbreviateNodeName(name, item.searchId, 40),
 			description: '',
 			icon: activeField.icon,
 			fields: [activeField.path],
@@ -114,8 +111,8 @@ export default function getNodesAndLinks(
 			node.items.push(item.id);
 		}
 
-		if (node.searchIds.indexOf(searchId) === -1) {
-			node.searchIds.push(searchId);
+		if (node.searchIds.indexOf(item.searchId) === -1) {
+			node.searchIds.push(item.searchId);
 		}
 
 		if (childData) {

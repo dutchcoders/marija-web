@@ -8,6 +8,7 @@ import { Item } from '../items/interfaces/item';
 import { AppState } from '../main/interfaces/appState';
 import { Search } from './interfaces/search';
 import { ACTIVATE_LIVE_DATASOURCE, ADD_LIVE_DATASOURCE_SEARCH, DEACTIVATE_LIVE_DATASOURCE, LIVE_RECEIVE, SEARCH_DELETE, SEARCH_EDIT, SEARCH_FIELDS_UPDATE, SEARCH_RECEIVE, SEARCH_REQUEST } from './searchConstants';
+import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 
 export function searchRequest(query: string, datasourceIds: string[]) {
     return (dispatch, getState) => {
@@ -64,26 +65,6 @@ export function searchAround(node: Node, datasourceIds: string[]) {
 			requestId: requestId
 		});
     }
-}
-
-function getGraphWorkerPayload(state: AppState, items: Item[], searchId: string): GraphWorkerPayload {
-    return {
-        items: items,
-        searchId: searchId,
-        prevNodes: state.graph.nodes,
-        prevLinks: state.graph.links,
-        prevItems: state.graph.items,
-        fields: state.graph.fields,
-        normalizations: state.graph.normalizations,
-        searches: state.graph.searches,
-        deletedNodes: state.graph.deletedNodes,
-        via: state.graph.via,
-        receivedAt: Date.now(),
-        sortType: state.table.sortType,
-        sortColumn: state.table.sortColumn,
-        filterBoringNodes: state.graph.filterBoringNodes,
-        filterSecondaryQueries: state.graph.filterSecondaryQueries
-    };
 }
 
 export function searchReceive(items: Item[], requestId: string) {

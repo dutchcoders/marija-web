@@ -59,7 +59,6 @@ class DraggableField extends React.Component<Props, State> {
 		});
 
 		if (child !== parent.path) {
-			console.log(child, parent.path);
 			// Check the existing hierarchy for the field we're about to change
 			const hierarchy = fieldHierarchy.find(item => item.parent.path === child);
 

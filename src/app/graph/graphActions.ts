@@ -16,13 +16,19 @@ import {
 	SET_IS_DRAGGING_SUB_FIELDS,
 	SET_MAP_ACTIVE,
 	SET_TIMELINE_GROUPING,
-	TOGGLE_LABELS,
+	TOGGLE_LABELS, TRIGGER_GRAPH_WORKER,
 	VIA_ADD,
 	VIA_DELETE
 } from './graphConstants';
-import { GraphWorkerOutput } from './helpers/graphWorkerClass';
+import {
+	GraphWorkerOutput,
+	GraphWorkerPayload
+} from './helpers/graphWorkerClass';
 import { Via } from './interfaces/via';
 import { TimelineGrouping } from './interfaces/graphState';
+import { AppState } from '../main/interfaces/appState';
+import { getGraphWorkerPayload } from './helpers/getGraphWorkerPayload';
+import { SEARCH_RECEIVE } from '../search/searchConstants';
 
 export function deselectNodes(opts) {
     return {
@@ -196,11 +202,30 @@ export function setIsDraggingSubFields(enabled: boolean) {
 }
 
 export function setFieldParent(child: string, parent: string) {
+	return (dispatch, getState) => {
+		dispatch({
+			type: SET_FIELD_PARENT,
+			payload: {
+				child,
+				parent
+			}
+		});
+
+		const state: AppState = getState();
+		const payload = getGraphWorkerPayload(state, [], null);
+		payload.prevNodes = [];
+		payload.prevLinks = [];
+
+		dispatch(triggerGraphWorker(payload));
+	};
+}
+
+export function triggerGraphWorker(payload: GraphWorkerPayload) {
 	return {
-		type: SET_FIELD_PARENT,
-		payload: {
-			child,
-			parent
-		}
+		type: TRIGGER_GRAPH_WORKER,
+		meta: {
+			WebWorker: true
+		},
+		payload: payload
 	};
 }

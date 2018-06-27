@@ -2,6 +2,7 @@ import { markPerformance, measurePerformance } from './performance';
 import { GraphWorkerPayload } from '../../graph/helpers/graphWorkerClass';
 import { LIVE_RECEIVE, SEARCH_RECEIVE } from '../../search/searchConstants';
 import { AppState } from '../interfaces/appState';
+import { TRIGGER_GRAPH_WORKER } from '../../graph/graphConstants';
 
 export function createWorkerMiddleware(worker) {
 	/*
@@ -38,25 +39,27 @@ export function createWorkerMiddleware(worker) {
 
 			return function (action) {
 				if (action.meta && action.meta.WebWorker) {
-					if (action.type !== SEARCH_RECEIVE && action.type !== LIVE_RECEIVE) {
+					if (action.type !== SEARCH_RECEIVE && action.type !== LIVE_RECEIVE && action.type !== TRIGGER_GRAPH_WORKER) {
 						// These is the only action types we currently support in this worker
 						return;
 					}
 
 					const payload: GraphWorkerPayload = action.payload;
 
-					if (!payload.items) {
-						return;
-					}
+					if (action.type !== TRIGGER_GRAPH_WORKER) {
+						if (!payload.items) {
+							return;
+						}
 
-					const searchIndex: number = payload.searches.findIndex(loop =>
-						loop.searchId === payload.searchId
-						&& !loop.paused
-					);
+						const searchIndex: number = payload.searches.findIndex(loop =>
+							loop.searchId === payload.searchId
+							&& !loop.paused
+						);
 
-					if (searchIndex === -1) {
-						// received items for a query we were not searching for
-						return;
+						if (searchIndex === -1) {
+							// received items for a query we were not searching for
+							return;
+						}
 					}
 
 					markPerformance('beforePostToGraphWorker');

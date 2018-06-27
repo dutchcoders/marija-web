@@ -3,7 +3,6 @@ import { uniqueId } from 'lodash';
 import getNodesAndLinks, { getHash } from './getNodesAndLinks';
 import {Item} from "../../items/interfaces/item";
 import {Field} from "../../fields/interfaces/field";
-import {Search} from "../../search/interfaces/search";
 
 const generateItem = (fields: any = undefined) => {
     if (typeof fields === 'undefined') {
@@ -33,16 +32,6 @@ const generateField = (field, childOf = '') => {
     } as Field;
 };
 
-const generateQuery = (items) => {
-    return {
-        color: '#aaaaaa',
-        q: 'my search',
-        searchId: 'my search',
-        total: 100,
-        items: items
-    } as Search;
-};
-
 test('should output nodes', () => {
     const previousNodes = [];
     const previousLinks = [];
@@ -57,8 +46,7 @@ test('should output nodes', () => {
         generateField('text')
     ];
 
-    const query = generateQuery(items);
-    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
+    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields);
 
     expect(nodes.length).toBe(3);
 });
@@ -79,8 +67,7 @@ test('should output 1 node for every field in an item', () => {
         generateField('user')
     ];
 
-    const query = generateQuery(items);
-    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
+    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields);
 
     expect(nodes.length).toBe(2);
 });
@@ -103,8 +90,7 @@ test('should output nodes for nested data', () => {
         generateField('user')
     ];
 
-    const query = generateQuery(items);
-    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
+    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields);
 
     expect(nodes.length).toBe(2);
 });
@@ -125,8 +111,7 @@ test('should output links between related nodes', () => {
         generateField('user')
     ];
 
-    const query = generateQuery(items);
-    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
+    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items, fields);
 
     expect(links).toBeDefined();
     expect(links.length).toBe(1);
@@ -146,8 +131,7 @@ test('when nodes have exactly the same fields they should not be duplicated', ()
         generateField('text'),
     ];
 
-    const query = generateQuery(items);
-    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields, query);
+    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields);
 
     expect(nodes.length).toBe(1);
 });
@@ -185,11 +169,9 @@ test('should not filter nodes that are directly related when searching around a 
         generateField('server')
     ];
 
-    const query = generateQuery(items);
-
     const aroundNodeId = getHash(1);
 
-    const {nodes, links } = getNodesAndLinks(previousNodes as any, previousLinks as any, items as any, fields, query, aroundNodeId);
+    const {nodes, links } = getNodesAndLinks(previousNodes as any, previousLinks as any, items as any, fields, aroundNodeId);
 
     // 1 node should be added, because the new items were directly related to node id 1
     expect(nodes.length).toBe(3);
@@ -216,9 +198,7 @@ test('should not create nodes for empty field values', () => {
         generateField('nonExisting')
     ];
 
-    const query = generateQuery(items);
-
-    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields);
 
     expect(nodes.length).toBe(2);
     expect(links.length).toBe(1);
@@ -250,9 +230,7 @@ test('should keep track of item ids, especially when there are multiple lines be
         generateField('server')
     ];
 
-    const query = generateQuery(items);
-
-    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+    const {nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields);
 
     expect(nodes.length).toBe(2);
     expect(links.length).toBe(1);
@@ -285,10 +263,8 @@ test('should not add the same item id multiple times when function is run twice'
         generateField('server')
     ];
 
-    const query = generateQuery(items);
-
-    let result = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
-    result = getNodesAndLinks(result.nodes, result.links, items as any, fields, query);
+    let result = getNodesAndLinks(previousNodes, previousLinks, items as any, fields);
+    result = getNodesAndLinks(result.nodes, result.links, items as any, fields);
 
     expect(result.nodes.length).toBe(2);
     expect(result.links.length).toBe(1);
@@ -314,9 +290,8 @@ test('should create nodes for array values', () => {
         generateField('server')
     ];
 
-    const query = generateQuery(items);
 
-    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields);
 
     expect(nodes.length).toBe(4);
 });
@@ -340,9 +315,7 @@ test('should build links between array values', () => {
         generateField('server')
     ];
 
-    const query = generateQuery(items);
-
-    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+    const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields);
 
     expect(links.length).toBe(3);
 });
@@ -376,9 +349,7 @@ test('parents 1', () => {
 		generateField('organisation'),
 	];
 
-	const query = generateQuery(items);
-
-	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields);
 
 	expect(nodes.length).toBe(3);
 	expect(links.length).toBe(2);
@@ -413,9 +384,7 @@ test('parents 2', () => {
 		generateField('organisation'),
 	];
 
-	const query = generateQuery(items);
-
-	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields);
 
 	/**
      * Expect:
@@ -458,9 +427,7 @@ test('parents 3', () => {
 		generateField('organisation'),
 	];
 
-	const query = generateQuery(items);
-
-	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields);
 
 	/**
      * Expect:
@@ -500,9 +467,7 @@ test('parents 4', () => {
 	    generateField('born', 'first_name'),
 	];
 
-	const query = generateQuery(items);
-
-	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields);
 
 	/**
      * Expect:
@@ -544,9 +509,7 @@ test('parents 5 - child data should contain array of all seen values', () => {
 		generateField('first_name', 'last_name')
 	];
 
-	const query = generateQuery(items);
-
-	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, query);
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields);
 
 	expect(nodes.length).toBe(1);
 	expect(links.length).toBe(0);

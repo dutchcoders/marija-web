@@ -22,6 +22,7 @@ import {EventEmitter} from "fbemitter";
 import {Column} from "../../table/interfaces/column";
 import {SortType} from "../../table/interfaces/sortType";
 import {sortItems} from "../../items/helpers/sortItems";
+import { TRIGGER_GRAPH_WORKER } from '../graphConstants';
 
 export interface GraphWorkerPayload {
     items: Item[];
@@ -60,51 +61,61 @@ export default class GraphWorkerClass {
         const isLive: boolean = action.type === LIVE_RECEIVE;
         const payload: GraphWorkerPayload = action.payload;
 
-		if (payload.prevNodes) {
+		if (typeof payload.prevNodes !== 'undefined') {
 			prevNodeCache = payload.prevNodes;
 		}
 
-		if (payload.prevLinks) {
+		if (typeof payload.prevLinks !== 'undefined') {
 			prevLinkCache = payload.prevLinks;
 		}
 
-		if (payload.prevItems) {
+		if (typeof payload.prevItems !== 'undefined') {
 			prevItemCache = payload.prevItems;
 		}
 
+		let fields = payload.fields;
+		let search: Search;
+		let searches: Search[] = payload.searches;
+		let useItems: Item[];
 
+		if (action.type === TRIGGER_GRAPH_WORKER) {
+			// When we're only triggering the graph worker, we don't have any new items,
+			// and we also don't have a relevant search. We just want to regenerate the
+			// nodes and links because some config changed, like the fields.
+			useItems = prevItemCache;
 
-        const searchIndex: number = payload.searches.findIndex(loop =>
-            loop.searchId === payload.searchId
-            && !loop.paused
-        );
+		} else {
+			const searchIndex: number = payload.searches.findIndex(loop =>
+				loop.searchId === payload.searchId
+				&& !loop.paused
+			);
 
-        const searches = payload.searches.concat([]);
-        const search = Object.assign({}, searches[searchIndex]);
+			searches = payload.searches.concat([]);
+			search = Object.assign({}, searches[searchIndex]);
 
-        searches[searchIndex] = search;
-        search.items = search.items.concat(payload.items);
+			searches[searchIndex] = search;
+			search.items = search.items.concat(payload.items);
 
-        // Save per item for which query we received it (so we can keep track of where data came from)
-        payload.items.forEach(item => {
-            item.searchId = search.searchId;
-        });
+			// Save per item for which query we received it (so we can keep track of where data came from)
+			payload.items.forEach(item => {
+				item.searchId = search.searchId;
+			});
 
-        let fields = payload.fields;
+			// For live datasources we automatically add all the fields that are present in the items
+			if (isLive) {
+				fields = GraphWorkerClass.createFieldsFromData(fields, payload.items, search.liveDatasource);
+			}
 
-        // For live datasources we automatically add all the fields that are present in the items
-        if (isLive) {
-            fields = GraphWorkerClass.createFieldsFromData(fields, payload.items, search.liveDatasource);
-        }
+			useItems = payload.items;
+		}
 
         // update nodes and links
         const result = getNodesAndLinks(
             prevNodeCache,
             prevLinkCache,
-            payload.items,
+            useItems,
             fields,
-            search,
-            search.aroundNodeId,
+            search ? search.aroundNodeId : null,
             payload.deletedNodes
         );
 
