@@ -435,13 +435,14 @@ test('parents 3', () => {
 	/**
      * Expect:
      * Thomas --- Dutchsec
-     * |
-     * |
-     * Harry --- Hovenier
+     * |     \
+     * |      \
+     * Harry -- Hovenier
      *
 	 */
+
 	expect(nodes.length).toBe(4);
-	expect(links.length).toBe(3);
+	expect(links.length).toBe(4);
 });
 
 test('parents 4', () => {
