@@ -627,3 +627,41 @@ test('parents 8 - should draw links to all parent nodes, not just 1', () => {
 	expect(nodes.length).toBe(3);
 	expect(links.length).toBe(3);
 });
+
+test('parents 9 - links should be labeled', () => {
+	const fields = [
+		generateField('first_name'),
+		generateField('last_name', 'first_name'),
+	];
+
+	const items = [
+		{
+			id: '1',
+			fields: {
+				last_name: 'kuipers',
+				first_name: 'thomas',
+			}
+		},
+		{
+			id: '2',
+			fields: {
+				last_name: 'kuipers',
+				first_name: 'barry',
+			}
+		},
+	];
+
+	const { nodes, links } = getNodesAndLinks([],  [], items as any, fields);
+
+	/**
+	 * Expect:
+	 * thomas
+	 * |
+	 * |kuipers
+	 * |
+	 * barry
+	 */
+	expect(nodes.length).toBe(2);
+	expect(links.length).toBe(1);
+	expect(links[0].label).toBe('kuipers');
+});

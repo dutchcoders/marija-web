@@ -49,4 +49,5 @@ export interface Link {
     targetY?: number;
     thickness?: number;
     batch?: number;
+    directional?: boolean;
 }

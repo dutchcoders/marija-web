@@ -1,11 +1,10 @@
 import fieldLocator from '../../fields/helpers/fieldLocator';
 import { Field } from '../../fields/interfaces/field';
 import { Item } from '../../items/interfaces/item';
-import { Search } from '../../search/interfaces/search';
 import { Link } from '../interfaces/link';
 import { ChildData, Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';
-import {forEach, merge} from 'lodash';
+import {forEach} from 'lodash';
 
 export default function getNodesAndLinks(
     previousNodes: Node[],
@@ -69,6 +68,11 @@ export default function getNodesAndLinks(
 			}
 
 			name = fieldLocator(item.fields, field.childOf);
+
+			if (typeof name === 'undefined') {
+				return [];
+			}
+
 			activeField = fields.find(search =>
 				search.path === field.childOf
 			);
@@ -207,6 +211,12 @@ export default function getNodesAndLinks(
 									return;
 								}
 
+								let label: string;
+
+								if (linkableTarget !== targetValue) {
+									label = targetValue.substring(0, 15);
+								}
+
 								// Create new link
 								linkMap.set(linkHash, {
 									hash: linkHash,
@@ -220,7 +230,9 @@ export default function getNodesAndLinks(
 									isNormalizationParent: false,
 									viaId: null,
 									replacedNode: null,
-									itemIds: [item.id]
+									itemIds: [item.id],
+									label: label,
+									directional: false
 								});
 							});
 						});

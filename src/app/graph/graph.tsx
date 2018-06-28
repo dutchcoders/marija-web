@@ -739,13 +739,15 @@ class Graph extends React.PureComponent<Props, State> {
                     targetX,
                     targetY
                 );
-
-                const deltaX = sourceX - targetX;
-                const deltaY = sourceY - targetY;
-                const angle = Math.atan2(deltaY, deltaX);
-
-                this.renderArrow(targetX, targetY, angle);
             }
+
+            if (link.directional) {
+				const deltaX = sourceX - targetX;
+				const deltaY = sourceY - targetY;
+				const angle = Math.atan2(deltaY, deltaX);
+
+				this.renderArrow(targetX, targetY, angle);
+			}
         } else {
             // When there are multiple links between 2 nodes, we need to draw arcs
 
@@ -770,7 +772,10 @@ class Graph extends React.PureComponent<Props, State> {
             const counterClockwise = bend < 0;
             const arrowPosition = getArrowPosition(centerX, centerY, radius, normalizedEndAngle, counterClockwise, targetX, targetY);
 
-            this.renderArrow2(arrowPosition.x, arrowPosition.y, arrowPosition.angle);
+            if (link.directional) {
+				this.renderArrow2(arrowPosition.x, arrowPosition.y, arrowPosition.angle);
+			}
+
             this.renderArc(centerX, centerY, radius, startAngle, endAngle, counterClockwise);
 
             if (link.label) {
