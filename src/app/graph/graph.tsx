@@ -938,7 +938,7 @@ class Graph extends React.PureComponent<Props, State> {
 		let minRadius = 15;
 		const maxRadius = 40;
 		const maxRadiusAtItemCount = 10;
-		
+
 		if (node.isImage) {
 			minRadius = 30;
 		}
@@ -995,7 +995,7 @@ class Graph extends React.PureComponent<Props, State> {
 			this.setWorkerAreaForces(nextProps.isMapActive);
 		}
 
-        if (!isEqual(nextSelected, selectedNodes)) {
+        if (!isEqual(nextSelected, selectedNodes) || nextProps.highlightedNodes !== highlightedNodes) {
 			nextProps.nodesForDisplay.forEach(node => {
 				this.nodeMap.set(node.id, node);
 			});
