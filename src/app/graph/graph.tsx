@@ -310,16 +310,7 @@ class Graph extends React.PureComponent<Props, State> {
 			return true;
 		}
 
-		const minRadius = 15;
-		const maxRadius = 40;
-		const maxRadiusAtItemCount = 10;
-		const preMultipliedRadius = Math.min(
-			maxRadius,
-			minRadius + node.items.length / maxRadiusAtItemCount * (maxRadius - minRadius)
-		);
-
-		const radius = preMultipliedRadius * sizeMultiplier;
-
+		const radius = node.r * sizeMultiplier;
 		const canvas = document.createElement('canvas');
 		const lineWidth = 3;
 		const margin = 2;
@@ -459,15 +450,7 @@ class Graph extends React.PureComponent<Props, State> {
 			return true;
 		}
 
-		const minRadius = 30;
-		const maxRadius = 40;
-		const maxRadiusAtItemCount = 10;
-		const preMultipliedRadius = Math.min(
-			maxRadius,
-			minRadius + node.items.length / maxRadiusAtItemCount * (maxRadius - minRadius)
-		);
-
-		const radius = preMultipliedRadius * sizeMultiplier;
+		const radius = node.r * sizeMultiplier;
 
 		const canvas = document.createElement('canvas');
 		const lineWidth = 3;
@@ -951,11 +934,27 @@ class Graph extends React.PureComponent<Props, State> {
         });
     }
 
+    getNodeRadius(node: Node): number {
+		let minRadius = 15;
+		const maxRadius = 40;
+		const maxRadiusAtItemCount = 10;
+		
+		if (node.isImage) {
+			minRadius = 30;
+		}
+
+		return Math.min(
+			maxRadius,
+			minRadius + node.items.length / maxRadiusAtItemCount * (maxRadius - minRadius)
+		);
+	}
+
     async preProcessTextures(nodes: Node[], sizeMultiplier: number, forceRefresh: boolean = false): Promise<any> {
 		const { isMapActive } = this.props;
 
 		nodes.forEach(node => {
 			node.textureKey = this.getNodeTextureKey(node);
+			node.r = this.getNodeRadius(node);
 		});
 
 		const promises: Promise<any>[] = [];
