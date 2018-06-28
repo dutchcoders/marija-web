@@ -1,6 +1,9 @@
 import { uniqueId } from 'lodash';
 
-import getNodesAndLinks, { getHash } from './getNodesAndLinks';
+import {
+	getHash,
+	default as getNodesAndLinks
+} from './getNodesAndLinks';
 import {Item} from "../../items/interfaces/item";
 import {Field} from "../../fields/interfaces/field";
 
@@ -515,4 +518,68 @@ test('parents 5 - child data should contain array of all seen values', () => {
 	expect(links.length).toBe(0);
 
 	expect(nodes[0].childData.first_name).toContain('Thomas');
+});
+
+test('parents 6 - real world case - link sources and targets should exist as nodes', () => {
+	const fields = [
+		generateField('user.screen_name'),
+		generateField('text'),
+		generateField('mentions', 'text')
+	];
+
+	const items = JSON.parse('[{"id":"a0b245dd3eade2ab840498694d87f53f","fields":{"mentions":["morongwaMow","rn0o0y28","rosybabexoo"],"text":"RT @morongwaMow: @rn0o0y28 @rosybabexoo Exactly wat i was about to ask😂😂 https://t.co/o6YUFQcMLl","user.id_str":"833700754997248002","user.name":"BTS라니아97رانوتان","user.profile_image":"https://pbs.twimg.com/profile_images/1011356197449068544/qHw1eW3T_normal.jpg","user.screen_name":"rn0o0y28"},"count":1,"searchId":"2"}]');
+
+
+	// What makes this case interesting (and broke it) is that the child node `mentions` has the same value
+	// as the parent node `user.screen_name`. The value in question is 'rn0o0y28'.
+
+	const { nodes, links } = getNodesAndLinks([], [], items, fields);
+
+	links.forEach(link => {
+		const source = nodes.find(node => node.id === link.source);
+		const target = nodes.find(node => node.id === link.target);
+
+		if (!source) {
+			console.log(link);
+
+			throw new Error('Source not found' + link.source);
+		}
+
+		if (!target) {
+			console.log(link);
+
+			throw new Error('Target not found' + link.target);
+		}
+	});
+});
+
+test('parents 7 - a value that is both a child node and a parent node', () => {
+	const fields = [
+		generateField('last_name'),
+		generateField('first_name', 'last_name'),
+		generateField('nickname')
+	];
+
+	const items = [
+		{
+			id: '1',
+			fields: {
+				last_name: 'kuipers',
+				first_name: 'thomas',
+				nickname: 'thomas',
+			}
+		}
+	];
+
+	const { nodes, links } = getNodesAndLinks([],  [], items as any, fields);
+
+	/**
+	 * Expect:
+	 * kuipers (child data: first_name: thomas)
+	 * |
+	 * |
+	 * thomas
+	 */
+	expect(nodes.length).toBe(2);
+	expect(links.length).toBe(1);
 });

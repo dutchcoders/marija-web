@@ -18,8 +18,17 @@ export default function getNodesAndLinks(
     nodes: Node[],
     links: Link[]
 } {
-    const nodeMap = new Map<number, Node>();
-    previousNodes.forEach(node => nodeMap.set(node.id, node));
+    const parentNodeMap = new Map<number, Node>();
+    previousNodes.forEach(node => parentNodeMap.set(node.id, node));
+
+	const childNodeMap = new Map<number, Node>();
+	previousNodes.forEach(node => {
+		forEach(node.childData, values => {
+			values.forEach(value => {
+				childNodeMap.set(getHash(value), node);
+			})
+		});
+	});
 
     const linkMap = new Map<number, Link>();
     previousLinks.forEach(link => linkMap.set(link.hash, link));
@@ -27,10 +36,19 @@ export default function getNodesAndLinks(
     const deletedMap = new Map<string, true>();
     deletedNodes.forEach(node => deletedMap.set(node.name, true));
 
+    const getParentOrChildNode = (hash: number): Node => {
+    	const parent = parentNodeMap.get(hash);
+
+    	if (parent) {
+    		return parent;
+		}
+
+		return childNodeMap.get(hash);
+	};
+
     const createNode = (name: string, field: Field, item: Item): string[] => {
     	let activeField: Field;
     	let childData: ChildData;
-    	let existing: Node;
     	const linkables: string[] = [];
 
     	if (field.childOf) {
@@ -38,23 +56,17 @@ export default function getNodesAndLinks(
 				[field.path]: [name]
 			};
 
+			const existing = getParentOrChildNode(getHash(name));
+
+			if (existing && existing.fields.indexOf(field.childOf) !== -1) {
+				linkables.push(existing.name);
+				addDataToNode(existing, item, childData);
+			}
+
 			name = fieldLocator(item.fields, field.childOf);
 			activeField = fields.find(search =>
 				search.path === field.childOf
 			);
-
-			existing = nodeMap.get(getHash(name));
-
-			forEach(childData, values => {
-				values.forEach(value => {
-					existing = nodeMap.get(getHash(value));
-
-					if (existing) {
-						linkables.push(existing.name);
-						addDataToNode(existing, item, childData);
-					}
-				});
-			});
 
 		} else {
     		activeField = field;
@@ -67,8 +79,10 @@ export default function getNodesAndLinks(
 
 		const hash = getHash(name);
 
-    	if (nodeMap.has(hash)) {
-    		addDataToNode(nodeMap.get(hash), item, childData);
+    	if (parentNodeMap.has(hash)) {
+    		const node = parentNodeMap.get(hash);
+
+    		addDataToNode(node, item, childData);
 			return linkables;
 		}
 
@@ -95,13 +109,7 @@ export default function getNodesAndLinks(
 			childData: childData
 		};
 
-		nodeMap.set(hash, node);
-
-		forEach(childData, values => {
-			values.forEach(value => {
-				nodeMap.set(getHash(value), node);
-			});
-		});
+		parentNodeMap.set(hash, node);
 
 		return linkables;
 	};
@@ -115,21 +123,19 @@ export default function getNodesAndLinks(
 			node.searchIds.push(item.searchId);
 		}
 
-		if (childData) {
-			forEach(childData, (values, key) => {
-				values.forEach(value => {
-					if (node.childData[key]) {
-						if (node.childData[key].indexOf(value) === -1) {
-							node.childData[key].push(value)
-						}
-					} else {
-						node.childData[key] = [value];
+		forEach(childData, (values, key) => {
+			values.forEach(value => {
+				if (node.childData[key]) {
+					if (node.childData[key].indexOf(value) === -1) {
+						node.childData[key].push(value)
 					}
+				} else {
+					node.childData[key] = [value];
+				}
 
-					nodeMap.set(getHash(value), node);
-				});
+				childNodeMap.set(getHash(value), node);
 			});
-		}
+		});
 	};
 
     items.forEach(item => {
@@ -214,7 +220,7 @@ export default function getNodesAndLinks(
     const nodes: Node[] = [];
     const usedIds = new Map<number, true>();
 
-    nodeMap.forEach(node => {
+    parentNodeMap.forEach(node => {
     	if (usedIds.has(node.id)) {
     		return;
 		}

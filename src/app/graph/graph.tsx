@@ -997,6 +997,10 @@ class Graph extends React.PureComponent<Props, State> {
 		}
 
         if (!isEqual(nextSelected, selectedNodes)) {
+			nextProps.nodesForDisplay.forEach(node => {
+				this.nodeMap.set(node.id, node);
+			});
+
             this.renderedSince.lastTick = false;
         }
 
