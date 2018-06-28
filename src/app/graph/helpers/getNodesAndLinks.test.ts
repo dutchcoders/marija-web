@@ -583,3 +583,46 @@ test('parents 7 - a value that is both a child node and a parent node', () => {
 	expect(nodes.length).toBe(2);
 	expect(links.length).toBe(1);
 });
+
+test('parents 8 - should draw links to all parent nodes, not just 1', () => {
+	const fields = [
+		generateField('first_name'),
+		generateField('last_name', 'first_name'),
+	];
+
+	const items = [
+		{
+			id: '1',
+			fields: {
+				last_name: 'kuipers',
+				first_name: 'thomas',
+			}
+		},
+		{
+			id: '2',
+			fields: {
+				last_name: 'kuipers',
+				first_name: 'barry',
+			}
+		},
+		{
+			id: '3',
+			fields: {
+				last_name: 'kuipers',
+				first_name: 'karel',
+			}
+		}
+	];
+
+	const { nodes, links } = getNodesAndLinks([],  [], items as any, fields);
+
+	/**
+	 * Expect:
+	 * thomas
+	 * |      \
+	 * |	   \
+	 * barry -- karel
+	 */
+	expect(nodes.length).toBe(3);
+	expect(links.length).toBe(3);
+});

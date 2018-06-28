@@ -21,11 +21,11 @@ export default function getNodesAndLinks(
     const parentNodeMap = new Map<number, Node>();
     previousNodes.forEach(node => parentNodeMap.set(node.id, node));
 
-	const childNodeMap = new Map<number, Node>();
+	const childNodeMap = new Map<number, Node[]>();
 	previousNodes.forEach(node => {
 		forEach(node.childData, values => {
 			values.forEach(value => {
-				childNodeMap.set(getHash(value), node);
+				childNodeMap.set(getHash(value), [node]);
 			})
 		});
 	});
@@ -36,11 +36,11 @@ export default function getNodesAndLinks(
     const deletedMap = new Map<string, true>();
     deletedNodes.forEach(node => deletedMap.set(node.name, true));
 
-    const getParentOrChildNode = (hash: number): Node => {
+    const getParentOrChildNodes = (hash: number): Node[] => {
     	const parent = parentNodeMap.get(hash);
 
     	if (parent) {
-    		return parent;
+    		return [parent];
 		}
 
 		return childNodeMap.get(hash);
@@ -56,11 +56,16 @@ export default function getNodesAndLinks(
 				[field.path]: [name]
 			};
 
-			const existing = getParentOrChildNode(getHash(name));
+			const existingNodes = getParentOrChildNodes(getHash(name));
 
-			if (existing && existing.fields.indexOf(field.childOf) !== -1) {
-				linkables.push(existing.name);
-				addDataToNode(existing, item, childData);
+			if (existingNodes) {
+				existingNodes.forEach(existing => {
+					if (existing && existing.fields.indexOf(field.childOf) !== -1) {
+						linkables.push(existing.name);
+
+						addDataToNode(existing, item, childData);
+					}
+				});
 			}
 
 			name = fieldLocator(item.fields, field.childOf);
@@ -133,7 +138,16 @@ export default function getNodesAndLinks(
 					node.childData[key] = [value];
 				}
 
-				childNodeMap.set(getHash(value), node);
+				const hash = getHash(value);
+				const nodeSet = childNodeMap.get(hash);
+
+				if (nodeSet) {
+					if (typeof nodeSet.find(search => search.id === node.id) === 'undefined') {
+						nodeSet.push(node);
+					}
+				} else {
+					childNodeMap.set(hash, [node]);
+				}
 			});
 		});
 	};
