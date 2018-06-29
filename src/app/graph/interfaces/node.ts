@@ -65,6 +65,8 @@ export interface Node {
 	fx?: number;
 	fy?: number;
 	batch?: number;
+
+	nodeTemplate?: string;
 }
 
 export interface ChildData {

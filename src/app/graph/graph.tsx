@@ -1171,7 +1171,15 @@ class Graph extends React.PureComponent<Props, State> {
 
         if (node.childData) {
         	forEach(node.childData, (value, key) => {
-        		description += key + ': ' + value.join(', ') + "\n";
+        		description += key + ': ';
+
+        		if (Array.isArray(value)) {
+					description += value.join(', ');
+				} else {
+        			description += value;
+				}
+
+				description += "\n";
 			});
 		}
 

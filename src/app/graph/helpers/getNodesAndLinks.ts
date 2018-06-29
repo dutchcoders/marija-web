@@ -4,107 +4,252 @@ import { Item } from '../../items/interfaces/item';
 import { Link } from '../interfaces/link';
 import { ChildData, Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';
-import {forEach} from 'lodash';
+import {forEach, isEmpty, uniqueId} from 'lodash';
+import { NodeTemplate } from '../interfaces/nodeTemplate';
+import { Util } from 'leaflet';
+import { getValueSets } from './getValueSets';
 
 export default function getNodesAndLinks(
     previousNodes: Node[],
     previousLinks: Link[],
     items: Item[],
-    fields: Field[],
+    nodeTemplates: NodeTemplate[],
     aroundNodeId: number | undefined = undefined,
     deletedNodes: Node[] = []
 ): {
     nodes: Node[],
     links: Link[]
 } {
-    const parentNodeMap = new Map<number, Node>();
-    previousNodes.forEach(node => parentNodeMap.set(node.id, node));
+    const links: Link[] = previousLinks.concat([]);
 
-	const childNodeMap = new Map<number, Node[]>();
-	previousNodes.forEach(node => {
-		forEach(node.childData, values => {
-			values.forEach(value => {
-				childNodeMap.set(getHash(value), [node]);
-			})
+    const andMatcher = (valueSet, nodeTemplate: NodeTemplate): Node[] => {
+    	return matcherNodes.filter(node => {
+    		for (let i = 0; i < nodeTemplate.fields.length; i ++) {
+    			const field = nodeTemplate.fields[i].path;
+				const match = typeof node.childData[field] !== 'undefined' && node.childData[field].indexOf(valueSet[field]) !== -1;
+
+				if (!match) {
+					return false;
+				}
+			}
+
+			return true;
 		});
-	});
-
-    const linkMap = new Map<number, Link>();
-    previousLinks.forEach(link => linkMap.set(link.hash, link));
-
-    const deletedMap = new Map<string, true>();
-    deletedNodes.forEach(node => deletedMap.set(node.name, true));
-
-    const getParentOrChildNodes = (hash: number): Node[] => {
-    	const parent = parentNodeMap.get(hash);
-
-    	if (parent) {
-    		return [parent];
-		}
-
-		return childNodeMap.get(hash);
 	};
 
-    const createNode = (name: string, field: Field, item: Item): string[] => {
-    	let activeField: Field;
-    	let childData: ChildData;
-    	const linkables: string[] = [];
+    const orMatcher = (valueSet, nodeTemplate: NodeTemplate): Node[] => {
+    	return matcherNodes.filter(node => {
+    		for (let i = 0; i < nodeTemplate.fields.length; i ++) {
+    			const field = nodeTemplate.fields[i].path;
+				const match = typeof node.childData[field] !== 'undefined' && node.childData[field].indexOf(valueSet[field]) !== -1;
 
-    	if (field.childOf) {
-			childData = {
-				[field.path]: [name]
+				if (match) {
+					return true;
+				}
+			}
+
+			return false;
+		});
+	};
+
+    const addDataToNode = (node: Node, data): void => {
+    	forEach(data, (value, key) => {
+    		if (node.childData[key]) {
+    			if (node.childData[key].indexOf(value) === -1) {
+    				node.childData[key].push(value);
+				}
+			} else {
+				node.childData[key] = [value];
+			}
+		});
+	};
+
+    const getMatchingItemsAnd = (itemId: string, valueSet, nodeTemplate: NodeTemplate): Item[] => {
+		return items.filter(item => {
+			if (item.id === itemId) {
+				return false;
+			}
+
+			for (let i = 0; i < nodeTemplate.fields.length; i ++) {
+				const field = nodeTemplate.fields[i].path;
+				let itemValue = item.fields[field];
+
+				if (typeof itemValue === 'undefined') {
+					return false;
+				}
+
+				if (!Array.isArray(itemValue)) {
+					itemValue = [itemValue];
+				}
+
+				const match = itemValue.indexOf(valueSet[field]) !== -1;
+
+				if (!match) {
+					return false;
+				}
+			}
+
+			return true;
+		});
+	};
+
+    const getMatchingItemsOr = (itemId: string, valueSet, nodeTemplate: NodeTemplate): Item[] => {
+		return items.filter(item => {
+			if (item.id === itemId) {
+				return false;
+			}
+
+			for (let i = 0; i < nodeTemplate.fields.length; i ++) {
+				const field = nodeTemplate.fields[i].path;
+				let itemValue = item.fields[field];
+
+				if (typeof itemValue !== 'undefined') {
+					if (!Array.isArray(itemValue)) {
+						itemValue = [itemValue];
+					}
+
+					const strings = itemValue.map(value => value + '');
+					const match = strings.indexOf(valueSet[field]) !== -1;
+
+					if (match) {
+						return true;
+					}
+				}
+			}
+
+			return false;
+		});
+	};
+
+    const getMatcherNodes = (itemId: string, valueSet, nodeTemplate: NodeTemplate): Node[] => {
+    	let matchingItems: Item[];
+
+    	if (nodeTemplate.matcher === 'AND') {
+    		matchingItems = getMatchingItemsAnd(itemId, valueSet, nodeTemplate);
+		} else {
+    		matchingItems = getMatchingItemsOr(itemId, valueSet, nodeTemplate);
+		}
+
+		if (itemId === '3') {
+    		console.log(matchingItems);
+		}
+
+		let relevantMatches: Node[] = [];
+
+    	matchingItems.forEach(item => {
+    		let existing: Node[] = [];
+
+    		if (nodeTemplate.matcher === 'AND') {
+    			existing = andMatcher(valueSet, nodeTemplate);
+			} else {
+    			existing = orMatcher(valueSet, nodeTemplate);
+			}
+
+			if (existing.length > 0) {
+    			relevantMatches = relevantMatches.concat(existing);
+    			return;
+			}
+
+			const name = uniqueId();
+			const hash = getHash(name);
+
+			const node: Node = {
+				id: hash,
+				searchIds: [item.searchId],
+				items: [item.id],
+				count: item.count,
+				name: name,
+				abbreviated: abbreviateNodeName(name, item.searchId, 40),
+				description: '',
+				icon: nodeTemplate.fields[0].icon,
+				fields: [],
+				hash: hash,
+				normalizationId: null,
+				display: true,
+				selected: false,
+				highlighted: false,
+				displayTooltip: false,
+				isNormalizationParent: false,
+				important: false,
+				isGeoLocation: false,
+				isImage: false,
+				childData: valueSet,
+				nodeTemplate: nodeTemplate.name
 			};
 
-			const existingNodes = getParentOrChildNodes(getHash(name));
+			matcherNodes.push(node);
+			relevantMatches.push(node);
+		});
 
-			if (existingNodes) {
-				existingNodes.forEach(existing => {
-					if (existing && existing.fields.indexOf(field.childOf) !== -1) {
-						linkables.push(existing.name);
+    	return relevantMatches;
+	};
 
-						addDataToNode(existing, item, childData);
-					}
-				});
+    const createLink = (source: Node, target: Node, item: Item) => {
+		if (source.id === target.id) {
+			// Nodes should not link to themselves
+			return;
+		}
+
+		if (source.nodeTemplate === target.nodeTemplate) {
+			// Dont create links between nodes of the same template
+			// This would happen for fields with array values.
+			// Creating links between those could be considered correct,
+			// but it mainly makes things chaotic.
+			// return;
+		}
+
+		const hash = source.id + target.id;
+
+    	const existing = links.findIndex(link => link.hash === hash);
+
+    	if (existing !== -1) {
+    		const newLink = {
+				...links[existing]
+			};
+
+    		if (newLink.itemIds.indexOf(item.id) === -1) {
+    			newLink.itemIds = newLink.itemIds.concat([item.id]);
 			}
 
-			name = fieldLocator(item.fields, field.childOf);
+			links[existing] = newLink;
 
-			if (typeof name === 'undefined') {
-				return [];
-			}
-
-			activeField = fields.find(search =>
-				search.path === field.childOf
-			);
-
-		} else {
-    		activeField = field;
-    		childData = {};
+    		return;
 		}
 
-		if (name) {
-			linkables.push(name);
-		}
+		links.push({
+			hash: hash,
+			source: source.id,
+			target: target.id,
+			color: '#ccc',
+			total: 1,
+			current: 1,
+			normalizationIds: [],
+			display: true,
+			isNormalizationParent: false,
+			viaId: null,
+			replacedNode: null,
+			itemIds: [item.id],
+			directional: false
+		});
+	};
 
-		const hash = getHash(name);
+    const itemNodes: Node[] = [];
+    const matcherNodes: Node[] = [];
 
-    	if (parentNodeMap.has(hash)) {
-    		const node = parentNodeMap.get(hash);
+    const createItemNode = (item: Item): Node => {
+    	const name = JSON.stringify(item.fields);
+    	const hash = getHash(name);
 
-    		addDataToNode(node, item, childData);
-			return linkables;
-		}
-
-		const node: Node = {
+    	const node: Node = {
 			id: hash,
 			searchIds: [item.searchId],
 			items: [item.id],
 			count: item.count,
 			name: name,
-			abbreviated: abbreviateNodeName(name, item.searchId, 40),
+			abbreviated: abbreviateNodeName(name, '', 40),
 			description: '',
-			icon: activeField.icon,
-			fields: [activeField.path],
+			icon: '',
+			fields: [],
 			hash: hash,
 			normalizationId: null,
 			display: true,
@@ -113,184 +258,61 @@ export default function getNodesAndLinks(
 			displayTooltip: false,
 			isNormalizationParent: false,
 			important: false,
-			isGeoLocation: activeField.type === 'location',
-			isImage: activeField.type === 'image',
-			childData: childData
+			isGeoLocation: false,
+			isImage: false,
+			childData: item.fields,
+			nodeTemplate: 'item'
 		};
 
-		parentNodeMap.set(hash, node);
+    	itemNodes.push(node);
 
-		return linkables;
-	};
-
-    const addDataToNode = (node: Node, item: Item, childData?: ChildData): void => {
-		if (node.items.indexOf(item.id) === -1) {
-			node.items.push(item.id);
-		}
-
-		if (node.searchIds.indexOf(item.searchId) === -1) {
-			node.searchIds.push(item.searchId);
-		}
-
-		forEach(childData, (values, key) => {
-			values.forEach(value => {
-				if (node.childData[key]) {
-					if (node.childData[key].indexOf(value) === -1) {
-						node.childData[key].push(value)
-					}
-				} else {
-					node.childData[key] = [value];
-				}
-
-				const hash = getHash(value);
-				const nodeSet = childNodeMap.get(hash);
-
-				if (nodeSet) {
-					if (typeof nodeSet.find(search => search.id === node.id) === 'undefined') {
-						nodeSet.push(node);
-					}
-				} else {
-					childNodeMap.set(hash, [node]);
-				}
-			});
-		});
+    	return node;
 	};
 
     items.forEach(item => {
-        fields.forEach(sourceField => {
-            const sourceValues = getIterableFieldValues(fieldLocator(item.fields, sourceField.path), deletedMap);
+    	const sourceNode: Node = createItemNode(item);
 
-            sourceValues.forEach(sourceValue => {
-                const linkableSources = createNode(sourceValue, sourceField, item);
+		nodeTemplates.forEach(nodeTemplate => {
+			const data = {};
 
-				linkableSources.forEach(linkableSource => {
-					fields.forEach(targetField => {
-						let targetValues = getIterableFieldValues(fieldLocator(item.fields, targetField.path), deletedMap);
+			nodeTemplate.fields.forEach(field => {
+				const value = item.fields[field.path];
 
-						targetValues.forEach(targetValue => {
-							const linkableTargets = createNode(targetValue, targetField, item);
+				if (value) {
+					data[field.path] = value;
+				}
+			});
 
-							linkableTargets.forEach(linkableTarget => {
-								if (sourceValues.length > 1) {
-									// we don't want all individual arrays to be linked together
-									// those individual arrays being linked are (I assume) irrelevant
-									// otherwise this needs to be a configuration option
-									return;
-								}
+			if (isEmpty(data)) {
+				return;
+			}
 
-								// Dont create links from a node to itself
-								if (linkableSource === linkableTarget) {
-									return;
-								}
+			const valueSets = getValueSets(data);
 
-								const linkExists = (key: number): boolean => {
-									if (!linkMap.has(key)) {
-										// Link does not exist
-										return false;
-									}
+			valueSets.forEach(valueSet => {
+				const targetNodes = getMatcherNodes(item.id, valueSet, nodeTemplate);
 
-									// If the link already exists, save the item id to the
-									// existing link, so we can keep track of which items
-									// are associated with which links. We can use that to
-									// determine line thickness.
-
-									const existingLink = linkMap.get(key);
-
-									if (existingLink.itemIds.indexOf(item.id) === -1) {
-										existingLink.itemIds = existingLink.itemIds.concat([item.id]);
-									}
-
-									return true;
-								};
-
-								const sourceHash = getHash(linkableSource);
-								const targetHash = getHash(linkableTarget);
-								const linkHash = sourceHash + targetHash;
-
-								if (linkExists(linkHash)) {
-									return;
-								}
-
-								let label: string;
-
-								if (linkableTarget !== targetValue) {
-									label = targetValue.substring(0, 15);
-								}
-
-								// Create new link
-								linkMap.set(linkHash, {
-									hash: linkHash,
-									source: sourceHash,
-									target: targetHash,
-									color: '#ccc',
-									total: 1,
-									current: 1,
-									normalizationIds: [],
-									display: true,
-									isNormalizationParent: false,
-									viaId: null,
-									replacedNode: null,
-									itemIds: [item.id],
-									label: label,
-									directional: false
-								});
-							});
-						});
-					});
+				targetNodes.forEach(targetNode => {
+					createLink(sourceNode, targetNode, item);
 				});
-            });
-        });
-    });
-
-    // Turn maps into plain arrays and remove duplicates
-    const nodes: Node[] = [];
-    const usedIds = new Map<number, true>();
-
-    parentNodeMap.forEach(node => {
-    	if (usedIds.has(node.id)) {
-    		return;
-		}
-
-		usedIds.set(node.id, true);
-    	nodes.push(node);
+			});
+		});
 	});
 
-    const links: Link[] = [];
-    linkMap.forEach(link => links.push(link));
+    const nodes = itemNodes.concat(matcherNodes);
 
-    return {
-        nodes: nodes,
+
+	console.log(nodes.map(node => [node.name]));
+	console.log(links.map(link => [
+		nodes.find(node => node.id === link.source).name,
+		nodes.find(node => node.id === link.target).name
+	]));
+
+
+	return {
+        nodes: itemNodes.concat(matcherNodes),
         links: links
     };
-}
-
-function getIterableFieldValues(rawValue: any, deleted: Map<string, true>): string[] {
-	if (rawValue === null) {
-		return [];
-	}
-
-	if (!Array.isArray(rawValue)) {
-		rawValue = [rawValue];
-	}
-
-	// Convert to strings
-	rawValue = rawValue.map(value => {
-		if (typeof value === 'boolean') {
-			return value ? 'true' : 'false';
-		}
-
-		if (typeof value === 'undefined') {
-			return '';
-		}
-
-		return value + '';
-	});
-
-	// Filter deleted nodes
-	rawValue = rawValue.filter(value => !deleted.has(value));
-
-	// Filter empty values
-	return rawValue.filter(value => value !== '');
 }
 
 export function getHash(string) {

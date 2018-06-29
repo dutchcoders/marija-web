@@ -65,6 +65,7 @@ import {Normalization} from './interfaces/normalization';
 import {Via} from './interfaces/via';
 import {GraphState} from "./interfaces/graphState";
 import { markPerformance } from '../main/helpers/performance';
+import { NodeTemplate } from './interfaces/nodeTemplate';
 
 export const defaultGraphState: GraphState = {
     fields: [],
@@ -82,7 +83,8 @@ export const defaultGraphState: GraphState = {
     graphWorkerCacheIsValid: false,
 	filterBoringNodes: true,
 	filterSecondaryQueries: true,
-	isDraggingSubFields: false
+	isDraggingSubFields: false,
+	nodeTemplates: []
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -145,6 +147,12 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             const newField = createField(state.fields, action.field.path, action.field.type, action.field.datasourceId);
 
+            const nodeTemplate: NodeTemplate = {
+            	name: uniqueId(),
+				fields: [newField],
+				matcher: 'AND'
+			};
+
             let dateFields = concat([], state.date_fields);
 
             if (action.field.type === 'date'
@@ -156,7 +164,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 ...state,
                 fields: state.fields.concat([newField]),
                 date_fields: dateFields,
-				graphWorkerCacheIsValid: false
+				graphWorkerCacheIsValid: false,
+				nodeTemplates: state.nodeTemplates.concat([nodeTemplate])
             };
         }
 

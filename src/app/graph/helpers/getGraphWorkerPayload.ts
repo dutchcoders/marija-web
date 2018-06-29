@@ -18,6 +18,7 @@ export function getGraphWorkerPayload(state: AppState, items: Item[] = [], searc
 		sortType: state.table.sortType,
 		sortColumn: state.table.sortColumn,
 		filterBoringNodes: state.graph.filterBoringNodes,
-		filterSecondaryQueries: state.graph.filterSecondaryQueries
+		filterSecondaryQueries: state.graph.filterSecondaryQueries,
+		nodeTemplates: state.graph.nodeTemplates
 	};
 }

@@ -23,6 +23,7 @@ import {Column} from "../../table/interfaces/column";
 import {SortType} from "../../table/interfaces/sortType";
 import {sortItems} from "../../items/helpers/sortItems";
 import { TRIGGER_GRAPH_WORKER } from '../graphConstants';
+import { NodeTemplate } from '../interfaces/nodeTemplate';
 
 export interface GraphWorkerPayload {
     items: Item[];
@@ -40,6 +41,7 @@ export interface GraphWorkerPayload {
     sortType: SortType;
     filterBoringNodes: boolean;
     filterSecondaryQueries: boolean;
+    nodeTemplates: NodeTemplate[];
 }
 
 export interface GraphWorkerOutput {
@@ -114,7 +116,7 @@ export default class GraphWorkerClass {
             prevNodeCache,
             prevLinkCache,
             useItems,
-            fields,
+            payload.nodeTemplates,
             search ? search.aroundNodeId : null,
             payload.deletedNodes
         );
