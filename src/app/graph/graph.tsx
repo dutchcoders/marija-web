@@ -287,6 +287,7 @@ class Graph extends React.PureComponent<Props, State> {
     getNodeTextureKey(node: Node) {
         return node.icon
             + node.count
+			+ node.type
             + node.searchIds.map(searchId => this.getSearchColor(searchId)).join('');
     }
 
@@ -318,19 +319,26 @@ class Graph extends React.PureComponent<Props, State> {
 		canvas.height = radius * 2 + lineWidth + margin;
 		const ctx = canvas.getContext('2d');
 
-		const fractionPerSearch = 1 / node.searchIds.length;
-		const anglePerSearch = 2 * Math.PI * fractionPerSearch;
-		let currentAngle = .5 * Math.PI;
-
-		node.searchIds.forEach(searchId => {
+		if (node.type === 'intersection') {
+			ctx.fillStyle = '#52657a';
 			ctx.beginPath();
-			ctx.fillStyle = this.getSearchColor(searchId);
 			ctx.moveTo(radius, radius);
-			ctx.arc(radius + margin, radius + margin, radius, currentAngle, currentAngle + anglePerSearch);
+			ctx.arc(radius + margin, radius + margin, radius, 0, Math.PI * 2);
 			ctx.fill();
+		} else if (node.type === 'item') {
+			let y = 0;
+			const fractionPerSearch = 1 / node.searchIds.length;
+			const totalHeight = radius * 2;
 
-			currentAngle += anglePerSearch;
-		});
+			node.searchIds.forEach(searchId => {
+				ctx.fillStyle = this.getSearchColor(searchId);
+				let height = fractionPerSearch * totalHeight;
+
+				ctx.fillRect(0, y, radius * 2, height);
+
+				y += height;
+			});
+		}
 
 		const fontSize = radius;
 
