@@ -561,7 +561,7 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     renderNode(node: Node) {
-		const { highlightedNodes, isMapActive } = this.props;
+    	const { highlightedNodes, isMapActive } = this.props;
 		const isHighlighting: boolean = highlightedNodes.length > 0;
 
 		if (typeof node.x === 'undefined') {
@@ -1150,7 +1150,7 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     getTooltipTexture(node: Node) {
-        const key = node.name + node.fields.join('');
+        const key = node.id + '';
         let texture = this.tooltipTextures[key];
 
         if (typeof texture !== 'undefined') {
@@ -1876,6 +1876,7 @@ class Graph extends React.PureComponent<Props, State> {
             }
 
             this.tooltipNode(tooltip);
+
             let related = [];
 
             if (tooltip) {

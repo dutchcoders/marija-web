@@ -218,10 +218,16 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 return field;
             });
 
+            const nodeTemplates = state.nodeTemplates.map(nodeTemplate => ({
+				...nodeTemplate,
+				fields: nodeTemplate.fields.filter(field => field.path !== pathToDelete)
+			}));
+
             return {
                 ...state,
                 fields: fields,
-				graphWorkerCacheIsValid: false
+				graphWorkerCacheIsValid: false,
+				nodeTemplates: nodeTemplates
             };
         }
         case NORMALIZATION_ADD: {

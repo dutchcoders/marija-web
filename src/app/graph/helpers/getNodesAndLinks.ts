@@ -21,10 +21,12 @@ export default function getNodesAndLinks(
     links: Link[]
 } {
     const links: Link[] = previousLinks.concat([]);
+	const itemNodes: Node[] = previousNodes.filter(node => node.type === 'item');
+	const intersections: Node[] = previousNodes.filter(node => node.type === 'intersection');
 
     const andMatcher = (valueSet, nodeTemplate: NodeTemplate): Node[] => {
-    	return matcherNodes.filter(node => {
-    		for (let i = 0; i < nodeTemplate.fields.length; i ++) {
+    	return intersections.filter(node => {
+			for (let i = 0; i < nodeTemplate.fields.length; i ++) {
     			const field = nodeTemplate.fields[i].path;
 				const match = typeof node.childData[field] !== 'undefined' && node.childData[field].indexOf(valueSet[field]) !== -1;
 
@@ -38,7 +40,7 @@ export default function getNodesAndLinks(
 	};
 
     const orMatcher = (valueSet, nodeTemplate: NodeTemplate): Node[] => {
-    	return matcherNodes.filter(node => {
+    	return intersections.filter(node => {
     		for (let i = 0; i < nodeTemplate.fields.length; i ++) {
     			const field = nodeTemplate.fields[i].path;
 				const match = typeof node.childData[field] !== 'undefined' && node.childData[field].indexOf(valueSet[field]) !== -1;
@@ -130,10 +132,6 @@ export default function getNodesAndLinks(
     		matchingItems = getMatchingItemsOr(itemId, valueSet, nodeTemplate);
 		}
 
-		if (itemId === '3') {
-    		console.log(matchingItems);
-		}
-
 		let relevantMatches: Node[] = [];
 
     	matchingItems.forEach(item => {
@@ -150,7 +148,10 @@ export default function getNodesAndLinks(
     			return;
 			}
 
-			const name = uniqueId();
+			let name = '';
+    		nodeTemplate.fields.forEach(field => name += item.fields[field.path]);
+
+			// const name = uniqueId();
 			const hash = getHash(name);
 
 			const node: Node = {
@@ -174,10 +175,11 @@ export default function getNodesAndLinks(
 				isGeoLocation: false,
 				isImage: false,
 				childData: valueSet,
-				nodeTemplate: nodeTemplate.name
+				nodeTemplate: nodeTemplate.name,
+				type: 'intersection'
 			};
 
-			matcherNodes.push(node);
+			intersections.push(node);
 			relevantMatches.push(node);
 		});
 
@@ -233,12 +235,15 @@ export default function getNodesAndLinks(
 		});
 	};
 
-    const itemNodes: Node[] = [];
-    const matcherNodes: Node[] = [];
-
     const createItemNode = (item: Item): Node => {
-    	const name = JSON.stringify(item.fields);
-    	const hash = getHash(name);
+    	const name = item.fields[Object.keys(item.fields)[0]];
+    	const hash = getHash(item.id);
+
+    	const existing = itemNodes.find(node => node.id === hash);
+
+    	if (typeof existing !== 'undefined') {
+    		return existing;
+		}
 
     	const node: Node = {
 			id: hash,
@@ -261,7 +266,8 @@ export default function getNodesAndLinks(
 			isGeoLocation: false,
 			isImage: false,
 			childData: item.fields,
-			nodeTemplate: 'item'
+			nodeTemplate: null,
+			type: 'item'
 		};
 
     	itemNodes.push(node);
@@ -299,18 +305,17 @@ export default function getNodesAndLinks(
 		});
 	});
 
-    const nodes = itemNodes.concat(matcherNodes);
+    const nodes = itemNodes.concat(intersections);
 
-
-	console.log(nodes.map(node => [node.name]));
-	console.log(links.map(link => [
-		nodes.find(node => node.id === link.source).name,
-		nodes.find(node => node.id === link.target).name
-	]));
+	// console.log(nodes.map(node => [node.name]));
+	// console.log(links.map(link => [
+	// 	nodes.find(node => node.id === link.source).name,
+	// 	nodes.find(node => node.id === link.target).name
+	// ]));
 
 
 	return {
-        nodes: itemNodes.concat(matcherNodes),
+        nodes: nodes,
         links: links
     };
 }

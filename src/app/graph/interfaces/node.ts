@@ -67,6 +67,8 @@ export interface Node {
 	batch?: number;
 
 	nodeTemplate?: string;
+
+	type: 'intersection' | 'item';
 }
 
 export interface ChildData {
