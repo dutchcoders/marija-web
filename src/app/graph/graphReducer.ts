@@ -65,7 +65,7 @@ import {Normalization} from './interfaces/normalization';
 import {Via} from './interfaces/via';
 import {GraphState} from "./interfaces/graphState";
 import { markPerformance } from '../main/helpers/performance';
-import { NodeTemplate } from './interfaces/nodeTemplate';
+import { NodeMatcher } from './interfaces/nodeMatcher';
 
 export const defaultGraphState: GraphState = {
     fields: [],
@@ -84,7 +84,7 @@ export const defaultGraphState: GraphState = {
 	filterBoringNodes: true,
 	filterSecondaryQueries: true,
 	isDraggingSubFields: false,
-	nodeTemplates: []
+	nodeMatchers: []
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -147,7 +147,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             const newField = createField(state.fields, action.field.path, action.field.type, action.field.datasourceId);
 
-            const nodeTemplate: NodeTemplate = {
+            const nodeMatcher: NodeMatcher = {
             	name: uniqueId(),
 				fields: [newField],
 				matcher: 'AND'
@@ -165,7 +165,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 fields: state.fields.concat([newField]),
                 date_fields: dateFields,
 				graphWorkerCacheIsValid: false,
-				nodeTemplates: state.nodeTemplates.concat([nodeTemplate])
+				nodeMatchers: state.nodeMatchers.concat([nodeMatcher])
             };
         }
 
@@ -218,16 +218,16 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 return field;
             });
 
-            const nodeTemplates = state.nodeTemplates.map(nodeTemplate => ({
-				...nodeTemplate,
-				fields: nodeTemplate.fields.filter(field => field.path !== pathToDelete)
+            const nodeMatchers = state.nodeMatchers.map(nodeMatcher => ({
+				...nodeMatcher,
+				fields: nodeMatcher.fields.filter(field => field.path !== pathToDelete)
 			}));
 
             return {
                 ...state,
                 fields: fields,
 				graphWorkerCacheIsValid: false,
-				nodeTemplates: nodeTemplates
+				nodeMatchers: nodeMatchers
             };
         }
         case NORMALIZATION_ADD: {

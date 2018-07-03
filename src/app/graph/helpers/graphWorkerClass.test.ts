@@ -83,7 +83,7 @@ const defaultPayload: GraphWorkerPayload = {
     sortType: 'asc',
     filterBoringNodes: true,
     filterSecondaryQueries: true,
-    nodeTemplates: []
+    nodeMatchers: []
 };
 
 const getAction = (payload: GraphWorkerPayload) => {

@@ -6,7 +6,7 @@ import {
 } from './getNodesAndLinks';
 import {Item} from "../../items/interfaces/item";
 import {Field} from "../../fields/interfaces/field";
-import { NodeTemplate } from '../interfaces/nodeTemplate';
+import { NodeMatcher } from '../interfaces/nodeMatcher';
 
 const generateItem = (fields: any = undefined) => {
     if (typeof fields === 'undefined') {

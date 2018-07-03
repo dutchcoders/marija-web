@@ -66,7 +66,7 @@ export interface Node {
 	fy?: number;
 	batch?: number;
 
-	nodeTemplate?: string;
+	nodeMatcher?: string;
 
 	type: 'intersection' | 'item';
 }

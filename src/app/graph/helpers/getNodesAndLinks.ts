@@ -5,7 +5,7 @@ import { Link } from '../interfaces/link';
 import { ChildData, Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';
 import {forEach, isEmpty, uniqueId} from 'lodash';
-import { NodeTemplate } from '../interfaces/nodeTemplate';
+import { NodeMatcher } from '../interfaces/nodeMatcher';
 import { Util } from 'leaflet';
 import { getValueSets } from './getValueSets';
 import { getDatasourceIcon } from './getDatasourceIcon';
@@ -14,7 +14,7 @@ export default function getNodesAndLinks(
     previousNodes: Node[],
     previousLinks: Link[],
     items: Item[],
-    nodeTemplates: NodeTemplate[],
+    nodeMatchers: NodeMatcher[],
     aroundNodeId: number | undefined = undefined,
     deletedNodes: Node[] = []
 ): {
@@ -25,10 +25,10 @@ export default function getNodesAndLinks(
 	const itemNodes: Node[] = previousNodes.filter(node => node.type === 'item');
 	const intersections: Node[] = previousNodes.filter(node => node.type === 'intersection');
 
-    const andMatcher = (valueSet, nodeTemplate: NodeTemplate): Node[] => {
+    const andMatcher = (valueSet, nodeMatcher: NodeMatcher): Node[] => {
     	return intersections.filter(node => {
-			for (let i = 0; i < nodeTemplate.fields.length; i ++) {
-    			const field = nodeTemplate.fields[i].path;
+			for (let i = 0; i < nodeMatcher.fields.length; i ++) {
+    			const field = nodeMatcher.fields[i].path;
 				const match = typeof node.childData[field] !== 'undefined' && node.childData[field].indexOf(valueSet[field]) !== -1;
 
 				if (!match) {
@@ -40,10 +40,10 @@ export default function getNodesAndLinks(
 		});
 	};
 
-    const orMatcher = (valueSet, nodeTemplate: NodeTemplate): Node[] => {
+    const orMatcher = (valueSet, nodeMatcher: NodeMatcher): Node[] => {
     	return intersections.filter(node => {
-    		for (let i = 0; i < nodeTemplate.fields.length; i ++) {
-    			const field = nodeTemplate.fields[i].path;
+    		for (let i = 0; i < nodeMatcher.fields.length; i ++) {
+    			const field = nodeMatcher.fields[i].path;
 				const match = typeof node.childData[field] !== 'undefined' && node.childData[field].indexOf(valueSet[field]) !== -1;
 
 				if (match) {
@@ -67,14 +67,14 @@ export default function getNodesAndLinks(
 		});
 	};
 
-    const getMatchingItemsAnd = (itemId: string, valueSet, nodeTemplate: NodeTemplate): Item[] => {
+    const getMatchingItemsAnd = (itemId: string, valueSet, nodeMatcher: NodeMatcher): Item[] => {
 		return items.filter(item => {
 			if (item.id === itemId) {
 				return false;
 			}
 
-			for (let i = 0; i < nodeTemplate.fields.length; i ++) {
-				const field = nodeTemplate.fields[i].path;
+			for (let i = 0; i < nodeMatcher.fields.length; i ++) {
+				const field = nodeMatcher.fields[i].path;
 				let itemValue = item.fields[field];
 
 				if (typeof itemValue === 'undefined') {
@@ -96,14 +96,14 @@ export default function getNodesAndLinks(
 		});
 	};
 
-    const getMatchingItemsOr = (itemId: string, valueSet, nodeTemplate: NodeTemplate): Item[] => {
+    const getMatchingItemsOr = (itemId: string, valueSet, nodeMatcher: NodeMatcher): Item[] => {
 		return items.filter(item => {
 			if (item.id === itemId) {
 				return false;
 			}
 
-			for (let i = 0; i < nodeTemplate.fields.length; i ++) {
-				const field = nodeTemplate.fields[i].path;
+			for (let i = 0; i < nodeMatcher.fields.length; i ++) {
+				const field = nodeMatcher.fields[i].path;
 				let itemValue = item.fields[field];
 
 				if (typeof itemValue !== 'undefined') {
@@ -124,13 +124,13 @@ export default function getNodesAndLinks(
 		});
 	};
 
-    const getMatcherNodes = (itemId: string, valueSet, nodeTemplate: NodeTemplate): Node[] => {
+    const getMatcherNodes = (itemId: string, valueSet, nodeMatcher: NodeMatcher): Node[] => {
     	let matchingItems: Item[];
 
-    	if (nodeTemplate.matcher === 'AND') {
-    		matchingItems = getMatchingItemsAnd(itemId, valueSet, nodeTemplate);
+    	if (nodeMatcher.matcher === 'AND') {
+    		matchingItems = getMatchingItemsAnd(itemId, valueSet, nodeMatcher);
 		} else {
-    		matchingItems = getMatchingItemsOr(itemId, valueSet, nodeTemplate);
+    		matchingItems = getMatchingItemsOr(itemId, valueSet, nodeMatcher);
 		}
 
 		let relevantMatches: Node[] = [];
@@ -138,10 +138,10 @@ export default function getNodesAndLinks(
     	matchingItems.forEach(item => {
     		let existing: Node[] = [];
 
-    		if (nodeTemplate.matcher === 'AND') {
-    			existing = andMatcher(valueSet, nodeTemplate);
+    		if (nodeMatcher.matcher === 'AND') {
+    			existing = andMatcher(valueSet, nodeMatcher);
 			} else {
-    			existing = orMatcher(valueSet, nodeTemplate);
+    			existing = orMatcher(valueSet, nodeMatcher);
 			}
 
 			if (existing.length > 0) {
@@ -150,7 +150,7 @@ export default function getNodesAndLinks(
 			}
 
 			let name = '';
-    		nodeTemplate.fields.forEach(field => name += item.fields[field.path]);
+    		nodeMatcher.fields.forEach(field => name += item.fields[field.path]);
 
 			const hash = getHash(name);
 
@@ -162,7 +162,7 @@ export default function getNodesAndLinks(
 				name: name,
 				abbreviated: abbreviateNodeName(name, item.searchId, 40),
 				description: '',
-				icon: nodeTemplate.fields[0].icon,
+				icon: nodeMatcher.fields[0].icon,
 				fields: [],
 				hash: hash,
 				normalizationId: null,
@@ -175,7 +175,7 @@ export default function getNodesAndLinks(
 				isGeoLocation: false,
 				isImage: false,
 				childData: valueSet,
-				nodeTemplate: nodeTemplate.name,
+				nodeMatcher: nodeMatcher.name,
 				type: 'intersection'
 			};
 
@@ -192,7 +192,7 @@ export default function getNodesAndLinks(
 			return;
 		}
 
-		if (source.nodeTemplate === target.nodeTemplate) {
+		if (source.nodeMatcher === target.nodeMatcher) {
 			// Dont create links between nodes of the same template
 			// This would happen for fields with array values.
 			// Creating links between those could be considered correct,
@@ -266,7 +266,7 @@ export default function getNodesAndLinks(
 			isGeoLocation: false,
 			isImage: false,
 			childData: item.fields,
-			nodeTemplate: null,
+			nodeMatcher: null,
 			type: 'item'
 		};
 
@@ -278,10 +278,10 @@ export default function getNodesAndLinks(
     items.forEach(item => {
     	const sourceNode: Node = createItemNode(item);
 
-		nodeTemplates.forEach(nodeTemplate => {
+		nodeMatchers.forEach(nodeMatcher => {
 			const data = {};
 
-			nodeTemplate.fields.forEach(field => {
+			nodeMatcher.fields.forEach(field => {
 				const value = item.fields[field.path];
 
 				if (value) {
@@ -296,7 +296,7 @@ export default function getNodesAndLinks(
 			const valueSets = getValueSets(data);
 
 			valueSets.forEach(valueSet => {
-				const targetNodes = getMatcherNodes(item.id, valueSet, nodeTemplate);
+				const targetNodes = getMatcherNodes(item.id, valueSet, nodeMatcher);
 
 				targetNodes.forEach(targetNode => {
 					createLink(sourceNode, targetNode, item);
