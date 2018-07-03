@@ -411,7 +411,7 @@ class Configuration extends React.Component<Props, State> {
                     <h2>Graph options</h2>
                     <label className="graph-option">
                         <input type="checkbox" onChange={this.onFilterBoringNodesChange.bind(this)} defaultChecked={filterBoringNodes} />
-						Only display nodes that are related to nodes from <strong>a different record</strong>.
+						Only display nodes that have a relation.
                     </label>
 					<label className="graph-option">
 						<input type="checkbox" onChange={this.onFilterSecondaryQueriesChange.bind(this)} defaultChecked={filterSecondaryQueries} />
