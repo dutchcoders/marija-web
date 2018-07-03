@@ -8,6 +8,7 @@ import {forEach, isEmpty, uniqueId} from 'lodash';
 import { NodeTemplate } from '../interfaces/nodeTemplate';
 import { Util } from 'leaflet';
 import { getValueSets } from './getValueSets';
+import { getDatasourceIcon } from './getDatasourceIcon';
 
 export default function getNodesAndLinks(
     previousNodes: Node[],
@@ -151,7 +152,6 @@ export default function getNodesAndLinks(
 			let name = '';
     		nodeTemplate.fields.forEach(field => name += item.fields[field.path]);
 
-			// const name = uniqueId();
 			const hash = getHash(name);
 
 			const node: Node = {
@@ -253,7 +253,7 @@ export default function getNodesAndLinks(
 			name: name,
 			abbreviated: abbreviateNodeName(name, '', 40),
 			description: '',
-			icon: '',
+			icon: getDatasourceIcon('twitter-tweets'),
 			fields: [],
 			hash: hash,
 			normalizationId: null,

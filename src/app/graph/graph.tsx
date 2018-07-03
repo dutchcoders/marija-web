@@ -318,14 +318,17 @@ class Graph extends React.PureComponent<Props, State> {
 		canvas.width = radius * 2 + lineWidth + margin;
 		canvas.height = radius * 2 + lineWidth + margin;
 		const ctx = canvas.getContext('2d');
+		let fontSize: number;
 
 		if (node.type === 'intersection') {
+			fontSize = radius;
 			ctx.fillStyle = '#52657a';
 			ctx.beginPath();
 			ctx.moveTo(radius, radius);
 			ctx.arc(radius + margin, radius + margin, radius, 0, Math.PI * 2);
 			ctx.fill();
 		} else if (node.type === 'item') {
+			fontSize = radius * 1.3;
 			let y = 0;
 			const fractionPerSearch = 1 / node.searchIds.length;
 			const totalHeight = radius * 2;
@@ -339,8 +342,6 @@ class Graph extends React.PureComponent<Props, State> {
 				y += height;
 			});
 		}
-
-		const fontSize = radius;
 
 		ctx.fillStyle = '#ffffff';
 		ctx.font = fontSize + 'px Ionicons, Roboto, Helvetica, Arial';
