@@ -9,8 +9,6 @@ import NodeMatcherComponent from '../nodeMatcherComponent/nodeMatcherComponent';
 
 interface State {
 	isDragging: boolean;
-	isHoveringOnDropZone: boolean;
-	showAdvancedInfo: boolean;
 }
 
 interface Props {
@@ -20,18 +18,8 @@ interface Props {
 
 class NodeMatcherList extends React.Component<Props, State> {
 	state: State = {
-		isDragging: false,
-		isHoveringOnDropZone: false,
-		showAdvancedInfo: false,
+		isDragging: false
 	};
-
-	toggleSubFieldInfo() {
-		const { showAdvancedInfo } = this.state;
-
-		this.setState({
-			showAdvancedInfo: !showAdvancedInfo
-		});
-	}
 
 	toggleAdvanced() {
 		const { isDragging } = this.state;
@@ -41,36 +29,8 @@ class NodeMatcherList extends React.Component<Props, State> {
 		});
 	}
 
-	resetChildField(event: DragEvent) {
-		const { dispatch } = this.props;
-
-		const fieldPath: string = event.dataTransfer.getData('text');
-
-		// dispatch(setFieldParent(fieldPath, null));
-
-		this.setState({
-			isHoveringOnDropZone: false
-		});
-	}
-
-	onDragOver(event: DragEvent) {
-		event.preventDefault();
-	}
-
-	onDragEnter() {
-		this.setState({
-			isHoveringOnDropZone: true
-		});
-	}
-
-	onDragLeave() {
-		this.setState({
-			isHoveringOnDropZone: false
-		});
-	}
-
 	render() {
-		const { isDragging, isHoveringOnDropZone, showAdvancedInfo } = this.state;
+		const { isDragging } = this.state;
 		const { nodeMatchers } = this.props;
 
 		return (
@@ -88,26 +48,6 @@ class NodeMatcherList extends React.Component<Props, State> {
 				<button className={styles.toggleAdvanced} onClick={this.toggleAdvanced.bind(this)}>
 					{isDragging ? 'Done' : 'Advanced'}
 				</button>
-
-				{showAdvancedInfo ? (
-					<button className={styles.toggleAdvancedInfo}
-							onClick={this.toggleSubFieldInfo.bind(this)}>
-						Hide
-					</button>
-				) : (
-					<button className={styles.toggleAdvancedInfo}
-							onClick={this.toggleSubFieldInfo.bind(this)}>
-						What's this?
-					</button>
-				)}
-
-				{showAdvancedInfo && (
-					<p className={styles.advancedInfo}>
-						Fields that you select as sub fields will not
-						be displayed as nodes on the graph. However, their data is
-						used to create connections between their main nodes.
-					</p>
-				)}
 			</div>
 		);
 	}

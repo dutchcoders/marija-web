@@ -518,9 +518,7 @@ class Fields extends React.Component<Props, State> {
 				<NodeMatcherList />
 
                 <h2>
-                    Matchers
-
-
+					Fields
                     <Loader show={fieldsFetching} />
                     {datasources.length > 0 && fields.length === 0 ? this.getAtLeastOneAlert() : null}
                 </h2>

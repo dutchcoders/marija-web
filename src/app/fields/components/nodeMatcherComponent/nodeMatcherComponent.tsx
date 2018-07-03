@@ -9,7 +9,7 @@ import {
 import { AppState } from '../../../main/interfaces/appState';
 import * as styles from './nodeMatcherComponent.scss';
 import {
-	createNewNodeMatcher, deleteFromNodeMatcher,
+	moveFieldToNewNodeMatcher, deleteFromNodeMatcher,
 	moveFieldBetweenNodeMatchers,
 	setIsDraggingSubFields, setMatchingStrategy
 } from '../../../graph/graphActions';
@@ -72,7 +72,7 @@ class NodeMatcherComponent extends React.Component<Props, State> {
 		}
 
 		if (nodeMatcher === null) {
-			dispatch(createNewNodeMatcher(data.fieldPath, data.fromNodeMatcherName));
+			dispatch(moveFieldToNewNodeMatcher(data.fieldPath, data.fromNodeMatcherName));
 		} else {
 			dispatch(moveFieldBetweenNodeMatchers(data.fieldPath, data.fromNodeMatcherName, nodeMatcher.name));
 		}

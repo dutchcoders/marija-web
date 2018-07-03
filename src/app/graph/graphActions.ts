@@ -1,7 +1,10 @@
 import {
-	CREATE_NEW_NODE_MATCHER, DELETE_FROM_NODE_MATCHER,
+	CREATE_NEW_NODE_MATCHER,
+	DELETE_FROM_NODE_MATCHER,
 	FIELD_NODES_HIGHLIGHT,
-	GRAPH_WORKER_OUTPUT, MOVE_FIELD_BETWEEN_NODE_MATCHERS,
+	GRAPH_WORKER_OUTPUT,
+	MOVE_FIELD_BETWEEN_NODE_MATCHERS,
+	MOVE_FIELD_TO_NEW_NODE_MATCHER,
 	NODE_UPDATE,
 	NODES_DELETE,
 	NODES_DESELECT,
@@ -11,13 +14,16 @@ import {
 	NORMALIZATION_ADD,
 	NORMALIZATION_DELETE,
 	SELECT_FIELD_NODES,
-	SELECTION_CLEAR, SET_FIELD_PARENT,
+	SELECTION_CLEAR,
+	SET_FIELD_PARENT,
 	SET_FILTER_BORING_NODES,
 	SET_FILTER_SECONDARY_QUERIES,
 	SET_IS_DRAGGING_SUB_FIELDS,
-	SET_MAP_ACTIVE, SET_MATCHING_STRATEGY,
+	SET_MAP_ACTIVE,
+	SET_MATCHING_STRATEGY,
 	SET_TIMELINE_GROUPING,
-	TOGGLE_LABELS, TRIGGER_GRAPH_WORKER,
+	TOGGLE_LABELS,
+	TRIGGER_GRAPH_WORKER,
 	VIA_ADD,
 	VIA_DELETE
 } from './graphConstants';
@@ -31,6 +37,7 @@ import { AppState } from '../main/interfaces/appState';
 import { getGraphWorkerPayload } from './helpers/getGraphWorkerPayload';
 import { SEARCH_RECEIVE } from '../search/searchConstants';
 import { MatchingStrategy } from './interfaces/nodeMatcher';
+import { Field } from '../fields/interfaces/field';
 
 export function deselectNodes(opts) {
     return {
@@ -244,12 +251,21 @@ export function moveFieldBetweenNodeMatchers(fieldPath: string, fromNodeMatcherN
 	};
 }
 
-export function createNewNodeMatcher(fieldPath: string, fromNodeMatcherName: string) {
+export function moveFieldToNewNodeMatcher(fieldPath: string, fromNodeMatcherName: string) {
 	return {
-		type: CREATE_NEW_NODE_MATCHER,
+		type: MOVE_FIELD_TO_NEW_NODE_MATCHER,
 		payload: {
 			fieldPath,
 			fromNodeMatcherName
+		}
+	};
+}
+
+export function createNewNodeMatcher(field: Field) {
+	return {
+		type: CREATE_NEW_NODE_MATCHER,
+		payload: {
+			field
 		}
 	};
 }

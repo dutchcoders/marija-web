@@ -9,11 +9,14 @@ import { AppState } from '../main/interfaces/appState';
 import { Search } from './interfaces/search';
 import { ACTIVATE_LIVE_DATASOURCE, ADD_LIVE_DATASOURCE_SEARCH, DEACTIVATE_LIVE_DATASOURCE, LIVE_RECEIVE, SEARCH_DELETE, SEARCH_EDIT, SEARCH_FIELDS_UPDATE, SEARCH_RECEIVE, SEARCH_REQUEST } from './searchConstants';
 import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
+import { getSelectedFields } from '../graph/graphSelectors';
 
 export function searchRequest(query: string, datasourceIds: string[]) {
     return (dispatch, getState) => {
         const state: AppState = getState();
-        let fieldPaths: string[] = state.graph.fields.map(field => field.path);
+        const fields = getSelectedFields(state);
+
+        let fieldPaths: string[] = fields.map(field => field.path);
         fieldPaths = fieldPaths.concat(state.graph.date_fields.map(field => field.path));
 
         const requestId = uniqueId();

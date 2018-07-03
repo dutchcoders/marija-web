@@ -9,6 +9,7 @@ import { find, map, groupBy, reduce, forEach, filter, concat } from 'lodash';
 import fieldLocator from '../fields/helpers/fieldLocator';
 import { Field } from '../fields/interfaces/field';
 import * as moment from 'moment';
+import { NodeMatcher } from './interfaces/nodeMatcher';
 
 
 export const getNodesForDisplay = createSelector(
@@ -154,5 +155,17 @@ export const getFieldHierarchy = createSelector(
 		});
 
 		return hierarchy;
+	}
+);
+
+export const getSelectedFields = createSelector(
+	(state: AppState) => state.graph.nodeMatchers,
+
+	(nodeMatchers: NodeMatcher[]) => {
+		let fields: Field[] = [];
+
+		nodeMatchers.forEach(matcher => fields = fields.concat(matcher.fields));
+
+		return fields;
 	}
 );

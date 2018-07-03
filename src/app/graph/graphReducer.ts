@@ -26,10 +26,13 @@ import {
 } from '../search/searchConstants';
 import {TABLE_SORT} from '../table/tableConstants';
 import {
-	CREATE_NEW_NODE_MATCHER, DELETE_FROM_NODE_MATCHER,
+	CREATE_NEW_NODE_MATCHER,
+	DELETE_FROM_NODE_MATCHER,
 	FIELD_NODES_HIGHLIGHT,
 	GRAPH_WORKER_OUTPUT,
-	MAX_FIELDS, MOVE_FIELD_BETWEEN_NODE_MATCHERS,
+	MAX_FIELDS,
+	MOVE_FIELD_BETWEEN_NODE_MATCHERS,
+	MOVE_FIELD_TO_NEW_NODE_MATCHER,
 	NODE_UPDATE,
 	NODES_DELETE,
 	NODES_DESELECT,
@@ -39,11 +42,13 @@ import {
 	NORMALIZATION_ADD,
 	NORMALIZATION_DELETE,
 	SELECT_FIELD_NODES,
-	SELECTION_CLEAR, SET_FIELD_PARENT,
+	SELECTION_CLEAR,
+	SET_FIELD_PARENT,
 	SET_FILTER_BORING_NODES,
 	SET_FILTER_SECONDARY_QUERIES,
 	SET_IS_DRAGGING_SUB_FIELDS,
-	SET_MAP_ACTIVE, SET_MATCHING_STRATEGY,
+	SET_MAP_ACTIVE,
+	SET_MATCHING_STRATEGY,
 	SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
 	VIA_ADD,
@@ -771,7 +776,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             };
         }
 
-        case CREATE_NEW_NODE_MATCHER: {
+        case MOVE_FIELD_TO_NEW_NODE_MATCHER: {
 			const field = state.fields.find(field => field.path === action.payload.fieldPath);
 			let nodeMatchers = state.nodeMatchers.concat([]);
 			const fromNodeMatcherIndex = nodeMatchers.findIndex(matcher => matcher.name === action.payload.fromNodeMatcherName);
@@ -799,6 +804,19 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 				nodeMatchers: nodeMatchers.concat([newMatcher])
 			};
         }
+
+		case CREATE_NEW_NODE_MATCHER: {
+			const nodeMatcher: NodeMatcher = {
+				name: getNodeMatcherName(state.nodeMatchers),
+				fields: [action.payload.field],
+				strategy: 'AND'
+			};
+
+			return {
+				...state,
+				nodeMatchers: state.nodeMatchers.concat([nodeMatcher])
+			};
+		}
 
 		case SET_MATCHING_STRATEGY: {
 			const nodeMatchers = state.nodeMatchers.concat([]);
