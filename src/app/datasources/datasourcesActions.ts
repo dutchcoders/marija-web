@@ -8,6 +8,7 @@ import {
 	UPDATE_DATASOURCE
 } from './datasourcesConstants';
 import { Datasource } from './interfaces/datasource';
+import { DATASOURCE_ICON_UPDATED } from '../graph/graphConstants';
 
 export function datasourceActivated(datasourceId: string) {
     return {
@@ -63,4 +64,20 @@ export function updateDatasource(datasourceId: string, props: any) {
             props
         }
     };
+}
+
+export function updateDatasourceIcon(datasourceId: string, icon: string) {
+	return (dispatch, getState) => {
+		dispatch(updateDatasource(datasourceId, {
+			icon
+		}));
+
+		dispatch({
+			type: DATASOURCE_ICON_UPDATED,
+			payload: {
+				datasourceId,
+				icon
+			}
+		});
+	}
 }

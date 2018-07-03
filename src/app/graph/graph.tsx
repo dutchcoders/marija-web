@@ -914,6 +914,10 @@ class Graph extends React.PureComponent<Props, State> {
         }
 
         for (let i = 0; i < nodes.length; i ++) {
+			if (nodes[i].icon !== nextNodes[i].icon) {
+				return true;
+			}
+
             if (nodes[i].important !== nextNodes[i].important) {
                 return true;
             }
@@ -1052,7 +1056,16 @@ class Graph extends React.PureComponent<Props, State> {
 					);
 				});
         } else if (this.shouldUpdateNodeProperties(nodesForDisplay, nextProps.nodesForDisplay)) {
-            this.updateNodeProperties(nextProps.nodesForDisplay);
+			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
+				.then(() => {
+					this.nodeMap.clear();
+
+					nextProps.nodesForDisplay.forEach(node => {
+						this.nodeMap.set(node.id, node);
+					});
+
+					this.renderedSince.lastTick = false;
+				});
         }
 
         if (nextProps.highlightedNodes !== highlightedNodes) {

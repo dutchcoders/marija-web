@@ -24,6 +24,7 @@ import {SortType} from "../../table/interfaces/sortType";
 import {sortItems} from "../../items/helpers/sortItems";
 import { TRIGGER_GRAPH_WORKER } from '../graphConstants';
 import { NodeMatcher } from '../interfaces/nodeMatcher';
+import { Datasource } from '../../datasources/interfaces/datasource';
 
 export interface GraphWorkerPayload {
     items: Item[];
@@ -42,6 +43,7 @@ export interface GraphWorkerPayload {
     filterBoringNodes: boolean;
     filterSecondaryQueries: boolean;
     nodeMatchers: NodeMatcher[];
+    datasources: Datasource[];
 }
 
 export interface GraphWorkerOutput {
@@ -118,7 +120,8 @@ export default class GraphWorkerClass {
             useItems,
             payload.nodeMatchers,
             search ? search.aroundNodeId : null,
-            payload.deletedNodes
+            payload.deletedNodes,
+			payload.datasources
         );
 
         // For live searches we display everything, we don't filter boring components etc.

@@ -26,7 +26,7 @@ import {
 } from '../search/searchConstants';
 import {TABLE_SORT} from '../table/tableConstants';
 import {
-	CREATE_NEW_NODE_MATCHER,
+	CREATE_NEW_NODE_MATCHER, DATASOURCE_ICON_UPDATED,
 	DELETE_FROM_NODE_MATCHER,
 	FIELD_NODES_HIGHLIGHT,
 	GRAPH_WORKER_OUTPUT,
@@ -850,6 +850,27 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			return {
 				...state,
 				nodeMatchers
+			};
+		}
+
+		case DATASOURCE_ICON_UPDATED: {
+			const datasourceId: string = action.payload.datasourceId;
+			const icon: string = action.payload.icon;
+
+			const nodes = state.nodes.map(node => {
+				if (node.datasourceId !== datasourceId) {
+					return node;
+				}
+
+				return {
+					...node,
+					icon: icon
+				};
+			});
+
+			return {
+				...state,
+				nodes
 			};
 		}
 

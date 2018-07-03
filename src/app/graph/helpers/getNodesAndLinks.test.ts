@@ -24,7 +24,8 @@ const generateItem = (fields: any = undefined) => {
         count: 0,
         requestedExtraData: false,
         nodes: [],
-        receivedExtraData: false
+        receivedExtraData: false,
+		datasourceId: null
     } as Item;
 };
 

@@ -22,7 +22,11 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
                     id: datasource.id,
                     name: datasource.name,
                     active: typeof existing === 'undefined' ? false : existing.active,
-                    type: datasource.type
+                    type: datasource.type,
+                    icon: existing ? existing.icon : null,
+                    imageFieldPath: existing ? existing.imageFieldPath : null,
+                    labelFieldPath: existing ? existing.labelFieldPath : null,
+                    locationFieldPath: existing ? existing.locationFieldPath : null,
                 };
             });
 
@@ -108,6 +112,8 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
                 ...datasources[index],
                 ...action.payload.props
             };
+
+            console.log(action);
 
             return {
                 ...state,

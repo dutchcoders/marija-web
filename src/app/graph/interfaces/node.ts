@@ -67,6 +67,7 @@ export interface Node {
 	batch?: number;
 
 	nodeMatcher?: string;
+	datasourceId?: string;
 
 	type: 'intersection' | 'item';
 }

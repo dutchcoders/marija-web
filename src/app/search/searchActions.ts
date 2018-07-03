@@ -71,7 +71,7 @@ export function searchAround(node: Node, datasourceIds: string[]) {
 }
 
 export function searchReceive(items: Item[], requestId: string) {
-    return (dispatch, getState) => {
+	return (dispatch, getState) => {
         const state: AppState = getState();
         const search: Search = state.graph.searches.find((search: Search) =>
             search.requestId === requestId

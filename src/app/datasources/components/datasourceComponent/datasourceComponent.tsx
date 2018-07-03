@@ -6,12 +6,13 @@ import Icon from '../../../ui/components/icon';
 import { FormEvent } from 'react';
 import {
 	datasourceActivated,
-	datasourceDeactivated, updateDatasource
+	datasourceDeactivated, updateDatasource, updateDatasourceIcon
 } from '../../datasourcesActions';
 import FieldSelector from '../../../fields/components/fieldSelector/fieldSelector';
 import { connect } from 'react-redux';
 import { Field } from '../../../fields/interfaces/field';
 import { fieldAdd } from '../../../fields/fieldsActions';
+import IconSelector from '../../../fields/components/iconSelector/iconSelector';
 
 interface Props {
 	datasource: Datasource;
@@ -20,11 +21,13 @@ interface Props {
 
 interface State {
 	expanded: boolean;
+	iconSelectorOpen: boolean;
 }
 
 class DatasourceComponent extends React.Component<Props, State> {
 	state: State = {
-		expanded: false
+		expanded: false,
+		iconSelectorOpen: false
 	};
 
 	toggleActive(event: FormEvent<HTMLInputElement>) {
@@ -49,7 +52,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 		const { dispatch, datasource } = this.props;
 
 		dispatch(updateDatasource(datasource.id, {
-			imageFieldPath: field.path
+			imageFieldPath: field ? field.path : null
 		}));
 	}
 
@@ -57,7 +60,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 		const { dispatch, datasource } = this.props;
 
 		dispatch(updateDatasource(datasource.id, {
-			labelFieldPath: field.path
+			labelFieldPath: field ? field.path : null
 		}));
 	}
 
@@ -65,13 +68,29 @@ class DatasourceComponent extends React.Component<Props, State> {
 		const { dispatch, datasource } = this.props;
 
 		dispatch(updateDatasource(datasource.id, {
-			locationFieldPath: field.path
+			locationFieldPath: field ? field.path : null
 		}));
+	}
+
+	onSelectIcon(icon: string) {
+		const { dispatch, datasource } = this.props;
+
+		dispatch(updateDatasourceIcon(datasource.id, icon));
+
+		this.setState({
+			iconSelectorOpen: false
+		});
+	}
+
+	openIconSelector() {
+		this.setState({
+			iconSelectorOpen: true
+		});
 	}
 
 	render() {
 		const { datasource } = this.props;
-		const { expanded } = this.state;
+		const { expanded, iconSelectorOpen } = this.state;
 
 		return (
 			<form className={styles.datasource}>
@@ -107,6 +126,14 @@ class DatasourceComponent extends React.Component<Props, State> {
 							selected={datasource.locationFieldPath}
 							onChange={this.onLocationChange.bind(this)}
 						/>
+
+						<h4 className={styles.optionTitle}>Icon</h4>
+						{iconSelectorOpen ?
+							<IconSelector onSelectIcon={this.onSelectIcon.bind(this)} /> : (
+								<div className={styles.icon} onClick={this.openIconSelector.bind(this)}>{datasource.icon}</div>
+							)
+						}
+
 					</main>
 				)}
 			</form>

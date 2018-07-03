@@ -78,7 +78,8 @@ function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {
                 data.results,
                 data['request-id'],
                 dispatch,
-                false
+                false,
+                data.datasource
             );
             break;
         }
@@ -87,6 +88,7 @@ function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {
                 data.graphs,
                 data.datasource,
                 dispatch,
+                true,
                 data.datasource
             );
             break;
@@ -217,12 +219,17 @@ const maxTimeoutMs = 2000;
  * @param newItems
  * @param requestId
  * @param dispatch
- * @param liveDatasource
+ * @param isLive
+ * @param datasourceId
  */
-function debounceItems(newItems: Item[], requestId: string, dispatch: Dispatch<any>, liveDatasource: string|false) {
+function debounceItems(newItems: Item[], requestId: string, dispatch: Dispatch<any>, isLive: boolean, datasourceId: string) {
     if (newItems === null) {
         return;
     }
+
+    newItems.forEach(item => {
+        item.datasourceId = datasourceId
+    });
 
     let results = debouncedItems[requestId] || [];
 
@@ -247,8 +254,8 @@ function debounceItems(newItems: Item[], requestId: string, dispatch: Dispatch<a
         clearTimeout(searchTimeout.bundleTimeout);
         clearTimeout(searchTimeout.maxTimeout);
 
-        if (liveDatasource) {
-            dispatch(liveReceive(debouncedItems[requestId], liveDatasource));
+        if (isLive) {
+            dispatch(liveReceive(debouncedItems[requestId], datasourceId));
         } else {
             dispatch(searchReceive(debouncedItems[requestId], requestId));
         }

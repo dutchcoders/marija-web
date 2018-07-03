@@ -8,7 +8,7 @@ import {forEach, isEmpty, uniqueId} from 'lodash';
 import { NodeMatcher } from '../interfaces/nodeMatcher';
 import { Util } from 'leaflet';
 import { getValueSets } from './getValueSets';
-import { getDatasourceIcon } from './getDatasourceIcon';
+import { Datasource } from '../../datasources/interfaces/datasource';
 
 export default function getNodesAndLinks(
     previousNodes: Node[],
@@ -16,7 +16,8 @@ export default function getNodesAndLinks(
     items: Item[],
     nodeMatchers: NodeMatcher[],
     aroundNodeId: number | undefined = undefined,
-    deletedNodes: Node[] = []
+    deletedNodes: Node[] = [],
+	datasources: Datasource[] = []
 ): {
     nodes: Node[],
     links: Link[]
@@ -24,6 +25,16 @@ export default function getNodesAndLinks(
     const links: Link[] = previousLinks.concat([]);
 	const itemNodes: Node[] = previousNodes.filter(node => node.type === 'item');
 	const intersections: Node[] = previousNodes.filter(node => node.type === 'intersection');
+
+	const getDatasourceIcon = (datasourceId: string) => {
+		const datasource = datasources.find(search => search.id === datasourceId);
+
+		if (datasource) {
+			return datasource.icon;
+		}
+
+		return '';
+	};
 
     const andMatcher = (valueSet, nodeMatcher: NodeMatcher): Node[] => {
     	return intersections.filter(node => {
@@ -253,7 +264,7 @@ export default function getNodesAndLinks(
 			name: name,
 			abbreviated: abbreviateNodeName(name, '', 40),
 			description: '',
-			icon: getDatasourceIcon('twitter-tweets'),
+			icon: getDatasourceIcon(item.datasourceId),
 			fields: [],
 			hash: hash,
 			normalizationId: null,
@@ -267,7 +278,8 @@ export default function getNodesAndLinks(
 			isImage: false,
 			childData: item.fields,
 			nodeMatcher: null,
-			type: 'item'
+			type: 'item',
+			datasourceId: item.datasourceId
 		};
 
     	itemNodes.push(node);
