@@ -1,6 +1,7 @@
 import {
+	CREATE_NEW_NODE_MATCHER, DELETE_FROM_NODE_MATCHER,
 	FIELD_NODES_HIGHLIGHT,
-	GRAPH_WORKER_OUTPUT,
+	GRAPH_WORKER_OUTPUT, MOVE_FIELD_BETWEEN_NODE_MATCHERS,
 	NODE_UPDATE,
 	NODES_DELETE,
 	NODES_DESELECT,
@@ -14,7 +15,7 @@ import {
 	SET_FILTER_BORING_NODES,
 	SET_FILTER_SECONDARY_QUERIES,
 	SET_IS_DRAGGING_SUB_FIELDS,
-	SET_MAP_ACTIVE,
+	SET_MAP_ACTIVE, SET_MATCHING_STRATEGY,
 	SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS, TRIGGER_GRAPH_WORKER,
 	VIA_ADD,
@@ -29,6 +30,7 @@ import { TimelineGrouping } from './interfaces/graphState';
 import { AppState } from '../main/interfaces/appState';
 import { getGraphWorkerPayload } from './helpers/getGraphWorkerPayload';
 import { SEARCH_RECEIVE } from '../search/searchConstants';
+import { MatchingStrategy } from './interfaces/nodeMatcher';
 
 export function deselectNodes(opts) {
     return {
@@ -228,5 +230,46 @@ export function triggerGraphWorker(payload: GraphWorkerPayload) {
 			WebWorker: true
 		},
 		payload: payload
+	};
+}
+
+export function moveFieldBetweenNodeMatchers(fieldPath: string, fromNodeMatcherName: string, toNodeMatcherName: string) {
+	return {
+		type: MOVE_FIELD_BETWEEN_NODE_MATCHERS,
+		payload: {
+			fieldPath,
+			fromNodeMatcherName,
+			toNodeMatcherName
+		}
+	};
+}
+
+export function createNewNodeMatcher(fieldPath: string, fromNodeMatcherName: string) {
+	return {
+		type: CREATE_NEW_NODE_MATCHER,
+		payload: {
+			fieldPath,
+			fromNodeMatcherName
+		}
+	};
+}
+
+export function setMatchingStrategy(nodeMatcherName: string, matchingStrategy: MatchingStrategy) {
+	return {
+		type: SET_MATCHING_STRATEGY,
+		payload: {
+			nodeMatcherName,
+			matchingStrategy
+		}
+	};
+}
+
+export function deleteFromNodeMatcher(nodeMatcherName: string, fieldPath: string) {
+	return {
+		type: DELETE_FROM_NODE_MATCHER,
+		payload: {
+			nodeMatcherName,
+			fieldPath
+		}
 	};
 }

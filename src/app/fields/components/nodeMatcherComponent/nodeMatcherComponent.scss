@@ -1,0 +1,40 @@
+.nodeMatcher {
+  background: #435266 !important;
+  border-radius: 3px;
+  padding: 10px 10px 5px;
+  margin-bottom: 10px;
+}
+
+.dropZone {
+  border: 2px dashed #374556;
+  color: rgba(255,255,255,.6);
+  padding: 5px;
+  margin-bottom: 5px;
+  border-radius: 3px;
+}
+
+.fields {
+  background: none !important;
+  margin: 0;
+}
+
+.field {
+  padding: 5px 10px !important;
+  border-radius: 3px;
+  margin-bottom: 5px;
+  background: #374556 !important;
+}
+
+.strategy {
+  margin-bottom: 5px;
+
+  label {
+    font-weight: 300;
+    margin-right: 10px;
+  }
+
+  input {
+    margin-right: 3px !important;
+  }
+}
+

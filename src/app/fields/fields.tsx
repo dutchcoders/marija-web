@@ -14,6 +14,7 @@ import { MAX_FIELDS } from '../graph/graphConstants';
 import { getNonDateFields } from './fieldsSelectors';
 import DraggableField from './components/draggableField/draggableField';
 import { FieldHierarchy, getFieldHierarchy } from '../graph/graphSelectors';
+import NodeMatcherList from './components/nodeMatcherList/nodeMatcherList';
 
 interface State {
     currentFieldSearchValue: string;
@@ -362,8 +363,8 @@ class Fields extends React.Component<Props, State> {
 
         return (
             <div>
-                { fields.length > 0 ? this.renderSelectedFields() : null }
-                { fields.length > 0 ? this.renderSubFieldActions() : null }
+                {/*{ fields.length > 0 ? this.renderSelectedFields() : null }*/}
+                {/*{ fields.length > 0 ? this.renderSubFieldActions() : null }*/}
                 { availableFields.length > 0 ? search : null }
                 { availableFields.length > 0 ? available : null }
                 { selectDatasourceMessage }
@@ -378,7 +379,7 @@ class Fields extends React.Component<Props, State> {
             <div>
 				<div className={styles.subFieldActions}>
 					<button className={styles.selectSubFields} onClick={this.toggleDragSubFields.bind(this)}>
-						{isDraggingSubFields ? 'Done' : 'Select sub fields'}
+						{isDraggingSubFields ? 'Done' : 'Advanced'}
 					</button>
 
 					{showSubFieldInfo ? (
@@ -511,10 +512,15 @@ class Fields extends React.Component<Props, State> {
     render() {
         const { fields, datasources, fieldsFetching } = this.props;
 
+
         return (
             <div className="form-group">
+				<NodeMatcherList />
+
                 <h2>
-                    Fields
+                    Matchers
+
+
                     <Loader show={fieldsFetching} />
                     {datasources.length > 0 && fields.length === 0 ? this.getAtLeastOneAlert() : null}
                 </h2>
@@ -532,7 +538,7 @@ function select(state: AppState) {
 		fieldHierarchy: getFieldHierarchy(state),
         availableFields: getNonDateFields(state),
         fieldsFetching: state.fields.fieldsFetching,
-        datasources: state.datasources.datasources,
+        datasources: state.datasources.datasources
     };
 }
 

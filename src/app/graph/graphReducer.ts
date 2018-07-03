@@ -26,9 +26,10 @@ import {
 } from '../search/searchConstants';
 import {TABLE_SORT} from '../table/tableConstants';
 import {
+	CREATE_NEW_NODE_MATCHER, DELETE_FROM_NODE_MATCHER,
 	FIELD_NODES_HIGHLIGHT,
 	GRAPH_WORKER_OUTPUT,
-	MAX_FIELDS,
+	MAX_FIELDS, MOVE_FIELD_BETWEEN_NODE_MATCHERS,
 	NODE_UPDATE,
 	NODES_DELETE,
 	NODES_DESELECT,
@@ -42,7 +43,7 @@ import {
 	SET_FILTER_BORING_NODES,
 	SET_FILTER_SECONDARY_QUERIES,
 	SET_IS_DRAGGING_SUB_FIELDS,
-	SET_MAP_ACTIVE,
+	SET_MAP_ACTIVE, SET_MATCHING_STRATEGY,
 	SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
 	VIA_ADD,
@@ -66,6 +67,7 @@ import {Via} from './interfaces/via';
 import {GraphState} from "./interfaces/graphState";
 import { markPerformance } from '../main/helpers/performance';
 import { NodeMatcher } from './interfaces/nodeMatcher';
+import { getNodeMatcherName } from '../fields/helpers/getNodeMatcherName';
 
 export const defaultGraphState: GraphState = {
     fields: [],
@@ -148,9 +150,9 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             const newField = createField(state.fields, action.field.path, action.field.type, action.field.datasourceId);
 
             const nodeMatcher: NodeMatcher = {
-            	name: uniqueId(),
+            	name: getNodeMatcherName(state.nodeMatchers),
 				fields: [newField],
-				matcher: 'AND'
+				strategy: 'AND'
 			};
 
             let dateFields = concat([], state.date_fields);
@@ -737,6 +739,99 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			return {
 				...state,
 				fields
+			};
+		}
+
+        case MOVE_FIELD_BETWEEN_NODE_MATCHERS: {
+            const field = state.fields.find(field => field.path === action.payload.fieldPath);
+            let nodeMatchers = state.nodeMatchers.concat([]);
+            const fromNodeMatcherIndex = nodeMatchers.findIndex(matcher => matcher.name === action.payload.fromNodeMatcherName);
+            const toNodeMatcherIndex = nodeMatchers.findIndex(matcher => matcher.name === action.payload.toNodeMatcherName);
+
+            // Remove from the previous node matcher
+            nodeMatchers[fromNodeMatcherIndex] = {
+                ...nodeMatchers[fromNodeMatcherIndex],
+                fields: nodeMatchers[fromNodeMatcherIndex].fields.filter(search => search.path !== field.path)
+            };
+
+            // If the previous node matcher doesnt have any fields left, delete it
+            if (nodeMatchers[fromNodeMatcherIndex].fields.length === 0) {
+                nodeMatchers = nodeMatchers.filter(matcher => matcher.name !== nodeMatchers[fromNodeMatcherIndex].name);
+            }
+
+            // Add to the next node matcher
+			nodeMatchers[toNodeMatcherIndex] = {
+				...nodeMatchers[toNodeMatcherIndex],
+				fields: nodeMatchers[toNodeMatcherIndex].fields.concat([field])
+			};
+
+			return {
+                ...state,
+                nodeMatchers
+            };
+        }
+
+        case CREATE_NEW_NODE_MATCHER: {
+			const field = state.fields.find(field => field.path === action.payload.fieldPath);
+			let nodeMatchers = state.nodeMatchers.concat([]);
+			const fromNodeMatcherIndex = nodeMatchers.findIndex(matcher => matcher.name === action.payload.fromNodeMatcherName);
+
+			// Remove from the previous node matcher
+			nodeMatchers[fromNodeMatcherIndex] = {
+				...nodeMatchers[fromNodeMatcherIndex],
+				fields: nodeMatchers[fromNodeMatcherIndex].fields.filter(search => search.path !== field.path)
+			};
+
+			// If the previous node matcher doesnt have any fields left, delete it
+			if (nodeMatchers[fromNodeMatcherIndex].fields.length === 0) {
+				nodeMatchers = nodeMatchers.filter(matcher => matcher.name !== nodeMatchers[fromNodeMatcherIndex].name);
+			}
+
+			// Add to the next node matcher
+            const newMatcher: NodeMatcher = {
+			    name: getNodeMatcherName(nodeMatchers),
+                fields: [field],
+                strategy: 'AND'
+            };
+
+			return {
+				...state,
+				nodeMatchers: nodeMatchers.concat([newMatcher])
+			};
+        }
+
+		case SET_MATCHING_STRATEGY: {
+			const nodeMatchers = state.nodeMatchers.concat([]);
+			const index = nodeMatchers.findIndex(matcher => matcher.name === action.payload.nodeMatcherName);
+
+			nodeMatchers[index] = {
+				...nodeMatchers[index],
+				strategy: action.payload.matchingStrategy
+			};
+
+			return {
+				...state,
+				nodeMatchers
+			};
+		}
+
+		case DELETE_FROM_NODE_MATCHER: {
+			let nodeMatchers = state.nodeMatchers.concat([]);
+			const index = nodeMatchers.findIndex(matcher => matcher.name === action.payload.nodeMatcherName);
+
+			nodeMatchers[index] = {
+				...nodeMatchers[index],
+				fields: nodeMatchers[index].fields.filter(field => field.path !== action.payload.fieldPath)
+			};
+
+			// Delete the node matcher if there are no fields left
+			if (nodeMatchers[index].fields.length === 0) {
+				nodeMatchers = nodeMatchers.filter(matcher => matcher.name !== nodeMatchers[index].name);
+			}
+
+			return {
+				...state,
+				nodeMatchers
 			};
 		}
 

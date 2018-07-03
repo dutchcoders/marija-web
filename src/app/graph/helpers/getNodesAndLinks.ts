@@ -127,7 +127,7 @@ export default function getNodesAndLinks(
     const getMatcherNodes = (itemId: string, valueSet, nodeMatcher: NodeMatcher): Node[] => {
     	let matchingItems: Item[];
 
-    	if (nodeMatcher.matcher === 'AND') {
+    	if (nodeMatcher.strategy === 'AND') {
     		matchingItems = getMatchingItemsAnd(itemId, valueSet, nodeMatcher);
 		} else {
     		matchingItems = getMatchingItemsOr(itemId, valueSet, nodeMatcher);
@@ -138,7 +138,7 @@ export default function getNodesAndLinks(
     	matchingItems.forEach(item => {
     		let existing: Node[] = [];
 
-    		if (nodeMatcher.matcher === 'AND') {
+    		if (nodeMatcher.strategy === 'AND') {
     			existing = andMatcher(valueSet, nodeMatcher);
 			} else {
     			existing = orMatcher(valueSet, nodeMatcher);

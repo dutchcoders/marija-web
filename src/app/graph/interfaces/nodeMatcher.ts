@@ -5,5 +5,5 @@ export type MatchingStrategy = 'OR' | 'AND';
 export interface NodeMatcher {
 	name: string;
 	fields: Field[];
-	matcher: MatchingStrategy;
+	strategy: MatchingStrategy;
 }
