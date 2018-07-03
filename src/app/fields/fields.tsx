@@ -514,16 +514,16 @@ class Fields extends React.Component<Props, State> {
 
 
         return (
-            <div className="form-group">
-				<NodeMatcherList />
-
-                <h2>
+            <div>
+				<h2>
 					Fields
                     <Loader show={fieldsFetching} />
                     {datasources.length > 0 && fields.length === 0 ? this.getAtLeastOneAlert() : null}
                 </h2>
 
-                { this.renderFields() }
+				<div className="form-group">
+                	{ this.renderFields() }
+				</div>
             </div>
         );
     }

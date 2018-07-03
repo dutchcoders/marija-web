@@ -20,6 +20,8 @@ import Workspaces from '../../helpers/workspaces';
 import { AppState } from '../../interfaces/appState';
 import { exportData, importData } from '../../mainActions';
 import { FormEvent } from 'react';
+import DatasourceList from '../../../datasources/components/datasourceList/datasourceList';
+import NodeMatcherList from '../../../fields/components/nodeMatcherList/nodeMatcherList';
 
 interface State {
     normalization_error: string;
@@ -393,6 +395,9 @@ class Configuration extends React.Component<Props, State> {
 
         return (
             <div>
+				<DatasourceList/>
+				<NodeMatcherList />
+
                 <Fields />
 
                 <div className="form-group">

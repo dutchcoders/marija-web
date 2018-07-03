@@ -91,7 +91,6 @@ class NodeMatcherComponent extends React.Component<Props, State> {
 	}
 
 	render() {
-		const { isHoveringOnDropArea } = this.state;
 		const { nodeMatcher, isDragging } = this.props;
 
 		return (
@@ -117,7 +116,7 @@ class NodeMatcherComponent extends React.Component<Props, State> {
 								className={styles.field}
 								draggable={true}
 								onDragStart={(event: any) => this.onDragStart(event, field)}>
-								{field.path}
+								<span>{field.path}</span>
 								<Icon name={styles.delete + ' ion-ios-close'} onClick={() => this.deleteField(field)}/>
 							</li>
 						))}

@@ -32,13 +32,11 @@ interface State {
     query: string;
     editSearchValue: Search;
     searchAroundOpen: boolean;
-    formExpanded: boolean;
 }
 
 class SearchBox extends React.Component<Props, State> {
     state: State = {
         query: '',
-        formExpanded: false,
         editSearchValue: null,
         searchAroundOpen: false
     };
@@ -48,10 +46,6 @@ class SearchBox extends React.Component<Props, State> {
     clickHandlerRef;
 
     onInputFocus() {
-        this.setState({
-            formExpanded: true
-        });
-
         this.clickHandlerRef = this.collapseForm.bind(this);
         this.adjustInputHeight();
 
@@ -72,10 +66,6 @@ class SearchBox extends React.Component<Props, State> {
     collapseForm(e) {
         if (!this.searchForm.contains(e.target)) {
             // User clicked outside the search form, close it
-            this.setState({
-                formExpanded: false
-            });
-
             this.queryInput.blur();
             this.resetInputHeight();
 
@@ -157,10 +147,8 @@ class SearchBox extends React.Component<Props, State> {
 
     renderDatasourceForm() {
         const { datasources, fields } = this.props;
-        const { formExpanded } = this.state;
 
-        const className = styles.datasources + ' ' +
-            (formExpanded ? '' : styles.datasourcesHidden);
+        const className = styles.datasources + ' ' + styles.datasourcesHidden;
 
         const queryDatasources = datasources.filter(datasource => datasource.type !== 'live');
 
@@ -206,7 +194,7 @@ class SearchBox extends React.Component<Props, State> {
 
     render() {
         const { connected, searches, nodes } = this.props;
-        const { query, editSearchValue, searchAroundOpen, formExpanded } = this.state;
+        const { query, editSearchValue, searchAroundOpen } = this.state;
 
         const editQueryDialogStyles = {
             backgroundColor: '#fff',
@@ -275,7 +263,7 @@ class SearchBox extends React.Component<Props, State> {
                 </div>
                 <div className={styles.queriesContainer}>
                     <div className={styles.formWrapper}>
-                        <form onSubmit={this.handleSubmit.bind(this)} className={styles.form + (formExpanded ? '' : ' ' + styles.formCollapsed)} ref={form => this.searchForm = form}>
+                        <form onSubmit={this.handleSubmit.bind(this)} className={styles.form + ' ' + styles.formCollapsed} ref={form => this.searchForm = form}>
                             <textarea
 								ref={ref => this.queryInput = ref}
                                 className={styles.queryInput}

@@ -16,13 +16,21 @@
 .fields {
   background: none !important;
   margin: 0;
+  padding: 0;
 }
 
 .field {
   padding: 5px 10px !important;
   border-radius: 3px;
-  margin-bottom: 5px;
+  margin: 0 0 5px;
   background: #374556 !important;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+}
+
+.delete {
+  font-size: 18px;
 }
 
 .strategy {
