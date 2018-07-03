@@ -1,7 +1,12 @@
 import { getFields } from '../fields/fieldsActions';
 import Url from '../main/helpers/url';
 import { activateLiveDatasource, addLiveDatasourceSearch } from '../search/searchActions';
-import { DATASOURCE_ACTIVATED, DATASOURCE_DEACTIVATED, INITIAL_STATE_RECEIVE } from './datasourcesConstants';
+import {
+	DATASOURCE_ACTIVATED,
+	DATASOURCE_DEACTIVATED,
+	INITIAL_STATE_RECEIVE,
+	UPDATE_DATASOURCE
+} from './datasourcesConstants';
 import { Datasource } from './interfaces/datasource';
 
 export function datasourceActivated(datasourceId: string) {
@@ -47,5 +52,15 @@ export function receiveInitialState(initialState) {
                 dispatch(activateLiveDatasource(datasource.id));
             }
         });
+    };
+}
+
+export function updateDatasource(datasourceId: string, props: any) {
+    return {
+        type: UPDATE_DATASOURCE,
+        payload: {
+            datasourceId,
+            props
+        }
     };
 }

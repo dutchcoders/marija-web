@@ -30,3 +30,21 @@ export const getNonDateFields = createSelector(
 
 	(fields: Field[]) => fields.filter(field => field.type !== 'date')
 );
+
+export const getFieldsByDatasourceAndType = createSelector(
+	(state: AppState) => state.fields.availableFields,
+	(state: AppState, datasourceId: string) => datasourceId,
+	(state: AppState, datasourceId: string, type: string) => type,
+
+	(fields: Field[], datasourceId: string, type: string) => {
+		if (datasourceId) {
+			fields = fields.filter(field => field.datasourceId === datasourceId);
+		}
+
+		if (type) {
+			fields = fields.filter(field => field.type === type);
+		}
+
+		return fields;
+	}
+);

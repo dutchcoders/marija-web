@@ -6,9 +6,11 @@ import Icon from '../../../ui/components/icon';
 import { FormEvent } from 'react';
 import {
 	datasourceActivated,
-	datasourceDeactivated
+	datasourceDeactivated, updateDatasource
 } from '../../datasourcesActions';
+import FieldSelector from '../../../fields/components/fieldSelector/fieldSelector';
 import { connect } from 'react-redux';
+import { Field } from '../../../fields/interfaces/field';
 
 interface Props {
 	datasource: Datasource;
@@ -42,6 +44,30 @@ class DatasourceComponent extends React.Component<Props, State> {
 		});
 	}
 
+	onImageChange(fieldPath: string) {
+		const { dispatch, datasource } = this.props;
+
+		dispatch(updateDatasource(datasource.id, {
+			imageFieldPath: fieldPath
+		}));
+	}
+
+	onLabelChange(fieldPath: string) {
+		const { dispatch, datasource } = this.props;
+
+		dispatch(updateDatasource(datasource.id, {
+			labelFieldPath: fieldPath
+		}));
+	}
+
+	onLocationChange(fieldPath: string) {
+		const { dispatch, datasource } = this.props;
+
+		dispatch(updateDatasource(datasource.id, {
+			locationFieldPath: fieldPath
+		}));
+	}
+
 	render() {
 		const { datasource } = this.props;
 		const { expanded } = this.state;
@@ -57,7 +83,29 @@ class DatasourceComponent extends React.Component<Props, State> {
 				</header>
 				{expanded && (
 					<main className={styles.main}>
-						Expanded
+						<h4 className={styles.optionTitle}>Label</h4>
+						<FieldSelector
+							datasourceId={datasource.id}
+							type="string"
+							selected={datasource.labelFieldPath}
+							onChange={this.onLabelChange.bind(this)}
+						/>
+
+						<h4 className={styles.optionTitle}>Image</h4>
+						<FieldSelector
+							datasourceId={datasource.id}
+							type="image"
+							selected={datasource.imageFieldPath}
+							onChange={this.onImageChange.bind(this)}
+						/>
+
+						<h4 className={styles.optionTitle}>Geo location</h4>
+						<FieldSelector
+							datasourceId={datasource.id}
+							type="location"
+							selected={datasource.locationFieldPath}
+							onChange={this.onLocationChange.bind(this)}
+						/>
 					</main>
 				)}
 			</form>

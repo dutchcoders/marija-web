@@ -1,9 +1,9 @@
 import {Search} from '../search/interfaces/search';
 import {SEARCH_DELETE} from '../search/searchConstants';
 import {
-    DATASOURCE_ACTIVATED,
-    DATASOURCE_DEACTIVATED,
-    INITIAL_STATE_RECEIVE
+	DATASOURCE_ACTIVATED,
+	DATASOURCE_DEACTIVATED,
+	INITIAL_STATE_RECEIVE, UPDATE_DATASOURCE
 } from './datasourcesConstants';
 import {Datasource} from './interfaces/datasource';
 import {DatasourcesState} from "./interfaces/datasourcesState";
@@ -99,6 +99,20 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
             return Object.assign({}, state,  {
                 datasources: newDatasources
             });
+        }
+
+        case UPDATE_DATASOURCE: {
+            const index = state.datasources.findIndex(datasource => datasource.id === action.payload.datasourceId);
+            const datasources = state.datasources.concat([]);
+            datasources[index] = {
+                ...datasources[index],
+                ...action.payload.props
+            };
+
+            return {
+                ...state,
+                datasources
+            }
         }
 
         default:
