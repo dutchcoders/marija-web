@@ -1,4 +1,4 @@
-import { getFields } from '../fields/fieldsActions';
+import { fieldAdd, getFields } from '../fields/fieldsActions';
 import Url from '../main/helpers/url';
 import { activateLiveDatasource, addLiveDatasourceSearch } from '../search/searchActions';
 import {

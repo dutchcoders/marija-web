@@ -2,7 +2,7 @@ import { Field } from '../interfaces/field';
 
 export default function createField(existing: Field[], path: string, type: string, datasource: string): Field {
     const firstChar = path.charAt(0).toUpperCase();
-    const fieldsWithSameChar = existing.filter(field => field.icon.indexOf(firstChar) === 0);
+    const fieldsWithSameChar = existing.filter(field => field.icon && field.icon.indexOf(firstChar) === 0);
     let icon;
 
     if (fieldsWithSameChar.length === 0) {

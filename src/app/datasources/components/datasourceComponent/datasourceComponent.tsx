@@ -11,6 +11,7 @@ import {
 import FieldSelector from '../../../fields/components/fieldSelector/fieldSelector';
 import { connect } from 'react-redux';
 import { Field } from '../../../fields/interfaces/field';
+import { fieldAdd } from '../../../fields/fieldsActions';
 
 interface Props {
 	datasource: Datasource;
@@ -44,27 +45,27 @@ class DatasourceComponent extends React.Component<Props, State> {
 		});
 	}
 
-	onImageChange(fieldPath: string) {
+	onImageChange(field: Field) {
 		const { dispatch, datasource } = this.props;
 
 		dispatch(updateDatasource(datasource.id, {
-			imageFieldPath: fieldPath
+			imageFieldPath: field.path
 		}));
 	}
 
-	onLabelChange(fieldPath: string) {
+	onLabelChange(field: Field) {
 		const { dispatch, datasource } = this.props;
 
 		dispatch(updateDatasource(datasource.id, {
-			labelFieldPath: fieldPath
+			labelFieldPath: field.path
 		}));
 	}
 
-	onLocationChange(fieldPath: string) {
+	onLocationChange(field: Field) {
 		const { dispatch, datasource } = this.props;
 
 		dispatch(updateDatasource(datasource.id, {
-			locationFieldPath: fieldPath
+			locationFieldPath: field.path
 		}));
 	}
 

@@ -10,14 +10,14 @@ interface Props {
 	type?: string;
 	fields: Field[];
 	selected: Field;
-	onChange: (fieldPath: string) => void
+	onChange: (field: Field) => void
 }
 
 class FieldSelector extends React.Component<Props> {
 	onChange(fieldPath: string) {
-		const { onChange } = this.props;
+		const { onChange, fields } = this.props;
 
-		onChange(fieldPath);
+		onChange(fields.find(field => field.path === fieldPath));
 	}
 
 	static fieldToOption(field: Field) {

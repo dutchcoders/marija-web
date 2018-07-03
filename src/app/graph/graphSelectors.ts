@@ -10,6 +10,7 @@ import fieldLocator from '../fields/helpers/fieldLocator';
 import { Field } from '../fields/interfaces/field';
 import * as moment from 'moment';
 import { NodeMatcher } from './interfaces/nodeMatcher';
+import { Datasource } from '../datasources/interfaces/datasource';
 
 
 export const getNodesForDisplay = createSelector(
@@ -160,11 +161,29 @@ export const getFieldHierarchy = createSelector(
 
 export const getSelectedFields = createSelector(
 	(state: AppState) => state.graph.nodeMatchers,
+	(state: AppState) => state.datasources.datasources,
+	(state: AppState) => state.fields.availableFields,
 
-	(nodeMatchers: NodeMatcher[]) => {
+	(nodeMatchers: NodeMatcher[], datasources: Datasource[], availableFields: Field[]) => {
 		let fields: Field[] = [];
 
 		nodeMatchers.forEach(matcher => fields = fields.concat(matcher.fields));
+
+		const getField = (path: string) => availableFields.find(search => search.path === path);
+
+		datasources.forEach(datasource => {
+			if (datasource.labelFieldPath) {
+				fields.push(getField(datasource.labelFieldPath));
+			}
+
+			if (datasource.imageFieldPath) {
+				fields.push(getField(datasource.imageFieldPath));
+			}
+
+			if (datasource.locationFieldPath) {
+				fields.push(getField(datasource.locationFieldPath));
+			}
+		});
 
 		return fields;
 	}
