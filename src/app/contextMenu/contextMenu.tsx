@@ -7,7 +7,7 @@ import {
 	deleteNodes,
 	nodesSelect,
 	nodeUpdate,
-	setImportantNode
+	setImportantNode, setNote
 } from '../graph/graphActions';
 import abbreviateNodeName from '../graph/helpers/abbreviateNodeName';
 import getDirectlyRelatedNodes from '../graph/helpers/getDirectlyRelatedNodes';
@@ -227,9 +227,7 @@ class ContextMenu extends React.Component<Props, State> {
     handleNoteChange(event: FormEvent<HTMLTextAreaElement>) {
         const { nodeId, dispatch } = this.props;
 
-        dispatch(nodeUpdate(nodeId, {
-            description: event.currentTarget.value
-        }));
+        dispatch(setNote(nodeId, event.currentTarget.value));
     }
 
     render() {

@@ -40,7 +40,7 @@ import {
 	SET_FILTER_BORING_NODES,
 	SET_FILTER_SECONDARY_QUERIES, SET_IMPORTANT_NODE,
 	SET_IS_DRAGGING_SUB_FIELDS,
-	SET_MAP_ACTIVE,
+	SET_MAP_ACTIVE, SET_NOTE,
 	SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
 	VIA_ADD,
@@ -81,7 +81,8 @@ export const defaultGraphState: GraphState = {
 	filterBoringNodes: true,
 	filterSecondaryQueries: true,
 	isDraggingSubFields: false,
-	importantNodeIds: []
+	importantNodeIds: [],
+	notes: []
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -473,6 +474,14 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
         		node.important = state.importantNodeIds.indexOf(node.id) !== -1
 			});
 
+        	state.notes.forEach(note => {
+        		const node = action.nodes.find(node => node.id === note.nodeId);
+
+        		if (node) {
+        			node.description = note.note;
+				}
+			});
+
             const updates: any = {
                 nodes: action.nodes,
                 links: action.links,
@@ -773,6 +782,36 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 				...state,
 				importantNodeIds,
 				nodes
+			};
+		}
+
+		case SET_NOTE: {
+			const note: string = action.payload.note;
+			const nodeId: number = action.payload.nodeId;
+			const nodes = state.nodes.concat([]);
+			const index = nodes.findIndex(node => node.id === nodeId);
+
+			nodes[index] = {
+				...nodes[index],
+				description: note
+			};
+
+			const notes = state.notes.concat([]);
+			const noteIndex = notes.findIndex(note => note.nodeId === nodeId);
+
+			if (noteIndex !== -1) {
+				notes[noteIndex].note = note;
+			} else {
+				notes.push({
+					nodeId,
+					note
+				});
+			}
+
+			return {
+				...state,
+				nodes,
+				notes
 			};
 		}
 

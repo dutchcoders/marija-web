@@ -8,6 +8,11 @@ import {Via} from "./via";
 
 export type TimelineGrouping = 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month';
 
+export interface Note {
+    nodeId: number;
+    note: string;
+}
+
 export interface GraphState {
     fields: Field[];
     date_fields: Field[];
@@ -26,4 +31,5 @@ export interface GraphState {
     filterSecondaryQueries: boolean;
     isDraggingSubFields: boolean;
     importantNodeIds: number[];
+    notes: Note[];
 }

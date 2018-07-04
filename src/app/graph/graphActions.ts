@@ -15,7 +15,7 @@ import {
 	SET_FILTER_BORING_NODES,
 	SET_FILTER_SECONDARY_QUERIES, SET_IMPORTANT_NODE,
 	SET_IS_DRAGGING_SUB_FIELDS,
-	SET_MAP_ACTIVE,
+	SET_MAP_ACTIVE, SET_NOTE,
 	SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
 	TRIGGER_GRAPH_WORKER,
@@ -247,5 +247,15 @@ export function triggerGraphWorker(payload: GraphWorkerPayload) {
 			WebWorker: true
 		},
 		payload: payload
+	};
+}
+
+export function setNote(nodeId: number, note: string) {
+	return {
+		type: SET_NOTE,
+		payload: {
+			nodeId,
+			note
+		}
 	};
 }
