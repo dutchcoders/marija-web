@@ -3,7 +3,12 @@ import { FormEvent } from 'react';
 import { connect, Dispatch } from 'react-redux';
 
 import { Datasource } from '../datasources/interfaces/datasource';
-import { deleteNodes, nodesSelect, nodeUpdate } from '../graph/graphActions';
+import {
+	deleteNodes,
+	nodesSelect,
+	nodeUpdate,
+	setImportantNode
+} from '../graph/graphActions';
 import abbreviateNodeName from '../graph/helpers/abbreviateNodeName';
 import getDirectlyRelatedNodes from '../graph/helpers/getDirectlyRelatedNodes';
 import { Link } from '../graph/interfaces/link';
@@ -147,20 +152,14 @@ class ContextMenu extends React.Component<Props, State> {
     handleImportant() {
         const { dispatch, nodeId } = this.props;
 
-        dispatch(nodeUpdate(nodeId, {
-            important: true
-        }));
-
+        dispatch(setImportantNode(nodeId, true));
 		dispatch(hideContextMenu());
     }
 
     handleNotImportant() {
         const { dispatch, nodeId } = this.props;
 
-        dispatch(nodeUpdate(nodeId, {
-            important: false
-        }));
-
+		dispatch(setImportantNode(nodeId, false));
 		dispatch(hideContextMenu());
     }
 

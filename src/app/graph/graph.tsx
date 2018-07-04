@@ -53,6 +53,7 @@ interface Props {
     showLabels: boolean;
     isMapActive: boolean;
     isContextMenuActive: boolean;
+    importantNodeIds: number[];
 }
 
 interface State {
@@ -924,9 +925,9 @@ class Graph extends React.PureComponent<Props, State> {
 				return true;
 			}
 
-            if (nodes[i].important !== nextNodes[i].important) {
-                return true;
-            }
+            // if (nodes[i].important !== nextNodes[i].important) {
+            //     return true;
+            // }
 
             if ((nodes[i].description && !nextNodes[i].description)
                 || (!nodes[i].description && nextNodes[i].description)) {
@@ -944,18 +945,18 @@ class Graph extends React.PureComponent<Props, State> {
 	 * @param {Node[]} nextNodes
 	 */
 	updateNodeProperties(nextNodes: Node[]) {
-        const nodesToPost = nextNodes.map(node => {
-            return {
-                id: node.id,
-                important: node.important,
-                description: node.description
-            }
-        });
-
-        this.postWorkerMessage({
-            type: 'updateNodeProperties',
-            nodes: nodesToPost
-        });
+        // const nodesToPost = nextNodes.map(node => {
+        //     return {
+        //         id: node.id,
+        //         important: node.important,
+        //         description: node.description
+        //     }
+        // });
+		//
+        // this.postWorkerMessage({
+        //     type: 'updateNodeProperties',
+        //     nodes: nodesToPost
+        // });
     }
 
     getNodeRadius(node: Node): number {
@@ -2144,7 +2145,8 @@ const select = (state: AppState, ownProps) => {
         searches: state.graph.searches,
         showLabels: state.graph.showLabels,
 		isMapActive: state.graph.isMapActive,
-		isContextMenuActive: isContextMenuActive(state)
+		isContextMenuActive: isContextMenuActive(state),
+		imporantNodeIds: state.graph.importantNodeIds
     };
 };
 

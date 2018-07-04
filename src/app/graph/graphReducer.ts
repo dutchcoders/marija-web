@@ -469,6 +469,10 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
         case GRAPH_WORKER_OUTPUT: {
         	markPerformance('graphWorkerOutput');
 
+        	action.nodes.forEach(node => {
+        		node.important = state.importantNodeIds.indexOf(node.id) !== -1
+			});
+
             const updates: any = {
                 nodes: action.nodes,
                 links: action.links,
@@ -751,10 +755,24 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 					id !== nodeId
 				);
 			}
+
+			const nodes = state.nodes.map(node => {
+				const important = importantNodeIds.indexOf(node.id) !== -1;
+
+				if (important === node.important) {
+					return node;
+				}
+
+				return {
+					...node,
+					important: important
+				};
+			});
 			
 			return {
 				...state,
-				importantNodeIds
+				importantNodeIds,
+				nodes
 			};
 		}
 
