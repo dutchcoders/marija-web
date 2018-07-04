@@ -412,8 +412,8 @@ class Configuration extends React.Component<Props, State> {
                     {/*{ this.renderVia() }*/}
                 {/*</div>*/}
 
+				<h2>Options</h2>
                 <div className="form-group">
-                    <h2>Graph options</h2>
                     <label className="graph-option">
                         <input type="checkbox" onChange={this.onFilterBoringNodesChange.bind(this)} defaultChecked={filterBoringNodes} />
 						Only display nodes that have a relation.

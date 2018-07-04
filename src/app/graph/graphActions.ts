@@ -184,20 +184,28 @@ export function setTimelineGrouping(timelineGrouping: TimelineGrouping) {
 }
 
 export function setFilterBoringNodes(enabled: boolean) {
-	return {
-		type: SET_FILTER_BORING_NODES,
-		payload: {
-			enabled
-		}
+	return (dispatch, getState) => {
+		dispatch({
+			type: SET_FILTER_BORING_NODES,
+			payload: {
+				enabled
+			}
+		});
+
+		dispatch(triggerGraphWorker(getGraphWorkerPayload(getState())));
 	};
 }
 
 export function setFilterSecondaryQueries(enabled: boolean) {
-	return {
-		type: SET_FILTER_SECONDARY_QUERIES,
-		payload: {
-			enabled
-		}
+	return (dispatch, getState) => {
+		dispatch({
+			type: SET_FILTER_SECONDARY_QUERIES,
+			payload: {
+				enabled
+			}
+		});
+
+		dispatch(triggerGraphWorker(getGraphWorkerPayload(getState())));
 	};
 }
 
