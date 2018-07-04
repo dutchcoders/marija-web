@@ -853,27 +853,6 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			};
 		}
 
-		case DATASOURCE_ICON_UPDATED: {
-			const datasourceId: string = action.payload.datasourceId;
-			const icon: string = action.payload.icon;
-
-			const nodes = state.nodes.map(node => {
-				if (node.datasourceId !== datasourceId) {
-					return node;
-				}
-
-				return {
-					...node,
-					icon: icon
-				};
-			});
-
-			return {
-				...state,
-				nodes
-			};
-		}
-
         default:
             return state;
     }

@@ -9,6 +9,8 @@ import {
 } from './datasourcesConstants';
 import { Datasource } from './interfaces/datasource';
 import { DATASOURCE_ICON_UPDATED } from '../graph/graphConstants';
+import { triggerGraphWorker } from '../graph/graphActions';
+import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 
 export function datasourceActivated(datasourceId: string) {
     return {
@@ -57,27 +59,15 @@ export function receiveInitialState(initialState) {
 }
 
 export function updateDatasource(datasourceId: string, props: any) {
-    return {
-        type: UPDATE_DATASOURCE,
-        payload: {
-            datasourceId,
-            props
-        }
-    };
-}
-
-export function updateDatasourceIcon(datasourceId: string, icon: string) {
 	return (dispatch, getState) => {
-		dispatch(updateDatasource(datasourceId, {
-			icon
-		}));
-
 		dispatch({
-			type: DATASOURCE_ICON_UPDATED,
+			type: UPDATE_DATASOURCE,
 			payload: {
 				datasourceId,
-				icon
+				props
 			}
 		});
-	}
+
+		dispatch(triggerGraphWorker(getGraphWorkerPayload(getState())));
+	};
 }

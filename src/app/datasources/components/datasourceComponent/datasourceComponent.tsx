@@ -6,7 +6,7 @@ import Icon from '../../../ui/components/icon';
 import { FormEvent } from 'react';
 import {
 	datasourceActivated,
-	datasourceDeactivated, updateDatasource, updateDatasourceIcon
+	datasourceDeactivated, updateDatasource
 } from '../../datasourcesActions';
 import FieldSelector from '../../../fields/components/fieldSelector/fieldSelector';
 import { connect } from 'react-redux';
@@ -75,7 +75,9 @@ class DatasourceComponent extends React.Component<Props, State> {
 	onSelectIcon(icon: string) {
 		const { dispatch, datasource } = this.props;
 
-		dispatch(updateDatasourceIcon(datasource.id, icon));
+		dispatch(updateDatasource(datasource.id, {
+			icon
+		}));
 
 		this.setState({
 			iconSelectorOpen: false

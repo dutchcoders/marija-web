@@ -36,6 +36,16 @@ export default function getNodesAndLinks(
 		return '';
 	};
 
+	const getLabelField = (datasourceId: string): string => {
+		const datasource = datasources.find(search => search.id === datasourceId);
+
+		if (datasource && datasource.labelFieldPath) {
+			return datasource.labelFieldPath;
+		}
+
+		return null;
+	};
+
     const andMatcher = (valueSet, nodeMatcher: NodeMatcher): Node[] => {
     	return intersections.filter(node => {
 			for (let i = 0; i < nodeMatcher.fields.length; i ++) {
@@ -247,7 +257,13 @@ export default function getNodesAndLinks(
 	};
 
     const createItemNode = (item: Item): Node => {
-    	const name = item.fields[Object.keys(item.fields)[0]];
+    	let labelField = getLabelField(item.datasourceId);
+
+    	if (!labelField) {
+    		labelField = Object.keys(item.fields)[0];
+		}
+
+    	const name = item.fields[labelField];
     	const hash = getHash(item.id);
 
     	const existing = itemNodes.find(node => node.id === hash);

@@ -120,8 +120,8 @@ class Graph extends React.PureComponent<Props, State> {
     readonly maxZoomGraph: number = 3;
     readonly minZoomMap: number = 1;
     readonly maxZoomMap: number = 18;
-    nodeMap = new Map();
-    linkMap = new Map();
+    nodeMap = new Map<number, Node>();
+    linkMap = new Map<number, Link>();
     lockRendering: boolean = false;
 
     postWorkerMessage(message) {
@@ -658,7 +658,7 @@ class Graph extends React.PureComponent<Props, State> {
 
         this.renderedLinks.alpha = alpha;
 
-		linksForDisplay.forEach(this.linkThicknessManager.bind(this));
+		this.linkMap.forEach(this.linkThicknessManager.bind(this));
     }
 
 	// The renderer is faster when it doesnt need to switch line styles so often
@@ -901,9 +901,15 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     getTooltipNodes(): Node[] {
-        const { nodesForDisplay } = this.props;
+        const tooltipNodes: Node[] = [];
 
-        return nodesForDisplay.filter(node => node.displayTooltip);
+        this.nodeMap.forEach(node => {
+        	if (node.displayTooltip) {
+        		tooltipNodes.push(node);
+			}
+		});
+
+        return tooltipNodes;
     }
 
     shouldUpdateNodeProperties(nodes: Node[], nextNodes: Node[]): boolean {
@@ -993,6 +999,39 @@ class Graph extends React.PureComponent<Props, State> {
 		return Promise.all(promises);
 	}
 
+	updateNodeMap(nodes: Node[]) {
+		const merged: Node[] = [];
+
+		// Merge node from store and node in this component, to have both the new properties
+		// and keep the x, y position
+		nodes.forEach(node => {
+			merged.push({
+				...this.nodeMap.get(node.id),
+				...node
+			});
+		});
+
+		this.nodeMap.clear();
+		merged.forEach(node => this.nodeMap.set(node.id, node));
+		this.tooltipTextures = {};
+	}
+
+	updateLinkMap(links: Link[]) {
+		const merged: Link[] = [];
+
+		// Merge link from store and link in this component, to have both the new properties
+		// and keep the x, y position
+		links.forEach(link => {
+			merged.push({
+				...this.linkMap.get(link.hash),
+				...link
+			});
+		});
+
+		this.linkMap.clear();
+		merged.forEach(link => this.linkMap.set(link.hash, link));
+	}
+
     componentWillReceiveProps(nextProps: Props) {
         const { searches, nodesForDisplay, linksForDisplay, fields, showLabels, highlightedNodes, isMapActive, selectedNodes } = this.props;
         const nextSelected = nextProps.nodesForDisplay.filter(node => node.selected);
@@ -1014,10 +1053,7 @@ class Graph extends React.PureComponent<Props, State> {
 		}
 
         if (!isEqual(nextSelected, selectedNodes) || nextProps.highlightedNodes !== highlightedNodes) {
-			nextProps.nodesForDisplay.forEach(node => {
-				this.nodeMap.set(node.id, node);
-			});
-
+        	this.updateNodeMap(nextProps.nodesForDisplay);
             this.renderedSince.lastTick = false;
         }
 
@@ -1036,18 +1072,13 @@ class Graph extends React.PureComponent<Props, State> {
         }
 
 		if (nextProps.linksForDisplay !== linksForDisplay) {
-        	this.linkMap.clear();
-        	nextProps.linksForDisplay.forEach(link => this.linkMap.set(link.hash, link));
+        	this.updateLinkMap(nextProps.linksForDisplay);
 		}
 
         if (this.shouldPostToWorker(nextProps.nodesForDisplay, nodesForDisplay, nextProps.linksForDisplay, linksForDisplay, isMapActive, nextProps.isMapActive)) {
         	this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
 				.then(() => {
-					this.nodeMap.clear();
-
-					nextProps.nodesForDisplay.forEach(node => {
-						this.nodeMap.set(node.id, node);
-					});
+					this.updateNodeMap(nextProps.nodesForDisplay);
 
 					this.postNodesAndLinksToWorker(
 						nextProps.nodesForDisplay,
@@ -1056,14 +1087,9 @@ class Graph extends React.PureComponent<Props, State> {
 					);
 				});
         } else if (this.shouldUpdateNodeProperties(nodesForDisplay, nextProps.nodesForDisplay)) {
-			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
+        	this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
 				.then(() => {
-					this.nodeMap.clear();
-
-					nextProps.nodesForDisplay.forEach(node => {
-						this.nodeMap.set(node.id, node);
-					});
-
+					this.updateNodeMap(nextProps.nodesForDisplay);
 					this.renderedSince.lastTick = false;
 				});
         }
@@ -1354,7 +1380,7 @@ class Graph extends React.PureComponent<Props, State> {
             return;
         }
 
-        nodesForDisplay.forEach(node => {
+        this.nodeMap.forEach(node => {
         	if (!node.x) {
         		return;
 			}
@@ -1683,7 +1709,7 @@ class Graph extends React.PureComponent<Props, State> {
 		let minY: number;
 		let maxY: number;
 
-		nodesForDisplay.forEach(node => {
+		this.nodeMap.forEach(node => {
 			if (!node.x) {
 				return;
 			}
@@ -1737,21 +1763,24 @@ class Graph extends React.PureComponent<Props, State> {
 
 
     findNode(x, y): Node {
-    	const { nodesForDisplay } = this.props;
+    	const sizeMultiplier = this.getNodeSizeMultiplier();
+		let found: Node;
 
-		const sizeMultiplier = this.getNodeSizeMultiplier();
-
-		return nodesForDisplay.find(node => {
-			if (!node.x) {
-				return false;
+		this.nodeMap.forEach(node => {
+			if (found || !node.x) {
+				return;
 			}
 
 			const dx = x - node.x;
 			const dy = y - node.y;
 			const d2 = dx * dx + dy * dy;
 
-			return d2 < Math.pow(node.r * sizeMultiplier / this.transform.k, 2);
+			if (d2 < Math.pow(node.r * sizeMultiplier / this.transform.k, 2)) {
+				found = node;
+			}
 		});
+
+		return found;
     }
 
     tooltipNode(node: Node) {
@@ -1919,11 +1948,11 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
     selectionEnded() {
-        const { nodesForDisplay, dispatch } = this.props;
+        const { dispatch } = this.props;
 
         const willSelect: Node[] = [];
 
-        nodesForDisplay.forEach(node => {
+        this.nodeMap.forEach(node => {
             const withinX: boolean =
                 (node.x > this.selection.x1 && node.x < this.selection.x2)
                 || (node.x > this.selection.x2 && node.x < this.selection.x1);
