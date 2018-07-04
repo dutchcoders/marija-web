@@ -74,7 +74,7 @@ function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {
 
     switch (data.type) {
         case SEARCH_RECEIVE: {
-            debounceItems(
+        	debounceItems(
                 data.results,
                 data['request-id'],
                 dispatch,

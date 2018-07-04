@@ -1,10 +1,10 @@
 import {
-	CREATE_NEW_NODE_MATCHER,
-	DELETE_FROM_NODE_MATCHER,
+	CREATE_NEW_CONNECTOR,
+	DELETE_FROM_CONNECTOR,
 	FIELD_NODES_HIGHLIGHT,
 	GRAPH_WORKER_OUTPUT,
-	MOVE_FIELD_BETWEEN_NODE_MATCHERS,
-	MOVE_FIELD_TO_NEW_NODE_MATCHER,
+	MOVE_FIELD_BETWEEN_CONNECTORS,
+	MOVE_FIELD_TO_NEW_CONNECTOR,
 	NODE_UPDATE,
 	NODES_DELETE,
 	NODES_DESELECT,
@@ -36,7 +36,7 @@ import { TimelineGrouping } from './interfaces/graphState';
 import { AppState } from '../main/interfaces/appState';
 import { getGraphWorkerPayload } from './helpers/getGraphWorkerPayload';
 import { SEARCH_RECEIVE } from '../search/searchConstants';
-import { MatchingStrategy } from './interfaces/nodeMatcher';
+import { MatchingStrategy } from './interfaces/connector';
 import { Field } from '../fields/interfaces/field';
 
 export function deselectNodes(opts) {
@@ -240,51 +240,51 @@ export function triggerGraphWorker(payload: GraphWorkerPayload) {
 	};
 }
 
-export function moveFieldBetweenNodeMatchers(fieldPath: string, fromNodeMatcherName: string, toNodeMatcherName: string) {
+export function moveFieldBetweenConnectors(fieldPath: string, fromConnectorName: string, toConnectorName: string) {
 	return {
-		type: MOVE_FIELD_BETWEEN_NODE_MATCHERS,
+		type: MOVE_FIELD_BETWEEN_CONNECTORS,
 		payload: {
 			fieldPath,
-			fromNodeMatcherName,
-			toNodeMatcherName
+			fromConnectorName,
+			toConnectorName
 		}
 	};
 }
 
-export function moveFieldToNewNodeMatcher(fieldPath: string, fromNodeMatcherName: string) {
+export function moveFieldToNewConnector(fieldPath: string, fromConnectorName: string) {
 	return {
-		type: MOVE_FIELD_TO_NEW_NODE_MATCHER,
+		type: MOVE_FIELD_TO_NEW_CONNECTOR,
 		payload: {
 			fieldPath,
-			fromNodeMatcherName
+			fromConnectorName
 		}
 	};
 }
 
-export function createNewNodeMatcher(field: Field) {
+export function createNewConnector(field: Field) {
 	return {
-		type: CREATE_NEW_NODE_MATCHER,
+		type: CREATE_NEW_CONNECTOR,
 		payload: {
 			field
 		}
 	};
 }
 
-export function setMatchingStrategy(nodeMatcherName: string, matchingStrategy: MatchingStrategy) {
+export function setMatchingStrategy(connectorName: string, matchingStrategy: MatchingStrategy) {
 	return {
 		type: SET_MATCHING_STRATEGY,
 		payload: {
-			nodeMatcherName,
+			connectorName,
 			matchingStrategy
 		}
 	};
 }
 
-export function deleteFromNodeMatcher(nodeMatcherName: string, fieldPath: string) {
+export function deleteFromConnector(connectorName: string, fieldPath: string) {
 	return {
-		type: DELETE_FROM_NODE_MATCHER,
+		type: DELETE_FROM_CONNECTOR,
 		payload: {
-			nodeMatcherName,
+			connectorName,
 			fieldPath
 		}
 	};

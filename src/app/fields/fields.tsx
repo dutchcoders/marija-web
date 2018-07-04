@@ -14,7 +14,6 @@ import { MAX_FIELDS } from '../graph/graphConstants';
 import { getNonDateFields } from './fieldsSelectors';
 import DraggableField from './components/draggableField/draggableField';
 import { FieldHierarchy, getFieldHierarchy } from '../graph/graphSelectors';
-import NodeMatcherList from './components/nodeMatcherList/nodeMatcherList';
 
 interface State {
     currentFieldSearchValue: string;

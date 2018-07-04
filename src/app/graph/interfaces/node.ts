@@ -67,7 +67,7 @@ export interface Node {
 	fy?: number;
 	batch?: number;
 
-	nodeMatcher?: string;
+	connector?: string;
 	datasourceId?: string;
 
 	type: 'intersection' | 'item';

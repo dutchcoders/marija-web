@@ -4,7 +4,7 @@ import { connect, Dispatch } from 'react-redux';
 
 import { datasourceActivated } from '../../../datasources/datasourcesActions';
 import {
-	createNewNodeMatcher,
+	createNewConnector,
 	fieldNodesHighlight,
 	selectFieldNodes,
 	setIsDraggingSubFields
@@ -44,7 +44,7 @@ class FieldRow extends React.Component<Props, State> {
 
         Url.addQueryParam('fields', field.path);
 
-        dispatch(createNewNodeMatcher(field));
+        dispatch(createNewConnector(field));
         dispatch(searchFieldsUpdate());
 
         // If we add a field for a datasource, we assume that a user wants to

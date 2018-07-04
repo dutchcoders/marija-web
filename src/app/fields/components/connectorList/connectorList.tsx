@@ -2,10 +2,10 @@ import { saveAs } from 'file-saver';
 import { isEqual, map } from 'lodash';
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
-import { NodeMatcher } from '../../../graph/interfaces/nodeMatcher';
+import { Connector } from '../../../graph/interfaces/connector';
 import { AppState } from '../../../main/interfaces/appState';
-import * as styles from './nodeMatcherList.scss';
-import NodeMatcherComponent from '../nodeMatcherComponent/nodeMatcherComponent';
+import * as styles from './connectorList.scss';
+import ConnectorComponent from '../connectorComponent/connectorComponent';
 
 interface State {
 	isDragging: boolean;
@@ -13,10 +13,10 @@ interface State {
 
 interface Props {
 	dispatch: Dispatch<any>;
-	nodeMatchers: NodeMatcher[];
+	connectors: Connector[];
 }
 
-class NodeMatcherList extends React.Component<Props, State> {
+class ConnectorList extends React.Component<Props, State> {
 	state: State = {
 		isDragging: false
 	};
@@ -31,18 +31,18 @@ class NodeMatcherList extends React.Component<Props, State> {
 
 	render() {
 		const { isDragging } = this.state;
-		const { nodeMatchers } = this.props;
+		const { connectors } = this.props;
 
 		return (
-			<div className={styles.nodeMatchers}>
-				<h2>Matchers</h2>
+			<div className={styles.connectors}>
+				<h2>Connectors</h2>
 
-				{nodeMatchers.map(nodeMatcher => (
-					<NodeMatcherComponent nodeMatcher={nodeMatcher} isDragging={isDragging} key={nodeMatcher.name} />
+				{connectors.map(connector => (
+					<ConnectorComponent connector={connector} isDragging={isDragging} key={connector.name} />
 				))}
 
 				{isDragging &&
-					<NodeMatcherComponent nodeMatcher={null} isDragging={true} />
+					<ConnectorComponent connector={null} isDragging={true} />
 				}
 
 				<button className={styles.toggleAdvanced} onClick={this.toggleAdvanced.bind(this)}>
@@ -56,8 +56,8 @@ class NodeMatcherList extends React.Component<Props, State> {
 
 function select(state: AppState) {
 	return {
-		nodeMatchers: state.graph.nodeMatchers
+		connectors: state.graph.connectors
 	};
 }
 
-export default connect(select)(NodeMatcherList);
+export default connect(select)(ConnectorList);

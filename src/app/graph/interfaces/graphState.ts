@@ -5,7 +5,7 @@ import {Search} from "../../search/interfaces/search";
 import {Node} from "./node";
 import {Link} from "./link";
 import {Via} from "./via";
-import { NodeMatcher } from './nodeMatcher';
+import { Connector } from './connector';
 
 export type TimelineGrouping = 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month';
 
@@ -26,5 +26,5 @@ export interface GraphState {
     filterBoringNodes: boolean;
     filterSecondaryQueries: boolean;
     isDraggingSubFields: boolean;
-    nodeMatchers: NodeMatcher[];
+    connectors: Connector[];
 }

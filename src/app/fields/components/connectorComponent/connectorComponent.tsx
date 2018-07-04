@@ -4,13 +4,13 @@ import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 import {
 	MatchingStrategy,
-	NodeMatcher
-} from '../../../graph/interfaces/nodeMatcher';
+	Connector
+} from '../../../graph/interfaces/connector';
 import { AppState } from '../../../main/interfaces/appState';
-import * as styles from './nodeMatcherComponent.scss';
+import * as styles from './connectorComponent.scss';
 import {
-	moveFieldToNewNodeMatcher, deleteFromNodeMatcher,
-	moveFieldBetweenNodeMatchers,
+	moveFieldToNewConnector, deleteFromConnector,
+	moveFieldBetweenConnectors,
 	setIsDraggingSubFields, setMatchingStrategy
 } from '../../../graph/graphActions';
 import { Field } from '../../interfaces/field';
@@ -23,11 +23,11 @@ interface State {
 
 interface Props {
 	dispatch: Dispatch<any>;
-	nodeMatcher: NodeMatcher | null;
+	connector: Connector | null;
 	isDragging: boolean;
 }
 
-class NodeMatcherComponent extends React.Component<Props, State> {
+class ConnectorComponent extends React.Component<Props, State> {
 	state: State = {
 		isHoveringOnDropArea: false
 	};
@@ -49,18 +49,18 @@ class NodeMatcherComponent extends React.Component<Props, State> {
 	}
 
 	onDragStart(event: DragEvent, field: Field) {
-		const { nodeMatcher } = this.props;
+		const { connector } = this.props;
 
 		const data = JSON.stringify({
 			fieldPath: field.path,
-			fromNodeMatcherName: nodeMatcher.name
+			fromConnectorName: connector.name
 		});
 
 		event.dataTransfer.setData('text', data);
 	}
 
 	onDrop(event: DragEvent) {
-		const { nodeMatcher, dispatch } = this.props;
+		const { connector, dispatch } = this.props;
 
 		const text: string = event.dataTransfer.getData('text');
 		let data: any;
@@ -71,46 +71,46 @@ class NodeMatcherComponent extends React.Component<Props, State> {
 			return;
 		}
 
-		if (nodeMatcher === null) {
-			dispatch(moveFieldToNewNodeMatcher(data.fieldPath, data.fromNodeMatcherName));
+		if (connector === null) {
+			dispatch(moveFieldToNewConnector(data.fieldPath, data.fromConnectorName));
 		} else {
-			dispatch(moveFieldBetweenNodeMatchers(data.fieldPath, data.fromNodeMatcherName, nodeMatcher.name));
+			dispatch(moveFieldBetweenConnectors(data.fieldPath, data.fromConnectorName, connector.name));
 		}
 	}
 
 	onStrategyChange(event: FormEvent<HTMLInputElement>) {
-		const { nodeMatcher, dispatch } = this.props;
+		const { connector, dispatch } = this.props;
 
-		dispatch(setMatchingStrategy(nodeMatcher.name, event.currentTarget.value as MatchingStrategy));
+		dispatch(setMatchingStrategy(connector.name, event.currentTarget.value as MatchingStrategy));
 	}
 
 	deleteField(field: Field) {
-		const { dispatch, nodeMatcher } = this.props;
+		const { dispatch, connector } = this.props;
 
-		dispatch(deleteFromNodeMatcher(nodeMatcher.name, field.path));
+		dispatch(deleteFromConnector(connector.name, field.path));
 	}
 
 	render() {
-		const { nodeMatcher, isDragging } = this.props;
+		const { connector, isDragging } = this.props;
 
 		return (
-			<div className={styles.nodeMatcher}>
-				{isDragging && nodeMatcher && nodeMatcher.fields.length > 1 && (
+			<div className={styles.connector}>
+				{isDragging && connector && connector.fields.length > 1 && (
 					<form className={styles.strategy}>
 						<label>
-							<input type="radio" name="strategy" checked={nodeMatcher.strategy === 'AND'} value="AND" onChange={this.onStrategyChange.bind(this)}/>
+							<input type="radio" name="strategy" checked={connector.strategy === 'AND'} value="AND" onChange={this.onStrategyChange.bind(this)}/>
 							<span>Match all</span>
 						</label>
 						<label>
-							<input type="radio" name="strategy" checked={nodeMatcher.strategy === 'OR'} value="OR" onChange={this.onStrategyChange.bind(this)}/>
+							<input type="radio" name="strategy" checked={connector.strategy === 'OR'} value="OR" onChange={this.onStrategyChange.bind(this)}/>
 							<span>Match at least one</span>
 						</label>
 					</form>
 				)}
 
-				{nodeMatcher !== null && (
+				{connector !== null && (
 					<ul className={styles.fields}>
-						{nodeMatcher.fields.map(field => (
+						{connector.fields.map(field => (
 							<li
 								key={field.path}
 								className={styles.field}
@@ -127,7 +127,7 @@ class NodeMatcherComponent extends React.Component<Props, State> {
 					<div className={styles.dropZone}
 						 onDragOver={this.onDragOver.bind(this)}
 						 onDrop={this.onDrop.bind(this)}>
-						{nodeMatcher === null ? 'Drop field here to create new matcher' : 'Drop field here to make part of matcher'}
+						{connector === null ? 'Drop field here to create new matcher' : 'Drop field here to make part of matcher'}
 					</div>
 				)}
 			</div>
@@ -142,4 +142,4 @@ function select(state: AppState, ownProps) {
 	};
 }
 
-export default connect(select)(NodeMatcherComponent);
+export default connect(select)(ConnectorComponent);

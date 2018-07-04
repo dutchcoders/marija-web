@@ -5,7 +5,7 @@ import { Link } from '../interfaces/link';
 import { ChildData, Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';
 import {forEach, isEmpty, uniqueId} from 'lodash';
-import { NodeMatcher } from '../interfaces/nodeMatcher';
+import { Connector } from '../interfaces/connector';
 import { Util } from 'leaflet';
 import { getValueSets } from './getValueSets';
 import { Datasource } from '../../datasources/interfaces/datasource';
@@ -14,7 +14,7 @@ export default function getNodesAndLinks(
     previousNodes: Node[],
     previousLinks: Link[],
     items: Item[],
-    nodeMatchers: NodeMatcher[],
+    connectors: Connector[],
     aroundNodeId: number | undefined = undefined,
     deletedNodes: Node[] = [],
 	datasources: Datasource[] = []
@@ -56,10 +56,10 @@ export default function getNodesAndLinks(
 		return null;
 	};
 
-    const andMatcher = (valueSet, nodeMatcher: NodeMatcher): Node[] => {
+    const andMatcher = (valueSet, connector: Connector): Node[] => {
     	return intersections.filter(node => {
-			for (let i = 0; i < nodeMatcher.fields.length; i ++) {
-    			const field = nodeMatcher.fields[i].path;
+			for (let i = 0; i < connector.fields.length; i ++) {
+    			const field = connector.fields[i].path;
 				const match = typeof node.childData[field] !== 'undefined' && node.childData[field].indexOf(valueSet[field]) !== -1;
 
 				if (!match) {
@@ -71,10 +71,10 @@ export default function getNodesAndLinks(
 		});
 	};
 
-    const orMatcher = (valueSet, nodeMatcher: NodeMatcher): Node[] => {
+    const orMatcher = (valueSet, connector: Connector): Node[] => {
     	return intersections.filter(node => {
-    		for (let i = 0; i < nodeMatcher.fields.length; i ++) {
-    			const field = nodeMatcher.fields[i].path;
+    		for (let i = 0; i < connector.fields.length; i ++) {
+    			const field = connector.fields[i].path;
 				const match = typeof node.childData[field] !== 'undefined' && node.childData[field].indexOf(valueSet[field]) !== -1;
 
 				if (match) {
@@ -98,14 +98,14 @@ export default function getNodesAndLinks(
 		});
 	};
 
-    const getMatchingItemsAnd = (itemId: string, valueSet, nodeMatcher: NodeMatcher): Item[] => {
+    const getMatchingItemsAnd = (itemId: string, valueSet, connector: Connector): Item[] => {
 		return items.filter(item => {
 			if (item.id === itemId) {
 				return false;
 			}
 
-			for (let i = 0; i < nodeMatcher.fields.length; i ++) {
-				const field = nodeMatcher.fields[i].path;
+			for (let i = 0; i < connector.fields.length; i ++) {
+				const field = connector.fields[i].path;
 				let itemValue = item.fields[field];
 
 				if (typeof itemValue === 'undefined') {
@@ -127,14 +127,14 @@ export default function getNodesAndLinks(
 		});
 	};
 
-    const getMatchingItemsOr = (itemId: string, valueSet, nodeMatcher: NodeMatcher): Item[] => {
+    const getMatchingItemsOr = (itemId: string, valueSet, connector: Connector): Item[] => {
 		return items.filter(item => {
 			if (item.id === itemId) {
 				return false;
 			}
 
-			for (let i = 0; i < nodeMatcher.fields.length; i ++) {
-				const field = nodeMatcher.fields[i].path;
+			for (let i = 0; i < connector.fields.length; i ++) {
+				const field = connector.fields[i].path;
 				let itemValue = item.fields[field];
 
 				if (typeof itemValue !== 'undefined') {
@@ -155,13 +155,13 @@ export default function getNodesAndLinks(
 		});
 	};
 
-    const getMatcherNodes = (itemId: string, valueSet, nodeMatcher: NodeMatcher): Node[] => {
+    const getMatcherNodes = (itemId: string, valueSet, connector: Connector): Node[] => {
     	let matchingItems: Item[];
 
-    	if (nodeMatcher.strategy === 'AND') {
-    		matchingItems = getMatchingItemsAnd(itemId, valueSet, nodeMatcher);
+    	if (connector.strategy === 'AND') {
+    		matchingItems = getMatchingItemsAnd(itemId, valueSet, connector);
 		} else {
-    		matchingItems = getMatchingItemsOr(itemId, valueSet, nodeMatcher);
+    		matchingItems = getMatchingItemsOr(itemId, valueSet, connector);
 		}
 
 		let relevantMatches: Node[] = [];
@@ -169,10 +169,10 @@ export default function getNodesAndLinks(
     	matchingItems.forEach(item => {
     		let existing: Node[] = [];
 
-    		if (nodeMatcher.strategy === 'AND') {
-    			existing = andMatcher(valueSet, nodeMatcher);
+    		if (connector.strategy === 'AND') {
+    			existing = andMatcher(valueSet, connector);
 			} else {
-    			existing = orMatcher(valueSet, nodeMatcher);
+    			existing = orMatcher(valueSet, connector);
 			}
 
 			if (existing.length > 0) {
@@ -181,7 +181,7 @@ export default function getNodesAndLinks(
 			}
 
 			let name = '';
-    		nodeMatcher.fields.forEach(field => name += item.fields[field.path]);
+    		connector.fields.forEach(field => name += item.fields[field.path]);
 
 			const hash = getHash(name);
 
@@ -193,7 +193,7 @@ export default function getNodesAndLinks(
 				name: name,
 				abbreviated: abbreviateNodeName(name, item.searchId, 40),
 				description: '',
-				icon: nodeMatcher.icon,
+				icon: connector.icon,
 				fields: [],
 				hash: hash,
 				normalizationId: null,
@@ -206,7 +206,7 @@ export default function getNodesAndLinks(
 				isGeoLocation: false,
 				isImage: false,
 				childData: valueSet,
-				nodeMatcher: nodeMatcher.name,
+				connector: connector.name,
 				type: 'intersection'
 			};
 
@@ -223,7 +223,7 @@ export default function getNodesAndLinks(
 			return;
 		}
 
-		if (source.nodeMatcher === target.nodeMatcher) {
+		if (source.connector === target.connector) {
 			// Dont create links between nodes of the same template
 			// This would happen for fields with array values.
 			// Creating links between those could be considered correct,
@@ -325,7 +325,7 @@ export default function getNodesAndLinks(
 			isGeoLocation: false,
 			isImage: false,
 			childData: item.fields,
-			nodeMatcher: null,
+			connector: null,
 			type: 'item',
 			datasourceId: item.datasourceId,
 			image: image
@@ -339,10 +339,10 @@ export default function getNodesAndLinks(
     items.forEach(item => {
     	const sourceNode: Node = createItemNode(item);
 
-		nodeMatchers.forEach(nodeMatcher => {
+		connectors.forEach(connector => {
 			const data = {};
 
-			nodeMatcher.fields.forEach(field => {
+			connector.fields.forEach(field => {
 				const value = item.fields[field.path];
 
 				if (value) {
@@ -357,7 +357,7 @@ export default function getNodesAndLinks(
 			const valueSets = getValueSets(data);
 
 			valueSets.forEach(valueSet => {
-				const targetNodes = getMatcherNodes(item.id, valueSet, nodeMatcher);
+				const targetNodes = getMatcherNodes(item.id, valueSet, connector);
 
 				targetNodes.forEach(targetNode => {
 					createLink(sourceNode, targetNode, item);

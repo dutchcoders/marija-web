@@ -20,7 +20,7 @@ export function getGraphWorkerPayload(state: AppState, items: Item[] = [], searc
 		sortColumn: state.table.sortColumn,
 		filterBoringNodes: state.graph.filterBoringNodes,
 		filterSecondaryQueries: state.graph.filterSecondaryQueries,
-		nodeMatchers: state.graph.nodeMatchers,
+		connectors: state.graph.connectors,
 		datasources: state.datasources.datasources
 	};
 }
