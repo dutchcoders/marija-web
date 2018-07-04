@@ -350,7 +350,7 @@ export default function getNodesAndLinks(
 			type: 'item',
 			datasourceId: item.datasourceId,
 			image: image,
-			itemCount: Math.random() > .5 ? 3 : item.count
+			itemCount: item.count
 		};
 
     	itemNodes.push(node);
