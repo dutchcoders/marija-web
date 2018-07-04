@@ -72,7 +72,7 @@ export const defaultGraphState: GraphState = {
     searches: [],
     nodes: [], // all nodes
     links: [], // relations between nodes
-    deletedNodes: [],
+    deletedNodeIds: [],
     via: [],
     showLabels: false,
     isMapActive: false,
@@ -88,29 +88,19 @@ export const defaultGraphState: GraphState = {
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
     switch (action.type) {
         case NODES_DELETE: {
-            const items = concat([], state.items);
-            const nodes = concat([], state.nodes);
-            const links = concat([], state.links);
+        	const deletedNodeIds: number[] = state.deletedNodeIds.concat([]);
+        	const deleteNodeIds: number[] = action.payload.nodes.map(node => node.id);
 
-            remove(nodes, (p) => {
-                return find(action.nodes, (o) => {
-                    return o.id == p.id;
-                });
-            });
+        	deleteNodeIds.forEach(nodeId => {
+        		if (deletedNodeIds.indexOf(nodeId) === -1) {
+        			deletedNodeIds.push(nodeId);
+				}
+			});
 
-            remove(links, (p) => {
-                return find(action.nodes, (o) => {
-                    return p.source == o.id || p.target == o.id;
-                });
-            });
-
-            return Object.assign({}, state, {
-                items: items,
-                nodes: nodes,
-                links: links,
-                deletedNodes: state.deletedNodes.concat(action.nodes),
-				graphWorkerCacheIsValid: false
-            });
+			return {
+				...state,
+				deletedNodeIds
+			};
         }
         case SEARCH_DELETE: {
             const toDelete: Search = action.payload.search;

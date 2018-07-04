@@ -21,7 +21,7 @@ export interface GraphState {
     searches: Search[];
     nodes: Node[];
     links: Link[]; // relations between nodes
-    deletedNodes: Node[];
+    deletedNodeIds: number[];
     via: Via[];
     showLabels: boolean;
     isMapActive: boolean;

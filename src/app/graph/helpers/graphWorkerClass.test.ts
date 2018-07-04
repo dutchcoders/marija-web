@@ -76,7 +76,7 @@ const defaultPayload: GraphWorkerPayload = {
     searches: [
         getSearch('query')
     ],
-    deletedNodes: [],
+    deletedNodeIds: [],
     via: [],
     receivedAt: 0,
     sortColumn: null,

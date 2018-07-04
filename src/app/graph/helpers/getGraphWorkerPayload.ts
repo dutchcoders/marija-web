@@ -13,7 +13,7 @@ export function getGraphWorkerPayload(state: AppState, items: Item[] = [], searc
 		fields: getSelectedFields(state),
 		normalizations: state.graph.normalizations,
 		searches: state.graph.searches,
-		deletedNodes: state.graph.deletedNodes,
+		deletedNodeIds: state.graph.deletedNodeIds,
 		via: state.graph.via,
 		receivedAt: Date.now(),
 		sortType: state.table.sortType,

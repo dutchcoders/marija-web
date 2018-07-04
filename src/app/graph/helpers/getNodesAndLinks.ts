@@ -18,7 +18,7 @@ export default function getNodesAndLinks(
     items: Item[],
     connectors: Connector[],
     aroundNodeId: number | undefined = undefined,
-    deletedNodes: Node[] = [],
+    deletedNodeIds: number[] = [],
 	datasources: Datasource[] = []
 ): {
     nodes: Node[],
@@ -27,6 +27,8 @@ export default function getNodesAndLinks(
     const links: Link[] = previousLinks.concat([]);
 	const itemNodes: Node[] = previousNodes.filter(node => node.type === 'item');
 	const intersections: Node[] = previousNodes.filter(node => node.type === 'intersection');
+
+	console.log(deletedNodeIds);
 
 
 	// Proof that items with the same fields sometimes have a different ID
@@ -124,6 +126,10 @@ export default function getNodesAndLinks(
 				return false;
 			}
 
+			if (deletedNodeIds.indexOf(getHash(item.id)) !== -1) {
+				return false;
+			}
+
 			for (let i = 0; i < connector.fields.length; i ++) {
 				const field = connector.fields[i].path;
 				let itemValue = item.fields[field];
@@ -150,6 +156,10 @@ export default function getNodesAndLinks(
     const getMatchingItemsOr = (itemId: string, valueSet, connector: Connector): Item[] => {
 		return items.filter(item => {
 			if (item.id === itemId) {
+				return false;
+			}
+
+			if (deletedNodeIds.indexOf(getHash(item.id)) !== -1) {
 				return false;
 			}
 
@@ -204,6 +214,10 @@ export default function getNodesAndLinks(
     		connector.fields.forEach(field => name += item.fields[field.path]);
 
 			const hash = getHash(name);
+
+			if (deletedNodeIds.indexOf(hash) !== -1) {
+				return;
+			}
 
 			const node: Node = {
 				id: hash,
@@ -325,6 +339,10 @@ export default function getNodesAndLinks(
     		return existing;
 		}
 
+		if (deletedNodeIds.indexOf(hash) !== -1) {
+			return null;
+		}
+
     	const node: Node = {
 			id: hash,
 			searchIds: [item.searchId],
@@ -360,6 +378,11 @@ export default function getNodesAndLinks(
 
     items.forEach(item => {
     	const sourceNode: Node = createItemNode(item);
+
+    	if (sourceNode === null) {
+    		// Maybe it was deleted by the user
+    		return;
+		}
 
 		connectors.forEach(connector => {
 			const data = {};

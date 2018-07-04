@@ -48,7 +48,7 @@ export default class Workspaces {
                         nodes: [],
                         links: [],
                         searches: [],
-                        deletedNodes: [],
+                        deletedNodeIds: [],
                         isMapActive: false,
 						graphWorkerHasValidNodes: false,
                         isDraggingSubFields: false

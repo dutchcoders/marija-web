@@ -30,6 +30,7 @@ import { Via } from './interfaces/via';
 import { TimelineGrouping } from './interfaces/graphState';
 import { AppState } from '../main/interfaces/appState';
 import { getGraphWorkerPayload } from './helpers/getGraphWorkerPayload';
+import { Node } from './interfaces/node';
 
 export function deselectNodes(opts) {
     return {
@@ -39,12 +40,18 @@ export function deselectNodes(opts) {
     };
 }
 
-export function deleteNodes(opts) {
-    return {
-        type: NODES_DELETE,
-        receivedAt: Date.now(),
-        nodes: opts
-    };
+export function deleteNodes(nodes: Node[]) {
+	return (dispatch, getState) => {
+		dispatch({
+			type: NODES_DELETE,
+			receivedAt: Date.now(),
+			payload: {
+				nodes
+			}
+		});
+
+		dispatch(triggerGraphWorker(getGraphWorkerPayload(getState())));
+	};
 }
 
 export function highlightNodes(opts) {

@@ -35,7 +35,7 @@ export interface GraphWorkerPayload {
     fields: Field[];
     normalizations: Normalization[];
     searches: Search[];
-    deletedNodes: Node[];
+    deletedNodeIds: number[];
     via: Via[];
     receivedAt: number;
     sortColumn: Column;
@@ -120,7 +120,7 @@ export default class GraphWorkerClass {
             useItems,
             payload.connectors,
             search ? search.aroundNodeId : null,
-            payload.deletedNodes,
+            payload.deletedNodeIds,
 			payload.datasources
         );
 
