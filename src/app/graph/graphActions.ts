@@ -1,10 +1,6 @@
 import {
-	CREATE_NEW_CONNECTOR,
-	DELETE_FROM_CONNECTOR,
 	FIELD_NODES_HIGHLIGHT,
 	GRAPH_WORKER_OUTPUT,
-	MOVE_FIELD_BETWEEN_CONNECTORS,
-	MOVE_FIELD_TO_NEW_CONNECTOR,
 	NODE_UPDATE,
 	NODES_DELETE,
 	NODES_DESELECT,
@@ -20,7 +16,6 @@ import {
 	SET_FILTER_SECONDARY_QUERIES, SET_IMPORTANT_NODE,
 	SET_IS_DRAGGING_SUB_FIELDS,
 	SET_MAP_ACTIVE,
-	SET_MATCHING_STRATEGY,
 	SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
 	TRIGGER_GRAPH_WORKER,
@@ -35,9 +30,6 @@ import { Via } from './interfaces/via';
 import { TimelineGrouping } from './interfaces/graphState';
 import { AppState } from '../main/interfaces/appState';
 import { getGraphWorkerPayload } from './helpers/getGraphWorkerPayload';
-import { SEARCH_RECEIVE } from '../search/searchConstants';
-import { MatchingStrategy } from './interfaces/connector';
-import { Field } from '../fields/interfaces/field';
 
 export function deselectNodes(opts) {
     return {

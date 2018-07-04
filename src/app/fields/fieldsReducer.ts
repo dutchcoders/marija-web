@@ -1,15 +1,16 @@
-import {FIELDS_CLEAR, FIELDS_RECEIVE, FIELDS_REQUEST} from './fieldsConstants';
+import {
+	CREATE_NEW_CONNECTOR, DELETE_FROM_CONNECTOR,
+	FIELDS_CLEAR,
+	FIELDS_RECEIVE,
+	FIELDS_REQUEST,
+	MOVE_FIELD_BETWEEN_CONNECTORS,
+	MOVE_FIELD_TO_NEW_CONNECTOR,
+	SET_MATCHING_STRATEGY
+} from './fieldsConstants';
 import sortFields from './helpers/sortFields';
 import {Field} from './interfaces/field';
 import {FieldsState} from "./interfaces/fieldsState";
 import { Connector } from '../graph/interfaces/connector';
-import {
-	CREATE_NEW_CONNECTOR,
-	DELETE_FROM_CONNECTOR,
-	MOVE_FIELD_BETWEEN_CONNECTORS,
-	MOVE_FIELD_TO_NEW_CONNECTOR,
-	SET_MATCHING_STRATEGY
-} from '../graph/graphConstants';
 import { getIcon } from '../graph/helpers/getIcon';
 import { getConnectorName } from './helpers/getConnectorName';
 

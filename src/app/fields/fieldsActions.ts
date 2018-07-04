@@ -3,17 +3,23 @@ import { datasourceDeactivated } from '../datasources/datasourcesActions';
 import { Datasource } from '../datasources/interfaces/datasource';
 import { Via } from '../graph/interfaces/via';
 import { AppState } from '../main/interfaces/appState';
-import { DATE_FIELD_ADD, DATE_FIELD_DELETE, FIELD_ADD, FIELD_DELETE, FIELD_UPDATE, FIELDS_CLEAR, FIELDS_RECEIVE, FIELDS_REQUEST } from './fieldsConstants';
-import { Field } from './interfaces/field';
-import { triggerGraphWorker } from '../graph/graphActions';
-import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 import {
 	CREATE_NEW_CONNECTOR,
-	DELETE_FROM_CONNECTOR,
+	DATE_FIELD_ADD,
+	DATE_FIELD_DELETE, DELETE_FROM_CONNECTOR,
+	FIELD_ADD,
+	FIELD_DELETE,
+	FIELD_UPDATE,
+	FIELDS_CLEAR,
+	FIELDS_RECEIVE,
+	FIELDS_REQUEST,
 	MOVE_FIELD_BETWEEN_CONNECTORS,
 	MOVE_FIELD_TO_NEW_CONNECTOR,
 	SET_MATCHING_STRATEGY
-} from '../graph/graphConstants';
+} from './fieldsConstants';
+import { Field } from './interfaces/field';
+import { triggerGraphWorker } from '../graph/graphActions';
+import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 import { MatchingStrategy } from '../graph/interfaces/connector';
 import { searchFieldsUpdate } from '../search/searchActions';
 
