@@ -456,7 +456,7 @@ class Nodes extends React.Component<Props, State> {
                     <button type="button" className="btn btn-default" aria-label="Delete selected nodes" onClick={() => this.handleDeleteAllNodes()}>delete</button>
                     <button type="button" className="btn btn-default" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}>delete others</button>
                     <button type="button" className="btn btn-default" aria-label="Search around" onClick={() => this.searchAround()} disabled={!searchAroundPossible}>search around</button>
-                    <button type="button" className="btn btn-default" aria-label="Merge" onClick={() => this.merge()}>merge</button>
+                    {/*<button type="button" className="btn btn-default" aria-label="Merge" onClick={() => this.merge()}>merge</button>*/}
                     <button type="button" className="btn btn-default" aria-label="Select all nodes" onClick={() => this.selectImportant()}>select important</button>
                     {important}
                 </div>
