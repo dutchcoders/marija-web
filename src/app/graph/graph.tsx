@@ -1214,8 +1214,7 @@ class Graph extends React.PureComponent<Props, State> {
             accumulator.concat(search.datasources)
         , []);
 
-        let description =
-            node.fields.join(', ') + ': ' + node.abbreviated + "\n";
+        let description = '';
 
         if (node.childData) {
         	forEach(node.childData, (value, key) => {
