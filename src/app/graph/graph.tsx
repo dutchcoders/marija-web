@@ -287,7 +287,7 @@ class Graph extends React.PureComponent<Props, State> {
 
     getNodeTextureKey(node: Node) {
         return node.icon
-            + node.count
+            + node.r
 			+ node.type
             + node.searchIds.map(searchId => this.getSearchColor(searchId)).join('');
     }
@@ -958,27 +958,11 @@ class Graph extends React.PureComponent<Props, State> {
         // });
     }
 
-    getNodeRadius(node: Node): number {
-		let minRadius = 15;
-		const maxRadius = 40;
-		const maxRadiusAtItemCount = 10;
-
-		if (node.isImage) {
-			minRadius = 30;
-		}
-
-		return Math.min(
-			maxRadius,
-			minRadius + node.items.length / maxRadiusAtItemCount * (maxRadius - minRadius)
-		);
-	}
-
     async preProcessTextures(nodes: Node[], sizeMultiplier: number, forceRefresh: boolean = false): Promise<any> {
 		const { isMapActive } = this.props;
 
 		nodes.forEach(node => {
 			node.textureKey = this.getNodeTextureKey(node);
-			node.r = this.getNodeRadius(node);
 		});
 
 		const promises: Promise<any>[] = [];
@@ -1247,7 +1231,11 @@ class Graph extends React.PureComponent<Props, State> {
 		}
 
         description += 'Queries: ' + queries.join(', ') + "\n"
-            + 'Datasources: ' + datasources.join(', ');
+            + 'Datasources: ' + datasources.join(', ') + "\n";
+
+        if (node.type === 'item') {
+        	description += 'Count: ' + node.itemCount;
+		}
 
         const text = new PIXI.Text(description, {
             fontFamily: 'Arial',

@@ -71,6 +71,7 @@ export interface Node {
 	datasourceId?: string;
 
 	type: 'intersection' | 'item';
+	itemCount?: number;
 }
 
 export interface ChildData {

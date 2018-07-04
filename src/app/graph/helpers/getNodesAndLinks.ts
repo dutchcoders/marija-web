@@ -227,7 +227,8 @@ export default function getNodesAndLinks(
 				isImage: false,
 				childData: valueSet,
 				connector: connector.name,
-				type: 'intersection'
+				type: 'intersection',
+				itemCount: item.count
 			};
 
 			intersections.push(node);
@@ -348,7 +349,8 @@ export default function getNodesAndLinks(
 			connector: null,
 			type: 'item',
 			datasourceId: item.datasourceId,
-			image: image
+			image: image,
+			itemCount: Math.random() > .5 ? 3 : item.count
 		};
 
     	itemNodes.push(node);
@@ -386,14 +388,23 @@ export default function getNodesAndLinks(
 		});
 	});
 
+    const minCount: number = itemNodes.reduce((prev: number, current: Node) => {
+    	return Math.min(prev, current.itemCount);
+	}, 999999);
+
+	const maxCount: number = itemNodes.reduce((prev: number, current: Node) => {
+		return Math.max(prev, current.itemCount);
+	}, 1);
+
     const nodes = itemNodes.concat(intersections);
+
+	nodes.forEach(node => node.r = getNodeRadius(node, minCount, maxCount));
 
 	// console.log(nodes.map(node => [node.name]));
 	// console.log(links.map(link => [
 	// 	nodes.find(node => node.id === link.source).name,
 	// 	nodes.find(node => node.id === link.target).name
 	// ]));
-
 
 	return {
         nodes: nodes,
@@ -416,4 +427,22 @@ export function getHash(string) {
 		hash |= 0; // Convert to 32bit integer
 	}
 	return hash;
+}
+
+function getNodeRadius(node: Node, minCount: number, maxCount: number): number {
+	if (node.type === 'intersection') {
+		return 15;
+	}
+
+	let minRadius = 15;
+	const maxRadius = 40;
+
+	if (node.isImage) {
+		minRadius = 30;
+	}
+
+	return Math.min(
+		maxRadius,
+		minRadius + (node.itemCount - minCount) / Math.max(1, (maxCount - minCount)) * (maxRadius - minRadius)
+	);
 }
