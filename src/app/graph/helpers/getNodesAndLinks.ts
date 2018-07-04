@@ -295,7 +295,7 @@ export default function getNodesAndLinks(
 			}
 
 			if (image !== existing.image) {
-				return {
+    			return {
 					...existing,
 					image: image
 				};
