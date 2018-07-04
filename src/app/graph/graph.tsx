@@ -440,7 +440,7 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
 	getNodeImageTexture(node: Node, sizeMultiplier: number): PIXI.RenderTexture {
-		const key = node.name + '-' + sizeMultiplier + '-' + (node.selected ? '1' : '0');
+		const key = node.image + '-' + sizeMultiplier + '-' + (node.selected ? '1' : '0');
 		let texture = this.nodeTextures[key];
 
 		if (typeof texture === 'undefined') {
@@ -451,7 +451,7 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
 	async setNodeImageTexture(node: Node, sizeMultiplier: number, selected: boolean): Promise<true> {
-		const key = node.name + '-' + sizeMultiplier + '-' + (selected ? '1' : '0');
+		const key = node.image + '-' + sizeMultiplier + '-' + (selected ? '1' : '0');
 		let texture = this.nodeTextures[key];
 
 		if (typeof texture !== 'undefined') {
@@ -472,7 +472,7 @@ class Graph extends React.PureComponent<Props, State> {
 		ctx.arc(canvas.width / 2, canvas.height / 2, radius, 0, Math.PI * 2, false);
 		ctx.clip();
 
-		const image = await loadImage(node.name);
+		const image = await loadImage(node.image);
 
 		const diameter = radius * 2;
 		let newImageWidth: number;
@@ -585,7 +585,7 @@ class Graph extends React.PureComponent<Props, State> {
 		if (isMapActive && node.isGeoLocation) {
 			texture = this.getNodeMarkerTexture(node);
 			anchorY = 1;
-		} else if (node.isImage) {
+		} else if (node.image) {
 			texture = this.getNodeImageTexture(node, this.nodeSizeMultiplier);
 			anchorY = .5;
 		} else {
@@ -987,7 +987,7 @@ class Graph extends React.PureComponent<Props, State> {
 			if (isMapActive && node.isGeoLocation) {
 				promises.push(this.setNodeMarkerTexture(node, true));
 				promises.push(this.setNodeMarkerTexture(node, false));
-			} else if (node.isImage) {
+			} else if (node.image) {
 				promises.push(this.setNodeImageTexture(node, sizeMultiplier, true));
 				promises.push(this.setNodeImageTexture(node, sizeMultiplier, false));
 			} else {
@@ -1052,10 +1052,10 @@ class Graph extends React.PureComponent<Props, State> {
 			this.setWorkerAreaForces(nextProps.isMapActive);
 		}
 
-        if (!isEqual(nextSelected, selectedNodes) || nextProps.highlightedNodes !== highlightedNodes) {
-        	this.updateNodeMap(nextProps.nodesForDisplay);
-            this.renderedSince.lastTick = false;
-        }
+        // if (!isEqual(nextSelected, selectedNodes) || nextProps.highlightedNodes !== highlightedNodes) {
+        // 	this.updateNodeMap(nextProps.nodesForDisplay);
+        //     this.renderedSince.lastTick = false;
+        // }
 
         if (nextProps.nodesForDisplay.filter(node => node.displayTooltip) !== this.getTooltipNodes()) {
             this.renderedSince.lastTooltip = false;
@@ -1071,28 +1071,44 @@ class Graph extends React.PureComponent<Props, State> {
 				.then(() => this.renderedSince.lastFields = false);
         }
 
-		if (nextProps.linksForDisplay !== linksForDisplay) {
-        	this.updateLinkMap(nextProps.linksForDisplay);
+		// if (nextProps.linksForDisplay !== linksForDisplay) {
+        	// this.updateLinkMap(nextProps.linksForDisplay);
+		// }
+
+		if (nextProps.nodesForDisplay !== nodesForDisplay || nextProps.linksForDisplay !== linksForDisplay) {
+			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
+				.then(() => {
+					this.updateNodeMap(nextProps.nodesForDisplay);
+					this.updateLinkMap(nextProps.linksForDisplay);
+
+					if (nextProps.nodesForDisplay.length !== nodesForDisplay.length) {
+						this.postNodesAndLinksToWorker(
+							nextProps.nodesForDisplay,
+							nextProps.linksForDisplay,
+							nextProps.isMapActive
+						);
+					}
+				});
 		}
 
-        if (this.shouldPostToWorker(nextProps.nodesForDisplay, nodesForDisplay, nextProps.linksForDisplay, linksForDisplay, isMapActive, nextProps.isMapActive)) {
-        	this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
-				.then(() => {
-					this.updateNodeMap(nextProps.nodesForDisplay);
-
-					this.postNodesAndLinksToWorker(
-						nextProps.nodesForDisplay,
-						nextProps.linksForDisplay,
-						nextProps.isMapActive
-					);
-				});
-        } else if (this.shouldUpdateNodeProperties(nodesForDisplay, nextProps.nodesForDisplay)) {
-        	this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
-				.then(() => {
-					this.updateNodeMap(nextProps.nodesForDisplay);
-					this.renderedSince.lastTick = false;
-				});
-        }
+        // if (this.shouldPostToWorker(nextProps.nodesForDisplay, nodesForDisplay, nextProps.linksForDisplay, linksForDisplay, isMapActive, nextProps.isMapActive)) {
+        // 	this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
+			// 	.then(() => {
+			// 		this.updateNodeMap(nextProps.nodesForDisplay);
+		//
+			// 		this.postNodesAndLinksToWorker(
+			// 			nextProps.nodesForDisplay,
+			// 			nextProps.linksForDisplay,
+			// 			nextProps.isMapActive
+			// 		);
+			// 	});
+        // } else if (this.shouldUpdateNodeProperties(nodesForDisplay, nextProps.nodesForDisplay) || isEqual(nextSelected, selectedNodes) || nextProps.highlightedNodes !== highlightedNodes) {
+        // 	this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
+			// 	.then(() => {
+			// 		this.updateNodeMap(nextProps.nodesForDisplay);
+			// 		this.renderedSince.lastTick = false;
+			// 	});
+        // }
 
         if (nextProps.highlightedNodes !== highlightedNodes) {
             this.renderedSince.lastHighlights = false;

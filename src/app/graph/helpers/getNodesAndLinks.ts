@@ -46,6 +46,16 @@ export default function getNodesAndLinks(
 		return null;
 	};
 
+	const getImageField = (datasourceId: string): string => {
+		const datasource = datasources.find(search => search.id === datasourceId);
+
+		if (datasource && datasource.imageFieldPath) {
+			return datasource.imageFieldPath;
+		}
+
+		return null;
+	};
+
     const andMatcher = (valueSet, nodeMatcher: NodeMatcher): Node[] => {
     	return intersections.filter(node => {
 			for (let i = 0; i < nodeMatcher.fields.length; i ++) {
@@ -263,7 +273,15 @@ export default function getNodesAndLinks(
     		labelField = Object.keys(item.fields)[0];
 		}
 
-    	const name = item.fields[labelField] || '';
+		const name = item.fields[labelField] || '';
+
+		const imageField = getImageField(item.datasourceId);
+    	let image: string;
+
+    	if (imageField && item.fields[imageField]) {
+    		image = item.fields[imageField];
+		}
+
     	const hash = getHash(item.id);
 
     	const existing = itemNodes.find(node => node.id === hash);
@@ -273,6 +291,13 @@ export default function getNodesAndLinks(
     			return {
 					...existing,
 					name: name
+				};
+			}
+
+			if (image !== existing.image) {
+				return {
+					...existing,
+					image: image
 				};
 			}
 
@@ -302,7 +327,8 @@ export default function getNodesAndLinks(
 			childData: item.fields,
 			nodeMatcher: null,
 			type: 'item',
-			datasourceId: item.datasourceId
+			datasourceId: item.datasourceId,
+			image: image
 		};
 
     	itemNodes.push(node);

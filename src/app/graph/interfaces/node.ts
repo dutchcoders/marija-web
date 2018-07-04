@@ -55,6 +55,7 @@ export interface Node {
 	isGeoLocation: boolean;
 
 	isImage: boolean;
+	image?: string;
 
 	childData?: ChildData;
 
