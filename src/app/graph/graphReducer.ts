@@ -4,11 +4,8 @@ import {REQUEST_COMPLETED} from '../connection/connectionConstants';
 import {
     DATE_FIELD_ADD,
     DATE_FIELD_DELETE,
-    FIELD_ADD,
-    FIELD_DELETE,
     FIELD_UPDATE
 } from '../fields/fieldsConstants';
-import createField from '../fields/helpers/createField';
 import {Field} from '../fields/interfaces/field';
 import {sortItems} from '../items/helpers/sortItems';
 import {ITEMS_RECEIVE, ITEMS_REQUEST} from '../items/itemsConstants';
@@ -41,7 +38,7 @@ import {
 	SELECTION_CLEAR,
 	SET_FIELD_PARENT,
 	SET_FILTER_BORING_NODES,
-	SET_FILTER_SECONDARY_QUERIES,
+	SET_FILTER_SECONDARY_QUERIES, SET_IMPORTANT_NODE,
 	SET_IS_DRAGGING_SUB_FIELDS,
 	SET_MAP_ACTIVE,
 	SET_TIMELINE_GROUPING,
@@ -66,9 +63,6 @@ import {Normalization} from './interfaces/normalization';
 import {Via} from './interfaces/via';
 import {GraphState} from "./interfaces/graphState";
 import { markPerformance } from '../main/helpers/performance';
-import { Connector } from './interfaces/connector';
-import { getConnectorName } from '../fields/helpers/getConnectorName';
-import { getIcon } from './helpers/getIcon';
 
 export const defaultGraphState: GraphState = {
     fields: [],
@@ -86,7 +80,8 @@ export const defaultGraphState: GraphState = {
     graphWorkerCacheIsValid: false,
 	filterBoringNodes: true,
 	filterSecondaryQueries: true,
-	isDraggingSubFields: false
+	isDraggingSubFields: false,
+	importantNodeIds: []
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -740,6 +735,26 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			return {
 				...state,
 				fields
+			};
+		}
+
+		case SET_IMPORTANT_NODE: {
+			const important: boolean = action.payload.important;
+			const nodeId: number = action.payload.nodeId;
+			let importantNodeIds: number[];
+
+			if (important) {
+				importantNodeIds = state.importantNodeIds.concat([]);
+				importantNodeIds.push(nodeId);
+			} else {
+				importantNodeIds = state.importantNodeIds.filter(id =>
+					id !== nodeId
+				);
+			}
+			
+			return {
+				...state,
+				importantNodeIds
 			};
 		}
 

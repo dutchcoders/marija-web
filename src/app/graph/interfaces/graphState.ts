@@ -25,4 +25,5 @@ export interface GraphState {
     filterBoringNodes: boolean;
     filterSecondaryQueries: boolean;
     isDraggingSubFields: boolean;
+    importantNodeIds: number[];
 }

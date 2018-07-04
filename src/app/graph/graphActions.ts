@@ -17,7 +17,7 @@ import {
 	SELECTION_CLEAR,
 	SET_FIELD_PARENT,
 	SET_FILTER_BORING_NODES,
-	SET_FILTER_SECONDARY_QUERIES,
+	SET_FILTER_SECONDARY_QUERIES, SET_IMPORTANT_NODE,
 	SET_IS_DRAGGING_SUB_FIELDS,
 	SET_MAP_ACTIVE,
 	SET_MATCHING_STRATEGY,
@@ -94,6 +94,16 @@ export function nodeUpdate(node_id: number, params) {
         node_id: node_id,
         params: params
     };
+}
+
+export function setImportantNode(nodeId: number, important: boolean) {
+	return {
+		type: SET_IMPORTANT_NODE,
+		payload: {
+			nodeId,
+			important
+		}
+	};
 }
 
 export function nodesSelect(opts) {
