@@ -7,6 +7,7 @@ import {
 } from './datasourcesConstants';
 import {Datasource} from './interfaces/datasource';
 import {DatasourcesState} from "./interfaces/datasourcesState";
+import { getIcon } from '../graph/helpers/getIcon';
 
 export const defaultDatasourcesState: DatasourcesState = {
     datasources: []
@@ -23,7 +24,7 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
                     name: datasource.name,
                     active: typeof existing === 'undefined' ? false : existing.active,
                     type: datasource.type,
-                    icon: existing ? existing.icon : null,
+                    icon: existing ? existing.icon : getIcon(datasource.name, []),
                     imageFieldPath: existing ? existing.imageFieldPath : null,
                     labelFieldPath: existing ? existing.labelFieldPath : null,
                     locationFieldPath: existing ? existing.locationFieldPath : null,
