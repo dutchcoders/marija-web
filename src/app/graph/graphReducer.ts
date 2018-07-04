@@ -26,13 +26,9 @@ import {
 } from '../search/searchConstants';
 import {TABLE_SORT} from '../table/tableConstants';
 import {
-	CREATE_NEW_CONNECTOR,
-	DELETE_FROM_CONNECTOR,
 	FIELD_NODES_HIGHLIGHT,
 	GRAPH_WORKER_OUTPUT,
 	MAX_FIELDS,
-	MOVE_FIELD_BETWEEN_CONNECTORS,
-	MOVE_FIELD_TO_NEW_CONNECTOR,
 	NODE_UPDATE,
 	NODES_DELETE,
 	NODES_DESELECT,
@@ -48,7 +44,6 @@ import {
 	SET_FILTER_SECONDARY_QUERIES,
 	SET_IS_DRAGGING_SUB_FIELDS,
 	SET_MAP_ACTIVE,
-	SET_MATCHING_STRATEGY,
 	SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
 	VIA_ADD,
@@ -91,8 +86,7 @@ export const defaultGraphState: GraphState = {
     graphWorkerCacheIsValid: false,
 	filterBoringNodes: true,
 	filterSecondaryQueries: true,
-	isDraggingSubFields: false,
-	connectors: []
+	isDraggingSubFields: false
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -141,42 +135,42 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 				graphWorkerCacheIsValid: false
             });
         }
-        case FIELD_ADD: {
-            const existing = state.fields.find(field => field.path === action.field.path);
-
-            if (existing) {
-                // Field was already in store, don't add duplicates
-                return state;
-            }
-
-            if (state.fields.length >= MAX_FIELDS) {
-                return state;
-            }
-
-            const newField = createField(state.fields, action.field.path, action.field.type, action.field.datasourceId);
-
-            const connector: Connector = {
-            	name: getConnectorName(state.connectors),
-				fields: [newField],
-				strategy: 'AND',
-				icon: getIcon(newField.path, state.connectors.map(matcher => matcher.icon))
-			};
-
-            let dateFields = concat([], state.date_fields);
-
-            if (action.field.type === 'date'
-                && typeof dateFields.find(search => search.path === newField.path) === 'undefined') {
-                dateFields.push(newField);
-            }
-
-            return {
-                ...state,
-                fields: state.fields.concat([newField]),
-                date_fields: dateFields,
-				graphWorkerCacheIsValid: false,
-				connectors: state.connectors.concat([connector])
-            };
-        }
+        // case FIELD_ADD: {
+        //     const existing = state.fields.find(field => field.path === action.field.path);
+		//
+        //     if (existing) {
+        //         // Field was already in store, don't add duplicates
+        //         return state;
+        //     }
+		//
+        //     if (state.fields.length >= MAX_FIELDS) {
+        //         return state;
+        //     }
+		//
+        //     const newField = createField(state.fields, action.field.path, action.field.type, action.field.datasourceId);
+		//
+        //     const connector: Connector = {
+        //     	name: getConnectorName(state.connectors),
+			// 	fields: [newField],
+			// 	strategy: 'AND',
+			// 	icon: getIcon(newField.path, state.connectors.map(matcher => matcher.icon))
+			// };
+		//
+        //     let dateFields = concat([], state.date_fields);
+		//
+        //     if (action.field.type === 'date'
+        //         && typeof dateFields.find(search => search.path === newField.path) === 'undefined') {
+        //         dateFields.push(newField);
+        //     }
+		//
+        //     return {
+        //         ...state,
+        //         fields: state.fields.concat([newField]),
+        //         date_fields: dateFields,
+			// 	graphWorkerCacheIsValid: false,
+			// 	connectors: state.connectors.concat([connector])
+        //     };
+        // }
 
         case FIELD_UPDATE: {
             const index: number = state.fields.findIndex(search  => search.path === action.fieldPath);
@@ -210,35 +204,35 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 				graphWorkerCacheIsValid: false
             };
         }
-        case FIELD_DELETE: {
-            const pathToDelete: string = action.field.path;
-            let fields = state.fields.filter(field => field.path !== pathToDelete);
-
-            fields = fields.map(field => {
-                // Reset all the children of this field. They can not have non-existing parent of course.
-
-                if (field.childOf === pathToDelete) {
-                    return {
-                        ...field,
-                        childOf: null
-                    };
-                }
-
-                return field;
-            });
-
-            const connectors = state.connectors.map(connector => ({
-				...connector,
-				fields: connector.fields.filter(field => field.path !== pathToDelete)
-			}));
-
-            return {
-                ...state,
-                fields: fields,
-				graphWorkerCacheIsValid: false,
-				connectors: connectors
-            };
-        }
+        // case FIELD_DELETE: {
+        //     const pathToDelete: string = action.field.path;
+        //     let fields = state.fields.filter(field => field.path !== pathToDelete);
+		//
+        //     fields = fields.map(field => {
+        //         // Reset all the children of this field. They can not have non-existing parent of course.
+		//
+        //         if (field.childOf === pathToDelete) {
+        //             return {
+        //                 ...field,
+        //                 childOf: null
+        //             };
+        //         }
+		//
+        //         return field;
+        //     });
+		//
+        //     const connectors = state.connectors.map(connector => ({
+			// 	...connector,
+			// 	fields: connector.fields.filter(field => field.path !== pathToDelete)
+			// }));
+		//
+        //     return {
+        //         ...state,
+        //         fields: fields,
+			// 	graphWorkerCacheIsValid: false,
+			// 	connectors: connectors
+        //     };
+        // }
         case NORMALIZATION_ADD: {
             const normalization: Normalization = {
                 id: uniqueId(),
@@ -746,116 +740,6 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			return {
 				...state,
 				fields
-			};
-		}
-
-        case MOVE_FIELD_BETWEEN_CONNECTORS: {
-            const field = state.fields.find(field => field.path === action.payload.fieldPath);
-            let connectors = state.connectors.concat([]);
-            const fromConnectorIndex = connectors.findIndex(matcher => matcher.name === action.payload.fromConnectorName);
-            const toConnectorIndex = connectors.findIndex(matcher => matcher.name === action.payload.toConnectorName);
-
-            // Remove from the previous node matcher
-            connectors[fromConnectorIndex] = {
-                ...connectors[fromConnectorIndex],
-                fields: connectors[fromConnectorIndex].fields.filter(search => search.path !== field.path)
-            };
-
-            // If the previous node matcher doesnt have any fields left, delete it
-            if (connectors[fromConnectorIndex].fields.length === 0) {
-                connectors = connectors.filter(matcher => matcher.name !== connectors[fromConnectorIndex].name);
-            }
-
-            // Add to the next node matcher
-			connectors[toConnectorIndex] = {
-				...connectors[toConnectorIndex],
-				fields: connectors[toConnectorIndex].fields.concat([field])
-			};
-
-			return {
-                ...state,
-                connectors: connectors
-            };
-        }
-
-        case MOVE_FIELD_TO_NEW_CONNECTOR: {
-			const field = state.fields.find(field => field.path === action.payload.fieldPath);
-			let connectors = state.connectors.concat([]);
-			const fromConnectorIndex = connectors.findIndex(matcher => matcher.name === action.payload.fromConnectorName);
-
-			// Remove from the previous node matcher
-			connectors[fromConnectorIndex] = {
-				...connectors[fromConnectorIndex],
-				fields: connectors[fromConnectorIndex].fields.filter(search => search.path !== field.path)
-			};
-
-			// If the previous node matcher doesnt have any fields left, delete it
-			if (connectors[fromConnectorIndex].fields.length === 0) {
-				connectors = connectors.filter(matcher => matcher.name !== connectors[fromConnectorIndex].name);
-			}
-
-			// Add to the next node matcher
-            const newMatcher: Connector = {
-			    name: getConnectorName(connectors),
-                fields: [field],
-                strategy: 'AND',
-				icon: getIcon(field.path, state.connectors.map(matcher => matcher.icon))
-            };
-
-			return {
-				...state,
-				connectors: connectors.concat([newMatcher])
-			};
-        }
-
-		case CREATE_NEW_CONNECTOR: {
-			const field: Field = action.payload.field;
-
-			const connector: Connector = {
-				name: getConnectorName(state.connectors),
-				fields: [field],
-				strategy: 'AND',
-				icon: getIcon(field.path, state.connectors.map(matcher => matcher.icon))
-			};
-
-			return {
-				...state,
-				connectors: state.connectors.concat([connector])
-			};
-		}
-
-		case SET_MATCHING_STRATEGY: {
-			const connectors = state.connectors.concat([]);
-			const index = connectors.findIndex(matcher => matcher.name === action.payload.connectorName);
-
-			connectors[index] = {
-				...connectors[index],
-				strategy: action.payload.matchingStrategy
-			};
-
-			return {
-				...state,
-				connectors: connectors
-			};
-		}
-
-		case DELETE_FROM_CONNECTOR: {
-			let connectors = state.connectors.concat([]);
-			const index = connectors.findIndex(matcher => matcher.name === action.payload.connectorName);
-
-			connectors[index] = {
-				...connectors[index],
-				fields: connectors[index].fields.filter(field => field.path !== action.payload.fieldPath)
-			};
-
-			// Delete the node matcher if there are no fields left
-			if (connectors[index].fields.length === 0) {
-				connectors = connectors.filter(matcher => matcher.name !== connectors[index].name);
-			}
-
-			return {
-				...state,
-				connectors: connectors
 			};
 		}
 

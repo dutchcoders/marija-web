@@ -56,7 +56,7 @@ class ConnectorList extends React.Component<Props, State> {
 
 function select(state: AppState) {
 	return {
-		connectors: state.graph.connectors
+		connectors: state.fields.connectors
 	};
 }
 

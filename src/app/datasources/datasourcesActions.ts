@@ -14,9 +14,9 @@ import {
 import { Datasource } from './interfaces/datasource';
 import { triggerGraphWorker } from '../graph/graphActions';
 import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
-import { getSelectedFields } from '../graph/graphSelectors';
 import { Field } from '../fields/interfaces/field';
 import { AppState } from '../main/interfaces/appState';
+import { getSelectedFields } from '../fields/fieldsSelectors';
 
 export function datasourceActivated(datasourceId: string) {
     return {

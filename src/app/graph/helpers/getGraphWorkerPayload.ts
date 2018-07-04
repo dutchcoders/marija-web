@@ -1,7 +1,7 @@
 import { Item } from '../../items/interfaces/item';
 import { AppState } from '../../main/interfaces/appState';
 import { GraphWorkerPayload } from './graphWorkerClass';
-import { getSelectedFields } from '../graphSelectors';
+import { getSelectedFields } from '../../fields/fieldsSelectors';
 
 export function getGraphWorkerPayload(state: AppState, items: Item[] = [], searchId: string = null): GraphWorkerPayload {
 	return {
@@ -20,7 +20,7 @@ export function getGraphWorkerPayload(state: AppState, items: Item[] = [], searc
 		sortColumn: state.table.sortColumn,
 		filterBoringNodes: state.graph.filterBoringNodes,
 		filterSecondaryQueries: state.graph.filterSecondaryQueries,
-		connectors: state.graph.connectors,
+		connectors: state.fields.connectors,
 		datasources: state.datasources.datasources
 	};
 }
