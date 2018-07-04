@@ -7,6 +7,15 @@ import { DATE_FIELD_ADD, DATE_FIELD_DELETE, FIELD_ADD, FIELD_DELETE, FIELD_UPDAT
 import { Field } from './interfaces/field';
 import { triggerGraphWorker } from '../graph/graphActions';
 import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
+import {
+	CREATE_NEW_CONNECTOR,
+	DELETE_FROM_CONNECTOR,
+	MOVE_FIELD_BETWEEN_CONNECTORS,
+	MOVE_FIELD_TO_NEW_CONNECTOR,
+	SET_MATCHING_STRATEGY
+} from '../graph/graphConstants';
+import { MatchingStrategy } from '../graph/interfaces/connector';
+import { searchFieldsUpdate } from '../search/searchActions';
 
 export function clearFields(datasource){
     return {
@@ -113,5 +122,66 @@ export function fieldDelete(field) {
             }
         });
     };
+}
+
+function dispatchAndRebuildGraph(action) {
+    return (dispatch, getState) => {
+        dispatch(action);
+		dispatch(triggerGraphWorker(getGraphWorkerPayload(getState())));
+    };
+}
+
+export function moveFieldBetweenConnectors(fieldPath: string, fromConnectorName: string, toConnectorName: string) {
+    return dispatchAndRebuildGraph({
+		type: MOVE_FIELD_BETWEEN_CONNECTORS,
+		payload: {
+			fieldPath,
+			fromConnectorName,
+			toConnectorName
+		}
+	});
+}
+
+export function moveFieldToNewConnector(fieldPath: string, fromConnectorName: string) {
+    return dispatchAndRebuildGraph({
+		type: MOVE_FIELD_TO_NEW_CONNECTOR,
+		payload: {
+			fieldPath,
+			fromConnectorName
+		}
+	});
+}
+
+export function createNewConnector(field: Field) {
+    return (dispatch, getState) => {
+        dispatch({
+			type: CREATE_NEW_CONNECTOR,
+			payload: {
+				field
+			}
+		});
+
+        dispatch(searchFieldsUpdate());
+    };
+}
+
+export function setMatchingStrategy(connectorName: string, matchingStrategy: MatchingStrategy) {
+	return dispatchAndRebuildGraph({
+		type: SET_MATCHING_STRATEGY,
+		payload: {
+			connectorName,
+			matchingStrategy
+		}
+	});
+}
+
+export function deleteFromConnector(connectorName: string, fieldPath: string) {
+	return dispatchAndRebuildGraph({
+		type: DELETE_FROM_CONNECTOR,
+		payload: {
+			connectorName,
+			fieldPath
+		}
+	});
 }
 

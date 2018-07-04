@@ -4,7 +4,6 @@ import { connect, Dispatch } from 'react-redux';
 
 import { datasourceActivated } from '../../../datasources/datasourcesActions';
 import {
-	createNewConnector,
 	fieldNodesHighlight,
 	selectFieldNodes,
 	setIsDraggingSubFields
@@ -12,7 +11,12 @@ import {
 import Url from '../../../main/helpers/url';
 import { searchFieldsUpdate } from '../../../search/searchActions';
 import Icon from '../../../ui/components/icon';
-import { fieldAdd, fieldDelete, fieldUpdate } from '../../fieldsActions';
+import {
+	createNewConnector,
+	fieldAdd,
+	fieldDelete,
+	fieldUpdate
+} from '../../fieldsActions';
 import { Field } from '../../interfaces/field';
 import FieldType from '../fieldType';
 import IconSelector from '../iconSelector/iconSelector';
@@ -45,12 +49,12 @@ class FieldRow extends React.Component<Props, State> {
         Url.addQueryParam('fields', field.path);
 
         dispatch(createNewConnector(field));
-        dispatch(searchFieldsUpdate());
+        // dispatch(searchFieldsUpdate());
 
         // If we add a field for a datasource, we assume that a user wants to
         // search in it, so we go ahead and activate it for the user, saving him
         // a click.
-        dispatch(datasourceActivated(field.datasourceId));
+        // dispatch(datasourceActivated(field.datasourceId));
     }
 
     remove() {

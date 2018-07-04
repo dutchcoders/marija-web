@@ -9,13 +9,16 @@ import {
 import { AppState } from '../../../main/interfaces/appState';
 import * as styles from './connectorComponent.scss';
 import {
-	moveFieldToNewConnector, deleteFromConnector,
-	moveFieldBetweenConnectors,
-	setIsDraggingSubFields, setMatchingStrategy
+	setIsDraggingSubFields
 } from '../../../graph/graphActions';
 import { Field } from '../../interfaces/field';
 import { FormEvent } from 'react';
 import Icon from '../../../ui/components/icon';
+import {
+	deleteFromConnector,
+	moveFieldBetweenConnectors,
+	moveFieldToNewConnector, setMatchingStrategy
+} from '../../fieldsActions';
 
 interface State {
 	isHoveringOnDropArea: boolean;

@@ -245,11 +245,6 @@ class Fields extends React.Component<Props, State> {
             );
         }
 
-        // Only fields that have not already been added
-        filteredFields = filteredFields.filter(field =>
-            typeof fields.find(search => search.path === field.path) === 'undefined'
-        );
-
         const search = (
             <form>
                 <div className="row">

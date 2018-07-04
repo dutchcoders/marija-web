@@ -4,11 +4,13 @@ import { Item } from '../../items/interfaces/item';
 import { Link } from '../interfaces/link';
 import { ChildData, Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';
-import {forEach, isEmpty, uniqueId} from 'lodash';
+import {forEach, isEmpty, uniqueId, findIndex} from 'lodash';
 import { Connector } from '../interfaces/connector';
 import { Util } from 'leaflet';
 import { getValueSets } from './getValueSets';
 import { Datasource } from '../../datasources/interfaces/datasource';
+
+const contents = [];
 
 export default function getNodesAndLinks(
     previousNodes: Node[],
@@ -25,6 +27,24 @@ export default function getNodesAndLinks(
     const links: Link[] = previousLinks.concat([]);
 	const itemNodes: Node[] = previousNodes.filter(node => node.type === 'item');
 	const intersections: Node[] = previousNodes.filter(node => node.type === 'intersection');
+
+
+	// Proof that items with the same fields sometimes have a different ID
+	// items.forEach(item => {
+	// 	const stringified = JSON.stringify(item.fields);
+	//
+	// 	const content = contents.find(content => content.stringified === stringified);
+	//
+	// 	if (content && content.id !== item.id) {
+	// 		console.error('Original', content, ' New', item);
+	// 	} else {
+	// 		contents.push({
+	// 			id: item.id,
+	// 			stringified
+	// 		});
+	// 	}
+	// });
+
 
 	const getDatasourceIcon = (datasourceId: string) => {
 		const datasource = datasources.find(search => search.id === datasourceId);

@@ -14,7 +14,7 @@ export default function persistState(): any {
 
         // Add datasources to url to keep local storage and url in sync
         initialState.graph.fields.forEach(field => {
-            Url.addQueryParam('fields', field.path);
+            // Url.addQueryParam('fields', field.path);
         });
 
         return next(reducer, initialState, enhancer);
