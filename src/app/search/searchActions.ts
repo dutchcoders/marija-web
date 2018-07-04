@@ -139,14 +139,7 @@ export function searchFieldsUpdate() {
     return (dispatch, getState) => {
         const state: AppState = getState();
 
-        const datasources = state
-            .datasources
-            .datasources
-            .filter((datasource: Datasource) =>
-                datasource.active && datasource.type !== 'live'
-            );
-
-        let fields = state.graph.fields.map(field => field.path);
+        let fields = getSelectedFields(state).map(field => field.path);
         fields = fields.concat(state.graph.date_fields.map(field => field.path));
 
         const newSearches = state.graph.searches.map(search => {

@@ -518,7 +518,6 @@ class Fields extends React.Component<Props, State> {
 				<h2>
 					Fields
                     <Loader show={fieldsFetching} />
-                    {datasources.length > 0 && fields.length === 0 ? this.getAtLeastOneAlert() : null}
                 </h2>
 
 				<div className="form-group">

@@ -1,6 +1,10 @@
 import { fieldAdd, getFields } from '../fields/fieldsActions';
 import Url from '../main/helpers/url';
-import { activateLiveDatasource, addLiveDatasourceSearch } from '../search/searchActions';
+import {
+	activateLiveDatasource,
+	addLiveDatasourceSearch,
+	searchFieldsUpdate
+} from '../search/searchActions';
 import {
 	DATASOURCE_ACTIVATED,
 	DATASOURCE_DEACTIVATED,
@@ -8,9 +12,11 @@ import {
 	UPDATE_DATASOURCE
 } from './datasourcesConstants';
 import { Datasource } from './interfaces/datasource';
-import { DATASOURCE_ICON_UPDATED } from '../graph/graphConstants';
 import { triggerGraphWorker } from '../graph/graphActions';
 import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
+import { getSelectedFields } from '../graph/graphSelectors';
+import { Field } from '../fields/interfaces/field';
+import { AppState } from '../main/interfaces/appState';
 
 export function datasourceActivated(datasourceId: string) {
     return {
@@ -60,6 +66,8 @@ export function receiveInitialState(initialState) {
 
 export function updateDatasource(datasourceId: string, props: any) {
 	return (dispatch, getState) => {
+		const oldFields: Field[] = getSelectedFields(getState());
+
 		dispatch({
 			type: UPDATE_DATASOURCE,
 			payload: {
@@ -68,6 +76,18 @@ export function updateDatasource(datasourceId: string, props: any) {
 			}
 		});
 
-		dispatch(triggerGraphWorker(getGraphWorkerPayload(getState())));
+		const newState: AppState = getState();
+		const newFields: Field[] = getSelectedFields(newState);
+		const newField = newFields.find(field => {
+			return typeof oldFields.find(search => search.path === field.path) === 'undefined';
+		});
+
+		if (newField) {
+			// We have selected a field that wasnt there before, so we need to fetch more
+			// data from the server
+			dispatch(searchFieldsUpdate());
+		} else {
+			dispatch(triggerGraphWorker(getGraphWorkerPayload(newState)));
+		}
 	};
 }

@@ -263,12 +263,19 @@ export default function getNodesAndLinks(
     		labelField = Object.keys(item.fields)[0];
 		}
 
-    	const name = item.fields[labelField];
+    	const name = item.fields[labelField] || '';
     	const hash = getHash(item.id);
 
     	const existing = itemNodes.find(node => node.id === hash);
 
     	if (typeof existing !== 'undefined') {
+    		if (name !== existing.name) {
+    			return {
+					...existing,
+					name: name
+				};
+			}
+
     		return existing;
 		}
 

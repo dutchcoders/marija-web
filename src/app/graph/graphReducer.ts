@@ -26,7 +26,7 @@ import {
 } from '../search/searchConstants';
 import {TABLE_SORT} from '../table/tableConstants';
 import {
-	CREATE_NEW_NODE_MATCHER, DATASOURCE_ICON_UPDATED,
+	CREATE_NEW_NODE_MATCHER,
 	DELETE_FROM_NODE_MATCHER,
 	FIELD_NODES_HIGHLIGHT,
 	GRAPH_WORKER_OUTPUT,
