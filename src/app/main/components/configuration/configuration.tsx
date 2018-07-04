@@ -407,10 +407,10 @@ class Configuration extends React.Component<Props, State> {
                     { this.renderNormalizations(normalizations) }
                 </div>
 
-                <div className="form-group">
-                    <h2>Via</h2>
-                    { this.renderVia() }
-                </div>
+                {/*<div className="form-group">*/}
+                    {/*<h2>Via</h2>*/}
+                    {/*{ this.renderVia() }*/}
+                {/*</div>*/}
 
                 <div className="form-group">
                     <h2>Graph options</h2>

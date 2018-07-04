@@ -183,7 +183,7 @@ export default function getNodesAndLinks(
 				name: name,
 				abbreviated: abbreviateNodeName(name, item.searchId, 40),
 				description: '',
-				icon: nodeMatcher.fields[0].icon,
+				icon: nodeMatcher.icon,
 				fields: [],
 				hash: hash,
 				normalizationId: null,

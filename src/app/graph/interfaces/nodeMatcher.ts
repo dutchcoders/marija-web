@@ -6,4 +6,5 @@ export interface NodeMatcher {
 	name: string;
 	fields: Field[];
 	strategy: MatchingStrategy;
+	icon: string;
 }

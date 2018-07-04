@@ -73,6 +73,7 @@ import {GraphState} from "./interfaces/graphState";
 import { markPerformance } from '../main/helpers/performance';
 import { NodeMatcher } from './interfaces/nodeMatcher';
 import { getNodeMatcherName } from '../fields/helpers/getNodeMatcherName';
+import { getIcon } from './helpers/getIcon';
 
 export const defaultGraphState: GraphState = {
     fields: [],
@@ -157,7 +158,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             const nodeMatcher: NodeMatcher = {
             	name: getNodeMatcherName(state.nodeMatchers),
 				fields: [newField],
-				strategy: 'AND'
+				strategy: 'AND',
+				icon: getIcon(newField.path, state.nodeMatchers.map(matcher => matcher.icon))
 			};
 
             let dateFields = concat([], state.date_fields);
@@ -796,7 +798,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             const newMatcher: NodeMatcher = {
 			    name: getNodeMatcherName(nodeMatchers),
                 fields: [field],
-                strategy: 'AND'
+                strategy: 'AND',
+				icon: getIcon(field.path, state.nodeMatchers.map(matcher => matcher.icon))
             };
 
 			return {
@@ -806,10 +809,13 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
         }
 
 		case CREATE_NEW_NODE_MATCHER: {
+			const field: Field = action.payload.field;
+
 			const nodeMatcher: NodeMatcher = {
 				name: getNodeMatcherName(state.nodeMatchers),
-				fields: [action.payload.field],
-				strategy: 'AND'
+				fields: [field],
+				strategy: 'AND',
+				icon: getIcon(field.path, state.nodeMatchers.map(matcher => matcher.icon))
 			};
 
 			return {
