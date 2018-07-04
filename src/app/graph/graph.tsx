@@ -324,23 +324,22 @@ class Graph extends React.PureComponent<Props, State> {
 		if (node.type === 'intersection') {
 			fontSize = radius;
 			ctx.fillStyle = '#52657a';
-			ctx.beginPath();
-			ctx.moveTo(radius, radius);
-			ctx.arc(radius + margin, radius + margin, radius, 0, Math.PI * 2);
+			ctx.fillRect(0, 0, radius * 2, radius * 2);
 			ctx.fill();
 		} else if (node.type === 'item') {
-			fontSize = radius * 1.3;
-			let y = 0;
+			fontSize = radius;
 			const fractionPerSearch = 1 / node.searchIds.length;
-			const totalHeight = radius * 2;
+			const anglePerSearch = 2 * Math.PI * fractionPerSearch;
+			let currentAngle = .5 * Math.PI;
 
 			node.searchIds.forEach(searchId => {
+				ctx.beginPath();
 				ctx.fillStyle = this.getSearchColor(searchId);
-				let height = fractionPerSearch * totalHeight;
+				ctx.moveTo(radius, radius);
+				ctx.arc(radius + margin, radius + margin, radius, currentAngle, currentAngle + anglePerSearch);
+				ctx.fill();
 
-				ctx.fillRect(0, y, radius * 2, height);
-
-				y += height;
+				currentAngle += anglePerSearch;
 			});
 		}
 
