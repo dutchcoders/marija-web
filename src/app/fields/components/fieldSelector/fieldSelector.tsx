@@ -33,6 +33,10 @@ class FieldSelector extends React.Component<Props> {
 		};
 	}
 
+	static filterOption(option, query: string) {
+		return option.value.includes(query);
+	}
+
 	render() {
 		const { fields, selected } = this.props;
 
@@ -48,6 +52,7 @@ class FieldSelector extends React.Component<Props> {
 
 		return (
 			<VirtualizedSelect
+				filterOption={FieldSelector.filterOption}
 				value={selectedOption}
 				options={options}
 				onChange={this.onChange.bind(this)}
