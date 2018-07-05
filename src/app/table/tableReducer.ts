@@ -51,8 +51,15 @@ export default function tableReducer(state: TableState = defaultTableState, acti
                 return state;
             }
 
-            // Automatically add the new field as a column
-            let columns = state.columns.concat([action.field.path]);
+            const fieldPath: string = action.field.path;
+
+            if (state.columns.indexOf(fieldPath) !== -1) {
+                // Field is already used as a column
+                return state;
+            }
+
+			// Automatically add the new field as a column
+            let columns = state.columns.concat([fieldPath]);
 
             return {
                 ...state,
