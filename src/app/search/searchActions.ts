@@ -10,6 +10,7 @@ import { Search } from './interfaces/search';
 import { ACTIVATE_LIVE_DATASOURCE, ADD_LIVE_DATASOURCE_SEARCH, DEACTIVATE_LIVE_DATASOURCE, LIVE_RECEIVE, SEARCH_DELETE, SEARCH_EDIT, SEARCH_FIELDS_UPDATE, SEARCH_RECEIVE, SEARCH_REQUEST } from './searchConstants';
 import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 import { getSelectedFields } from '../fields/fieldsSelectors';
+import { getItemByNode } from '../graph/helpers/getItemByNode';
 
 export function searchRequest(query: string, datasourceIds: string[]) {
     return (dispatch, getState) => {
@@ -44,10 +45,20 @@ export function searchRequest(query: string, datasourceIds: string[]) {
 export function searchAround(node: Node, datasourceIds: string[]) {
     return (dispatch, getState) => {
         const state: AppState = getState();
-		let fieldPaths: string[] = state.graph.fields.map(field => field.path);
-		fieldPaths = fieldPaths.concat(state.graph.date_fields.map(field => field.path));
+        let fieldPaths: string[];
+        let query: string;
 
-		const query = node.name;
+        if (node.type === 'item') {
+        	const item = getItemByNode(node, state.graph.items);
+			fieldPaths = Object.keys(item.fields);
+			query = fieldPaths.reduce((query: string, fieldPath: string) => {
+				return query + ' "' + item.fields[fieldPath] + '"';
+			}, '');
+		} else {
+        	fieldPaths = node.fields;
+        	query = '"' + node.name + '"';
+		}
+
 		const requestId = uniqueId();
 
 		dispatch(webSocketSend({

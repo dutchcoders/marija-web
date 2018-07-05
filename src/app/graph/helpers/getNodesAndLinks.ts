@@ -28,9 +28,6 @@ export default function getNodesAndLinks(
 	const itemNodes: Node[] = previousNodes.filter(node => node.type === 'item');
 	const intersections: Node[] = previousNodes.filter(node => node.type === 'intersection');
 
-	console.log(deletedNodeIds);
-
-
 	// Proof that items with the same fields sometimes have a different ID
 	// items.forEach(item => {
 	// 	const stringified = JSON.stringify(item.fields);
@@ -46,7 +43,6 @@ export default function getNodesAndLinks(
 	// 		});
 	// 	}
 	// });
-
 
 	const getDatasourceIcon = (datasourceId: string) => {
 		const datasource = datasources.find(search => search.id === datasourceId);
@@ -228,7 +224,7 @@ export default function getNodesAndLinks(
 				abbreviated: abbreviateNodeName(name, item.searchId, 40),
 				description: '',
 				icon: connector.icon,
-				fields: [],
+				fields: connector.fields.map(field => field.path),
 				hash: hash,
 				normalizationId: null,
 				display: true,

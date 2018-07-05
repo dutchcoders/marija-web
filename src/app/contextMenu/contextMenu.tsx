@@ -96,7 +96,8 @@ class ContextMenu extends React.Component<Props, State> {
         const { dispatch, nodeId } = this.props;
 
         const node = this.getNode(nodeId);
-        dispatch(searchAround(node, [datasourceId]));
+
+		dispatch(searchAround(node, [datasourceId]));
         this.close();
     }
 
@@ -153,14 +154,14 @@ class ContextMenu extends React.Component<Props, State> {
         const { dispatch, nodeId } = this.props;
 
         dispatch(setImportantNode(nodeId, true));
-		dispatch(hideContextMenu());
+		this.close();
     }
 
     handleNotImportant() {
         const { dispatch, nodeId } = this.props;
 
 		dispatch(setImportantNode(nodeId, false));
-		dispatch(hideContextMenu());
+		this.close();
     }
 
     renderSearchAround() {
