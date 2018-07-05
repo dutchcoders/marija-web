@@ -45,17 +45,19 @@ export function searchRequest(query: string, datasourceIds: string[]) {
 export function searchAround(node: Node, datasourceIds: string[]) {
     return (dispatch, getState) => {
         const state: AppState = getState();
-        let fieldPaths: string[];
         let query: string;
+
+        const fields = getSelectedFields(state)
+			.filter(field => datasourceIds.indexOf(field.datasourceId) !== -1)
+			.map(field => field.path);
 
         if (node.type === 'item') {
         	const item = getItemByNode(node, state.graph.items);
-			fieldPaths = Object.keys(item.fields);
+			const fieldPaths = Object.keys(item.fields);
 			query = fieldPaths.reduce((query: string, fieldPath: string) => {
 				return query + ' "' + item.fields[fieldPath] + '"';
 			}, '');
 		} else {
-        	fieldPaths = node.fields;
         	query = '"' + node.name + '"';
 		}
 
@@ -64,7 +66,7 @@ export function searchAround(node: Node, datasourceIds: string[]) {
 		dispatch(webSocketSend({
 			type: SEARCH_REQUEST,
 			datasources: datasourceIds,
-			fields: fieldPaths,
+			fields: fields,
 			query: query,
 			'request-id': requestId
 		}));
