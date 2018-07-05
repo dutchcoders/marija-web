@@ -945,3 +945,33 @@ test('should output separate connectors for each connecting array value', () => 
 	expect(nodes.length).toBe(4);
 	expect(links.length).toBe(4);
 });
+
+test('connector nodes should contain item ids of all related items', () => {
+	const items = [
+		{
+			id: '1',
+			fields: {
+				name: 'Thomas',
+			}
+		},
+		{
+			id: '2',
+			fields: {
+				name: 'Thomas',
+			}
+		}
+	];
+
+	const fields = [
+		generateNodeTemplate('name', ['name'])
+	] as any;
+
+	const { nodes, links } = getNodesAndLinks([], [], items as any, fields);
+
+	expect(nodes.length).toBe(3);
+	expect(links.length).toBe(2);
+
+	const connector = nodes.find(node => node.type === 'intersection');
+
+	expect(connector.items.length).toBe(2);
+});

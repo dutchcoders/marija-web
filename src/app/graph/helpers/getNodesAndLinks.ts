@@ -104,8 +104,8 @@ export default function getNodesAndLinks(
 		});
 	};
 
-    const addDataToNode = (node: Node, data): void => {
-    	forEach(data, (value, key) => {
+    const addDataToNode = (node: Node, itemId: string, valueSet): void => {
+    	forEach(valueSet, (value, key) => {
     		if (node.childData[key]) {
     			if (node.childData[key].indexOf(value) === -1) {
     				node.childData[key].push(value);
@@ -114,6 +114,10 @@ export default function getNodesAndLinks(
 				node.childData[key] = [value];
 			}
 		});
+
+    	if (node.items.indexOf(itemId) === -1) {
+    		node.items.push(itemId);
+		}
 	};
 
     const getMatchingItemsAnd = (itemId: string, valueSet, connector: Connector): Item[] => {
@@ -202,6 +206,10 @@ export default function getNodesAndLinks(
 			}
 
 			if (existing.length > 0) {
+    			existing.forEach(node => {
+    				addDataToNode(node, item.id, valueSet);
+				});
+
     			relevantMatches = relevantMatches.concat(existing);
     			return;
 			}
@@ -235,7 +243,7 @@ export default function getNodesAndLinks(
 				important: false,
 				isGeoLocation: false,
 				isImage: false,
-				childData: valueSet,
+				childData: valueSetToArrayValues(valueSet),
 				connector: connector.name,
 				type: 'intersection',
 				itemCount: item.count
@@ -456,4 +464,15 @@ function getNodeRadius(node: Node, minCount: number, maxCount: number): number {
 		maxRadius,
 		minRadius + (node.itemCount - minCount) / Math.max(1, (maxCount - minCount)) * (maxRadius - minRadius)
 	);
+}
+
+function valueSetToArrayValues(valueSet) {
+	const keys = Object.keys(valueSet);
+	const newObject = {};
+
+	keys.forEach(key => {
+		newObject[key] = [valueSet[key]];
+	});
+
+	return newObject;
 }
