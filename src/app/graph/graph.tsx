@@ -106,6 +106,7 @@ class Graph extends React.PureComponent<Props, State> {
     worker: Worker;
     transform: any = d3.zoomIdentity;
     shift: boolean;
+    alt: boolean;
     lastLoopTimestamp: number;
     frameTime: number = 0;
     lastDispatchedFpsTimestamp: number = 0;
@@ -1847,12 +1848,21 @@ class Graph extends React.PureComponent<Props, State> {
 
 		if (node && (!isMapActive || !node.isGeoLocation)) {
 			this.mainDragSubject = node;
+			const { nodesForDisplay, linksForDisplay, selectedNodes } = this.props;
+
+			if (this.alt) {
+				this.dragSubjects = getDirectlyRelatedNodes([node], nodesForDisplay, linksForDisplay);
+			} else if (node.selected) {
+				this.dragSubjects = selectedNodes;
+			}
 		}
 
 		if (this.shift) {
 			this.selection = { x1: transformedX, y1: transformedY, x2: transformedX, y2: transformedY };
 		}
     }
+
+    dragSubjects: Node[] = [];
 
     onMouseMove(event: MouseEvent) {
 		event.preventDefault();
@@ -1893,23 +1903,21 @@ class Graph extends React.PureComponent<Props, State> {
 
         	const subjects: Node[] = [this.mainDragSubject];
 
-        	if (this.mainDragSubject.selected) {
-        		const { selectedNodes } = this.props;
+			const deltaX = transformedX - this.mainDragSubject.x;
+			const deltaY = transformedY - this.mainDragSubject.y;
 
-				const deltaX = transformedX - this.mainDragSubject.x;
-				const deltaY = transformedY - this.mainDragSubject.y;
+			this.dragSubjects.forEach(node => {
+				node = this.nodeMap.get(node.id);
 
-        		selectedNodes.forEach(node => {
-        			if (node.id === this.mainDragSubject.id) {
-        				return;
-					}
+				if (node.id === this.mainDragSubject.id) {
+					return;
+				}
 
-        			node.fx = node.x + deltaX;
-        			node.fy = node.y + deltaY;
+				node.fx = node.x + deltaX;
+				node.fy = node.y + deltaY;
 
-        			subjects.push(node);
-				});
-			}
+				subjects.push(node);
+			});
 
 			this.postWorkerMessage({
 				nodes: subjects,
@@ -1940,6 +1948,7 @@ class Graph extends React.PureComponent<Props, State> {
     onMouseUp(event) {
     	this.isMouseDown = false;
     	this.mainDragSubject = null;
+    	this.dragSubjects = [];
 
 		if (this.selection && this.shift) {
 			this.selectionEnded();
@@ -2010,15 +2019,19 @@ class Graph extends React.PureComponent<Props, State> {
 
         if (event.keyCode === shiftKey) {
             this.shift = true;
-        }
+        } else if (event.altKey) {
+        	this.alt = true;
+		}
     }
 
-    handleKeyUp(event) {
+    handleKeyUp(event: KeyboardEvent) {
         const shiftKey = 16;
 
         if (event.keyCode === shiftKey) {
             this.shiftDisengaged();
         }
+
+        this.alt = false;
     }
 
     shiftDisengaged() {
