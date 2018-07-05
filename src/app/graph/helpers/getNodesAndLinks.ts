@@ -207,7 +207,7 @@ export default function getNodesAndLinks(
 			}
 
 			let name = '';
-    		connector.fields.forEach(field => name += item.fields[field.path]);
+    		connector.fields.forEach(field => name += valueSet[field.path]);
 
 			const hash = getHash(name);
 

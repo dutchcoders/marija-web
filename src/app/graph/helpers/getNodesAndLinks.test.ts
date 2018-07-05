@@ -909,3 +909,39 @@ test('node templates 7', () => {
 	expect(nodes.length).toBe(5);
 	expect(links.length).toBe(4);
 });
+
+test('should output separate connectors for each connecting array value', () => {
+	const items = [
+		{
+			id: '1',
+			fields: {
+				name: 'Thomas',
+				nicknames: ['Dude', 'Man'],
+			}
+		},
+		{
+			id: '2',
+			fields: {
+				name: 'Barry',
+				nicknames: ['Dude', 'Man'],
+			}
+		}
+	];
+
+	const fields = [
+		generateNodeTemplate('nicknames', ['nicknames'])
+	] as any;
+
+	const { nodes, links } = getNodesAndLinks([], [], items as any, fields);
+
+	/**
+	 * Expect
+	 * Thomas -- Dude
+	 *        \/
+	 *        /\
+	 *       /  \
+	 * Barry --- Man
+	 */
+	expect(nodes.length).toBe(4);
+	expect(links.length).toBe(4);
+});
