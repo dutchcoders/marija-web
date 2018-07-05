@@ -245,7 +245,7 @@ class Graph extends React.PureComponent<Props, State> {
 
 		const newK = this.transform.k;
 
-		this.preProcessTextures(nodesForDisplay, newK)
+		this.preProcessTextures(nodesForDisplay, newK, this.props.searches)
 			.then(() => {
 				this.nodeSizeMultiplier = newK;
 				this.renderedSince.lastTick = false;
@@ -279,8 +279,7 @@ class Graph extends React.PureComponent<Props, State> {
     	this.map.fitBounds(Leaflet.latLngBounds(coordinates).pad(.2));
 	}
 
-    getSearchColor(searchId: string) {
-        const { searches } = this.props;
+    getSearchColor(searchId: string, searches: Search[]) {
         const search = searches.find(search => search.searchId === searchId);
 
         if (typeof search !== 'undefined') {
@@ -300,11 +299,11 @@ class Graph extends React.PureComponent<Props, State> {
 		return connector.color;
 	}
 
-    getNodeTextureKey(node: Node) {
+    getNodeTextureKey(node: Node, searches: Search[]) {
         return node.icon
             + node.r
 			+ node.type
-            + node.searchIds.map(searchId => this.getSearchColor(searchId)).join('');
+            + node.searchIds.map(searchId => this.getSearchColor(searchId, searches)).join('');
     }
 
     getNodeTexture(node: Node, sizeMultiplier: number): PIXI.RenderTexture {
@@ -318,7 +317,7 @@ class Graph extends React.PureComponent<Props, State> {
 		return texture;
     }
 
-    async setNodeTexture(node: Node, sizeMultiplier: number, selected: boolean): Promise<true> {
+    async setNodeTexture(node: Node, sizeMultiplier: number, selected: boolean, searches: Search[]): Promise<true> {
 		const key = node.textureKey + '-' + sizeMultiplier + '-' + (selected ? '1' : '0');
 		let texture = this.nodeTextures[key];
 
@@ -353,7 +352,7 @@ class Graph extends React.PureComponent<Props, State> {
 
 			node.searchIds.forEach(searchId => {
 				ctx.beginPath();
-				ctx.fillStyle = this.getSearchColor(searchId);
+				ctx.fillStyle = this.getSearchColor(searchId, searches);
 				ctx.moveTo(radius, radius);
 				ctx.arc(radius + margin, radius + margin, radius, currentAngle, currentAngle + anglePerSearch);
 				ctx.fill();
@@ -417,7 +416,7 @@ class Graph extends React.PureComponent<Props, State> {
         return texture;
     }
 
-    async setNodeMarkerTexture(node: Node, selected: boolean): Promise<true> {
+    async setNodeMarkerTexture(node: Node, selected: boolean, searches: Search[]): Promise<true> {
 		const key = node.textureKey + '-' + (selected ? '1' : '0');
 		let texture = this.nodeMarkerTextures[key];
 
@@ -430,7 +429,7 @@ class Graph extends React.PureComponent<Props, State> {
 		const base64 = markerSvgImage.replace('data:image/svg+xml;base64,', '');
 		const doc = parser.parseFromString(Graph.b64DecodeUnicode(base64), 'image/svg+xml');
 		const marker = doc.getElementById('marker');
-		const color = this.getSearchColor(node.searchIds[0]);
+		const color = this.getSearchColor(node.searchIds[0], searches);
 
 		marker.setAttribute('fill', color);
 		let strokeWidth: number = 0;
@@ -982,25 +981,25 @@ class Graph extends React.PureComponent<Props, State> {
         // });
     }
 
-    async preProcessTextures(nodes: Node[], sizeMultiplier: number): Promise<any> {
+    async preProcessTextures(nodes: Node[], sizeMultiplier: number, searches: Search[]): Promise<any> {
 		const { isMapActive } = this.props;
 
 		nodes.forEach(node => {
-			node.textureKey = this.getNodeTextureKey(node);
+			node.textureKey = this.getNodeTextureKey(node, searches);
 		});
 
 		const promises: Promise<any>[] = [];
 
 		nodes.forEach(node => {
 			if (isMapActive && node.isGeoLocation) {
-				promises.push(this.setNodeMarkerTexture(node, true));
-				promises.push(this.setNodeMarkerTexture(node, false));
+				promises.push(this.setNodeMarkerTexture(node, true, searches));
+				promises.push(this.setNodeMarkerTexture(node, false, searches));
 			} else if (node.image) {
 				promises.push(this.setNodeImageTexture(node, sizeMultiplier, true));
 				promises.push(this.setNodeImageTexture(node, sizeMultiplier, false));
 			} else {
-				promises.push(this.setNodeTexture(node, sizeMultiplier, true));
-				promises.push(this.setNodeTexture(node, sizeMultiplier, false));
+				promises.push(this.setNodeTexture(node, sizeMultiplier, true, searches));
+				promises.push(this.setNodeTexture(node, sizeMultiplier, false, searches));
 			}
 		});
 
@@ -1060,31 +1059,17 @@ class Graph extends React.PureComponent<Props, State> {
 			this.setWorkerAreaForces(nextProps.isMapActive);
 		}
 
-        // if (!isEqual(nextSelected, selectedNodes) || nextProps.highlightedNodes !== highlightedNodes) {
-        // 	this.updateNodeMap(nextProps.nodesForDisplay);
-        //     this.renderedSince.lastTick = false;
-        // }
-
         if (nextProps.nodesForDisplay.filter(node => node.displayTooltip) !== this.getTooltipNodes()) {
             this.renderedSince.lastTooltip = false;
         }
 
-        if (!isEqual(nextProps.searches, searches)) {
-            this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
-				.then(() => this.renderedSince.lastQueries = false);
-        }
-
         if (!isEqual(nextProps.fields, fields)) {
-			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
+			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier, nextProps.searches)
 				.then(() => this.renderedSince.lastFields = false);
         }
 
-		// if (nextProps.linksForDisplay !== linksForDisplay) {
-        	// this.updateLinkMap(nextProps.linksForDisplay);
-		// }
-
-		if (nextProps.nodesForDisplay !== nodesForDisplay || nextProps.linksForDisplay !== linksForDisplay) {
-			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
+		if (nextProps.nodesForDisplay !== nodesForDisplay || nextProps.linksForDisplay !== linksForDisplay || nextProps.searches !== searches) {
+			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier, nextProps.searches)
 				.then(() => {
 					this.updateNodeMap(nextProps.nodesForDisplay);
 					this.updateLinkMap(nextProps.linksForDisplay);
@@ -1095,28 +1080,11 @@ class Graph extends React.PureComponent<Props, State> {
 							nextProps.linksForDisplay,
 							nextProps.isMapActive
 						);
+					} else {
+						this.renderedSince.lastTick = false;
 					}
 				});
 		}
-
-        // if (this.shouldPostToWorker(nextProps.nodesForDisplay, nodesForDisplay, nextProps.linksForDisplay, linksForDisplay, isMapActive, nextProps.isMapActive)) {
-        // 	this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
-			// 	.then(() => {
-			// 		this.updateNodeMap(nextProps.nodesForDisplay);
-		//
-			// 		this.postNodesAndLinksToWorker(
-			// 			nextProps.nodesForDisplay,
-			// 			nextProps.linksForDisplay,
-			// 			nextProps.isMapActive
-			// 		);
-			// 	});
-        // } else if (this.shouldUpdateNodeProperties(nodesForDisplay, nextProps.nodesForDisplay) || isEqual(nextSelected, selectedNodes) || nextProps.highlightedNodes !== highlightedNodes) {
-        // 	this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier)
-			// 	.then(() => {
-			// 		this.updateNodeMap(nextProps.nodesForDisplay);
-			// 		this.renderedSince.lastTick = false;
-			// 	});
-        // }
 
         if (nextProps.highlightedNodes !== highlightedNodes) {
             this.renderedSince.lastHighlights = false;
