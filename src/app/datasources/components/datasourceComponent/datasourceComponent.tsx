@@ -84,9 +84,11 @@ class DatasourceComponent extends React.Component<Props, State> {
 		});
 	}
 
-	openIconSelector() {
+	toggleIconSelector() {
+		const { iconSelectorOpen } = this.state;
+
 		this.setState({
-			iconSelectorOpen: true
+			iconSelectorOpen: !iconSelectorOpen
 		});
 	}
 
@@ -97,7 +99,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 		return (
 			<form className={styles.datasource}>
 				<header className={styles.header}>
-					<div className={styles.icon} onClick={this.openIconSelector.bind(this)}>{datasource.icon}</div>
+					<div className={styles.icon} onClick={this.toggleIconSelector.bind(this)}>{datasource.icon}</div>
 					<h3 className={styles.name}>
 						<input className={styles.active} type="checkbox" checked={datasource.active} onChange={this.toggleActive.bind(this)}/>
 						{datasource.name}
