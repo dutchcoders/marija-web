@@ -29,14 +29,14 @@ const generateItem = (fields: any = undefined) => {
     } as Item;
 };
 
-const generateNodeTemplate = (name, fields: string[], matcher = 'OR') => {
+const generateNodeTemplate = (name, fields: string[], strategy = 'OR') => {
 	return {
 		name: name,
 		fields: fields.map(field => ({
 			icon: 'a',
 			path: field
 		})),
-		matcher: matcher
+		strategy: strategy
 	};
 };
 

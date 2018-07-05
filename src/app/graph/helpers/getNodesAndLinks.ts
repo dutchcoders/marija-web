@@ -5,7 +5,7 @@ import { Link } from '../interfaces/link';
 import { ChildData, Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';
 import {forEach, isEmpty, uniqueId, findIndex} from 'lodash';
-import { Connector } from '../interfaces/connector';
+import { Connector, MatchingStrategy } from '../interfaces/connector';
 import { Util } from 'leaflet';
 import { getValueSets } from './getValueSets';
 import { Datasource } from '../../datasources/interfaces/datasource';
@@ -120,7 +120,7 @@ export default function getNodesAndLinks(
 		}
 	};
 
-    const getMatchingItemsAnd = (itemId: string, valueSet, connector: Connector): Item[] => {
+	const getMatchingItems = (itemId: string, valueSet, connector: Connector): Item[] => {
 		return items.filter(item => {
 			if (item.id === itemId) {
 				return false;
@@ -132,67 +132,46 @@ export default function getNodesAndLinks(
 
 			for (let i = 0; i < connector.fields.length; i ++) {
 				const field = connector.fields[i].path;
-				let itemValue = item.fields[field];
+				let fieldValues = item.fields[field];
 
-				if (typeof itemValue === 'undefined') {
-					return false;
-				}
-
-				if (!Array.isArray(itemValue)) {
-					itemValue = [itemValue];
-				}
-
-				const match = itemValue.indexOf(valueSet[field]) !== -1;
-
-				if (!match) {
-					return false;
-				}
-			}
-
-			return true;
-		});
-	};
-
-    const getMatchingItemsOr = (itemId: string, valueSet, connector: Connector): Item[] => {
-		return items.filter(item => {
-			if (item.id === itemId) {
-				return false;
-			}
-
-			if (deletedNodeIds.indexOf(getHash(item.id)) !== -1) {
-				return false;
-			}
-
-			for (let i = 0; i < connector.fields.length; i ++) {
-				const field = connector.fields[i].path;
-				let itemValue = item.fields[field];
-
-				if (typeof itemValue !== 'undefined') {
-					if (!Array.isArray(itemValue)) {
-						itemValue = [itemValue];
+				if (typeof fieldValues === 'undefined') {
+					if (connector.strategy === 'AND') {
+						return false;
 					}
 
-					const strings = itemValue.map(value => value + '');
-					const match = strings.indexOf(valueSet[field]) !== -1;
+					continue;
+				}
 
-					if (match) {
-						return true;
-					}
+				if (!Array.isArray(fieldValues)) {
+					fieldValues = [fieldValues];
+				}
+
+				// Convert to strings
+				fieldValues = fieldValues.map(value => value + '');
+
+				const match = fieldValues.indexOf(valueSet[field]) !== -1;
+
+				if (match && connector.strategy === 'OR') {
+					return true;
+				}
+
+				if (!match && connector.strategy === 'AND') {
+					return false;
 				}
 			}
 
-			return false;
+			if (connector.strategy === 'OR') {
+				return false;
+			} else if (connector.strategy === 'AND') {
+				return true;
+			}
 		});
 	};
 
     const getMatcherNodes = (itemId: string, valueSet, connector: Connector): Node[] => {
     	let matchingItems: Item[];
 
-    	if (connector.strategy === 'AND') {
-    		matchingItems = getMatchingItemsAnd(itemId, valueSet, connector);
-		} else {
-    		matchingItems = getMatchingItemsOr(itemId, valueSet, connector);
-		}
+		matchingItems = getMatchingItems(itemId, valueSet, connector);
 
 		let relevantMatches: Node[] = [];
 
