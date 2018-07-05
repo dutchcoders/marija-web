@@ -19,6 +19,7 @@ import {
 	moveFieldBetweenConnectors,
 	moveFieldToNewConnector, setMatchingStrategy
 } from '../../fieldsActions';
+import { hexToString } from '../../helpers/hexToString';
 
 interface State {
 	isHoveringOnDropArea: boolean;
@@ -98,41 +99,47 @@ class ConnectorComponent extends React.Component<Props, State> {
 
 		return (
 			<div className={styles.connector}>
-				{isDragging && connector && connector.fields.length > 1 && (
-					<form className={styles.strategy}>
-						<label>
-							<input type="radio" name="strategy" checked={connector.strategy === 'AND'} value="AND" onChange={this.onStrategyChange.bind(this)}/>
-							<span>Match all</span>
-						</label>
-						<label>
-							<input type="radio" name="strategy" checked={connector.strategy === 'OR'} value="OR" onChange={this.onStrategyChange.bind(this)}/>
-							<span>Match at least one</span>
-						</label>
-					</form>
-				)}
-
 				{connector !== null && (
-					<ul className={styles.fields}>
-						{connector.fields.map(field => (
-							<li
-								key={field.path}
-								className={styles.field}
-								draggable={true}
-								onDragStart={(event: any) => this.onDragStart(event, field)}>
-								<span>{field.path}</span>
-								<Icon name={styles.delete + ' ion-ios-close'} onClick={() => this.deleteField(field)}/>
-							</li>
-						))}
-					</ul>
+					<div className={styles.icon} style={{backgroundColor: hexToString(connector.color)}}>{connector.icon}</div>
 				)}
 
-				{isDragging && (
-					<div className={styles.dropZone}
-						 onDragOver={this.onDragOver.bind(this)}
-						 onDrop={this.onDrop.bind(this)}>
-						{connector === null ? 'Drop field here to create new matcher' : 'Drop field here to make part of matcher'}
-					</div>
-				)}
+				<div className={styles.main}>
+					{isDragging && connector && connector.fields.length > 1 && (
+						<form className={styles.strategy}>
+							<label>
+								<input type="radio" name="strategy" checked={connector.strategy === 'AND'} value="AND" onChange={this.onStrategyChange.bind(this)}/>
+								<span>Match all</span>
+							</label>
+							<label>
+								<input type="radio" name="strategy" checked={connector.strategy === 'OR'} value="OR" onChange={this.onStrategyChange.bind(this)}/>
+								<span>Match at least one</span>
+							</label>
+						</form>
+					)}
+
+					{connector !== null && (
+						<ul className={styles.fields}>
+							{connector.fields.map(field => (
+								<li
+									key={field.path}
+									className={styles.field}
+									draggable={true}
+									onDragStart={(event: any) => this.onDragStart(event, field)}>
+									<span>{field.path}</span>
+									<Icon name={styles.delete + ' ion-ios-close'} onClick={() => this.deleteField(field)}/>
+								</li>
+							))}
+						</ul>
+					)}
+
+					{isDragging && (
+						<div className={styles.dropZone}
+							 onDragOver={this.onDragOver.bind(this)}
+							 onDrop={this.onDrop.bind(this)}>
+							{connector === null ? 'Drop field here to create new matcher' : 'Drop field here to make part of matcher'}
+						</div>
+					)}
+				</div>
 			</div>
 		);
 	}

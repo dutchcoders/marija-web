@@ -3,6 +3,23 @@
   border-radius: 3px;
   padding: 10px 10px 5px;
   margin-bottom: 10px;
+  display: flex;
+}
+
+.icon {
+  width: 28px;
+  height: 28px;
+  margin: 0 5px 5px 0;
+  background: red;
+  flex-grow: 0;
+  flex-shrink: 0;
+  line-height: 28px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.main {
+  flex-grow: 1;
 }
 
 .dropZone {
@@ -35,7 +52,7 @@
 }
 
 .strategy {
-  margin-bottom: 5px;
+  margin: 0 0 5px 5px;
 
   label {
     font-weight: 300;

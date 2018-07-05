@@ -35,6 +35,7 @@ import {
 } from '../main/helpers/performance';
 import { loadImage } from './helpers/loadImage';
 import { Connector } from './interfaces/connector';
+import { hexToString } from '../fields/helpers/hexToString';
 
 interface TextureMap {
     [hash: string]: PIXI.RenderTexture;
@@ -317,10 +318,6 @@ class Graph extends React.PureComponent<Props, State> {
 		return texture;
     }
 
-	hexToString (hex) {
-		return '#' + ('00000' + (hex | 0).toString(16)).substr(-6);
-	}
-
     async setNodeTexture(node: Node, sizeMultiplier: number, selected: boolean, forceRefresh: boolean): Promise<true> {
 		const key = node.textureKey + '-' + sizeMultiplier + '-' + (selected ? '1' : '0');
 		let texture = this.nodeTextures[key];
@@ -343,7 +340,7 @@ class Graph extends React.PureComponent<Props, State> {
 			fontSize = radius;
 
 			const color = this.getConnectorColor(node.connector);
-			const string = this.hexToString(color);
+			const string = hexToString(color);
 
 			ctx.fillStyle = string;
 			ctx.fillRect(0, 0, radius * 2, radius * 2);
