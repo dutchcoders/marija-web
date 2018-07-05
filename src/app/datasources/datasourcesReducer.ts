@@ -31,8 +31,6 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
                 };
             });
 
-            console.log(datasources);
-
             datasources.sort((a, b) => {
                 if (a.name < b.name) {
                     return -1;

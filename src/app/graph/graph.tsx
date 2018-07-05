@@ -318,11 +318,11 @@ class Graph extends React.PureComponent<Props, State> {
 		return texture;
     }
 
-    async setNodeTexture(node: Node, sizeMultiplier: number, selected: boolean, forceRefresh: boolean): Promise<true> {
+    async setNodeTexture(node: Node, sizeMultiplier: number, selected: boolean): Promise<true> {
 		const key = node.textureKey + '-' + sizeMultiplier + '-' + (selected ? '1' : '0');
 		let texture = this.nodeTextures[key];
 
-		if (!forceRefresh && typeof texture !== 'undefined') {
+		if (typeof texture !== 'undefined') {
 			// Already exists
 			return true;
 		}
@@ -982,7 +982,7 @@ class Graph extends React.PureComponent<Props, State> {
         // });
     }
 
-    async preProcessTextures(nodes: Node[], sizeMultiplier: number, forceRefresh: boolean = false): Promise<any> {
+    async preProcessTextures(nodes: Node[], sizeMultiplier: number): Promise<any> {
 		const { isMapActive } = this.props;
 
 		nodes.forEach(node => {
@@ -999,8 +999,8 @@ class Graph extends React.PureComponent<Props, State> {
 				promises.push(this.setNodeImageTexture(node, sizeMultiplier, true));
 				promises.push(this.setNodeImageTexture(node, sizeMultiplier, false));
 			} else {
-				promises.push(this.setNodeTexture(node, sizeMultiplier, true, forceRefresh));
-				promises.push(this.setNodeTexture(node, sizeMultiplier, false, forceRefresh));
+				promises.push(this.setNodeTexture(node, sizeMultiplier, true));
+				promises.push(this.setNodeTexture(node, sizeMultiplier, false));
 			}
 		});
 
