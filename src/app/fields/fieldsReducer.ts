@@ -13,6 +13,7 @@ import {FieldsState} from "./interfaces/fieldsState";
 import { Connector } from '../graph/interfaces/connector';
 import { getIcon } from '../graph/helpers/getIcon';
 import { getConnectorName } from './helpers/getConnectorName';
+import { getConnectorColor } from './helpers/getConnectorColor';
 
 export const defaultFieldsState: FieldsState = {
     availableFields: [],
@@ -127,7 +128,8 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 				name: getConnectorName(connectors),
 				fields: [field],
 				strategy: 'AND',
-				icon: getIcon(field.path, state.connectors.map(matcher => matcher.icon))
+				icon: getIcon(field.path, state.connectors.map(matcher => matcher.icon)),
+				color: getConnectorColor(connectors)
 			};
 
 			return {
@@ -143,7 +145,8 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 				name: getConnectorName(state.connectors),
 				fields: [field],
 				strategy: 'AND',
-				icon: getIcon(field.path, state.connectors.map(matcher => matcher.icon))
+				icon: getIcon(field.path, state.connectors.map(matcher => matcher.icon)),
+				color: getConnectorColor(state.connectors)
 			};
 
 			return {

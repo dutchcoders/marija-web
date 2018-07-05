@@ -248,18 +248,10 @@ export default function getNodesAndLinks(
     	return relevantMatches;
 	};
 
-    const createLink = (source: Node, target: Node, item: Item) => {
+    const createLink = (source: Node, target: Node, item: Item, color: number) => {
 		if (source.id === target.id) {
 			// Nodes should not link to themselves
 			return;
-		}
-
-		if (source.connector === target.connector) {
-			// Dont create links between nodes of the same template
-			// This would happen for fields with array values.
-			// Creating links between those could be considered correct,
-			// but it mainly makes things chaotic.
-			// return;
 		}
 
 		const hash = source.id + target.id;
@@ -284,7 +276,7 @@ export default function getNodesAndLinks(
 			hash: hash,
 			source: source.id,
 			target: target.id,
-			color: '#ccc',
+			color: color,
 			total: 1,
 			current: 1,
 			normalizationIds: [],
@@ -401,7 +393,7 @@ export default function getNodesAndLinks(
 				const targetNodes = getMatcherNodes(item.id, valueSet, connector);
 
 				targetNodes.forEach(targetNode => {
-					createLink(sourceNode, targetNode, item);
+					createLink(sourceNode, targetNode, item, connector.color);
 				});
 			});
 		});

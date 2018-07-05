@@ -3,14 +3,11 @@ import { each } from 'lodash';
 const colors = [
     '#de79f2',
     '#917ef2',
-    '#499df2',
-    '#49d6f2',
-    '#00ccaa',
-    '#bf8757',
+	'#ff7373',
+	'#ff5252',
     '#ff884d',
-    '#ff7373',
-    '#ff5252',
-    '#6b8fb3'
+	'#ff6692',
+	'#bf8757',
 ];
 
 export default function getQueryColor(searches) {

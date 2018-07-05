@@ -7,4 +7,5 @@ export interface Connector {
 	fields: Field[];
 	strategy: MatchingStrategy;
 	icon: string;
+	color: number;
 }

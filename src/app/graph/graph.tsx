@@ -34,6 +34,7 @@ import {
 	measurePerformance
 } from '../main/helpers/performance';
 import { loadImage } from './helpers/loadImage';
+import { Connector } from './interfaces/connector';
 
 interface TextureMap {
     [hash: string]: PIXI.RenderTexture;
@@ -54,6 +55,7 @@ interface Props {
     isMapActive: boolean;
     isContextMenuActive: boolean;
     importantNodeIds: number[];
+    connectors: Connector[]
 }
 
 interface State {
@@ -285,6 +287,18 @@ class Graph extends React.PureComponent<Props, State> {
         }
     }
 
+    getConnectorColor(connectorName: string) {
+		const { connectors } = this.props;
+
+		const connector = connectors.find(connector => connector.name === connectorName);
+
+		if (!connector) {
+			return 0x52657a;
+		}
+
+		return connector.color;
+	}
+
     getNodeTextureKey(node: Node) {
         return node.icon
             + node.r
@@ -302,6 +316,10 @@ class Graph extends React.PureComponent<Props, State> {
 
 		return texture;
     }
+
+	hexToString (hex) {
+		return '#' + ('00000' + (hex | 0).toString(16)).substr(-6);
+	}
 
     async setNodeTexture(node: Node, sizeMultiplier: number, selected: boolean, forceRefresh: boolean): Promise<true> {
 		const key = node.textureKey + '-' + sizeMultiplier + '-' + (selected ? '1' : '0');
@@ -323,7 +341,11 @@ class Graph extends React.PureComponent<Props, State> {
 
 		if (node.type === 'intersection') {
 			fontSize = radius;
-			ctx.fillStyle = '#52657a';
+
+			const color = this.getConnectorColor(node.connector);
+			const string = this.hexToString(color);
+
+			ctx.fillStyle = string;
 			ctx.fillRect(0, 0, radius * 2, radius * 2);
 			ctx.fill();
 		} else if (node.type === 'item') {
@@ -668,9 +690,9 @@ class Graph extends React.PureComponent<Props, State> {
     	if (!isMapActive) {
 			const prevLink = linksForDisplay[index - 1];
 
-			if (!prevLink || prevLink && link.itemIds.length !== prevLink.itemIds.length) {
+			if (!prevLink || prevLink && link.itemIds.length !== prevLink.itemIds.length || link.color !== link.color) {
 				let thickness = Math.max(1, Math.min(link.itemIds.length, 15));
-				this.renderedLinks.lineStyle(thickness, 0xFFFFFF);
+				this.renderedLinks.lineStyle(thickness, link.color);
 			}
 		}
 
@@ -2133,7 +2155,8 @@ const select = (state: AppState, ownProps) => {
         showLabels: state.graph.showLabels,
 		isMapActive: state.graph.isMapActive,
 		isContextMenuActive: isContextMenuActive(state),
-		imporantNodeIds: state.graph.importantNodeIds
+		imporantNodeIds: state.graph.importantNodeIds,
+		connectors: state.fields.connectors
     };
 };
 

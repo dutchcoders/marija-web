@@ -102,7 +102,7 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
                             isNormalizationParent: false,
                             total: 1,
                             current: 1,
-                            color: '',
+                            color: 0,
                             replacedNode: step2Node,
                             itemIds: [],
                             directional: true
