@@ -416,11 +416,11 @@ class Configuration extends React.Component<Props, State> {
                 <div className="form-group">
                     <label className="graph-option">
                         <input type="checkbox" onChange={this.onFilterBoringNodesChange.bind(this)} defaultChecked={filterBoringNodes} />
-						Only display nodes that have a relation.
+						Only display nodes that have at least one connection.
                     </label>
 					<label className="graph-option">
 						<input type="checkbox" onChange={this.onFilterSecondaryQueriesChange.bind(this)} defaultChecked={filterSecondaryQueries} />
-						Only display nodes that are related to nodes from <strong>the first query</strong>.
+						Only display nodes that are connected to nodes from <strong>the first query</strong>.
 					</label>
                 </div>
 
