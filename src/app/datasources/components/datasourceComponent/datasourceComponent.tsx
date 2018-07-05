@@ -116,7 +116,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 						<h4 className={styles.optionTitle}>Label</h4>
 						<FieldSelector
 							datasourceId={datasource.id}
-							type="string"
+							types={['string', 'text']}
 							selected={datasource.labelFieldPath}
 							onChange={this.onLabelChange.bind(this)}
 						/>
@@ -124,7 +124,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 						<h4 className={styles.optionTitle}>Image</h4>
 						<FieldSelector
 							datasourceId={datasource.id}
-							type="image"
+							types={['image']}
 							selected={datasource.imageFieldPath}
 							onChange={this.onImageChange.bind(this)}
 						/>
@@ -132,7 +132,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 						<h4 className={styles.optionTitle}>Geo location</h4>
 						<FieldSelector
 							datasourceId={datasource.id}
-							type="location"
+							types={['location']}
 							selected={datasource.locationFieldPath}
 							onChange={this.onLocationChange.bind(this)}
 						/>

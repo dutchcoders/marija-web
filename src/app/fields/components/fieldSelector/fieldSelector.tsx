@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 
 interface Props {
 	datasourceId: string;
-	type?: string;
+	types?: string[];
 	fields: Field[];
 	selected: Field;
 	onChange: (field: Field) => void
@@ -66,7 +66,7 @@ const select = () => {
 
 	return (state: AppState, ownProps) => ({
 		...ownProps,
-		fields: getFieldsByDatasourceAndType(state, ownProps.datasourceId, ownProps.type)
+		fields: getFieldsByDatasourceAndType(state, ownProps.datasourceId, ownProps.types)
 	});
 };
 
