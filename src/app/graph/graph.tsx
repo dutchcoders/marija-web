@@ -343,7 +343,7 @@ class Graph extends React.PureComponent<Props, State> {
 			const string = hexToString(color);
 
 			ctx.fillStyle = string;
-			ctx.fillRect(0, 0, radius * 2, radius * 2);
+			ctx.fillRect(margin, margin, radius * 2, radius * 2);
 			ctx.fill();
 		} else if (node.type === 'item') {
 			fontSize = radius;
@@ -373,8 +373,13 @@ class Graph extends React.PureComponent<Props, State> {
 			ctx.lineWidth = lineWidth;
 			ctx.strokeStyle = '#fac04b';
 			ctx.beginPath();
-			ctx.arc(radius + margin, radius + margin, radius, 0, 2 * Math.PI);
-			ctx.stroke();
+
+			if (node.type === 'item') {
+				ctx.arc(radius + margin, radius + margin, radius, 0, 2 * Math.PI);
+				ctx.stroke();
+			} else {
+				ctx.strokeRect(margin, margin, radius * 2, radius * 2);
+			}
 		}
 
 		// Save in cache
