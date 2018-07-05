@@ -1263,7 +1263,7 @@ class Graph extends React.PureComponent<Props, State> {
 		}
 
 		description += 'Queries: ' + queries.join(', ') + "\n"
-			+ 'Datasources: ' + datasources.join(', ') + "\n";
+			+ 'Datasources: ' + datasources.join(', ');
 
         const text = new PIXI.Text(description, {
             fontFamily: 'Arial',
