@@ -1,7 +1,9 @@
 import * as React from 'react';
 import { AppState } from '../../../main/interfaces/appState';
-import { getFieldsByDatasourceAndType } from '../../fieldsSelectors';
-import ReactSelect from 'react-select';
+import {
+	createGetFieldsByDatasourceAndType
+} from '../../fieldsSelectors';
+import VirtualizedSelect from 'react-virtualized-select';
 import { Field } from '../../interfaces/field';
 import { connect } from 'react-redux';
 
@@ -14,10 +16,14 @@ interface Props {
 }
 
 class FieldSelector extends React.Component<Props> {
-	onChange(fieldPath: string) {
+	onChange(option) {
 		const { onChange, fields } = this.props;
 
-		onChange(fields.find(field => field.path === fieldPath));
+		if (option === null) {
+			onChange(null);
+		} else {
+			onChange(fields.find(field => field.path === option.value));
+		}
 	}
 
 	static fieldToOption(field: Field) {
@@ -31,7 +37,6 @@ class FieldSelector extends React.Component<Props> {
 		const { fields, selected } = this.props;
 
 		const options = fields.map(field => FieldSelector.fieldToOption(field));
-
 		let selectedOption = null;
 
 		if (selected) {
@@ -42,19 +47,22 @@ class FieldSelector extends React.Component<Props> {
 		}
 
 		return (
-			<ReactSelect
+			<VirtualizedSelect
 				value={selectedOption}
 				options={options}
-				simpleValue
 				onChange={this.onChange.bind(this)}
 			/>
 		);
 	}
 }
 
-const select = (state: AppState, ownProps) => ({
-	...ownProps,
-	fields: getFieldsByDatasourceAndType(state, ownProps.datasourceId, ownProps.type)
-});
+const select = () => {
+	const getFieldsByDatasourceAndType = createGetFieldsByDatasourceAndType();
+
+	return (state: AppState, ownProps) => ({
+		...ownProps,
+		fields: getFieldsByDatasourceAndType(state, ownProps.datasourceId, ownProps.type)
+	});
+};
 
 export default connect(select)(FieldSelector);
