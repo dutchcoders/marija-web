@@ -97,12 +97,18 @@ class DatasourceComponent extends React.Component<Props, State> {
 		return (
 			<form className={styles.datasource}>
 				<header className={styles.header}>
+					<div className={styles.icon} onClick={this.openIconSelector.bind(this)}>{datasource.icon}</div>
 					<h3 className={styles.name}>
 						<input className={styles.active} type="checkbox" checked={datasource.active} onChange={this.toggleActive.bind(this)}/>
 						{datasource.name}
 					</h3>
 					<Icon name={styles.toggle + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')} onClick={this.toggleExpanded.bind(this)}/>
 				</header>
+
+				{iconSelectorOpen && (
+					<IconSelector onSelectIcon={this.onSelectIcon.bind(this)} />
+				)}
+
 				{expanded && (
 					<main className={styles.main}>
 						<h4 className={styles.optionTitle}>Label</h4>
@@ -128,14 +134,6 @@ class DatasourceComponent extends React.Component<Props, State> {
 							selected={datasource.locationFieldPath}
 							onChange={this.onLocationChange.bind(this)}
 						/>
-
-						<h4 className={styles.optionTitle}>Icon</h4>
-						{iconSelectorOpen ?
-							<IconSelector onSelectIcon={this.onSelectIcon.bind(this)} /> : (
-								<div className={styles.icon} onClick={this.openIconSelector.bind(this)}>{datasource.icon}</div>
-							)
-						}
-
 					</main>
 				)}
 			</form>
