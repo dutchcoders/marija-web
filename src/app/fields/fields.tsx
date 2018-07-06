@@ -2,15 +2,12 @@ import { saveAs } from 'file-saver';
 import { isEqual, map } from 'lodash';
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
-
 import { Datasource } from '../datasources/interfaces/datasource';
-import { highlightNodes } from '../graph/graphActions';
 import { AppState } from '../main/interfaces/appState';
 import Loader from '../ui/components/loader';
 import FieldRow from './components/fieldRow/fieldRow';
 import * as styles from './fields.scss';
 import { Field } from './interfaces/field';
-import { MAX_FIELDS } from '../graph/graphConstants';
 import { getNonDateFields } from './fieldsSelectors';
 
 interface State {
@@ -20,14 +17,10 @@ interface State {
     maxSearchResults: number;
     iconSelectorField: string | null;
     datasourceFilter: string | null;
-    isDraggingSubFields: boolean;
-    isHoveringOnDropArea: boolean;
-    showSubFieldInfo: boolean;
 }
 
 interface Props {
     dispatch: Dispatch<any>;
-    fields: Field[];
     availableFields: Field[];
     datasources: Datasource[];
     fieldsFetching: boolean;
@@ -42,10 +35,7 @@ class Fields extends React.Component<Props, State> {
         searchTypes: [],
         maxSearchResults: this.defaultMaxSearchResults,
         iconSelectorField: null,
-        datasourceFilter: null,
-        isDraggingSubFields: false,
-		isHoveringOnDropArea: false,
-		showSubFieldInfo: false
+        datasourceFilter: null
     };
 
     handleFieldSearchChange(event) {
@@ -120,12 +110,6 @@ class Fields extends React.Component<Props, State> {
         this.setState({
             maxSearchResults: max
         });
-    }
-
-    removeHighlightNodes() {
-        const { dispatch } = this.props;
-
-        dispatch(highlightNodes([]));
     }
 
     renderTypeFilter() {
@@ -224,8 +208,8 @@ class Fields extends React.Component<Props, State> {
     }
 
     renderFields() {
-        const { currentFieldSearchValue, searchTypes, maxSearchResults, showSubFieldInfo, datasourceFilter, isDraggingSubFields } = this.state;
-        const { fields, availableFields } = this.props;
+        const { currentFieldSearchValue, searchTypes, maxSearchResults, datasourceFilter } = this.state;
+        const { availableFields } = this.props;
 
         let filteredFields = availableFields.concat([]);
 
@@ -315,7 +299,6 @@ class Fields extends React.Component<Props, State> {
         }
 
         const firstX = searchResults.slice(0, maxSearchResults);
-		const maxFieldsReached = fields.length >= MAX_FIELDS;
 
         const available = ([
             <table key={1} className={styles.fieldTable}>
@@ -332,8 +315,6 @@ class Fields extends React.Component<Props, State> {
                         <FieldRow
                             key={'available_fields_' + item.path + i}
                             field={item}
-                            isActive={false}
-							maxFieldsReached={maxFieldsReached}
                         />
                     )}
                 </tbody>
@@ -346,35 +327,18 @@ class Fields extends React.Component<Props, State> {
             </div>
         ]);
 
-        let selectDatasourceMessage = null;
-
-        if (filteredFields.length === 0 && fields.length === 0) {
-            selectDatasourceMessage = <p>First select a datasource.</p>;
-        }
-
         return (
             <div>
                 {/*{ fields.length > 0 ? this.renderSelectedFields() : null }*/}
                 {/*{ fields.length > 0 ? this.renderSubFieldActions() : null }*/}
                 { availableFields.length > 0 ? search : null }
                 { availableFields.length > 0 ? available : null }
-                { selectDatasourceMessage }
             </div>
         );
     }
 
-
-    getAtLeastOneAlert() {
-        return (
-            <span className="heading-alert">
-                Select at least one
-            </span>
-        );
-    }
-
     render() {
-        const { fields, datasources, fieldsFetching } = this.props;
-
+        const { fieldsFetching } = this.props;
 
         return (
             <div>
@@ -394,7 +358,6 @@ class Fields extends React.Component<Props, State> {
 
 function select(state: AppState) {
     return {
-        fields: state.graph.fields,
         availableFields: getNonDateFields(state),
         fieldsFetching: state.fields.fieldsFetching,
         datasources: state.datasources.datasources
