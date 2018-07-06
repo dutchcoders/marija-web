@@ -227,23 +227,6 @@ export function setIsDraggingSubFields(enabled: boolean) {
 	};
 }
 
-export function setFieldParent(child: string, parent: string) {
-	return (dispatch, getState) => {
-		dispatch({
-			type: SET_FIELD_PARENT,
-			payload: {
-				child,
-				parent
-			}
-		});
-
-		const state: AppState = getState();
-		const payload = getGraphWorkerPayload(state, [], null);
-
-		dispatch(triggerGraphWorker(payload));
-	};
-}
-
 export function triggerGraphWorker(payload: GraphWorkerPayload) {
 	payload.prevNodes = [];
 	payload.prevLinks = [];

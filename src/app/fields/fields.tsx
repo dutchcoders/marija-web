@@ -4,7 +4,7 @@ import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 
 import { Datasource } from '../datasources/interfaces/datasource';
-import { highlightNodes, setFieldParent } from '../graph/graphActions';
+import { highlightNodes } from '../graph/graphActions';
 import { AppState } from '../main/interfaces/appState';
 import Loader from '../ui/components/loader';
 import FieldRow from './components/fieldRow/fieldRow';
@@ -12,8 +12,6 @@ import * as styles from './fields.scss';
 import { Field } from './interfaces/field';
 import { MAX_FIELDS } from '../graph/graphConstants';
 import { getNonDateFields } from './fieldsSelectors';
-import DraggableField from './components/draggableField/draggableField';
-import { FieldHierarchy, getFieldHierarchy } from '../graph/graphSelectors';
 
 interface State {
     currentFieldSearchValue: string;
@@ -33,7 +31,6 @@ interface Props {
     availableFields: Field[];
     datasources: Datasource[];
     fieldsFetching: boolean;
-    fieldHierarchy: FieldHierarchy[];
 }
 
 class Fields extends React.Component<Props, State> {
@@ -366,134 +363,6 @@ class Fields extends React.Component<Props, State> {
         );
     }
 
-    renderSubFieldActions() {
-		const { showSubFieldInfo, isDraggingSubFields } = this.state;
-
-        return (
-            <div>
-				<div className={styles.subFieldActions}>
-					<button className={styles.selectSubFields} onClick={this.toggleDragSubFields.bind(this)}>
-						{isDraggingSubFields ? 'Done' : 'Advanced'}
-					</button>
-
-					{showSubFieldInfo ? (
-						<button className={styles.toggleSubFieldInfo}
-								onClick={this.toggleSubFieldInfo.bind(this)}>
-							Hide
-						</button>
-					) : (
-						<button className={styles.toggleSubFieldInfo}
-								onClick={this.toggleSubFieldInfo.bind(this)}>
-							What's this?
-						</button>
-					)}
-				</div>
-
-				{showSubFieldInfo && (
-					<p className={styles.subFieldInfo}>
-						Fields that you select as sub fields will not
-						be displayed as nodes on the graph. However, their data is
-						used to create connections between their main nodes.
-					</p>
-				)}
-            </div>
-        );
-    }
-
-	toggleSubFieldInfo() {
-    	const { showSubFieldInfo } = this.state;
-
-		this.setState({
-			showSubFieldInfo: !showSubFieldInfo
-		});
-	}
-
-    toggleDragSubFields() {
-    	const { isDraggingSubFields } = this.state;
-
-    	this.setState({
-			isDraggingSubFields: !isDraggingSubFields
-		});
-	}
-
-	resetChildField(event: DragEvent) {
-    	const { dispatch } = this.props;
-
-    	const fieldPath: string = event.dataTransfer.getData('text');
-
-    	dispatch(setFieldParent(fieldPath, null));
-
-		this.setState({
-			isHoveringOnDropArea: false
-		});
-	}
-
-	onDragOver(event: DragEvent) {
-    	event.preventDefault();
-	}
-
-	onDragEnter() {
-		this.setState({
-			isHoveringOnDropArea: true
-		});
-	}
-
-	onDragLeave() {
-    	this.setState({
-			isHoveringOnDropArea: false
-		});
-	}
-
-    renderSelectedFields() {
-		const { isDraggingSubFields, isHoveringOnDropArea } = this.state;
-		const { fields, fieldHierarchy } = this.props;
-		const maxFieldsReached = fields.length >= MAX_FIELDS;
-
-		if (isDraggingSubFields) {
-			return (
-				<div className={styles.dragging}>
-					<div className={styles.resetChildField + (isHoveringOnDropArea ? ' ' + styles.hover : '')}
-						 onDragEnter={this.onDragEnter.bind(this)}
-						 onDragLeave={this.onDragLeave.bind(this)}
-						 onDragOver={this.onDragOver.bind(this)}
-						 onDrop={this.resetChildField.bind(this)}>
-						Drop here to set as main field
-					</div>
-
-					{fieldHierarchy.map(hierarchy =>
-						<DraggableField key={hierarchy.parent.path} parent={hierarchy.parent} children={hierarchy.children} />
-					)}
-				</div>
-			);
-		}
-
-        return (
-            <table
-                onMouseLeave={this.removeHighlightNodes.bind(this)}
-                className={styles.fieldTable}>
-                <thead>
-                <tr>
-                    <td className={styles.fieldHead}>Type</td>
-                    <td className={styles.fieldHead}>Field</td>
-                    <td className={styles.fieldHead}>Datasource</td>
-                    <td />
-                    <td />
-                </tr>
-                </thead>
-                <tbody>
-                {fields.map(field =>
-                    <FieldRow
-                        key={field.path}
-                        isActive={true}
-                        field={field}
-                        maxFieldsReached={maxFieldsReached}
-						isDraggingSubFields={isDraggingSubFields}
-                    />
-                )}
-                </tbody>
-            </table>
-        );
-    }
 
     getAtLeastOneAlert() {
         return (
@@ -526,7 +395,6 @@ class Fields extends React.Component<Props, State> {
 function select(state: AppState) {
     return {
         fields: state.graph.fields,
-		fieldHierarchy: getFieldHierarchy(state),
         availableFields: getNonDateFields(state),
         fieldsFetching: state.fields.fieldsFetching,
         datasources: state.datasources.datasources
