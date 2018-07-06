@@ -41,83 +41,64 @@ export default function getNodesAndLinks(
 	// 	}
 	// });
 
-	const getDatasourceIcon = (datasourceId: string) => {
-		const datasource = datasources.find(search => search.id === datasourceId);
-
-		if (datasource) {
-			return datasource.icon;
-		}
-
-		return '';
-	};
-
-	const getLabelField = (datasourceId: string): string => {
-		const datasource = datasources.find(search => search.id === datasourceId);
-
-		if (datasource && datasource.labelFieldPath) {
-			return datasource.labelFieldPath;
-		}
-
-		return null;
-	};
-
-	const getImageField = (datasourceId: string): string => {
-		const datasource = datasources.find(search => search.id === datasourceId);
-
-		if (datasource && datasource.imageFieldPath) {
-			return datasource.imageFieldPath;
-		}
-
-		return null;
-	};
-
-	const getMatchingNodes = (valueSet: ValueSet, connector: Connector): Node[] => {
-		return connectorNodes.filter(node => {
-			for (let i = 0; i < connector.fields.length; i ++) {
-				const field = connector.fields[i].path;
-				let fieldValues = node.childData[field];
-
-				if (typeof fieldValues === 'undefined') {
-					if (connector.strategy === 'AND') {
-						return false;
-					}
-
-					continue;
-				}
-
-				const match = fieldValues.indexOf(valueSet[field]) !== -1;
-
-				if (match && connector.strategy === 'OR') {
-					return true;
-				}
-
-				if (!match && connector.strategy === 'AND') {
-					return false;
-				}
-			}
-
-			if (connector.strategy === 'OR') {
-				return false;
-			} else if (connector.strategy === 'AND') {
-				return true;
-			}
-		})
-	};
-
-    const addDataToNode = (node: Node, itemId: string, valueSet): void => {
-    	forEach(valueSet, (value, key) => {
-    		if (node.childData[key]) {
-    			if (node.childData[key].indexOf(value) === -1) {
-    				node.childData[key].push(value);
+	const addDataToNode = (node: Node, itemId: string, valueSet): void => {
+		forEach(valueSet, (value, key) => {
+			if (node.childData[key]) {
+				if (node.childData[key].indexOf(value) === -1) {
+					node.childData[key].push(value);
 				}
 			} else {
 				node.childData[key] = [value];
 			}
 		});
 
-    	if (node.items.indexOf(itemId) === -1) {
-    		node.items.push(itemId);
+		if (node.items.indexOf(itemId) === -1) {
+			node.items.push(itemId);
 		}
+	};
+
+	const matchData = (data, valueSet: ValueSet, connector: Connector): boolean => {
+		for (let i = 0; i < connector.fields.length; i ++) {
+			const field = connector.fields[i].path;
+			let fieldValues = data[field];
+
+			if (typeof fieldValues === 'undefined') {
+				if (connector.strategy === 'AND') {
+					return false;
+				}
+
+				continue;
+			}
+
+			if (!Array.isArray(fieldValues)) {
+				fieldValues = [fieldValues];
+			}
+
+			// Convert to strings
+			fieldValues = fieldValues.map(value => value + '');
+
+			const match = fieldValues.indexOf(valueSet[field]) !== -1;
+
+			if (match && connector.strategy === 'OR') {
+				return true;
+			}
+
+			if (!match && connector.strategy === 'AND') {
+				return false;
+			}
+		}
+
+		if (connector.strategy === 'OR') {
+			return false;
+		} else if (connector.strategy === 'AND') {
+			return true;
+		}
+	};
+
+	const getMatchingNodes = (valueSet: ValueSet, connector: Connector): Node[] => {
+		return connectorNodes.filter(node => {
+			return matchData(node.childData, valueSet, connector);
+		});
 	};
 
 	const getMatchingItems = (itemId: string, valueSet, connector: Connector): Item[] => {
@@ -130,41 +111,7 @@ export default function getNodesAndLinks(
 				return false;
 			}
 
-			for (let i = 0; i < connector.fields.length; i ++) {
-				const field = connector.fields[i].path;
-				let fieldValues = item.fields[field];
-
-				if (typeof fieldValues === 'undefined') {
-					if (connector.strategy === 'AND') {
-						return false;
-					}
-
-					continue;
-				}
-
-				if (!Array.isArray(fieldValues)) {
-					fieldValues = [fieldValues];
-				}
-
-				// Convert to strings
-				fieldValues = fieldValues.map(value => value + '');
-
-				const match = fieldValues.indexOf(valueSet[field]) !== -1;
-
-				if (match && connector.strategy === 'OR') {
-					return true;
-				}
-
-				if (!match && connector.strategy === 'AND') {
-					return false;
-				}
-			}
-
-			if (connector.strategy === 'OR') {
-				return false;
-			} else if (connector.strategy === 'AND') {
-				return true;
-			}
+			return matchData(item.fields, valueSet, connector);
 		});
 	};
 
@@ -271,15 +218,11 @@ export default function getNodesAndLinks(
 	};
 
     const createItemNode = (item: Item): Node => {
-    	let labelField = getLabelField(item.datasourceId);
-
-    	if (!labelField) {
-    		labelField = Object.keys(item.fields)[0];
-		}
-
+    	const datasource = datasources.find(datasource => datasource.id === item.datasourceId);
+    	const labelField = datasource && datasource.labelFieldPath ? datasource.labelFieldPath : Object.keys(item.fields)[0];
 		const name = item.fields[labelField] || '';
 
-		const imageField = getImageField(item.datasourceId);
+		const imageField = datasource && datasource.imageFieldPath ? datasource.imageFieldPath : null;
     	let image: string;
 
     	if (imageField && item.fields[imageField]) {
@@ -320,7 +263,7 @@ export default function getNodesAndLinks(
 			name: name,
 			abbreviated: abbreviateNodeName(name, '', 40),
 			description: '',
-			icon: getDatasourceIcon(item.datasourceId),
+			icon: datasource ? datasource.icon : '',
 			fields: [],
 			hash: hash,
 			normalizationId: null,
