@@ -63,6 +63,7 @@ class Navigation extends React.Component<any, any> {
                 <h1 className={styles.helpTitle}>Tips</h1>
                 <ul className={styles.tips}>
                     <li>Hold <strong>shift</strong> while dragging to select an area of nodes.</li>
+                    <li>Hold <strong>alt</strong> to drag an entire cluster of nodes.</li>
                 </ul>
             </div>
         );
