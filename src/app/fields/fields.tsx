@@ -329,8 +329,6 @@ class Fields extends React.Component<Props, State> {
 
         return (
             <div>
-                {/*{ fields.length > 0 ? this.renderSelectedFields() : null }*/}
-                {/*{ fields.length > 0 ? this.renderSubFieldActions() : null }*/}
                 { availableFields.length > 0 ? search : null }
                 { availableFields.length > 0 ? available : null }
             </div>
