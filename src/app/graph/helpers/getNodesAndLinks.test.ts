@@ -478,5 +478,5 @@ test('should work with word similarity percentages', () => {
 
 	const { nodes, links } = getNodesAndLinks([], [], items as any, connectors);
 
-	expect(nodes.length).toBe(1);
+	expect(nodes.length).toBe(3);
 });

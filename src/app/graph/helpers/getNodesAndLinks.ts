@@ -6,6 +6,7 @@ import {forEach, isEmpty, uniqueId, findIndex} from 'lodash';
 import { Connector, MatchingStrategy } from '../interfaces/connector';
 import { getValueSets, ValueSet } from './getValueSets';
 import { Datasource } from '../../datasources/interfaces/datasource';
+import { getStringSimilarity } from './getStringSimilarity';
 
 const contents = [];
 
@@ -59,7 +60,8 @@ export default function getNodesAndLinks(
 
 	const matchData = (data, valueSet: ValueSet, connector: Connector): boolean => {
 		for (let i = 0; i < connector.rules.length; i ++) {
-			const field = connector.rules[i].field.path;
+			const rule = connector.rules[i];
+			const field = rule.field.path;
 			let values = data[field];
 
 			if (typeof values === 'undefined') {
@@ -76,8 +78,26 @@ export default function getNodesAndLinks(
 
 			// Convert to strings
 			values = values.map(value => value + '');
+			let match: boolean = false;
+			const a: string = valueSet[field];
 
-			const match = values.indexOf(valueSet[field]) !== -1;
+			for (let j = 0; j < values.length; j ++) {
+				const b: string = values[j];
+
+				if (rule.similarity && rule.similarity < 100) {
+					const similarity = getStringSimilarity(a, b);
+
+					if (similarity >= rule.similarity) {
+						match = true;
+						break;
+					}
+				} else {
+					if (a === b) {
+						match = true;
+						break;
+					}
+				}
+			}
 
 			if (match && connector.strategy === 'OR') {
 				return true;
