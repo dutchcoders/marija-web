@@ -60,9 +60,9 @@ export default function getNodesAndLinks(
 	const matchData = (data, valueSet: ValueSet, connector: Connector): boolean => {
 		for (let i = 0; i < connector.fields.length; i ++) {
 			const field = connector.fields[i].path;
-			let fieldValues = data[field];
+			let values = data[field];
 
-			if (typeof fieldValues === 'undefined') {
+			if (typeof values === 'undefined') {
 				if (connector.strategy === 'AND') {
 					return false;
 				}
@@ -70,14 +70,14 @@ export default function getNodesAndLinks(
 				continue;
 			}
 
-			if (!Array.isArray(fieldValues)) {
-				fieldValues = [fieldValues];
+			if (!Array.isArray(values)) {
+				values = [values];
 			}
 
 			// Convert to strings
-			fieldValues = fieldValues.map(value => value + '');
+			values = values.map(value => value + '');
 
-			const match = fieldValues.indexOf(valueSet[field]) !== -1;
+			const match = values.indexOf(valueSet[field]) !== -1;
 
 			if (match && connector.strategy === 'OR') {
 				return true;
