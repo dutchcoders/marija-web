@@ -32,9 +32,12 @@ const generateItem = (fields: any = undefined) => {
 const generateNodeTemplate = (name, fields: string[], strategy = 'OR') => {
 	return {
 		name: name,
-		fields: fields.map(field => ({
-			icon: 'a',
-			path: field
+		rules: fields.map(field => ({
+			id: uniqueId(),
+			field: {
+				icon: 'a',
+				path: field
+			}
 		})),
 		strategy: strategy
 	};
