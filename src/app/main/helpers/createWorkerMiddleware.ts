@@ -2,7 +2,7 @@ import { markPerformance, measurePerformance } from './performance';
 import { GraphWorkerPayload } from '../../graph/helpers/graphWorkerClass';
 import { LIVE_RECEIVE, SEARCH_RECEIVE } from '../../search/searchConstants';
 import { AppState } from '../interfaces/appState';
-import { TRIGGER_GRAPH_WORKER } from '../../graph/graphConstants';
+import { REBUILD_GRAPH } from '../../graph/graphConstants';
 
 export function createWorkerMiddleware(worker) {
 	/*
@@ -39,14 +39,14 @@ export function createWorkerMiddleware(worker) {
 
 			return function (action) {
 				if (action.meta && action.meta.WebWorker) {
-					if (action.type !== SEARCH_RECEIVE && action.type !== LIVE_RECEIVE && action.type !== TRIGGER_GRAPH_WORKER) {
+					if (action.type !== SEARCH_RECEIVE && action.type !== LIVE_RECEIVE && action.type !== REBUILD_GRAPH) {
 						// These is the only action types we currently support in this worker
 						return;
 					}
 
 					const payload: GraphWorkerPayload = action.payload;
 
-					if (action.type !== TRIGGER_GRAPH_WORKER) {
+					if (action.type !== REBUILD_GRAPH) {
 						if (!payload.items) {
 							return;
 						}

@@ -18,8 +18,7 @@ import {
 	SET_MATCHING_STRATEGY, UPDATE_RULE
 } from './fieldsConstants';
 import { Field } from './interfaces/field';
-import { triggerGraphWorker } from '../graph/graphActions';
-import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
+import { rebuildGraph } from '../graph/graphActions';
 import {
 	MatchingStrategy,
 	SimilarityAlgorithm
@@ -108,12 +107,9 @@ export function fieldDelete(field) {
             field: field
         });
 
+		dispatch(rebuildGraph());
+
         const state: AppState = getState();
-
-        const graphWorkerPayload = getGraphWorkerPayload(state);
-
-        dispatch(triggerGraphWorker(graphWorkerPayload));
-
         const fields: Field[] = state.graph.fields;
         const datasources: Datasource[] = state.datasources.datasources;
 
@@ -138,7 +134,7 @@ export function fieldDelete(field) {
 function dispatchAndRebuildGraph(action) {
     return (dispatch, getState) => {
         dispatch(action);
-		dispatch(triggerGraphWorker(getGraphWorkerPayload(getState())));
+		dispatch(rebuildGraph());
     };
 }
 

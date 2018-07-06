@@ -12,7 +12,7 @@ import {
 	UPDATE_DATASOURCE
 } from './datasourcesConstants';
 import { Datasource } from './interfaces/datasource';
-import { triggerGraphWorker } from '../graph/graphActions';
+import { rebuildGraph } from '../graph/graphActions';
 import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 import { Field } from '../fields/interfaces/field';
 import { AppState } from '../main/interfaces/appState';
@@ -87,7 +87,7 @@ export function updateDatasource(datasourceId: string, props: any) {
 			// data from the server
 			dispatch(searchFieldsUpdate());
 		} else {
-			dispatch(triggerGraphWorker(getGraphWorkerPayload(newState)));
+			dispatch(rebuildGraph());
 		}
 	};
 }

@@ -18,7 +18,7 @@ import {
 	SET_MAP_ACTIVE, SET_NOTE,
 	SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
-	TRIGGER_GRAPH_WORKER,
+	REBUILD_GRAPH,
 	VIA_ADD,
 	VIA_DELETE
 } from './graphConstants';
@@ -50,7 +50,7 @@ export function deleteNodes(nodes: Node[]) {
 			}
 		});
 
-		dispatch(triggerGraphWorker(getGraphWorkerPayload(getState())));
+		dispatch(rebuildGraph());
 	};
 }
 
@@ -201,7 +201,7 @@ export function setFilterBoringNodes(enabled: boolean) {
 			}
 		});
 
-		dispatch(triggerGraphWorker(getGraphWorkerPayload(getState())));
+		dispatch(rebuildGraph());
 	};
 }
 
@@ -214,7 +214,7 @@ export function setFilterSecondaryQueries(enabled: boolean) {
 			}
 		});
 
-		dispatch(triggerGraphWorker(getGraphWorkerPayload(getState())));
+		dispatch(rebuildGraph());
 	};
 }
 
@@ -227,16 +227,21 @@ export function setIsDraggingSubFields(enabled: boolean) {
 	};
 }
 
-export function triggerGraphWorker(payload: GraphWorkerPayload) {
-	payload.prevNodes = [];
-	payload.prevLinks = [];
+export function rebuildGraph() {
+	return (dispatch, getState) => {
+		const state: AppState = getState();
+		const payload = getGraphWorkerPayload(state);
 
-	return {
-		type: TRIGGER_GRAPH_WORKER,
-		meta: {
-			WebWorker: true
-		},
-		payload: payload
+		payload.prevNodes = [];
+		payload.prevLinks = [];
+
+		dispatch({
+			type: REBUILD_GRAPH,
+			meta: {
+				WebWorker: true
+			},
+			payload: payload
+		})
 	};
 }
 

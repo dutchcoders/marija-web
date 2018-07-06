@@ -22,7 +22,7 @@ import {EventEmitter} from "fbemitter";
 import {Column} from "../../table/interfaces/column";
 import {SortType} from "../../table/interfaces/sortType";
 import {sortItems} from "../../items/helpers/sortItems";
-import { TRIGGER_GRAPH_WORKER } from '../graphConstants';
+import { REBUILD_GRAPH } from '../graphConstants';
 import { Connector } from '../interfaces/connector';
 import { Datasource } from '../../datasources/interfaces/datasource';
 
@@ -82,7 +82,7 @@ export default class GraphWorkerClass {
 		let searches: Search[] = payload.searches;
 		let useItems: Item[];
 
-		if (action.type === TRIGGER_GRAPH_WORKER) {
+		if (action.type === REBUILD_GRAPH) {
 			// When we're only triggering the graph worker, we don't have any new items,
 			// and we also don't have a relevant search. We just want to regenerate the
 			// nodes and links because some config changed, like the fields.
