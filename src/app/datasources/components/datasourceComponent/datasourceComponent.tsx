@@ -150,7 +150,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 						{nodes.length}
 						<Icon name="ion-ios-color-wand"/>
 					</button>
-					
+
 					<h3 className={styles.name}>
 						<input className={styles.active} type="checkbox" checked={datasource.active} onChange={this.toggleActive.bind(this)}/>
 						{datasource.name}

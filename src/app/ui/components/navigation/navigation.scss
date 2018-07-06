@@ -18,6 +18,11 @@
 .tips {
   margin: 0 0 0 15px;
   padding: 0;
+  line-height: 20px;
+
+  li {
+    margin-bottom: 10px;
+  }
 }
 
 :global(.navigation .mapControls) .helpButton {
