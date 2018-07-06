@@ -41,7 +41,7 @@ export default function getNodesAndLinks(
 	// 	}
 	// });
 
-	const addDataToNode = (node: Node, itemId: string, valueSet): void => {
+	const addDataToNode = (node: Node, itemId: string, valueSet: ValueSet): void => {
 		forEach(valueSet, (value, key) => {
 			if (node.childData[key]) {
 				if (node.childData[key].indexOf(value) === -1) {
@@ -101,7 +101,7 @@ export default function getNodesAndLinks(
 		});
 	};
 
-	const getMatchingItems = (itemId: string, valueSet, connector: Connector): Item[] => {
+	const getMatchingItems = (itemId: string, valueSet: ValueSet, connector: Connector): Item[] => {
 		return items.filter(item => {
 			if (item.id === itemId) {
 				return false;
@@ -115,7 +115,7 @@ export default function getNodesAndLinks(
 		});
 	};
 
-    const createConnectorNodes = (itemId: string, valueSet, connector: Connector): Node[] => {
+    const createConnectorNodes = (itemId: string, valueSet: ValueSet, connector: Connector): Node[] => {
     	let matchingItems: Item[];
 
 		matchingItems = getMatchingItems(itemId, valueSet, connector);
