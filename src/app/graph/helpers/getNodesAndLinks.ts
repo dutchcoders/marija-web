@@ -78,6 +78,7 @@ export default function getNodesAndLinks(
 
 			// Convert to strings
 			values = values.map(value => value + '');
+
 			let match: boolean = false;
 			const a: string = valueSet[field];
 
@@ -85,6 +86,7 @@ export default function getNodesAndLinks(
 				const b: string = values[j];
 
 				if (rule.similarity && rule.similarity < 100) {
+					// Similarity matching
 					const similarity = getStringSimilarity(a, b);
 
 					if (similarity >= rule.similarity) {
@@ -92,6 +94,7 @@ export default function getNodesAndLinks(
 						break;
 					}
 				} else {
+					// Normal matching
 					if (a === b) {
 						match = true;
 						break;

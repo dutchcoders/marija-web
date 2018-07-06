@@ -4,13 +4,13 @@ export type MatchingStrategy = 'OR' | 'AND';
 
 export interface Connector {
 	name: string;
-	rules: ConnectorRule[];
+	rules: Rule[];
 	strategy: MatchingStrategy;
 	icon: string;
 	color: number;
 }
 
-export interface ConnectorRule {
+export interface Rule {
 	id: string;
 	field: Field;
 	similarity?: number;

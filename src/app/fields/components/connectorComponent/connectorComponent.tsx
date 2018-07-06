@@ -3,7 +3,7 @@ import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 import {
 	MatchingStrategy,
-	Connector, ConnectorRule
+	Connector, Rule
 } from '../../../graph/interfaces/connector';
 import { AppState } from '../../../main/interfaces/appState';
 import * as styles from './connectorComponent.scss';
@@ -15,6 +15,7 @@ import {
 	moveRuleToNewConnector, setMatchingStrategy
 } from '../../fieldsActions';
 import { hexToString } from '../../helpers/hexToString';
+import RuleComponent from '../ruleComponent/ruleComponent';
 
 interface State {
 	isHoveringOnDropArea: boolean;
@@ -47,17 +48,6 @@ class ConnectorComponent extends React.Component<Props, State> {
 		});
 	}
 
-	onDragStart(event: DragEvent, rule: ConnectorRule) {
-		const { connector } = this.props;
-
-		const data = JSON.stringify({
-			ruleId: rule.id,
-			fromConnectorName: connector.name
-		});
-
-		event.dataTransfer.setData('text', data);
-	}
-
 	onDrop(event: DragEvent) {
 		const { connector, dispatch } = this.props;
 
@@ -81,12 +71,6 @@ class ConnectorComponent extends React.Component<Props, State> {
 		const { connector, dispatch } = this.props;
 
 		dispatch(setMatchingStrategy(connector.name, event.currentTarget.value as MatchingStrategy));
-	}
-
-	deleteRule(rule: ConnectorRule) {
-		const { dispatch, connector } = this.props;
-
-		dispatch(deleteFromConnector(connector.name, rule.id));
 	}
 
 	render() {
@@ -115,14 +99,7 @@ class ConnectorComponent extends React.Component<Props, State> {
 					{connector !== null && (
 						<ul className={styles.fields}>
 							{connector.rules.map(rule => (
-								<li
-									key={rule.id}
-									className={styles.field}
-									draggable={true}
-									onDragStart={(event: any) => this.onDragStart(event, rule)}>
-									<span>{rule.field.path}</span>
-									<Icon name={styles.delete + ' ion-ios-close'} onClick={() => this.deleteRule(rule)}/>
-								</li>
+								<RuleComponent rule={rule} connector={connector} key={rule.id} />
 							))}
 						</ul>
 					)}
