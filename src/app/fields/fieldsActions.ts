@@ -13,8 +13,8 @@ import {
 	FIELDS_CLEAR,
 	FIELDS_RECEIVE,
 	FIELDS_REQUEST,
-	MOVE_FIELD_BETWEEN_CONNECTORS,
-	MOVE_FIELD_TO_NEW_CONNECTOR,
+	MOVE_RULE_BETWEEN_CONNECTORS,
+	MOVE_RULE_TO_NEW_CONNECTOR,
 	SET_MATCHING_STRATEGY
 } from './fieldsConstants';
 import { Field } from './interfaces/field';
@@ -22,6 +22,8 @@ import { triggerGraphWorker } from '../graph/graphActions';
 import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 import { MatchingStrategy } from '../graph/interfaces/connector';
 import { searchFieldsUpdate } from '../search/searchActions';
+import { getConnectorRuleId } from './helpers/getConnectorRuleId';
+import { getConnectorName } from './helpers/getConnectorName';
 
 export function clearFields(datasource){
     return {
@@ -137,22 +139,22 @@ function dispatchAndRebuildGraph(action) {
     };
 }
 
-export function moveFieldBetweenConnectors(fieldPath: string, fromConnectorName: string, toConnectorName: string) {
+export function moveRuleBetweenConnectors(ruleId: string, fromConnectorName: string, toConnectorName: string) {
     return dispatchAndRebuildGraph({
-		type: MOVE_FIELD_BETWEEN_CONNECTORS,
+		type: MOVE_RULE_BETWEEN_CONNECTORS,
 		payload: {
-			fieldPath,
+			ruleId,
 			fromConnectorName,
 			toConnectorName
 		}
 	});
 }
 
-export function moveFieldToNewConnector(fieldPath: string, fromConnectorName: string) {
+export function moveRuleToNewConnector(ruleId: string, fromConnectorName: string) {
     return dispatchAndRebuildGraph({
-		type: MOVE_FIELD_TO_NEW_CONNECTOR,
+		type: MOVE_RULE_TO_NEW_CONNECTOR,
 		payload: {
-			fieldPath,
+			ruleId,
 			fromConnectorName
 		}
 	});
@@ -160,10 +162,16 @@ export function moveFieldToNewConnector(fieldPath: string, fromConnectorName: st
 
 export function createNewConnector(field: Field) {
     return (dispatch, getState) => {
+    	const state: AppState = getState();
+    	const ruleId = getConnectorRuleId(state.fields.connectors);
+    	const name = getConnectorName(state.fields.connectors);
+
         dispatch({
 			type: CREATE_NEW_CONNECTOR,
 			payload: {
-				field
+				field,
+				ruleId,
+				name
 			}
 		});
 
@@ -181,12 +189,12 @@ export function setMatchingStrategy(connectorName: string, matchingStrategy: Mat
 	});
 }
 
-export function deleteFromConnector(connectorName: string, fieldPath: string) {
+export function deleteFromConnector(connectorName: string, ruleId: string) {
 	return dispatchAndRebuildGraph({
 		type: DELETE_FROM_CONNECTOR,
 		payload: {
 			connectorName,
-			fieldPath
+			ruleId
 		}
 	});
 }

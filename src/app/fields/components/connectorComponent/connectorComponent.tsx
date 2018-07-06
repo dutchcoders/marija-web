@@ -1,23 +1,18 @@
 import { saveAs } from 'file-saver';
-import { isEqual, map } from 'lodash';
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 import {
 	MatchingStrategy,
-	Connector
+	Connector, ConnectorRule
 } from '../../../graph/interfaces/connector';
 import { AppState } from '../../../main/interfaces/appState';
 import * as styles from './connectorComponent.scss';
-import {
-	setIsDraggingSubFields
-} from '../../../graph/graphActions';
-import { Field } from '../../interfaces/field';
 import { FormEvent } from 'react';
 import Icon from '../../../ui/components/icon';
 import {
 	deleteFromConnector,
-	moveFieldBetweenConnectors,
-	moveFieldToNewConnector, setMatchingStrategy
+	moveRuleBetweenConnectors,
+	moveRuleToNewConnector, setMatchingStrategy
 } from '../../fieldsActions';
 import { hexToString } from '../../helpers/hexToString';
 
@@ -52,11 +47,11 @@ class ConnectorComponent extends React.Component<Props, State> {
 		});
 	}
 
-	onDragStart(event: DragEvent, field: Field) {
+	onDragStart(event: DragEvent, rule: ConnectorRule) {
 		const { connector } = this.props;
 
 		const data = JSON.stringify({
-			fieldPath: field.path,
+			ruleId: rule.id,
 			fromConnectorName: connector.name
 		});
 
@@ -76,9 +71,9 @@ class ConnectorComponent extends React.Component<Props, State> {
 		}
 
 		if (connector === null) {
-			dispatch(moveFieldToNewConnector(data.fieldPath, data.fromConnectorName));
+			dispatch(moveRuleToNewConnector(data.ruleId, data.fromConnectorName));
 		} else {
-			dispatch(moveFieldBetweenConnectors(data.fieldPath, data.fromConnectorName, connector.name));
+			dispatch(moveRuleBetweenConnectors(data.ruleId, data.fromConnectorName, connector.name));
 		}
 	}
 
@@ -88,10 +83,10 @@ class ConnectorComponent extends React.Component<Props, State> {
 		dispatch(setMatchingStrategy(connector.name, event.currentTarget.value as MatchingStrategy));
 	}
 
-	deleteField(field: Field) {
+	deleteRule(rule: ConnectorRule) {
 		const { dispatch, connector } = this.props;
 
-		dispatch(deleteFromConnector(connector.name, field.path));
+		dispatch(deleteFromConnector(connector.name, rule.id));
 	}
 
 	render() {
@@ -104,7 +99,7 @@ class ConnectorComponent extends React.Component<Props, State> {
 				)}
 
 				<div className={styles.main}>
-					{isDragging && connector && connector.fields.length > 1 && (
+					{isDragging && connector && connector.rules.length > 1 && (
 						<form className={styles.strategy}>
 							<label>
 								<input type="radio" name="strategy" checked={connector.strategy === 'AND'} value="AND" onChange={this.onStrategyChange.bind(this)}/>
@@ -119,14 +114,14 @@ class ConnectorComponent extends React.Component<Props, State> {
 
 					{connector !== null && (
 						<ul className={styles.fields}>
-							{connector.fields.map(field => (
+							{connector.rules.map(rule => (
 								<li
-									key={field.path}
+									key={rule.id}
 									className={styles.field}
 									draggable={true}
-									onDragStart={(event: any) => this.onDragStart(event, field)}>
-									<span>{field.path}</span>
-									<Icon name={styles.delete + ' ion-ios-close'} onClick={() => this.deleteField(field)}/>
+									onDragStart={(event: any) => this.onDragStart(event, rule)}>
+									<span>{rule.field.path}</span>
+									<Icon name={styles.delete + ' ion-ios-close'} onClick={() => this.deleteRule(rule)}/>
 								</li>
 							))}
 						</ul>

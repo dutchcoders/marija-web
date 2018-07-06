@@ -58,8 +58,8 @@ export default function getNodesAndLinks(
 	};
 
 	const matchData = (data, valueSet: ValueSet, connector: Connector): boolean => {
-		for (let i = 0; i < connector.fields.length; i ++) {
-			const field = connector.fields[i].path;
+		for (let i = 0; i < connector.rules.length; i ++) {
+			const field = connector.rules[i].field.path;
 			let values = data[field];
 
 			if (typeof values === 'undefined') {
@@ -135,7 +135,7 @@ export default function getNodesAndLinks(
 			}
 
 			let name = '';
-    		connector.fields.forEach(field => name += valueSet[field.path]);
+    		connector.rules.forEach(rule => name += valueSet[rule.field.path]);
 
 			const hash = getHash(name);
 
@@ -152,7 +152,7 @@ export default function getNodesAndLinks(
 				abbreviated: abbreviateNodeName(name, item.searchId, 40),
 				description: '',
 				icon: connector.icon,
-				fields: connector.fields.map(field => field.path),
+				fields: connector.rules.map(rule => rule.field.path),
 				hash: hash,
 				normalizationId: null,
 				display: true,
@@ -299,11 +299,11 @@ export default function getNodesAndLinks(
 		connectors.forEach(connector => {
 			const data = {};
 
-			connector.fields.forEach(field => {
-				const value = item.fields[field.path];
+			connector.rules.forEach(rule => {
+				const value = item.fields[rule.field.path];
 
 				if (value) {
-					data[field.path] = value;
+					data[rule.field.path] = value;
 				}
 			});
 

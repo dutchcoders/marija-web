@@ -59,7 +59,11 @@ export const getSelectedFields = createSelector(
 	(connectors: Connector[], datasources: Datasource[], availableFields: Field[]) => {
 		let fields: Field[] = [];
 
-		connectors.forEach(matcher => fields = fields.concat(matcher.fields));
+		connectors.forEach(connector =>
+			connector.rules.forEach(rule =>
+				fields.push(rule.field)
+			)
+		);
 
 		const getField = (path: string) => availableFields.find(search => search.path === path);
 

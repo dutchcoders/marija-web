@@ -3,8 +3,8 @@ import {
 	FIELDS_CLEAR,
 	FIELDS_RECEIVE,
 	FIELDS_REQUEST,
-	MOVE_FIELD_BETWEEN_CONNECTORS,
-	MOVE_FIELD_TO_NEW_CONNECTOR,
+	MOVE_RULE_BETWEEN_CONNECTORS,
+	MOVE_RULE_TO_NEW_CONNECTOR,
 	SET_MATCHING_STRATEGY
 } from './fieldsConstants';
 import sortFields from './helpers/sortFields';
@@ -78,27 +78,28 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
             });
         }
 
-		case MOVE_FIELD_BETWEEN_CONNECTORS: {
-			const field = state.availableFields.find(field => field.path === action.payload.fieldPath);
+		case MOVE_RULE_BETWEEN_CONNECTORS: {
+			const ruleId: string = action.payload.ruleId;
 			let connectors = state.connectors.concat([]);
-			const fromConnectorIndex = connectors.findIndex(matcher => matcher.name === action.payload.fromConnectorName);
-			const toConnectorIndex = connectors.findIndex(matcher => matcher.name === action.payload.toConnectorName);
+			const fromConnectorIndex = connectors.findIndex(connector => connector.name === action.payload.fromConnectorName);
+			const toConnectorIndex = connectors.findIndex(connector => connector.name === action.payload.toConnectorName);
+			const rule = connectors[fromConnectorIndex].rules.find(rule => rule.id === ruleId);
 
-			// Remove from the previous node matcher
+				// Remove from the previous connector
 			connectors[fromConnectorIndex] = {
 				...connectors[fromConnectorIndex],
-				fields: connectors[fromConnectorIndex].fields.filter(search => search.path !== field.path)
+				rules: connectors[fromConnectorIndex].rules.filter(rule => rule.id !== ruleId)
 			};
 
-			// If the previous node matcher doesnt have any fields left, delete it
-			if (connectors[fromConnectorIndex].fields.length === 0) {
+			// If the previous connector doesnt have any rules left, delete it
+			if (connectors[fromConnectorIndex].rules.length === 0) {
 				connectors = connectors.filter(matcher => matcher.name !== connectors[fromConnectorIndex].name);
 			}
 
-			// Add to the next node matcher
+			// Add to the next connector
 			connectors[toConnectorIndex] = {
 				...connectors[toConnectorIndex],
-				fields: connectors[toConnectorIndex].fields.concat([field])
+				rules: connectors[toConnectorIndex].rules.concat([rule])
 			};
 
 			return {
@@ -107,28 +108,29 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 			};
 		}
 
-		case MOVE_FIELD_TO_NEW_CONNECTOR: {
-			const field = state.availableFields.find(field => field.path === action.payload.fieldPath);
+		case MOVE_RULE_TO_NEW_CONNECTOR: {
+			const ruleId: string = action.payload.ruleId;
 			let connectors = state.connectors.concat([]);
 			const fromConnectorIndex = connectors.findIndex(matcher => matcher.name === action.payload.fromConnectorName);
+			const rule = connectors[fromConnectorIndex].rules.find(rule => rule.id === ruleId);
 
-			// Remove from the previous node matcher
+			// Remove from the previous connector
 			connectors[fromConnectorIndex] = {
 				...connectors[fromConnectorIndex],
-				fields: connectors[fromConnectorIndex].fields.filter(search => search.path !== field.path)
+				rules: connectors[fromConnectorIndex].rules.filter(search => search.id !== ruleId)
 			};
 
-			// If the previous node matcher doesnt have any fields left, delete it
-			if (connectors[fromConnectorIndex].fields.length === 0) {
+			// If the previous connector doesnt have any fields left, delete it
+			if (connectors[fromConnectorIndex].rules.length === 0) {
 				connectors = connectors.filter(matcher => matcher.name !== connectors[fromConnectorIndex].name);
 			}
 
-			// Add to the next node matcher
+			// Add to the next connector
 			const newMatcher: Connector = {
 				name: getConnectorName(connectors),
-				fields: [field],
+				rules: [rule],
 				strategy: 'AND',
-				icon: getIcon(field.path, state.connectors.map(matcher => matcher.icon)),
+				icon: getIcon(rule.field.path, state.connectors.map(matcher => matcher.icon)),
 				color: getConnectorColor(connectors)
 			};
 
@@ -140,10 +142,15 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 
 		case CREATE_NEW_CONNECTOR: {
 			const field: Field = action.payload.field;
+			const name: string = action.payload.name;
+			const ruleId: string = action.payload.ruleId;
 
 			const connector: Connector = {
-				name: getConnectorName(state.connectors),
-				fields: [field],
+				name: name,
+				rules: [{
+					id: ruleId,
+					field: field
+				}],
 				strategy: 'AND',
 				icon: getIcon(field.path, state.connectors.map(matcher => matcher.icon)),
 				color: getConnectorColor(state.connectors)
@@ -176,11 +183,11 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 
 			connectors[index] = {
 				...connectors[index],
-				fields: connectors[index].fields.filter(field => field.path !== action.payload.fieldPath)
+				rules: connectors[index].rules.filter(rule => rule.id !== action.payload.ruleId)
 			};
 
-			// Delete the node matcher if there are no fields left
-			if (connectors[index].fields.length === 0) {
+			// Delete the connector if there are no rules left
+			if (connectors[index].rules.length === 0) {
 				connectors = connectors.filter(matcher => matcher.name !== connectors[index].name);
 			}
 
