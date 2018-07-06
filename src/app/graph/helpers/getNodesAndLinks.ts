@@ -6,7 +6,8 @@ import {forEach, isEmpty, uniqueId, findIndex} from 'lodash';
 import { Connector, MatchingStrategy, Rule } from '../interfaces/connector';
 import { getValueSets, ValueSet } from './getValueSets';
 import { Datasource } from '../../datasources/interfaces/datasource';
-import { getStringSimilarity } from './getStringSimilarity';
+import { getStringSimilarityLevenshtein } from './getStringSimilarityLevenshtein';
+import { getStringSimilaritySsdeep } from './getStringSimilaritySsdeep';
 
 const contents = [];
 
@@ -88,7 +89,13 @@ export default function getNodesAndLinks(
 
 				if (rule.similarity && rule.similarity < 100) {
 					// Similarity matching
-					const similarity = getStringSimilarity(a, b);
+					let similarity: number;
+
+					if (rule.similarityAlgorithm === 'levenshtein') {
+						similarity = getStringSimilarityLevenshtein(a, b);
+					} else {
+						similarity = getStringSimilaritySsdeep(a, b);
+					}
 
 					if (similarity >= rule.similarity) {
 						match = true;

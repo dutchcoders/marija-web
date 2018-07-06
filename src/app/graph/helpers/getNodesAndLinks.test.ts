@@ -471,7 +471,49 @@ test('should work with word similarity percentages', () => {
 					type: 'text',
 					datasourceId: '1'
 				},
-				similarity: 80
+				similarity: 80,
+				similarityAlgorithm: 'levenshtein'
+			}]
+		}
+	];
+
+	const { nodes, links } = getNodesAndLinks([], [], items as any, connectors);
+
+	expect(nodes.length).toBe(3);
+});
+test('should work with word similarity percentages with ssdeep', () => {
+	const items = [
+		{
+			id: '1',
+			fields: {
+				name: 'the quick brown fox jumps over the lazy dog',
+			},
+			searchId: 'q'
+		},
+		{
+			id: '2',
+			fields: {
+				name: 'the quick brown fox jumps over the lazy doga',
+			},
+			searchId: 'q'
+		}
+	];
+
+	const connectors: Connector[] = [
+		{
+			name: '1',
+			strategy: 'AND',
+			icon: 'x',
+			color: 0,
+			rules: [{
+				id: '1',
+				field: {
+					path: 'name',
+					type: 'text',
+					datasourceId: '1'
+				},
+				similarity: 80,
+				similarityAlgorithm: 'ssdeep'
 			}]
 		}
 	];

@@ -34,3 +34,25 @@
   font-size: inherit;
   margin: 0;
 }
+
+.setting {
+  margin-bottom: 10px;
+}
+
+.disabled {
+  opacity: .3;
+}
+
+.setting:last-child {
+  margin-bottom: 0;
+}
+
+.radioLabel {
+  margin: 0 10px 0 0;
+  font-weight: 300;
+  font-size: inherit;
+}
+
+.radio {
+  margin-right: 5px !important;
+}
