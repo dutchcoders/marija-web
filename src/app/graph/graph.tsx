@@ -336,7 +336,7 @@ class Graph extends React.PureComponent<Props, State> {
 		const ctx = canvas.getContext('2d');
 		let fontSize: number;
 
-		if (node.type === 'intersection') {
+		if (node.type === 'connector') {
 			fontSize = radius;
 
 			const color = this.getConnectorColor(node.connector);

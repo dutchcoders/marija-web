@@ -971,7 +971,7 @@ test('connector nodes should contain item ids of all related items', () => {
 	expect(nodes.length).toBe(3);
 	expect(links.length).toBe(2);
 
-	const connector = nodes.find(node => node.type === 'intersection');
+	const connector = nodes.find(node => node.type === 'connector');
 
 	expect(connector.items.length).toBe(2);
 });

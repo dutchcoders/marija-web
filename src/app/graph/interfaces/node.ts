@@ -70,7 +70,7 @@ export interface Node {
 	connector?: string;
 	datasourceId?: string;
 
-	type: 'intersection' | 'item';
+	type: 'connector' | 'item';
 	itemCount?: number;
 }
 

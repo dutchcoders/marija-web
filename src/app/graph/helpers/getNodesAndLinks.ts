@@ -1,12 +1,9 @@
-import fieldLocator from '../../fields/helpers/fieldLocator';
-import { Field } from '../../fields/interfaces/field';
 import { Item } from '../../items/interfaces/item';
 import { Link } from '../interfaces/link';
 import { ChildData, Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';
 import {forEach, isEmpty, uniqueId, findIndex} from 'lodash';
 import { Connector, MatchingStrategy } from '../interfaces/connector';
-import { Util } from 'leaflet';
 import { getValueSets } from './getValueSets';
 import { Datasource } from '../../datasources/interfaces/datasource';
 
@@ -26,7 +23,7 @@ export default function getNodesAndLinks(
 } {
     const links: Link[] = previousLinks.concat([]);
 	const itemNodes: Node[] = previousNodes.filter(node => node.type === 'item');
-	const intersections: Node[] = previousNodes.filter(node => node.type === 'intersection');
+	const connectorNodes: Node[] = previousNodes.filter(node => node.type === 'connector');
 
 	// Proof that items with the same fields sometimes have a different ID
 	// items.forEach(item => {
@@ -75,7 +72,7 @@ export default function getNodesAndLinks(
 	};
 
     const andMatcher = (valueSet, connector: Connector): Node[] => {
-    	return intersections.filter(node => {
+    	return connectorNodes.filter(node => {
 			for (let i = 0; i < connector.fields.length; i ++) {
     			const field = connector.fields[i].path;
 				const match = typeof node.childData[field] !== 'undefined' && node.childData[field].indexOf(valueSet[field]) !== -1;
@@ -90,7 +87,7 @@ export default function getNodesAndLinks(
 	};
 
     const orMatcher = (valueSet, connector: Connector): Node[] => {
-    	return intersections.filter(node => {
+    	return connectorNodes.filter(node => {
     		for (let i = 0; i < connector.fields.length; i ++) {
     			const field = connector.fields[i].path;
 				const match = typeof node.childData[field] !== 'undefined' && node.childData[field].indexOf(valueSet[field]) !== -1;
@@ -168,7 +165,7 @@ export default function getNodesAndLinks(
 		});
 	};
 
-    const getMatcherNodes = (itemId: string, valueSet, connector: Connector): Node[] => {
+    const createConnectorNodes = (itemId: string, valueSet, connector: Connector): Node[] => {
     	let matchingItems: Item[];
 
 		matchingItems = getMatchingItems(itemId, valueSet, connector);
@@ -224,11 +221,11 @@ export default function getNodesAndLinks(
 				isImage: false,
 				childData: valueSetToArrayValues(valueSet),
 				connector: connector.name,
-				type: 'intersection',
+				type: 'connector',
 				itemCount: item.count
 			};
 
-			intersections.push(node);
+			connectorNodes.push(node);
 			relevantMatches.push(node);
 		});
 
@@ -377,7 +374,7 @@ export default function getNodesAndLinks(
 			const valueSets = getValueSets(data);
 
 			valueSets.forEach(valueSet => {
-				const targetNodes = getMatcherNodes(item.id, valueSet, connector);
+				const targetNodes = createConnectorNodes(item.id, valueSet, connector);
 
 				targetNodes.forEach(targetNode => {
 					createLink(sourceNode, targetNode, item, connector.color);
@@ -394,7 +391,7 @@ export default function getNodesAndLinks(
 		return Math.max(prev, current.itemCount);
 	}, 1);
 
-    const nodes = itemNodes.concat(intersections);
+    const nodes = itemNodes.concat(connectorNodes);
 
 	nodes.forEach(node => node.r = getNodeRadius(node, minCount, maxCount));
 
@@ -428,7 +425,7 @@ export function getHash(string) {
 }
 
 function getNodeRadius(node: Node, minCount: number, maxCount: number): number {
-	if (node.type === 'intersection') {
+	if (node.type === 'connector') {
 		return 15;
 	}
 
