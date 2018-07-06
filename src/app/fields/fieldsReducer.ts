@@ -5,7 +5,7 @@ import {
 	FIELDS_REQUEST,
 	MOVE_RULE_BETWEEN_CONNECTORS,
 	MOVE_RULE_TO_NEW_CONNECTOR,
-	SET_MATCHING_STRATEGY
+	SET_MATCHING_STRATEGY, SET_SIMILARITY
 } from './fieldsConstants';
 import sortFields from './helpers/sortFields';
 import {Field} from './interfaces/field';
@@ -190,6 +190,41 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 			if (connectors[index].rules.length === 0) {
 				connectors = connectors.filter(matcher => matcher.name !== connectors[index].name);
 			}
+
+			return {
+				...state,
+				connectors: connectors
+			};
+		}
+
+		case SET_SIMILARITY: {
+			const ruleId: string = action.payload.ruleId;
+			const similarity: number = action.payload.similarity;
+			const connectors = state.connectors.concat([]);
+			let ruleIndex: number;
+
+			const connectorIndex = connectors.findIndex(connector => {
+				return connector.rules.findIndex((rule, index) => {
+					const found: boolean = rule.id === ruleId;
+
+					if (found) {
+						ruleIndex = index;
+					}
+
+					return found;
+				}) !== -1;
+			});
+
+			const rules = connectors[connectorIndex].rules.concat([]);
+			rules[ruleIndex] = {
+				...rules[ruleIndex],
+				similarity: similarity
+			};
+
+			connectors[connectorIndex] = {
+				...connectors[connectorIndex],
+				rules: rules
+			};
 
 			return {
 				...state,

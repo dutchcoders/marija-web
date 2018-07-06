@@ -15,7 +15,7 @@ import {
 	FIELDS_REQUEST,
 	MOVE_RULE_BETWEEN_CONNECTORS,
 	MOVE_RULE_TO_NEW_CONNECTOR,
-	SET_MATCHING_STRATEGY
+	SET_MATCHING_STRATEGY, SET_SIMILARITY
 } from './fieldsConstants';
 import { Field } from './interfaces/field';
 import { triggerGraphWorker } from '../graph/graphActions';
@@ -199,3 +199,12 @@ export function deleteFromConnector(connectorName: string, ruleId: string) {
 	});
 }
 
+export function setSimilarity(ruleId: string, similarity: number) {
+	return dispatchAndRebuildGraph({
+		type: SET_SIMILARITY,
+		payload: {
+			ruleId,
+			similarity
+		}
+	})
+}
