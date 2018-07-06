@@ -63,6 +63,7 @@ import {Normalization} from './interfaces/normalization';
 import {Via} from './interfaces/via';
 import {GraphState} from "./interfaces/graphState";
 import { markPerformance } from '../main/helpers/performance';
+import { Item } from '../items/interfaces/item';
 
 export const defaultGraphState: GraphState = {
     date_fields: [],
@@ -479,11 +480,21 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             action.payload.items.forEach(item => item.receivedExtraData = true);
 
-            let items = state.items.concat(action.payload.items);
+			let items = state.items.concat([]);
 
             // We might need to delete the previous item
             if (action.payload.prevItemId) {
+            	const prevItem = items.find(item => item.id === action.payload.prevItemId);
                 items = items.filter(item => item.id !== action.payload.prevItemId);
+
+                const newItems: Item[] = action.payload.items.map(item => {
+                	return {
+						...prevItem,
+						...item,
+					}
+				});
+
+                items = items.concat(newItems);
 
                 nodes = nodes.map(node => {
                     const itemIndex = node.items.indexOf(action.payload.prevItemId);

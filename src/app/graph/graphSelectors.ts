@@ -129,7 +129,7 @@ export const isTableLoading = createSelector(
 	(state: AppState) => state.graph.items,
 
 	(items: Item[]) =>
-		typeof items.find(item => item.requestedExtraData) !== 'undefined'
+		typeof items.find(item => item.requestedExtraData && !item.receivedExtraData) !== 'undefined'
 );
 
 export const createGetNodesByConnector = () => createSelector(
