@@ -82,7 +82,11 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 			const ruleId: string = action.payload.ruleId;
 			let connectors = state.connectors.concat([]);
 			const fromConnectorIndex = connectors.findIndex(connector => connector.name === action.payload.fromConnectorName);
-			const toConnectorIndex = connectors.findIndex(connector => connector.name === action.payload.toConnectorName);
+
+			if (fromConnectorIndex === -1) {
+				throw new Error('FromConnector ' + action.payload.fromConnectorName + ' not found');
+			}
+
 			const rule = connectors[fromConnectorIndex].rules.find(rule => rule.id === ruleId);
 
 				// Remove from the previous connector
@@ -94,6 +98,12 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 			// If the previous connector doesnt have any rules left, delete it
 			if (connectors[fromConnectorIndex].rules.length === 0) {
 				connectors = connectors.filter(matcher => matcher.name !== connectors[fromConnectorIndex].name);
+			}
+
+			const toConnectorIndex = connectors.findIndex(connector => connector.name === action.payload.toConnectorName);
+
+			if (toConnectorIndex === -1) {
+				throw new Error('ToConnector ' + action.payload.toConnectorName + ' not found');
 			}
 
 			// Add to the next connector

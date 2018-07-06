@@ -3,7 +3,7 @@ import { Link } from '../interfaces/link';
 import { ChildData, Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';
 import {forEach, isEmpty, uniqueId, findIndex} from 'lodash';
-import { Connector, MatchingStrategy } from '../interfaces/connector';
+import { Connector, MatchingStrategy, Rule } from '../interfaces/connector';
 import { getValueSets, ValueSet } from './getValueSets';
 import { Datasource } from '../../datasources/interfaces/datasource';
 import { getStringSimilarity } from './getStringSimilarity';
@@ -63,8 +63,9 @@ export default function getNodesAndLinks(
 			const rule = connector.rules[i];
 			const field = rule.field.path;
 			let values = data[field];
+			const a: string = valueSet[field];
 
-			if (typeof values === 'undefined') {
+			if (typeof values === 'undefined' || typeof a === 'undefined' || a === null) {
 				if (connector.strategy === 'AND') {
 					return false;
 				}
@@ -77,10 +78,10 @@ export default function getNodesAndLinks(
 			}
 
 			// Convert to strings
+			values = values.filter(value => typeof value !== 'undefined' && value !== null);
 			values = values.map(value => value + '');
 
 			let match: boolean = false;
-			const a: string = valueSet[field];
 
 			for (let j = 0; j < values.length; j ++) {
 				const b: string = values[j];
@@ -157,8 +158,19 @@ export default function getNodesAndLinks(
     			return;
 			}
 
-			let name = '';
-    		connector.rules.forEach(rule => name += valueSet[rule.field.path]);
+			const name = connector.rules.reduce((prev: string, rule: Rule) => {
+				const value = valueSet[rule.field.path];
+
+				if (value === null || typeof value === 'undefined') {
+					return '';
+				}
+
+				return value;
+			}, '');
+
+			if (name === '') {
+				throw new Error('Tried to create connector node with empty name for valueSet: ' + JSON.stringify(valueSet));
+			}
 
 			const hash = getHash(name);
 
