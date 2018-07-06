@@ -2,11 +2,11 @@ interface Input {
 	[key: string]: string | string[]
 }
 
-interface Output {
+export interface ValueSet {
 	[key: string]: string;
 }
 
-export function getValueSets(values: Input): Output[] {
+export function getValueSets(values: Input): ValueSet[] {
 	const keys = Object.keys(values);
 	const output = [];
 

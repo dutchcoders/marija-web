@@ -4,7 +4,7 @@ import { ChildData, Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';
 import {forEach, isEmpty, uniqueId, findIndex} from 'lodash';
 import { Connector, MatchingStrategy } from '../interfaces/connector';
-import { getValueSets } from './getValueSets';
+import { getValueSets, ValueSet } from './getValueSets';
 import { Datasource } from '../../datasources/interfaces/datasource';
 
 const contents = [];
@@ -71,34 +71,37 @@ export default function getNodesAndLinks(
 		return null;
 	};
 
-    const andMatcher = (valueSet, connector: Connector): Node[] => {
-    	return connectorNodes.filter(node => {
+	const getMatchingNodes = (valueSet: ValueSet, connector: Connector): Node[] => {
+		return connectorNodes.filter(node => {
 			for (let i = 0; i < connector.fields.length; i ++) {
-    			const field = connector.fields[i].path;
-				const match = typeof node.childData[field] !== 'undefined' && node.childData[field].indexOf(valueSet[field]) !== -1;
+				const field = connector.fields[i].path;
+				let fieldValues = node.childData[field];
 
-				if (!match) {
+				if (typeof fieldValues === 'undefined') {
+					if (connector.strategy === 'AND') {
+						return false;
+					}
+
+					continue;
+				}
+
+				const match = fieldValues.indexOf(valueSet[field]) !== -1;
+
+				if (match && connector.strategy === 'OR') {
+					return true;
+				}
+
+				if (!match && connector.strategy === 'AND') {
 					return false;
 				}
 			}
 
-			return true;
-		});
-	};
-
-    const orMatcher = (valueSet, connector: Connector): Node[] => {
-    	return connectorNodes.filter(node => {
-    		for (let i = 0; i < connector.fields.length; i ++) {
-    			const field = connector.fields[i].path;
-				const match = typeof node.childData[field] !== 'undefined' && node.childData[field].indexOf(valueSet[field]) !== -1;
-
-				if (match) {
-					return true;
-				}
+			if (connector.strategy === 'OR') {
+				return false;
+			} else if (connector.strategy === 'AND') {
+				return true;
 			}
-
-			return false;
-		});
+		})
 	};
 
     const addDataToNode = (node: Node, itemId: string, valueSet): void => {
@@ -173,13 +176,7 @@ export default function getNodesAndLinks(
 		let relevantMatches: Node[] = [];
 
     	matchingItems.forEach(item => {
-    		let existing: Node[] = [];
-
-    		if (connector.strategy === 'AND') {
-    			existing = andMatcher(valueSet, connector);
-			} else {
-    			existing = orMatcher(valueSet, connector);
-			}
+    		const existing: Node[] = getMatchingNodes(valueSet, connector);
 
 			if (existing.length > 0) {
     			existing.forEach(node => {
