@@ -2,7 +2,10 @@ import * as React from 'react';
 import { Connector, Rule } from '../../../graph/interfaces/connector';
 import * as styles from './ruleComponent.scss';
 import Icon from '../../../ui/components/icon';
-import { deleteFromConnector, setSimilarity } from '../../fieldsActions';
+import {
+	deleteFromConnector,
+	updateRule
+} from '../../fieldsActions';
 import { connect } from 'react-redux';
 import { AppState } from '../../../main/interfaces/appState';
 import { FormEvent } from 'react';
@@ -79,7 +82,7 @@ class RuleComponent extends React.Component<Props, State> {
 	updateSimilarity(similarity: number) {
 		const { dispatch, rule } = this.props;
 
-		dispatch(setSimilarity(rule.id, similarity));
+		dispatch(updateRule(rule.id, { similarity }));
 	}
 
 	render() {

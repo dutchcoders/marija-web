@@ -5,7 +5,7 @@ import {
 	FIELDS_REQUEST,
 	MOVE_RULE_BETWEEN_CONNECTORS,
 	MOVE_RULE_TO_NEW_CONNECTOR,
-	SET_MATCHING_STRATEGY, SET_SIMILARITY
+	SET_MATCHING_STRATEGY, UPDATE_RULE
 } from './fieldsConstants';
 import sortFields from './helpers/sortFields';
 import {Field} from './interfaces/field';
@@ -14,6 +14,7 @@ import { Connector } from '../graph/interfaces/connector';
 import { getIcon } from '../graph/helpers/getIcon';
 import { getConnectorName } from './helpers/getConnectorName';
 import { getConnectorColor } from './helpers/getConnectorColor';
+import { RuleProps } from './fieldsActions';
 
 export const defaultFieldsState: FieldsState = {
     availableFields: [],
@@ -207,9 +208,9 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 			};
 		}
 
-		case SET_SIMILARITY: {
+		case UPDATE_RULE: {
 			const ruleId: string = action.payload.ruleId;
-			const similarity: number = action.payload.similarity;
+			const props: RuleProps = action.payload.props;
 			const connectors = state.connectors.concat([]);
 			let ruleIndex: number;
 
@@ -228,7 +229,7 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 			const rules = connectors[connectorIndex].rules.concat([]);
 			rules[ruleIndex] = {
 				...rules[ruleIndex],
-				similarity: similarity
+				...props
 			};
 
 			connectors[connectorIndex] = {
