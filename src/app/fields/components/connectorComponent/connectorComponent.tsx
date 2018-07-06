@@ -40,11 +40,24 @@ class ConnectorComponent extends React.Component<Props, State> {
 		isHoveringOnDropArea: false
 	};
 
+	getDragData(event: DragEvent) {
+		const text: string = event.dataTransfer.getData('text');
+
+		try {
+			return JSON.parse(text);
+		} catch (e) {
+			return null;
+		}
+	}
+
 	onDragOver(event: DragEvent) {
 		event.preventDefault();
 	}
 
-	onDragEnter() {
+	onDragEnter(event: DragEvent) {
+		const { connector } = this.props;
+		const data = this.getDragData(event);
+
 		this.setState({
 			isHoveringOnDropArea: true
 		});
@@ -59,20 +72,21 @@ class ConnectorComponent extends React.Component<Props, State> {
 	onDrop(event: DragEvent) {
 		const { connector, dispatch } = this.props;
 
-		const text: string = event.dataTransfer.getData('text');
-		let data: any;
+		const data = this.getDragData(event);
 
-		try {
-			data = JSON.parse(text);
-		} catch (e) {
+		if (!data) {
 			return;
 		}
 
 		if (connector === null) {
 			dispatch(moveRuleToNewConnector(data.ruleId, data.fromConnectorName));
-		} else {
+		} else if (connector.name !== data.fromConnectorName) {
 			dispatch(moveRuleBetweenConnectors(data.ruleId, data.fromConnectorName, connector.name));
 		}
+
+		this.setState({
+			isHoveringOnDropArea: false
+		});
 	}
 
 	onStrategyChange(event: FormEvent<HTMLInputElement>) {
@@ -112,6 +126,7 @@ class ConnectorComponent extends React.Component<Props, State> {
 
 	render() {
 		const { connector, isDragging, nodes } = this.props;
+		const { isHoveringOnDropArea } = this.state;
 
 		return (
 			<div className={styles.connector}>
@@ -153,8 +168,10 @@ class ConnectorComponent extends React.Component<Props, State> {
 					)}
 
 					{isDragging && (
-						<div className={styles.dropZone}
+						<div className={styles.dropZone + (isHoveringOnDropArea ? ' ' + styles.hovering : '')}
 							 onDragOver={this.onDragOver.bind(this)}
+							 onDragEnter={this.onDragEnter.bind(this)}
+							 onDragLeave={this.onDragLeave.bind(this)}
 							 onDrop={this.onDrop.bind(this)}>
 							{connector === null ? 'Drop field here to create new matcher' : 'Drop field here to make part of matcher'}
 						</div>
