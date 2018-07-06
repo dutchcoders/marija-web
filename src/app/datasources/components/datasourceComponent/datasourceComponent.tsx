@@ -11,12 +11,17 @@ import {
 import FieldSelector from '../../../fields/components/fieldSelector/fieldSelector';
 import { connect } from 'react-redux';
 import { Field } from '../../../fields/interfaces/field';
-import { fieldAdd } from '../../../fields/fieldsActions';
 import IconSelector from '../../../fields/components/iconSelector/iconSelector';
+import {
+	createGetNodesByDatasource
+} from '../../../graph/graphSelectors';
+import { Node } from '../../../graph/interfaces/node';
+import { deselectNodes, nodesSelect } from '../../../graph/graphActions';
 
 interface Props {
 	datasource: Datasource;
 	dispatch: any;
+	nodes: Node[];
 }
 
 interface State {
@@ -92,14 +97,34 @@ class DatasourceComponent extends React.Component<Props, State> {
 		});
 	}
 
+	selectNodes() {
+		const { nodes, dispatch } = this.props;
+
+		let allSelected = true;
+		nodes.forEach(node => {
+			if (!node.selected) {
+				allSelected = false;
+			}
+		});
+
+		if (allSelected) {
+			dispatch(deselectNodes(nodes));
+		} else {
+			dispatch(nodesSelect(nodes));
+		}
+
+		return false;
+	}
+
 	render() {
-		const { datasource } = this.props;
+		const { datasource, nodes } = this.props;
 		const { expanded, iconSelectorOpen } = this.state;
 
 		return (
 			<form className={styles.datasource}>
 				<header className={styles.header}>
 					<div className={styles.icon} onClick={this.toggleIconSelector.bind(this)}>{datasource.icon}</div>
+					<button type="button" className={styles.nodes} onClick={this.selectNodes.bind(this)}>{nodes.length}<Icon name="ion-ios-color-wand"/></button>
 					<h3 className={styles.name}>
 						<input className={styles.active} type="checkbox" checked={datasource.active} onChange={this.toggleActive.bind(this)}/>
 						{datasource.name}
@@ -143,8 +168,13 @@ class DatasourceComponent extends React.Component<Props, State> {
 	}
 }
 
-const select = (state: AppState, ownProps) => ({
-	...ownProps
-});
+const select = () => {
+	const getNodesByDatasource = createGetNodesByDatasource();
+
+	return (state: AppState, ownProps) => ({
+		...ownProps,
+		nodes: getNodesByDatasource(state, ownProps.datasource.id)
+	});
+};
 
 export default connect(select)(DatasourceComponent);

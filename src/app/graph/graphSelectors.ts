@@ -140,3 +140,12 @@ export const createGetNodesByConnector = () => createSelector(
 		return nodes.filter(node => node.connector === connectorName);
 	}
 );
+
+export const createGetNodesByDatasource = () => createSelector(
+	(state: AppState, datasourceId: string) => state.graph.nodes,
+	(state: AppState, datasourceId: string) => datasourceId,
+
+	(nodes: Node[], datasourceId: string): Node[] => {
+		return nodes.filter(node => node.datasourceId === datasourceId);
+	}
+);
