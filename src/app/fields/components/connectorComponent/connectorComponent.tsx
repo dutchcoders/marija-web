@@ -16,6 +16,9 @@ import {
 } from '../../fieldsActions';
 import { hexToString } from '../../helpers/hexToString';
 import RuleComponent from '../ruleComponent/ruleComponent';
+import { createGetNodesByConnector } from '../../../graph/graphSelectors';
+import { Node } from '../../../graph/interfaces/node';
+import { deselectNodes, nodesSelect } from '../../../graph/graphActions';
 
 interface State {
 	isHoveringOnDropArea: boolean;
@@ -25,6 +28,7 @@ interface Props {
 	dispatch: Dispatch<any>;
 	connector: Connector | null;
 	isDragging: boolean;
+	nodes: Node[];
 }
 
 class ConnectorComponent extends React.Component<Props, State> {
@@ -73,13 +77,34 @@ class ConnectorComponent extends React.Component<Props, State> {
 		dispatch(setMatchingStrategy(connector.name, event.currentTarget.value as MatchingStrategy));
 	}
 
+	selectNodes() {
+		const { nodes, dispatch } = this.props;
+
+		let allSelected = true;
+		nodes.forEach(node => {
+			if (!node.selected) {
+				allSelected = false;
+			}
+		});
+
+		if (allSelected) {
+			dispatch(deselectNodes(nodes));
+		} else {
+			dispatch(nodesSelect(nodes));
+		}
+	}
+
 	render() {
-		const { connector, isDragging } = this.props;
+		const { connector, isDragging, nodes } = this.props;
 
 		return (
 			<div className={styles.connector}>
 				{connector !== null && (
 					<div className={styles.icon} style={{backgroundColor: hexToString(connector.color)}}>{connector.icon}</div>
+				)}
+
+				{connector !== null && (
+					<button className={styles.nodes} onClick={this.selectNodes.bind(this)}>{nodes.length}<Icon name="ion-ios-color-wand"/></button>
 				)}
 
 				<div className={styles.main}>
@@ -118,10 +143,13 @@ class ConnectorComponent extends React.Component<Props, State> {
 }
 
 
-function select(state: AppState, ownProps) {
-	return {
-		...ownProps
-	};
+function select() {
+	const getNodesByConnector = createGetNodesByConnector();
+
+	return (state: AppState, ownProps) => ({
+		...ownProps,
+		nodes: ownProps.connector ? getNodesByConnector(state, ownProps.connector.name) : []
+	});
 }
 
 export default connect(select)(ConnectorComponent);

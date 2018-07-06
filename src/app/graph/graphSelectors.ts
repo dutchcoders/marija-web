@@ -131,3 +131,12 @@ export const isTableLoading = createSelector(
 	(items: Item[]) =>
 		typeof items.find(item => item.requestedExtraData) !== 'undefined'
 );
+
+export const createGetNodesByConnector = () => createSelector(
+	(state: AppState, connectorName: string) => state.graph.nodes,
+	(state: AppState, connectorName: string) => connectorName,
+
+	(nodes: Node[], connectorName: string): Node[] => {
+		return nodes.filter(node => node.connector === connectorName);
+	}
+);

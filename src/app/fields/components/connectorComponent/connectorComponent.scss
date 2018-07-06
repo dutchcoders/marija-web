@@ -6,16 +6,32 @@
   display: flex;
 }
 
-.icon {
-  width: 28px;
+.icon,
+.nodes {
   height: 28px;
   margin: 0 5px 5px 0;
-  background: red;
   flex-grow: 0;
   flex-shrink: 0;
   line-height: 28px;
   text-align: center;
+}
+
+.icon {
   font-size: 16px;
+  width: 28px;
+}
+
+.nodes {
+  border-radius: 3px;
+  background: #3A4555;
+  font-size: 12px;
+  border: none;
+  outline: none;
+
+  i {
+    margin-left: 3px;
+    font-size: 14px;
+  }
 }
 
 .main {
