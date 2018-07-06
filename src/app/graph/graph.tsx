@@ -47,7 +47,6 @@ interface Props {
     linksForDisplay: Link[];
     selectedNodes: Node[];
     highlightedNodes: Node[];
-    fields: Field[];
     zoomEvents: any;
     centerEvents: any;
     dispatch: Dispatch<any>;
@@ -1041,7 +1040,7 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
     componentWillReceiveProps(nextProps: Props) {
-        const { searches, nodesForDisplay, linksForDisplay, fields, showLabels, highlightedNodes, isMapActive, selectedNodes } = this.props;
+        const { searches, nodesForDisplay, linksForDisplay, showLabels, highlightedNodes, isMapActive, selectedNodes } = this.props;
         const nextSelected = nextProps.nodesForDisplay.filter(node => node.selected);
 
         if (nextProps.isMapActive && !isMapActive) {
@@ -1062,11 +1061,6 @@ class Graph extends React.PureComponent<Props, State> {
 
         if (nextProps.nodesForDisplay.filter(node => node.displayTooltip) !== this.getTooltipNodes()) {
             this.renderedSince.lastTooltip = false;
-        }
-
-        if (!isEqual(nextProps.fields, fields)) {
-			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier, nextProps.searches)
-				.then(() => this.renderedSince.lastFields = false);
         }
 
 		if (nextProps.nodesForDisplay !== nodesForDisplay || nextProps.linksForDisplay !== linksForDisplay || nextProps.searches !== searches) {
@@ -2137,7 +2131,6 @@ const select = (state: AppState, ownProps) => {
         linksForDisplay: getLinksForDisplay(state),
 		selectedNodes: getSelectedNodes(state),
         highlightedNodes: getHighlightedNodes(state),
-        fields: state.graph.fields,
         searches: state.graph.searches,
         showLabels: state.graph.showLabels,
 		isMapActive: state.graph.isMapActive,

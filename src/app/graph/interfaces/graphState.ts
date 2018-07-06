@@ -14,7 +14,6 @@ export interface Note {
 }
 
 export interface GraphState {
-    fields: Field[];
     date_fields: Field[];
     normalizations: Normalization[];
     items: Item[];

@@ -1,14 +1,10 @@
 import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
-import { find, map, groupBy, reduce, forEach, filter, concat } from 'lodash';
 import Dimensions from 'react-dimensions';
-import * as moment from 'moment';
-import fieldLocator from '../../fields/helpers/fieldLocator';
 import {Normalization} from "../interfaces/normalization";
 import {Field} from "../../fields/interfaces/field";
 import {Item} from "../../items/interfaces/item";
 import {Node} from "../interfaces/node";
-import {Moment} from "moment";
 import {FormEvent} from "react";
 import {dateFieldDelete} from '../../fields/fieldsActions';
 import {searchFieldsUpdate} from '../../search/searchActions';
@@ -40,7 +36,6 @@ interface Props {
 	onPaneEvent?: EventEmitter;
     normalizations: Normalization[];
     availableFields: Field[];
-    fields: Field[];
     date_fields: Field[];
     items: Item[];
     nodes: Node[];
@@ -373,7 +368,6 @@ const select = (state: AppState, ownProps) => {
         ...ownProps,
         availableFields: state.fields.availableFields,
         nodes: getNodesForDisplay(state),
-        fields: state.graph.fields,
         normalizations: state.graph.normalizations,
         date_fields: state.graph.date_fields,
         items: state.graph.items,

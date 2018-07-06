@@ -23,6 +23,7 @@ import { tableColumnAdd, tableColumnRemove, tableSort } from './tableActions';
 import Loader from '../ui/components/loader';
 import * as styles from './table.scss';
 import { FormEvent } from 'react';
+import { getSelectedFields } from '../fields/fieldsSelectors';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -384,7 +385,7 @@ function select(state: AppState) {
         normalizations: state.graph.normalizations,
         items: state.graph.items,
         searches: state.graph.searches,
-        fields: state.graph.fields,
+        fields: getSelectedFields(state),
         columns: state.table.columns,
         sortColumn: state.table.sortColumn,
         sortType: state.table.sortType,

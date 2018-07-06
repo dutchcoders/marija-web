@@ -65,7 +65,6 @@ import {GraphState} from "./interfaces/graphState";
 import { markPerformance } from '../main/helpers/performance';
 
 export const defaultGraphState: GraphState = {
-    fields: [],
     date_fields: [],
     normalizations: [],
     items: [],
@@ -121,104 +120,6 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 				graphWorkerCacheIsValid: false
             });
         }
-        // case FIELD_ADD: {
-        //     const existing = state.fields.find(field => field.path === action.field.path);
-		//
-        //     if (existing) {
-        //         // Field was already in store, don't add duplicates
-        //         return state;
-        //     }
-		//
-        //     if (state.fields.length >= MAX_FIELDS) {
-        //         return state;
-        //     }
-		//
-        //     const newField = createField(state.fields, action.field.path, action.field.type, action.field.datasourceId);
-		//
-        //     const connector: Connector = {
-        //     	name: getConnectorName(state.connectors),
-			// 	fields: [newField],
-			// 	strategy: 'AND',
-			// 	icon: getIcon(newField.path, state.connectors.map(matcher => matcher.icon))
-			// };
-		//
-        //     let dateFields = concat([], state.date_fields);
-		//
-        //     if (action.field.type === 'date'
-        //         && typeof dateFields.find(search => search.path === newField.path) === 'undefined') {
-        //         dateFields.push(newField);
-        //     }
-		//
-        //     return {
-        //         ...state,
-        //         fields: state.fields.concat([newField]),
-        //         date_fields: dateFields,
-			// 	graphWorkerCacheIsValid: false,
-			// 	connectors: state.connectors.concat([connector])
-        //     };
-        // }
-
-        case FIELD_UPDATE: {
-            const index: number = state.fields.findIndex(search  => search.path === action.fieldPath);
-            const fields: Field[] = state.fields.concat([]);
-
-            fields[index] = Object.assign({}, fields[index], action.updates);
-
-            let nodes: Node[] = state.nodes;
-
-            // If the icon was updated, also update the icons of all the affected nodes
-            if (action.updates.icon) {
-                nodes = state.nodes.map(node => {
-                    const isAffected: boolean =
-                        node.fields.length === 1
-                        && node.fields.indexOf(action.fieldPath) !== -1;
-
-                    if (isAffected) {
-                        return Object.assign({}, node, {
-                            icon: action.updates.icon
-                        });
-                    }
-
-                    return node;
-                });
-            }
-
-            return {
-                ...state,
-                fields: fields,
-                nodes: nodes,
-				graphWorkerCacheIsValid: false
-            };
-        }
-        // case FIELD_DELETE: {
-        //     const pathToDelete: string = action.field.path;
-        //     let fields = state.fields.filter(field => field.path !== pathToDelete);
-		//
-        //     fields = fields.map(field => {
-        //         // Reset all the children of this field. They can not have non-existing parent of course.
-		//
-        //         if (field.childOf === pathToDelete) {
-        //             return {
-        //                 ...field,
-        //                 childOf: null
-        //             };
-        //         }
-		//
-        //         return field;
-        //     });
-		//
-        //     const connectors = state.connectors.map(connector => ({
-			// 	...connector,
-			// 	fields: connector.fields.filter(field => field.path !== pathToDelete)
-			// }));
-		//
-        //     return {
-        //         ...state,
-        //         fields: fields,
-			// 	graphWorkerCacheIsValid: false,
-			// 	connectors: connectors
-        //     };
-        // }
         case NORMALIZATION_ADD: {
             const normalization: Normalization = {
                 id: uniqueId(),
@@ -483,13 +384,13 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             // Fields are only updated by the graph worker if it was a live search
             // In a live search all fields present in the items are automatically
             // added
-            if (!isEqual(action.fields, state.fields)) {
-                const newFields = action.fields.filter((field: Field) =>
-                    state.fields.findIndex(existing => existing.path === field.path) === -1
-                );
-
-                updates.fields = state.fields.concat(newFields);
-            }
+            // if (!isEqual(action.fields, state.fields)) {
+            //     const newFields = action.fields.filter((field: Field) =>
+            //         state.fields.findIndex(existing => existing.path === field.path) === -1
+            //     );
+			//
+            //     updates.fields = state.fields.concat(newFields);
+            // }
 
             return Object.assign({}, state, updates);
         }
@@ -725,21 +626,6 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 isDraggingSubFields: action.payload.enabled
             };
         }
-
-		case SET_FIELD_PARENT: {
-			const index = state.fields.findIndex(field => field.path === action.payload.child);
-			const fields = state.fields.concat([]);
-
-			fields[index] = {
-				...fields[index],
-				childOf: action.payload.parent
-			};
-
-			return {
-				...state,
-				fields
-			};
-		}
 
 		case SET_IMPORTANT_NODE: {
 			const important: boolean = action.payload.important;
