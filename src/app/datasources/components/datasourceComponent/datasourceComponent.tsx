@@ -16,7 +16,11 @@ import {
 	createGetNodesByDatasource
 } from '../../../graph/graphSelectors';
 import { Node } from '../../../graph/interfaces/node';
-import { deselectNodes, nodesSelect } from '../../../graph/graphActions';
+import {
+	deselectNodes,
+	highlightNodes,
+	nodesSelect
+} from '../../../graph/graphActions';
 
 interface Props {
 	datasource: Datasource;
@@ -116,6 +120,18 @@ class DatasourceComponent extends React.Component<Props, State> {
 		return false;
 	}
 
+	highlightNodes() {
+		const { nodes, dispatch } = this.props;
+
+		dispatch(highlightNodes(nodes));
+	}
+
+	unHighlightNodes() {
+		const { dispatch } = this.props;
+
+		dispatch(highlightNodes([]));
+	}
+
 	render() {
 		const { datasource, nodes } = this.props;
 		const { expanded, iconSelectorOpen } = this.state;
@@ -124,7 +140,17 @@ class DatasourceComponent extends React.Component<Props, State> {
 			<form className={styles.datasource}>
 				<header className={styles.header}>
 					<div className={styles.icon} onClick={this.toggleIconSelector.bind(this)}>{datasource.icon}</div>
-					<button type="button" className={styles.nodes} onClick={this.selectNodes.bind(this)}>{nodes.length}<Icon name="ion-ios-color-wand"/></button>
+
+					<button
+						type="button"
+						className={styles.nodes}
+						onMouseEnter={this.highlightNodes.bind(this)}
+						onMouseLeave={this.unHighlightNodes.bind(this)}
+						onClick={this.selectNodes.bind(this)}>
+						{nodes.length}
+						<Icon name="ion-ios-color-wand"/>
+					</button>
+					
 					<h3 className={styles.name}>
 						<input className={styles.active} type="checkbox" checked={datasource.active} onChange={this.toggleActive.bind(this)}/>
 						{datasource.name}

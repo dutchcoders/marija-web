@@ -18,7 +18,11 @@ import { hexToString } from '../../helpers/hexToString';
 import RuleComponent from '../ruleComponent/ruleComponent';
 import { createGetNodesByConnector } from '../../../graph/graphSelectors';
 import { Node } from '../../../graph/interfaces/node';
-import { deselectNodes, nodesSelect } from '../../../graph/graphActions';
+import {
+	deselectNodes,
+	highlightNodes,
+	nodesSelect
+} from '../../../graph/graphActions';
 
 interface State {
 	isHoveringOnDropArea: boolean;
@@ -94,6 +98,18 @@ class ConnectorComponent extends React.Component<Props, State> {
 		}
 	}
 
+	highlightNodes() {
+		const { nodes, dispatch } = this.props;
+
+		dispatch(highlightNodes(nodes));
+	}
+
+	unHighlightNodes() {
+		const { dispatch } = this.props;
+
+		dispatch(highlightNodes([]));
+	}
+
 	render() {
 		const { connector, isDragging, nodes } = this.props;
 
@@ -104,7 +120,14 @@ class ConnectorComponent extends React.Component<Props, State> {
 				)}
 
 				{connector !== null && (
-					<button className={styles.nodes} onClick={this.selectNodes.bind(this)}>{nodes.length}<Icon name="ion-ios-color-wand"/></button>
+					<button
+						className={styles.nodes}
+						onClick={this.selectNodes.bind(this)}
+						onMouseEnter={this.highlightNodes.bind(this)}
+						onMouseLeave={this.unHighlightNodes.bind(this)}>
+						{nodes.length}
+						<Icon name="ion-ios-color-wand"/>
+					</button>
 				)}
 
 				<div className={styles.main}>
