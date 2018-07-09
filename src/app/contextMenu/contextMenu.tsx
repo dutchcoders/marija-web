@@ -19,6 +19,7 @@ import { searchAround } from '../search/searchActions';
 import Icon from '../ui/components/icon';
 import * as styles from './contextMenu.scss';
 import { hideContextMenu } from './contextMenuActions';
+import { openLightbox } from '../ui/uiActions';
 
 interface Props {
     nodeId: number;
@@ -231,6 +232,14 @@ class ContextMenu extends React.Component<Props, State> {
         dispatch(setNote(nodeId, event.currentTarget.value));
     }
 
+    handleOpenImage() {
+    	const { nodeId, dispatch } = this.props;
+
+    	const image = this.getNode(nodeId).image;
+    	dispatch(openLightbox(image));
+    	this.close();
+	}
+
     render() {
         const { nodeId } = this.props;
         const { renameOpened, renameTo, forceNoteOpen } = this.state;
@@ -305,11 +314,24 @@ class ContextMenu extends React.Component<Props, State> {
             );
         }
 
+        let image = null;
+        if (node.image) {
+        	image = (
+        		<li>
+					<button onClick={this.handleOpenImage.bind(this)} className={styles.button}>
+						<Icon name={'ion-image ' + styles.icon} />
+						<span className={styles.buttonText}>Open image</span>
+					</button>
+				</li>
+			)
+		}
+
         return (
             <div className={styles.contextMenu} ref={ref => this.contextMenu = ref}>
                 <div className={styles.main}>
                     <h1 className={styles.title}>{node.name}</h1>
                     <ul>
+						{image}
                         <li>
                             <button onClick={this.selectRelated.bind(this)} className={styles.button}>
                                 <Icon name={'ion-qr-scanner ' + styles.icon} />
