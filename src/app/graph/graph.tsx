@@ -229,6 +229,9 @@ class Graph extends React.PureComponent<Props, State> {
 		this.isZooming = true;
 	}
 
+	tmpNodeSizeMultiplier: number;
+	textureZoomDebouncer;
+
     d3Zoomed() {
     	if (!this.isZooming) {
     		return;
@@ -242,12 +245,19 @@ class Graph extends React.PureComponent<Props, State> {
 		this.transform = transform;
 
 		const newK = this.transform.k;
+		this.tmpNodeSizeMultiplier = newK;
+		this.renderedSince.lastTick = false;
 
-		this.preProcessTextures(nodesForDisplay, newK, this.props.searches, this.props.isMapActive)
-			.then(() => {
-				this.nodeSizeMultiplier = newK;
-				this.renderedSince.lastTick = false;
-			});
+		clearTimeout(this.textureZoomDebouncer);
+
+		this.textureZoomDebouncer = setTimeout(() => {
+			this.preProcessTextures(nodesForDisplay, newK, this.props.searches, this.props.isMapActive)
+				.then(() => {
+					this.tmpNodeSizeMultiplier = undefined;
+					this.nodeSizeMultiplier = newK;
+					this.renderedSince.lastTick = false;
+				});
+		}, 200);
     }
 
     d3ZoomEnd() {
@@ -624,6 +634,11 @@ class Graph extends React.PureComponent<Props, State> {
 		renderedNode.x = this.getRenderX(node.x);
 		renderedNode.y = this.getRenderY(node.y);
 
+		if (typeof this.tmpNodeSizeMultiplier === 'number' && this.nodeSizeMultiplier !== this.tmpNodeSizeMultiplier) {
+			const scale = this.tmpNodeSizeMultiplier / this.nodeSizeMultiplier;
+			renderedNode.scale = new PIXI.Point(scale, scale);
+		}
+
 		if (!isHighlighting) {
 			renderedNode.alpha = 1;
 		} else {
@@ -935,15 +950,25 @@ class Graph extends React.PureComponent<Props, State> {
 		const promises: Promise<any>[] = [];
 
 		nodes.forEach(node => {
-			if (isMapActive && node.isGeoLocation) {
-				promises.push(this.setNodeMarkerTexture(node, true, searches));
-				promises.push(this.setNodeMarkerTexture(node, false, searches));
-			} else if (node.image) {
-				promises.push(this.setNodeImageTexture(node, sizeMultiplier, true));
-				promises.push(this.setNodeImageTexture(node, sizeMultiplier, false));
+			if (isMapActive) {
+				if (node.image) {
+					promises.push(this.setNodeImageTexture(node, 1, true));
+					promises.push(this.setNodeImageTexture(node, 1, false));
+				} else if (node.isGeoLocation) {
+					promises.push(this.setNodeMarkerTexture(node, true, searches));
+					promises.push(this.setNodeMarkerTexture(node, false, searches));
+				} else {
+					promises.push(this.setNodeTexture(node, 1, true, searches));
+					promises.push(this.setNodeTexture(node, 1, false, searches));
+				}
 			} else {
-				promises.push(this.setNodeTexture(node, sizeMultiplier, true, searches));
-				promises.push(this.setNodeTexture(node, sizeMultiplier, false, searches));
+				if (node.image) {
+					promises.push(this.setNodeImageTexture(node, sizeMultiplier, true));
+					promises.push(this.setNodeImageTexture(node, sizeMultiplier, false));
+				} else {
+					promises.push(this.setNodeTexture(node, sizeMultiplier, true, searches));
+					promises.push(this.setNodeTexture(node, sizeMultiplier, false, searches));
+				}
 			}
 		});
 
@@ -1013,6 +1038,7 @@ class Graph extends React.PureComponent<Props, State> {
 
 			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier, nextProps.searches, nextProps.isMapActive)
 				.then(() => {
+					this.tmpNodeSizeMultiplier = undefined;
 					this.updateNodeMap(nextProps.nodesForDisplay);
 					this.updateLinkMap(nextProps.linksForDisplay);
 
