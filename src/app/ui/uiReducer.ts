@@ -4,11 +4,12 @@ import {
 	CLOSE_LIGHTBOX,
 	CLOSE_PANE,
 	MOVE_PANE_TO_TOP, OPEN_LIGHTBOX,
-	OPEN_PANE,
-	SET_PANE_CONFIG
+	OPEN_PANE, RECEIVE_WORKSPACE,
+	SET_PANE_CONFIG, WORKSPACE_CREATED
 } from './uiConstants';
 import {UiState} from "./interfaces/uiState";
 import {PaneInterface} from "./interfaces/paneInterface";
+import { Workspace } from './interfaces/workspace';
 
 const defaultPane: PaneInterface = {
     open: false,
@@ -26,6 +27,7 @@ const defaultPane: PaneInterface = {
 };
 
 export const defaultUiState: UiState = {
+    workspaceId: null,
     panes: {
         configuration: {
             ...defaultPane,
@@ -140,6 +142,22 @@ export default function uiReducer(state: UiState = defaultUiState, action): UiSt
             return {
                 ...state,
                 lightboxImageUrl: null
+            };
+        }
+
+        case WORKSPACE_CREATED: {
+            return {
+                ...state,
+                workspaceId: action.payload.id
+            };
+        }
+
+        case RECEIVE_WORKSPACE: {
+			const workspace: Workspace = action.payload.workspace;
+
+            return {
+                ...state,
+                panes: workspace.panes
             };
         }
 

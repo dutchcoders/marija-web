@@ -1,8 +1,6 @@
 import { uniqueId } from 'lodash';
-
 import { cancelRequest, webSocketSend } from '../connection/connectionActions';
 import { Datasource } from '../datasources/interfaces/datasource';
-import { GraphWorkerPayload } from '../graph/helpers/graphWorkerClass';
 import { Node } from '../graph/interfaces/node';
 import { Item } from '../items/interfaces/item';
 import { AppState } from '../main/interfaces/appState';
@@ -11,14 +9,21 @@ import { ACTIVATE_LIVE_DATASOURCE, ADD_LIVE_DATASOURCE_SEARCH, DEACTIVATE_LIVE_D
 import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 import { getSelectedFields } from '../fields/fieldsSelectors';
 import { getItemByNode } from '../graph/helpers/getItemByNode';
+import Url from '../main/helpers/Url';
 
-export function searchRequest(query: string, datasourceIds: string[]) {
+export function searchRequest(query: string, datasourceIds?: string[]) {
     return (dispatch, getState) => {
         const state: AppState = getState();
         const fields = getSelectedFields(state);
 
         let fieldPaths: string[] = fields.map(field => field.path);
         fieldPaths = fieldPaths.concat(state.graph.date_fields.map(field => field.path));
+
+        if (!datasourceIds) {
+        	datasourceIds = state.datasources.datasources
+				.filter(datasource => datasource.active)
+				.map(datasource => datasource.id);
+		}
 
         const requestId = uniqueId();
 
@@ -29,6 +34,9 @@ export function searchRequest(query: string, datasourceIds: string[]) {
             query: query,
             'request-id': requestId
         }));
+
+
+		Url.addQuery(query);
 
         dispatch({
             type: SEARCH_REQUEST,
@@ -131,6 +139,8 @@ export function deleteSearch(search: Search) {
                 search: search
             }
         });
+
+        Url.removeQuery(search.q);
 
         if (!search.completed) {
             // Tell the server it can stop sending results for this query
@@ -236,11 +246,7 @@ export function deactivateLiveDatasource(datasourceId: string) {
 export function resumeSearch(search: Search) {
     return (dispatch, getState) => {
         const state: AppState = getState();
-        const fields: string[] = state
-            .graph
-            .fields
-            .map(field => field.path);
-
+        const fields: string[] = getSelectedFields(state).map(field => field.path);
         const requestId = uniqueId();
 
         dispatch(webSocketSend({

@@ -13,15 +13,19 @@ import { defaultGraphState } from '../graph/graphReducer';
 import { defaultStatsState } from '../stats/statsReducer';
 import { defaultTableState } from '../table/tableReducer';
 import { defaultUiState } from '../ui/uiReducer';
-import StateCapturer from './components/stateCapturer';
-import ResumeSession from './components/resumeSession';
 import RootView from './components/rootView';
-import persistState from './helpers/persistState';
 import { AppState } from './interfaces/appState';
 import root from './rootReducer';
 import {defaultConnectionState} from "../connection/connectionReducer";
-import {setBackendUri} from "../connection/connectionActions";
+import {
+	setBackendUri,
+	webSocketConnect
+} from "../connection/connectionActions";
 import { createWorkerMiddleware } from './helpers/createWorkerMiddleware';
+import { workspaceMiddleware } from '../ui/helpers/workspaceMiddleware';
+import Url from './helpers/Url';
+import { requestWorkspace } from '../ui/uiActions';
+import { queryMiddleware } from '../search/helpers/queryMiddleware';
 
 require('../../scss/app.scss');
 require('../../images/favicon.png');
@@ -46,9 +50,10 @@ function configureStore() {
         root,
         defaultState,
         compose(
-			persistState(),
 			applyMiddleware(
 				webSocketMiddleware,
+				workspaceMiddleware,
+				queryMiddleware,
 				thunk,
 				graphWorkerMiddleware
 			)
@@ -71,17 +76,22 @@ class App extends React.Component<Props, State> {
         const { backendUri } = this.props;
 
         store.dispatch(setBackendUri(backendUri));
+        store.dispatch(webSocketConnect(backendUri));
+
+        const workspaceId = Url.getWorkspaceId();
+
+        if (workspaceId) {
+			store.dispatch(requestWorkspace(workspaceId));
+		}
     }
 
     render() {
         return (
             <div className="applicationWrapper">
-                <StateCapturer store={store}/>
                 <Provider store={store}>
                     <Router history={history}>
                         <div className="routerWrapper">
                             <Route path='*' component={RootView} />
-                            <Route path='*' component={ResumeSession} />
                         </div>
                     </Router>
                 </Provider>

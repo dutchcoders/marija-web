@@ -16,7 +16,6 @@ import { Normalization } from '../../../graph/interfaces/normalization';
 import { Via } from '../../../graph/interfaces/via';
 import Icon from '../../../ui/components/icon';
 import Url from '../../helpers/url';
-import Workspaces from '../../helpers/workspaces';
 import { AppState } from '../../interfaces/appState';
 import { exportData, importData } from '../../mainActions';
 import { FormEvent } from 'react';
@@ -51,23 +50,6 @@ class Configuration extends React.Component<Props, State> {
         selectedTo: '',
         viaError: null,
     };
-
-    componentWillReceiveProps(nextProps) {
-        const { selectedFrom, selectedVia, selectedTo } = this.state;
-        const firstFieldPath = nextProps.fields[0] ? nextProps.fields[0].path : false;
-
-        if (selectedFrom === '' && firstFieldPath) {
-            this.setState({selectedFrom: firstFieldPath});
-        }
-
-        if (selectedVia === '' && firstFieldPath) {
-            this.setState({selectedVia: firstFieldPath});
-        }
-
-        if (selectedTo === '' && firstFieldPath) {
-            this.setState({selectedTo: firstFieldPath});
-        }
-    }
 
     handleAddNormalization(e) {
         e.preventDefault();
@@ -172,14 +154,14 @@ class Configuration extends React.Component<Props, State> {
             return;
         }
 
-        Url.addVia(viaData);
+        // Url.addVia(viaData);
         dispatch(viaAdd(viaData));
     }
 
     handleDeleteVia(viaData) {
         const { dispatch } = this.props;
 
-        Url.removeVia(viaData);
+        // Url.removeVia(viaData);
         dispatch(viaDelete(viaData));
     }
 
@@ -349,8 +331,6 @@ class Configuration extends React.Component<Props, State> {
     }
 
     resetConfig() {
-        Workspaces.deleteWorkspace();
-        // Remove all data from url and refresh the page for simplicity
         window.location.href = '/';
     }
 
@@ -439,9 +419,9 @@ class Configuration extends React.Component<Props, State> {
 }
 
 
-function select(state: AppState) {
+function select(state: AppState, ownProps) {
     return {
-        fields: state.graph.fields,
+		...ownProps,
         normalizations: state.graph.normalizations,
         via: state.graph.via,
         datasources: state.datasources.datasources,

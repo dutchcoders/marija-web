@@ -82,55 +82,6 @@ export function dateFieldDelete(field: Field) {
     };
 }
 
-export function fieldAdd(field) {
-    return {
-        type: FIELD_ADD,
-        receivedAt: Date.now(),
-        field: field
-    };
-}
-
-export function fieldUpdate(fieldPath: string, updates: any) {
-    return {
-        type: FIELD_UPDATE,
-        receivedAt: Date.now(),
-        fieldPath: fieldPath,
-        updates: updates
-    };
-}
-
-export function fieldDelete(field) {
-    return (dispatch, getState) => {
-        dispatch({
-            type: FIELD_DELETE,
-            receivedAt: Date.now(),
-            field: field
-        });
-
-		dispatch(rebuildGraph());
-
-        const state: AppState = getState();
-        const fields: Field[] = state.graph.fields;
-        const datasources: Datasource[] = state.datasources.datasources;
-
-        datasources.forEach(datasource => {
-            if (!datasource.active) {
-                return;
-            }
-
-            const datasourceFields = fields.filter(field =>
-                field.datasourceId === datasource.id
-            );
-
-            if (datasourceFields.length === 0) {
-                // If there are no more active fields for this datasource,
-                // deactivate the datasource
-                dispatch(datasourceDeactivated(datasource.id));
-            }
-        });
-    };
-}
-
 function dispatchAndRebuildGraph(action) {
     return (dispatch, getState) => {
         dispatch(action);

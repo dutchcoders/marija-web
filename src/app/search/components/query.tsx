@@ -35,8 +35,7 @@ class Query extends React.Component<Props, State> {
             dispatch(cancelRequest(search.requestId));
         }
 
-        Url.removeSearch(search.q, search.datasources);
-        Url.removeQueryParam('datasources', search.q);
+        Url.removeQuery(search.q);
         dispatch(deleteSearch(search));
     }
 
@@ -124,14 +123,12 @@ class Query extends React.Component<Props, State> {
     activateLiveDatasource() {
         const { search, dispatch } = this.props;
 
-        Url.addQueryParam('live', search.liveDatasource);
         dispatch(activateLiveDatasource(search.liveDatasource));
     }
 
     deactivateLiveDatasource() {
         const { search, dispatch } = this.props;
 
-        Url.removeQueryParam('live', search.liveDatasource);
         dispatch(deactivateLiveDatasource(search.liveDatasource));
     }
 

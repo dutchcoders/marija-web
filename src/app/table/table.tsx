@@ -4,7 +4,6 @@ import { concat, findIndex, map, pull, forEach } from 'lodash';
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 
-import { fieldAdd } from '../fields/fieldsActions';
 import { Field } from '../fields/interfaces/field';
 import { getSelectedNodes, isTableLoading } from '../graph/graphSelectors';
 import { Node } from '../graph/interfaces/node';
@@ -24,6 +23,7 @@ import Loader from '../ui/components/loader';
 import * as styles from './table.scss';
 import { FormEvent } from 'react';
 import { getSelectedFields } from '../fields/fieldsSelectors';
+import { createNewConnector } from '../fields/fieldsActions';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -84,7 +84,7 @@ class Table extends React.Component<Props, State> {
         const { dispatch, availableFields } = this.props;
         const field = availableFields.find(search => search.path === path);
 
-        dispatch(fieldAdd(field));
+        dispatch(createNewConnector(field));
         dispatch(searchFieldsUpdate());
     }
 

@@ -15,6 +15,8 @@ import { getIcon } from '../graph/helpers/getIcon';
 import { getConnectorName } from './helpers/getConnectorName';
 import { getConnectorColor } from './helpers/getConnectorColor';
 import { RuleProps } from './fieldsActions';
+import { RECEIVE_WORKSPACE } from '../ui/uiConstants';
+import { Workspace } from '../ui/interfaces/workspace';
 
 export const defaultFieldsState: FieldsState = {
     availableFields: [],
@@ -245,6 +247,15 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 				...state,
 				connectors: connectors
 			};
+		}
+
+		case RECEIVE_WORKSPACE: {
+			const workspace: Workspace = action.payload.workspace;
+
+			return {
+				...state,
+				connectors: workspace.connectors
+			}
 		}
 
         default:

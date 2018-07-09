@@ -1,13 +1,8 @@
-import Tooltip from 'rc-tooltip';
 import * as React from 'react';
-import { FormEvent } from 'react';
 import SketchPicker from 'react-color';
 import { connect, Dispatch } from 'react-redux';
 import SkyLight from 'react-skylight';
-
-import { datasourceActivated, datasourceDeactivated } from '../../datasources/datasourcesActions';
 import { Datasource } from '../../datasources/interfaces/datasource';
-import { Field } from '../../fields/interfaces/field';
 import { Node } from '../../graph/interfaces/node';
 import { AppState } from '../../main/interfaces/appState';
 import Icon from '../../ui/components/icon';
@@ -25,7 +20,6 @@ interface Props {
     searches: Search[];
     nodes: Node[];
     datasources: Datasource[];
-    fields: Field[];
 }
 
 interface State {
@@ -114,16 +108,6 @@ class SearchBox extends React.Component<Props, State> {
         this.refs.editDialog.show();
     }
 
-    handleDatasourceChange(event: FormEvent<HTMLInputElement>, datasource: Datasource) {
-        const { dispatch } = this.props;
-
-        if (event.currentTarget.checked) {
-            dispatch(datasourceActivated(datasource.id))
-        } else {
-            dispatch(datasourceDeactivated(datasource.id))
-        }
-    }
-
     handleChangeQueryColorComplete(color) {
         const { dispatch } = this.props;
         const search: any = Object.assign({}, this.state.editSearchValue);
@@ -143,53 +127,6 @@ class SearchBox extends React.Component<Props, State> {
         this.setState({
             searchAroundOpen: !searchAroundOpen
         });
-    }
-
-    renderDatasourceForm() {
-        const { datasources, fields } = this.props;
-
-        const className = styles.datasources + ' ' + styles.datasourcesHidden;
-
-        const queryDatasources = datasources.filter(datasource => datasource.type !== 'live');
-
-        return (
-            <div className={className}>
-                {queryDatasources.map(datasource => {
-                    const datasourceFields = fields.filter(field => field.datasourceId === datasource.id);
-                    const disabled = datasourceFields.length === 0;
-
-                    const label = (
-						<label key={datasource.id} className={styles.datasourceLabel}>
-							<input
-								key={0}
-								name="datasource"
-								type="checkbox"
-								className={styles.datasourceCheckbox}
-								checked={datasource.active}
-								onChange={event => this.handleDatasourceChange(event, datasource)}
-								disabled={disabled}
-							/>
-							<span key={1}>{datasource.name}</span>
-						</label>
-                    );
-
-                    if (disabled) {
-                        return (
-                            <Tooltip
-                                key={datasource.id}
-                                overlay={'First select fields for this datasource in the configuration'}
-                                placement="bottom"
-                                mouseLeaveDelay={0}
-                                arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                                {label}
-                            </Tooltip>
-                        );
-                    }
-
-                    return label;
-                })}
-            </div>
-        );
     }
 
     render() {
@@ -275,8 +212,6 @@ class SearchBox extends React.Component<Props, State> {
                                 onFocus={this.onInputFocus.bind(this)}
                             />
 							<Icon name="ion-ios-search" className={'ion-ios-search ' + styles.searchIcon} />
-
-                            {this.renderDatasourceForm()}
                         </form>
                     </div>
 
@@ -297,7 +232,6 @@ const select = (state: AppState, ownProps) => {
         searches: state.graph.searches,
         datasources: state.datasources.datasources,
         nodes: state.graph.nodes.filter(node => node.isNormalizationParent || node.normalizationId === null),
-        fields: state.graph.fields
     };
 };
 

@@ -30,7 +30,7 @@ class DatasourceList extends React.Component<Props, State> {
 }
 
 const select = (state: AppState) => ({
-	datasources: state.datasources.datasources
+	datasources: state.datasources.datasources.filter(datasource => datasource.type !== 'live')
 });
 
 export default connect(select)(DatasourceList);

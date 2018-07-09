@@ -1,9 +1,5 @@
 import createBrowserHistory from 'history/createBrowserHistory';
 import queryString from 'query-string';
-import {Datasource} from "../../datasources/interfaces/datasource";
-import * as rison from 'rison';
-import {isEqual} from 'lodash';
-import {Via} from "../../graph/interfaces/via";
 
 const history = createBrowserHistory();
 let currentLocation = history.location;
@@ -14,155 +10,52 @@ history.listen(location => {
 });
 
 export default class Url {
-    static addSearch(query: string, datasourceIds: string[]) {
-        const data: any = Url.getData();
-        datasourceIds = datasourceIds.concat([]).sort();
+    static getQueries(): string[] {
+        const value = Url.getParam('q');
 
-        if (Url.searchExists(query, datasourceIds, data.search)) {
-            return;
+        if (!value) {
+            return [];
         }
 
-        const newSearch = {q: query, d: datasourceIds};
-        data.search = data.search || [];
-        data.search = data.search.concat([newSearch]);
-
-        Url.setData(data);
+        return value.split(',');
     }
 
-    static removeSearch(query: string, datasourceIds: string[]) {
-        const data: any = Url.getData();
+    static addQuery(query: string) {
+        const queries = Url.getQueries();
 
-        if (!data.search) {
-            return;
+        if (queries.indexOf(query) === -1) {
+            queries.push(query);
         }
 
-        const sorted = datasourceIds.concat([]).sort();
-
-        data.search = data.search.filter(search =>
-            search.q !== query
-            || !isEqual(search.d, sorted)
-        );
-
-        if (data.search.length === 0) {
-            delete data.search;
-        }
-
-        Url.setData(data);
+        Url.setParam('q', queries.join(','));
     }
 
-    static addVia(via: Via) {
-        const data: any = Url.getData();
+    static removeQuery(query: string) {
+		let queries = Url.getQueries();
 
-        if (Url.viaExists(via, data.via)) {
-            return;
-        }
+		queries = queries.filter(q => q !== query);
 
-        const newVia = {f: via.from, v: via.via, t: via.to};
-        data.via = data.via || [];
-        data.via = data.via.concat([newVia]);
-
-        Url.setData(data);
+		Url.setParam('q', queries.join(','));
     }
 
-    static removeVia(via: Via) {
-        const data: any = Url.getData();
-
-        if (!data.via) {
-            return;
-        }
-
-        data.via = data.via.filter(search =>
-            search.f !== via.from
-            || search.v !== via.via
-            || search.t !== via.to
-        );
-
-        if (data.via.length === 0) {
-            delete data.via;
-        }
-
-        Url.setData(data);
+    static setWorkspaceId(id: string) {
+        Url.setParam('workspace', id);
     }
 
-    /**
-     * Add a new query param to the url
-     *
-     * @param name
-     * @param value
-     */
-    static addQueryParam(name, value) {
-        const data: any = Url.getData();
-        const current = data[name] || [];
-        const existingIndex = current.findIndex(val => val === value);
-
-        if (existingIndex !== -1) {
-            return;
-        }
-
-        data[name] = current.concat([value]);
-
-        Url.setData(data);
+    static getWorkspaceId(): string {
+        return Url.getParam('workspace');
     }
 
-    /**
-     * Remove a query param from the url
-     *
-     * @param name
-     * @param value
-     */
-    static removeQueryParam(name, value) {
-        const data: any = Url.getData();
-        const current = data[name] || [];
-        data[name] = current.filter(val => val !== value);
+    private static getParam(param: string) {
+		const queryParams = queryString.parse(currentLocation.search);
 
-        if (data[name].length === 0) {
-            delete data[name];
-        }
-
-        Url.setData(data);
+		return queryParams[param];
     }
 
-    static getData(): any {
-        const queryParams = queryString.parse(currentLocation.search);
-        return queryParams.session ? rison.decode(queryParams.session) : {};
-    }
+    private static setParam(param: string, value: string) {
+		const queryParams = queryString.parse(currentLocation.search);
+		queryParams[param] = value;
 
-    static isLiveDatasourceActive(datasourceId: string): boolean {
-        const data = this.getData();
-
-        return data.live && data.live.indexOf(datasourceId) !== -1;
-    }
-
-    private static setData(data: any) {
-        const encoded = rison.encode_uri(data);
-
-        history.push(currentLocation.pathname + '?session=' + encoded);
-    }
-
-    private static searchExists(query: string, datasourceIds: string[], current: any[]): boolean {
-        if (!current) {
-            return false;
-        }
-
-        const existing = current.find(search =>
-            search.q === query
-            && isEqual(search.d, datasourceIds)
-        );
-
-        return typeof existing !== 'undefined';
-    }
-
-    private static viaExists(via: Via, current: any[]): boolean {
-        if (!current) {
-            return false;
-        }
-
-        const existing = current.find(search =>
-            search.f === via.from
-            && search.v === via.via
-            && search.t === via.to
-        );
-
-        return typeof existing !== 'undefined';
+		history.push(currentLocation.pathname + '?' + queryString.stringify(queryParams));
     }
 }

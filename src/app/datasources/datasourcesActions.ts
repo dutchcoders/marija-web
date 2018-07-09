@@ -1,4 +1,4 @@
-import { fieldAdd, getFields } from '../fields/fieldsActions';
+import { getFields } from '../fields/fieldsActions';
 import Url from '../main/helpers/url';
 import {
 	activateLiveDatasource,
@@ -56,10 +56,6 @@ export function receiveInitialState(initialState) {
 
         live.forEach(datasource => {
             dispatch(addLiveDatasourceSearch(datasource));
-
-            if (Url.isLiveDatasourceActive(datasource.id)) {
-                dispatch(activateLiveDatasource(datasource.id));
-            }
         });
     };
 }

@@ -1,12 +1,11 @@
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
-
 import { Datasource } from '../../datasources/interfaces/datasource';
 import { Field } from '../../fields/interfaces/field';
-import Url from '../../main/helpers/url';
 import { AppState } from '../../main/interfaces/appState';
 import { searchRequest } from '../searchActions';
 import SearchBox from './searchBox';
+import { getSelectedFields } from '../../fields/fieldsSelectors';
 
 interface Props {
     connected: boolean;
@@ -24,7 +23,6 @@ class Header extends React.Component<Props, State> {
 
         const datasourceIds: string[] = datasources.map(datasource => datasource.id);
 
-        Url.addSearch(q, datasourceIds);
         dispatch(searchRequest(q, datasourceIds));
     }
 
@@ -46,11 +44,12 @@ class Header extends React.Component<Props, State> {
     }
 }
 
-function select(state: AppState) {
+function select(state: AppState, ownProps) {
     return {
+        ...ownProps,
         connected: state.connection.connected,
-        datasources: state.datasources.datasources.filter(datasource => datasource.active),
-        fields: state.graph.fields
+        fields: getSelectedFields(state),
+        datasources: state.datasources.datasources.filter(datasource => datasource.active)
     };
 }
 

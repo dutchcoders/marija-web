@@ -64,6 +64,8 @@ import {Via} from './interfaces/via';
 import {GraphState} from "./interfaces/graphState";
 import { markPerformance } from '../main/helpers/performance';
 import { Item } from '../items/interfaces/item';
+import { RECEIVE_WORKSPACE } from '../ui/uiConstants';
+import { Workspace } from '../ui/interfaces/workspace';
 
 export const defaultGraphState: GraphState = {
     date_fields: [],
@@ -699,6 +701,17 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 				...state,
 				nodes,
 				notes
+			};
+		}
+
+		case RECEIVE_WORKSPACE: {
+			const workspace: Workspace = action.payload.workspace;
+
+			return {
+				...state,
+				filterSecondaryQueries: workspace.filterSecondaryQueries,
+				filterBoringNodes: workspace.filterBoringNodes,
+				date_fields: workspace.dateFields
 			};
 		}
 

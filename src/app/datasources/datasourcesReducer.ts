@@ -8,6 +8,8 @@ import {
 import {Datasource} from './interfaces/datasource';
 import {DatasourcesState} from "./interfaces/datasourcesState";
 import { getIcon } from '../graph/helpers/getIcon';
+import { RECEIVE_WORKSPACE } from '../ui/uiConstants';
+import { Workspace } from '../ui/interfaces/workspace';
 
 export const defaultDatasourcesState: DatasourcesState = {
     datasources: []
@@ -114,13 +116,20 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
                 ...action.payload.props
             };
 
-            console.log(action);
-
             return {
                 ...state,
                 datasources
             }
         }
+
+		case RECEIVE_WORKSPACE: {
+			const workspace: Workspace = action.payload.workspace;
+
+			return {
+				...state,
+				datasources: workspace.datasources
+			};
+		}
 
         default:
             return state;
