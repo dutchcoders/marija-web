@@ -522,3 +522,40 @@ test('should work with word similarity percentages with ssdeep', () => {
 
 	expect(nodes.length).toBe(3);
 });
+
+test('should find relations with nodes that already existed', () => {
+	const items1 = [
+		{
+			id: '1',
+			fields: {
+				name: 'thomas',
+			},
+			searchId: 'q'
+		}
+	];
+
+	const fields = [
+		generateNodeTemplate('name', ['name'])
+	] as any;
+
+	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields);
+
+	expect(nodes.length).toBe(1);
+	expect(links.length).toBe(0);
+
+	const items2 = [
+		{
+			id: '2',
+			fields: {
+				name: 'thomas',
+			},
+			searchId: 'q'
+		}
+	];
+
+	const allItems = items1.concat(items2);
+	const result = getNodesAndLinks(nodes, links, allItems as any, fields);
+
+	expect(result.nodes.length).toBe(3);
+	expect(result.links.length).toBe(2);
+});

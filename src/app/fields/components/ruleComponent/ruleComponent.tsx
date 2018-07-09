@@ -127,7 +127,7 @@ class RuleComponent extends React.Component<Props, State> {
 								onChange={this.onSimilarityChange.bind(this)}
 								min={1}
 								max={100}
-								defaultValue={unsavedSimilarity.toString()}
+								defaultValue={typeof unsavedSimilarity === 'number' ? unsavedSimilarity.toString() : '100'}
 							/>
 						</div>
 

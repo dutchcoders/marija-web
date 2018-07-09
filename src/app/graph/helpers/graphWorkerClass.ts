@@ -25,6 +25,10 @@ import {sortItems} from "../../items/helpers/sortItems";
 import { REBUILD_GRAPH } from '../graphConstants';
 import { Connector } from '../interfaces/connector';
 import { Datasource } from '../../datasources/interfaces/datasource';
+import { createNewConnector } from '../../fields/fieldsActions';
+import { createConnector } from '../../fields/helpers/createConnector';
+import { getConnectorName } from '../../fields/helpers/getConnectorName';
+import { getConnectorRuleId } from '../../fields/helpers/getConnectorRuleId';
 
 export interface GraphWorkerPayload {
     items: Item[];
@@ -32,7 +36,6 @@ export interface GraphWorkerPayload {
     prevNodes?: Node[];
     prevLinks?: Link[];
     prevItems?: Item[];
-    fields: Field[];
     normalizations: Normalization[];
     searches: Search[];
     deletedNodeIds: number[];
@@ -50,7 +53,7 @@ export interface GraphWorkerOutput {
     nodes: Node[];
     links: Link[];
     items: Item[];
-    fields: Field[];
+    connectors: Connector[];
     searches: Search[]
 }
 
@@ -77,7 +80,7 @@ export default class GraphWorkerClass {
 			prevItemCache = payload.prevItems;
 		}
 
-		let fields = payload.fields;
+		let connectors = payload.connectors;
 		let search: Search;
 		let searches: Search[] = payload.searches;
 		let useItems: Item[];
@@ -107,18 +110,20 @@ export default class GraphWorkerClass {
 
 			// For live datasources we automatically add all the fields that are present in the items
 			if (isLive) {
-				fields = GraphWorkerClass.createFieldsFromData(fields, payload.items, search.liveDatasource);
+				connectors = GraphWorkerClass.createConnectorsFromData(connectors, payload.items, search.liveDatasource);
 			}
 
-			useItems = payload.items;
+			useItems = prevItemCache.concat(payload.items);
 		}
+
+		console.log(connectors);
 
         // update nodes and links
         const result = getNodesAndLinks(
             prevNodeCache,
             prevLinkCache,
             useItems,
-            payload.connectors,
+            connectors,
             search ? search.aroundNodeId : null,
             payload.deletedNodeIds,
 			payload.datasources
@@ -167,7 +172,7 @@ export default class GraphWorkerClass {
             nodes: nodes,
             links: links,
             items: items,
-            fields: fields,
+            connectors: connectors,
             searches: searches
         };
 
@@ -240,31 +245,44 @@ export default class GraphWorkerClass {
     }
 
     /**
-     * Automatically create fields based on all the data that is present in the
+     * Automatically create connectors based on all the data that is present in the
      * items.
      *
-     * @param {Field[]} fields
+     * @param {Connector[]} connectors
      * @param {Item[]} items
      * @param {string} datasource
-     * @returns {Field[]}
+     * @returns {Connector[]}
      */
-    private static createFieldsFromData(fields: Field[], items: Item[], datasource: string): Field[] {
-        const fieldMap = {};
-        fields.forEach(field => fieldMap[field.path] = true);
+    private static createConnectorsFromData(connectors: Connector[], items: Item[], datasource: string): Connector[] {
+        const usedFields: Field[] = [];
+
+        connectors.forEach(connector =>
+			connector.rules.forEach(rule =>
+				usedFields.push(rule.field)
+			)
+		);
 
         items.forEach(item => {
             forEach(item.fields, (value, key) => {
-                if (fieldMap[key]) {
-                    // Field already exists
+            	const existing = usedFields.find(field => field.path === key);
+
+            	console.log(key);
+
+                if (existing) {
+                    // Field is already used in a connector
                     return;
                 }
 
-                const field = createField(fields, key, 'string', datasource);
-                fields = fields.concat([field]);
-                fieldMap[key] = true;
+                const field = createField(usedFields, key, 'string', datasource);
+                const name = getConnectorName(connectors);
+                const ruleId = getConnectorRuleId(connectors);
+                const connector = createConnector(connectors, name, ruleId, field);
+
+                usedFields.push(field);
+                connectors = connectors.concat([connector]);
             });
         });
 
-        return fields;
+        return connectors;
     }
 }

@@ -119,7 +119,7 @@ export function graphWorkerOutput(output: GraphWorkerOutput) {
         nodes: output.nodes,
         links: output.links,
         items: output.items,
-        fields: output.fields,
+        connectors: output.connectors,
         searches: output.searches
     }
 }

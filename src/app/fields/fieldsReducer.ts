@@ -17,6 +17,9 @@ import { getConnectorColor } from './helpers/getConnectorColor';
 import { RuleProps } from './fieldsActions';
 import { RECEIVE_WORKSPACE } from '../ui/uiConstants';
 import { Workspace } from '../ui/interfaces/workspace';
+import { createConnector } from './helpers/createConnector';
+import { GRAPH_WORKER_OUTPUT } from '../graph/graphConstants';
+import { GraphWorkerOutput } from '../graph/helpers/graphWorkerClass';
 
 export const defaultFieldsState: FieldsState = {
     availableFields: [],
@@ -157,17 +160,7 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 			const field: Field = action.payload.field;
 			const name: string = action.payload.name;
 			const ruleId: string = action.payload.ruleId;
-
-			const connector: Connector = {
-				name: name,
-				rules: [{
-					id: ruleId,
-					field: field
-				}],
-				strategy: 'AND',
-				icon: getIcon(field.path, state.connectors.map(matcher => matcher.icon)),
-				color: getConnectorColor(state.connectors)
-			};
+			const connector = createConnector(state.connectors, name, ruleId, field);
 
 			return {
 				...state,
@@ -256,6 +249,15 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 				...state,
 				connectors: workspace.connectors
 			}
+		}
+
+		case GRAPH_WORKER_OUTPUT: {
+			const output: GraphWorkerOutput = action;
+
+			return {
+				...state,
+				connectors: output.connectors
+			};
 		}
 
         default:

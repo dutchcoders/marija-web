@@ -68,10 +68,6 @@ const defaultPayload: GraphWorkerPayload = {
     prevNodes: [],
     prevLinks: [],
     prevItems: [],
-    fields: [
-        getField('client'),
-        getField('server')
-    ],
     normalizations: [],
     searches: [
         getSearch('query')

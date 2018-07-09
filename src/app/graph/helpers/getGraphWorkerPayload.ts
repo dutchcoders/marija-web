@@ -1,7 +1,6 @@
 import { Item } from '../../items/interfaces/item';
 import { AppState } from '../../main/interfaces/appState';
 import { GraphWorkerPayload } from './graphWorkerClass';
-import { getSelectedFields } from '../../fields/fieldsSelectors';
 
 export function getGraphWorkerPayload(state: AppState, items: Item[] = [], searchId: string = null): GraphWorkerPayload {
 	return {
@@ -10,7 +9,6 @@ export function getGraphWorkerPayload(state: AppState, items: Item[] = [], searc
 		prevNodes: state.graph.nodes,
 		prevLinks: state.graph.links,
 		prevItems: state.graph.items,
-		fields: getSelectedFields(state),
 		normalizations: state.graph.normalizations,
 		searches: state.graph.searches,
 		deletedNodeIds: state.graph.deletedNodeIds,

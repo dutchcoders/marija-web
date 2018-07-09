@@ -384,17 +384,6 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 				graphWorkerHasValidNodes: true
             };
 
-            // Fields are only updated by the graph worker if it was a live search
-            // In a live search all fields present in the items are automatically
-            // added
-            // if (!isEqual(action.fields, state.fields)) {
-            //     const newFields = action.fields.filter((field: Field) =>
-            //         state.fields.findIndex(existing => existing.path === field.path) === -1
-            //     );
-			//
-            //     updates.fields = state.fields.concat(newFields);
-            // }
-
             return Object.assign({}, state, updates);
         }
         case REQUEST_COMPLETED: {
