@@ -1345,6 +1345,14 @@ class Graph extends React.PureComponent<Props, State> {
             return;
         }
 
+		let sizeMultiplier;
+
+		if (typeof this.tmpNodeSizeMultiplier === 'number' && this.tmpNodeSizeMultiplier !== this.nodeSizeMultiplier) {
+			sizeMultiplier = this.tmpNodeSizeMultiplier;
+		} else {
+			sizeMultiplier = this.nodeSizeMultiplier;
+		}
+
         this.nodeMap.forEach(node => {
         	if (!node.x) {
         		return;
@@ -1355,7 +1363,7 @@ class Graph extends React.PureComponent<Props, State> {
 
             sprite.anchor.x = .5;
             sprite.x = this.getRenderX(node.x);
-            sprite.y = this.getRenderY(node.y) + node.r * this.nodeSizeMultiplier;
+            sprite.y = this.getRenderY(node.y) + node.r * sizeMultiplier;
 
             this.renderedNodeLabels.addChild(sprite);
         });
