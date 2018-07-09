@@ -54,7 +54,12 @@ export default class Url {
 
     private static setParam(param: string, value: string) {
 		const queryParams = queryString.parse(currentLocation.search);
-		queryParams[param] = value;
+
+		if (!value) {
+			delete queryParams[param];
+		} else {
+			queryParams[param] = value;
+		}
 
 		history.push(currentLocation.pathname + '?' + queryString.stringify(queryParams));
     }
