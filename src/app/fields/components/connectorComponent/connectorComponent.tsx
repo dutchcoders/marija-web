@@ -173,7 +173,7 @@ class ConnectorComponent extends React.Component<Props, State> {
 							 onDragEnter={this.onDragEnter.bind(this)}
 							 onDragLeave={this.onDragLeave.bind(this)}
 							 onDrop={this.onDrop.bind(this)}>
-							{connector === null ? 'Drop field here to create new matcher' : 'Drop field here to make part of matcher'}
+							{connector === null ? 'Drop field here to create new connector' : 'Drop field here to make part of connector'}
 						</div>
 					)}
 				</div>
