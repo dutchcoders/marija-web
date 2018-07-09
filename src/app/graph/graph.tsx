@@ -489,7 +489,14 @@ class Graph extends React.PureComponent<Props, State> {
 		ctx.arc(canvas.width / 2, canvas.height / 2, radius, 0, Math.PI * 2, false);
 		ctx.clip();
 
-		const image = await loadImage(node.image);
+		let image: HTMLImageElement;
+
+		try {
+			image = await loadImage(node.image);
+		}
+		catch (e) {
+			image = await loadImage('/images/logo.png');
+		}
 
 		const diameter = radius * 2;
 		let newImageWidth: number;
@@ -599,12 +606,12 @@ class Graph extends React.PureComponent<Props, State> {
 		let texture: PIXI.RenderTexture;
 		let anchorY: number;
 
-		if (isMapActive && node.isGeoLocation) {
-			texture = this.getNodeMarkerTexture(node);
-			anchorY = 1;
-		} else if (node.image) {
+		if (node.image) {
 			texture = this.getNodeImageTexture(node, this.nodeSizeMultiplier);
 			anchorY = .5;
+		} else if (isMapActive && node.isGeoLocation) {
+			texture = this.getNodeMarkerTexture(node);
+			anchorY = 1;
 		} else {
 			texture = this.getNodeTexture(node, this.nodeSizeMultiplier);
 			anchorY = .5;
@@ -1317,25 +1324,12 @@ class Graph extends React.PureComponent<Props, State> {
         		return;
 			}
 
-			if (isMapActive && node.isGeoLocation) {
-        		return;
-			}
-
             const texture = this.getNodeLabelTexture(node.abbreviated, isMapActive);
             const sprite = new PIXI.Sprite(texture);
 
             sprite.anchor.x = .5;
             sprite.x = this.getRenderX(node.x);
-
-            let y = this.getRenderY(node.y);
-
-            if (isMapActive && node.isGeoLocation) {
-            	y += 2;
-			} else {
-            	y += node.r * this.nodeSizeMultiplier;
-			}
-
-            sprite.y = y;
+            sprite.y = this.getRenderY(node.y) + node.r * this.nodeSizeMultiplier;
 
             this.renderedNodeLabels.addChild(sprite);
         });

@@ -58,7 +58,7 @@ export const responders: Responder[] = [
 						count: 1,
 						fields: {
 							name: 'Thomas',
-							location: '51,3',
+							location: '51.505,-0.09',
 							created2: '2018-05-30T15:07:20Z',
 							profile: 'https://avatars2.githubusercontent.com/u/1392370?s=460&v=4'
 						}
@@ -67,7 +67,7 @@ export const responders: Responder[] = [
 						id: '2',
 						count: 1,
 						fields: {
-							name: 'Remco',
+							name: 'Thomas',
 							location: '51,3',
 							created2: '2018-06-20T15:07:20Z',
 							profile: 'https://transfer.sh/yapQU/NoCode.png'
@@ -77,8 +77,8 @@ export const responders: Responder[] = [
 						id: '3',
 						count: 1,
 						fields: {
-							name: 'Bouke',
-							location: '51,3',
+							name: 'Thomas',
+							location: '51.2,2.9',
 							created2: '2018-07-20T15:07:20Z',
 							profile: 'https://media.licdn.com/dms/image/C5103AQFGu53SZi7qTA/profile-displayphoto-shrink_200_200/0?e=1534982400&v=beta&t=CEvoYDNvYJDx2dtpa3NlR52OF4GX1itOhuMEvEbxbFo'
 						}
