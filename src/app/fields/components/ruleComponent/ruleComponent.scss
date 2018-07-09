@@ -11,8 +11,12 @@
   padding: 5px 10px;
 }
 
-.toggle {
+.buttons {
   margin-left: auto;
+  display: flex;
+}
+
+.toggle {
   font-size: 18px;
   line-height: 28px;
   margin-right: 10px;
