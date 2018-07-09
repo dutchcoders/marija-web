@@ -116,8 +116,6 @@ export default class GraphWorkerClass {
 			useItems = prevItemCache.concat(payload.items);
 		}
 
-		console.log(connectors);
-
         // update nodes and links
         const result = getNodesAndLinks(
             prevNodeCache,
@@ -265,8 +263,6 @@ export default class GraphWorkerClass {
         items.forEach(item => {
             forEach(item.fields, (value, key) => {
             	const existing = usedFields.find(field => field.path === key);
-
-            	console.log(key);
 
                 if (existing) {
                     // Field is already used in a connector
