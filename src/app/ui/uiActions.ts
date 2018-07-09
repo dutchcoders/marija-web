@@ -8,7 +8,7 @@ import {
 import { webSocketSend } from '../connection/connectionActions';
 import { AppState } from '../main/interfaces/appState';
 import { Workspace } from './interfaces/workspace';
-import Url from '../main/helpers/Url';
+import Url from '../main/helpers/url';
 import { uniqueId } from 'lodash';
 
 export function openPane(pane) {

@@ -9,7 +9,7 @@ import { ACTIVATE_LIVE_DATASOURCE, ADD_LIVE_DATASOURCE_SEARCH, DEACTIVATE_LIVE_D
 import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 import { getSelectedFields } from '../fields/fieldsSelectors';
 import { getItemByNode } from '../graph/helpers/getItemByNode';
-import Url from '../main/helpers/Url';
+import Url from '../main/helpers/url';
 
 export function searchRequest(query: string, datasourceIds?: string[]) {
     return (dispatch, getState) => {

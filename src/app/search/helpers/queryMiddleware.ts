@@ -1,7 +1,7 @@
 import { Middleware } from 'redux';
 import { FIELDS_RECEIVE } from '../../fields/fieldsConstants';
 import { INITIAL_STATE_RECEIVE } from '../../datasources/datasourcesConstants';
-import Url from '../../main/helpers/Url';
+import Url from '../../main/helpers/url';
 import { searchRequest } from '../searchActions';
 
 let numDatasources: number;

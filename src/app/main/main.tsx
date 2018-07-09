@@ -23,7 +23,7 @@ import {
 } from "../connection/connectionActions";
 import { createWorkerMiddleware } from './helpers/createWorkerMiddleware';
 import { workspaceMiddleware } from '../ui/helpers/workspaceMiddleware';
-import Url from './helpers/Url';
+import Url from './helpers/url';
 import { requestWorkspace } from '../ui/uiActions';
 import { queryMiddleware } from '../search/helpers/queryMiddleware';
 
