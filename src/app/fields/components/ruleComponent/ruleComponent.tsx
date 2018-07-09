@@ -114,7 +114,9 @@ class RuleComponent extends React.Component<Props, State> {
 					 draggable={true}
 					 onDragStart={(event: any) => this.onDragStart(event, rule)}>
 					<span>{rule.field.path}</span>
-					<Icon name={styles.toggle + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')} onClick={this.toggleExpanded.bind(this)}/>
+					{isTextType && (
+						<Icon name={styles.toggle + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')} onClick={this.toggleExpanded.bind(this)}/>
+					)}
 					<Icon name={styles.delete + ' ion-ios-close'} onClick={() => this.deleteRule(rule)}/>
 				</div>
 
