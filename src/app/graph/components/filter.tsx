@@ -65,7 +65,13 @@ class Filter extends React.Component<any, any> {
         const { nodes } = this.props;
         const { find_value } = this.state;
 
-        return nodes.filter((node) => node.name.toLowerCase().indexOf(find_value) !== -1);
+        return nodes.filter((node) => {
+            if (typeof node.name.toLowerCase !== 'function' ) {
+                console.log(node);
+            }
+
+            return node.name.toLowerCase().indexOf(find_value) !== -1
+		});
     }
 
     handleSelectMultiple(e, nodes) {

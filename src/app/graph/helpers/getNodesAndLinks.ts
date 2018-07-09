@@ -165,15 +165,17 @@ export default function getNodesAndLinks(
     			return;
 			}
 
-			const name = connector.rules.reduce((prev: string, rule: Rule) => {
+			const names: string[] = connector.rules.reduce((prev: string[], rule: Rule) => {
 				const value = valueSet[rule.field.path];
 
 				if (value === null || typeof value === 'undefined') {
-					return '';
+					return prev;
 				}
 
-				return value;
-			}, '');
+				return prev.concat([value]);
+			}, []);
+
+			const name = names.join(', ');
 
 			if (name === '') {
 				throw new Error('Tried to create connector node with empty name for valueSet: ' + JSON.stringify(valueSet));
@@ -262,7 +264,11 @@ export default function getNodesAndLinks(
     const createItemNode = (item: Item): Node => {
     	const datasource = datasources.find(datasource => datasource.id === item.datasourceId);
     	const labelField = datasource && datasource.labelFieldPath ? datasource.labelFieldPath : Object.keys(item.fields)[0];
-		const name = item.fields[labelField] || '';
+		let name = item.fields[labelField] || '';
+
+		if (Array.isArray(name)) {
+			name = name.join(', ');
+		}
 
 		const imageField = datasource && datasource.imageFieldPath ? datasource.imageFieldPath : null;
     	let image: string;
