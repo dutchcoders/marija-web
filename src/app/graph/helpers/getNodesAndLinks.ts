@@ -1,6 +1,6 @@
 import { Item } from '../../items/interfaces/item';
 import { Link } from '../interfaces/link';
-import { ChildData, Node } from '../interfaces/node';
+import { ChildData, GeoLocation, Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';
 import {forEach, isEmpty, uniqueId, findIndex} from 'lodash';
 import { Connector, MatchingStrategy, Rule } from '../interfaces/connector';
@@ -277,7 +277,20 @@ export default function getNodesAndLinks(
     		image = item.fields[imageField];
 		}
 
-    	const hash = getHash(item.id);
+		const locationField = datasource && datasource.locationFieldPath ? datasource.locationFieldPath : null;
+		let location: GeoLocation;
+		let isGeoLocation: boolean = false;
+
+		if (locationField && item.fields[locationField]) {
+			isGeoLocation = true;
+			const parts = item.fields[locationField].split(',');
+			location = {
+				lat: parseFloat(parts[0]),
+				lng: parseFloat(parts[1]),
+			};
+		}
+
+		const hash = getHash(item.id);
 
     	const existing = itemNodes.find(node => node.id === hash);
 
@@ -293,6 +306,13 @@ export default function getNodesAndLinks(
     			return {
 					...existing,
 					image: image
+				};
+			}
+
+			if (location !== existing.geoLocation) {
+				return {
+					...existing,
+					geoLocation: location
 				};
 			}
 
@@ -321,14 +341,15 @@ export default function getNodesAndLinks(
 			displayTooltip: false,
 			isNormalizationParent: false,
 			important: false,
-			isGeoLocation: false,
+			isGeoLocation: isGeoLocation,
 			isImage: false,
 			childData: item.fields,
 			connector: null,
 			type: 'item',
 			datasourceId: item.datasourceId,
 			image: image,
-			itemCount: item.count
+			itemCount: item.count,
+			geoLocation: location
 		};
 
     	itemNodes.push(node);

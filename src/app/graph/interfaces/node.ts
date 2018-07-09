@@ -72,8 +72,14 @@ export interface Node {
 
 	type: 'connector' | 'item';
 	itemCount?: number;
+	geoLocation?: GeoLocation;
 }
 
 export interface ChildData {
 	[field: string]: string[]
+}
+
+export interface GeoLocation {
+	lat: number;
+	lng: number;
 }

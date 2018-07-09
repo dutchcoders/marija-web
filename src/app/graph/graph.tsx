@@ -3,8 +3,7 @@ import {connect, Dispatch} from 'react-redux';
 import * as d3 from 'd3';
 import { concat, debounce, remove, includes, assign, isEqual, isEmpty, forEach } from 'lodash';
 import {
-    nodesSelect, highlightNodes, deselectNodes, showTooltip,
-    clearSelection
+    nodesSelect, highlightNodes, deselectNodes, showTooltip
 } from './graphActions';
 import getArcParams from './helpers/getArcParams';
 import getDirectlyRelatedNodes from './helpers/getDirectlyRelatedNodes';
@@ -22,7 +21,6 @@ import {
 	getNodesForDisplay, getSelectedNodes
 } from "./graphSelectors";
 import {setFps} from "../stats/statsActions";
-import {Field} from "../fields/interfaces/field";
 import {getArrowPosition} from "./helpers/getArrowPosition";
 import {AppState} from "../main/interfaces/appState";
 import * as Leaflet from 'leaflet';
@@ -245,7 +243,7 @@ class Graph extends React.PureComponent<Props, State> {
 
 		const newK = this.transform.k;
 
-		this.preProcessTextures(nodesForDisplay, newK, this.props.searches)
+		this.preProcessTextures(nodesForDisplay, newK, this.props.searches, this.props.isMapActive)
 			.then(() => {
 				this.nodeSizeMultiplier = newK;
 				this.renderedSince.lastTick = false;
@@ -269,11 +267,7 @@ class Graph extends React.PureComponent<Props, State> {
 		}
 
     	const coordinates: Leaflet.LatLng[] = nodes.map(node => {
-			const splitted = node.name.split(',');
-			const lat = parseFloat(splitted[0]);
-			const lng = parseFloat(splitted[1]);
-
-			return new Leaflet.LatLng(lat, lng);
+			return new Leaflet.LatLng(node.geoLocation.lat, node.geoLocation.lng);
 		});
 
     	this.map.fitBounds(Leaflet.latLngBounds(coordinates).pad(.2));
@@ -914,15 +908,6 @@ class Graph extends React.PureComponent<Props, State> {
         this.renderedLinkLabels.addChild(rope);
     }
 
-    shouldPostToWorker(prevNodes: Node[], nextNodes: Node[], prevLinks: Link[], nextLinks: Link[], prevIsMapActive: boolean, nextIsMapActive: boolean): boolean {
-        return prevNodes.length !== nextNodes.length
-            || prevLinks.length !== nextLinks.length
-			|| prevIsMapActive !== nextIsMapActive;
-
-        // Todo: make this more intelligent than only looking at array length
-        // Can the graph also change when properties of the nodes change?
-    }
-
     getTooltipNodes(): Node[] {
         const tooltipNodes: Node[] = [];
 
@@ -935,55 +920,7 @@ class Graph extends React.PureComponent<Props, State> {
         return tooltipNodes;
     }
 
-    shouldUpdateNodeProperties(nodes: Node[], nextNodes: Node[]): boolean {
-        if (nodes.length !== nextNodes.length) {
-            // If we have a different amount of nodes we dont update just some
-            // properties, we update the whole node array
-            return false;
-        }
-
-        for (let i = 0; i < nodes.length; i ++) {
-			if (nodes[i].icon !== nextNodes[i].icon) {
-				return true;
-			}
-
-            // if (nodes[i].important !== nextNodes[i].important) {
-            //     return true;
-            // }
-
-            if ((nodes[i].description && !nextNodes[i].description)
-                || (!nodes[i].description && nextNodes[i].description)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-	/**
-	 * When you need to update some properties like the description, but you
-	 * don't want to trigger a repositioning of the nodes.
-	 *
-	 * @param {Node[]} nextNodes
-	 */
-	updateNodeProperties(nextNodes: Node[]) {
-        // const nodesToPost = nextNodes.map(node => {
-        //     return {
-        //         id: node.id,
-        //         important: node.important,
-        //         description: node.description
-        //     }
-        // });
-		//
-        // this.postWorkerMessage({
-        //     type: 'updateNodeProperties',
-        //     nodes: nodesToPost
-        // });
-    }
-
-    async preProcessTextures(nodes: Node[], sizeMultiplier: number, searches: Search[]): Promise<any> {
-		const { isMapActive } = this.props;
-
+    async preProcessTextures(nodes: Node[], sizeMultiplier: number, searches: Search[], isMapActive: boolean): Promise<any> {
 		nodes.forEach(node => {
 			node.textureKey = this.getNodeTextureKey(node, searches);
 		});
@@ -1040,8 +977,7 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
     componentWillReceiveProps(nextProps: Props) {
-        const { searches, nodesForDisplay, linksForDisplay, showLabels, highlightedNodes, isMapActive, selectedNodes } = this.props;
-        const nextSelected = nextProps.nodesForDisplay.filter(node => node.selected);
+        const { searches, nodesForDisplay, linksForDisplay, showLabels, highlightedNodes, isMapActive } = this.props;
 
         if (nextProps.isMapActive && !isMapActive) {
         	this.initMap();
@@ -1063,13 +999,17 @@ class Graph extends React.PureComponent<Props, State> {
             this.renderedSince.lastTooltip = false;
         }
 
-		if (nextProps.nodesForDisplay !== nodesForDisplay || nextProps.linksForDisplay !== linksForDisplay || nextProps.searches !== searches) {
-			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier, nextProps.searches)
+		if (nextProps.nodesForDisplay !== nodesForDisplay
+			|| nextProps.linksForDisplay !== linksForDisplay
+			|| nextProps.searches !== searches
+			|| nextProps.isMapActive !== isMapActive) {
+
+			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier, nextProps.searches, nextProps.isMapActive)
 				.then(() => {
 					this.updateNodeMap(nextProps.nodesForDisplay);
 					this.updateLinkMap(nextProps.linksForDisplay);
 
-					if (nextProps.nodesForDisplay.length !== nodesForDisplay.length) {
+					if (nextProps.nodesForDisplay.length !== nodesForDisplay.length || nextProps.isMapActive !== isMapActive) {
 						this.postNodesAndLinksToWorker(
 							nextProps.nodesForDisplay,
 							nextProps.linksForDisplay,
@@ -1091,7 +1031,7 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     postNodesAndLinksToWorker(nodesForDisplay: Node[], linksForDisplay: Link[], isMapActive: boolean) {
-        const maxLabelLength = 20;
+    	const maxLabelLength = 20;
 
         const nodesToPost = nodesForDisplay.map(node => {
             let label = node.abbreviated;
@@ -1104,11 +1044,9 @@ class Graph extends React.PureComponent<Props, State> {
             let fy = undefined;
 
 			if (isMapActive && node.isGeoLocation) {
-            	const splitted = node.name.split(',');
-            	const lat = parseFloat(splitted[0]);
-            	const lng = parseFloat(splitted[1]);
-
-				const containerPoint = this.map.latLngToContainerPoint(new Leaflet.LatLng(lat, lng));
+				const containerPoint = this.map.latLngToContainerPoint(
+					new Leaflet.LatLng(node.geoLocation.lat, node.geoLocation.lng)
+				);
 
 				fx = this.transform.invertX(containerPoint.x);
 				fy = this.transform.invertY(containerPoint.y);

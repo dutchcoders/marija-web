@@ -11,7 +11,7 @@ import {
 } from '../../fields/fieldsConstants';
 import {
 	DATASOURCE_ACTIVATED,
-	DATASOURCE_DEACTIVATED
+	DATASOURCE_DEACTIVATED, UPDATE_DATASOURCE
 } from '../../datasources/datasourcesConstants';
 import { updateWorkspace } from '../uiActions';
 
@@ -28,7 +28,8 @@ export const workspaceMiddleware: Middleware = ({dispatch}) => next => action =>
 		DATE_FIELD_ADD,
 		DATE_FIELD_DELETE,
 		DATASOURCE_ACTIVATED,
-		DATASOURCE_DEACTIVATED
+		DATASOURCE_DEACTIVATED,
+		UPDATE_DATASOURCE
 	];
 
 	if (updateForActions.indexOf(action.type) !== -1) {
