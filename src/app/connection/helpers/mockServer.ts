@@ -128,11 +128,7 @@ export const responders: Responder[] = [
 		}
 	},
 	{
-		willRespond: (action) => {
-			console.log(action);
-
-			return action.type === 'FIELDS_REQUEST';
-		},
+		willRespond: (action) => action.type === 'FIELDS_REQUEST',
 		getResponse: (action) => {
 			return {
 				type: 'FIELDS_RECEIVE',
