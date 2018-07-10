@@ -50,4 +50,5 @@ export interface Link {
     thickness?: number;
     batch?: number;
     directional?: boolean;
+    highlighted: boolean;
 }

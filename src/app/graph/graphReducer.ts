@@ -66,6 +66,7 @@ import { markPerformance } from '../main/helpers/performance';
 import { Item } from '../items/interfaces/item';
 import { RECEIVE_WORKSPACE } from '../ui/uiConstants';
 import { Workspace } from '../ui/interfaces/workspace';
+import { markHighlightedLinks } from './helpers/markHighlightedLinks';
 
 export const defaultGraphState: GraphState = {
     date_fields: [],
@@ -427,10 +428,13 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
         case NODES_HIGHLIGHT: {
             const nodes = markHighlightedNodes(state.nodes, action.nodes);
+            const links = markHighlightedLinks(nodes, state.links);
 
-            return Object.assign({}, state, {
-                nodes: nodes
-            });
+            return {
+				...state,
+				nodes,
+				links
+			};
         }
 
         case FIELD_NODES_HIGHLIGHT: {
@@ -440,9 +444,10 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             const nodes = markHighlightedNodes(state.nodes, toHighlight);
 
-            return Object.assign({}, state, {
-                nodes: nodes
-            });
+            return {
+				...state,
+				nodes
+			};
         }
 
         case ITEMS_REQUEST: {

@@ -251,7 +251,8 @@ export default function getNodesAndLinks(
 			viaId: null,
 			replacedNode: null,
 			itemIds: [item.id],
-			directional: false
+			directional: false,
+			highlighted: false
 		});
 	};
 

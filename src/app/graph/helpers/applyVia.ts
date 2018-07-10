@@ -105,7 +105,8 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
                             color: '',
                             replacedNode: step2Node,
                             itemIds: [],
-                            directional: true
+                            directional: true,
+                            highlighted: false
                         });
                     }
 

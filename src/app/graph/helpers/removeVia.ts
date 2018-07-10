@@ -16,7 +16,8 @@ const getLink = (source: number, target: number): Link => {
         color: '',
         replacedNode: null,
         itemIds: [],
-        hash: 1
+        hash: 1,
+		highlighted: false
     };
 };
 

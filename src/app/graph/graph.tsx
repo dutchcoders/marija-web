@@ -682,40 +682,42 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     renderLinks() {
-        const { highlightedNodes, isMapActive, linksForDisplay } = this.props;
+        const { isMapActive } = this.props;
 
-        const isHighlighting: boolean = highlightedNodes.length > 0;
         this.renderedLinks.clear();
         this.renderedLinkLabels.removeChildren();
         this.renderedArrows.removeChildren();
 
-        let alpha: number = .7;
-
-		if (isHighlighting) {
-			alpha = .1;
-		}
 
         if (isMapActive) {
-        	alpha = 1;
 			this.renderedLinks.lineStyle(2, 0x4A5B71);
 		}
 
-        this.renderedLinks.alpha = alpha;
-
-		this.linkMap.forEach(this.linkThicknessManager.bind(this));
+		this.linkMap.forEach(this.linkStyleManager.bind(this));
     }
 
 	// The renderer is faster when it doesnt need to switch line styles so often
-    linkThicknessManager(link: Link, index: number) {
-    	const { linksForDisplay, isMapActive } = this.props;
+    linkStyleManager(link: Link, index: number) {
+    	const { linksForDisplay, isMapActive, highlightedNodes } = this.props;
+
+		const isHighlighting: boolean = highlightedNodes.length > 0;
 
     	if (!isMapActive) {
 			const prevLink = linksForDisplay[index - 1];
 
-			if (!prevLink || prevLink && link.itemIds.length !== prevLink.itemIds.length || link.color !== link.color) {
+			if (!prevLink
+				|| (prevLink && link.color !== prevLink.color)
+				|| (prevLink && link.highlighted !== prevLink.highlighted)) {
+
+				let alpha: number = .7;
+
+				if (isHighlighting && !link.highlighted) {
+					alpha = .1;
+				}
+
 				let thickness = Math.max(1, Math.min(link.itemIds.length, 15));
 				const color = parseInt(link.color.replace('#', ''), 16);
-				this.renderedLinks.lineStyle(thickness, color);
+				this.renderedLinks.lineStyle(thickness, color, alpha);
 			}
 		}
 
