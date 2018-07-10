@@ -227,10 +227,6 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 				...props
 			};
 
-			if (rules[ruleIndex].similarity && !rules[ruleIndex].similarityAlgorithm) {
-				rules[ruleIndex].similarityAlgorithm = 'levenshtein';
-			}
-
 			connectors[connectorIndex] = {
 				...connectors[connectorIndex],
 				rules: rules

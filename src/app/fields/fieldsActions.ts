@@ -20,8 +20,7 @@ import {
 import { Field } from './interfaces/field';
 import { rebuildGraph } from '../graph/graphActions';
 import {
-	MatchingStrategy,
-	SimilarityAlgorithm
+	MatchingStrategy
 } from '../graph/interfaces/connector';
 import { searchFieldsUpdate } from '../search/searchActions';
 import { getConnectorRuleId } from './helpers/getConnectorRuleId';
@@ -151,7 +150,6 @@ export function deleteFromConnector(connectorName: string, ruleId: string) {
 
 export interface RuleProps {
 	similarity?: number;
-	similarityAlgorithm?: SimilarityAlgorithm;
 }
 
 export function updateRule(ruleId: string, props: RuleProps) {

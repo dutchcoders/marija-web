@@ -89,13 +89,7 @@ export default function getNodesAndLinks(
 
 				if (rule.similarity && rule.similarity < 100) {
 					// Similarity matching
-					let similarity: number;
-
-					if (rule.similarityAlgorithm === 'levenshtein') {
-						similarity = getStringSimilarityLevenshtein(a, b);
-					} else {
-						similarity = getStringSimilaritySsdeep(a, b);
-					}
+					const similarity: number = getStringSimilarityLevenshtein(a, b);
 
 					if (similarity >= rule.similarity) {
 						match = true;

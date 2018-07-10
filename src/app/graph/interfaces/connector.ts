@@ -1,7 +1,6 @@
 import { Field } from '../../fields/interfaces/field';
 
 export type MatchingStrategy = 'OR' | 'AND';
-export type SimilarityAlgorithm = 'levenshtein' | 'ssdeep';
 
 export interface Connector {
 	name: string;
@@ -15,5 +14,4 @@ export interface Rule {
 	id: string;
 	field: Field;
 	similarity?: number;
-	similarityAlgorithm?: SimilarityAlgorithm
 }
