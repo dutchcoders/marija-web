@@ -222,7 +222,7 @@ class Timeline extends React.Component<Props, State> {
         let noDateFields = null;
         if (dateFields.length === 0) {
             noDateFields = (
-                <p>Select at least one date field above.</p>
+                <p>Select at least one date field in the datasource config.</p>
             );
         }
 
