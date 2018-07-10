@@ -5,7 +5,7 @@ import {
 	FIELDS_REQUEST,
 	MOVE_RULE_BETWEEN_CONNECTORS,
 	MOVE_RULE_TO_NEW_CONNECTOR,
-	SET_MATCHING_STRATEGY, UPDATE_RULE
+	SET_MATCHING_STRATEGY, UPDATE_CONNECTOR, UPDATE_RULE
 } from './fieldsConstants';
 import sortFields from './helpers/sortFields';
 import {Field} from './interfaces/field';
@@ -14,7 +14,7 @@ import { Connector } from '../graph/interfaces/connector';
 import { getIcon } from '../graph/helpers/getIcon';
 import { getConnectorName } from './helpers/getConnectorName';
 import { getConnectorColor } from './helpers/getConnectorColor';
-import { RuleProps } from './fieldsActions';
+import { ConnectorProps, RuleProps } from './fieldsActions';
 import { RECEIVE_WORKSPACE } from '../ui/uiConstants';
 import { Workspace } from '../ui/interfaces/workspace';
 import { createConnector } from './helpers/createConnector';
@@ -236,6 +236,23 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 				...state,
 				connectors: connectors
 			};
+		}
+
+		case UPDATE_CONNECTOR: {
+			const name: string = action.payload.connectorName;
+			const props: ConnectorProps = action.payload.props;
+			const connectors = state.connectors.concat([]);
+			const index = connectors.findIndex(connector => connector.name === name);
+
+			connectors[index] = {
+				...connectors[index],
+				...props
+			};
+
+			return {
+				...state,
+				connectors: connectors
+			}
 		}
 
 		case RECEIVE_WORKSPACE: {

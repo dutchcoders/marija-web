@@ -15,7 +15,7 @@ import {
 	FIELDS_REQUEST,
 	MOVE_RULE_BETWEEN_CONNECTORS,
 	MOVE_RULE_TO_NEW_CONNECTOR,
-	SET_MATCHING_STRATEGY, UPDATE_RULE
+	SET_MATCHING_STRATEGY, UPDATE_CONNECTOR, UPDATE_RULE
 } from './fieldsConstants';
 import { Field } from './interfaces/field';
 import { rebuildGraph } from '../graph/graphActions';
@@ -146,6 +146,21 @@ export function deleteFromConnector(connectorName: string, ruleId: string) {
 			ruleId
 		}
 	});
+}
+
+export interface ConnectorProps {
+	color?: string;
+	icon?: string;
+}
+
+export function updateConnector(connectorName: string, props: ConnectorProps) {
+	return dispatchAndRebuildGraph({
+		type: UPDATE_CONNECTOR,
+		payload: {
+			connectorName,
+			props
+		}
+	})
 }
 
 export interface RuleProps {

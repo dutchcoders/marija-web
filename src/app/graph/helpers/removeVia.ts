@@ -13,7 +13,7 @@ const getLink = (source: number, target: number): Link => {
         isNormalizationParent: false,
         total: 1,
         current: 1,
-        color: 0,
+        color: '',
         replacedNode: null,
         itemIds: [],
         hash: 1

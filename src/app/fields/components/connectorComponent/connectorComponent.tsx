@@ -3,16 +3,15 @@ import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 import {
 	MatchingStrategy,
-	Connector, Rule
+	Connector
 } from '../../../graph/interfaces/connector';
 import { AppState } from '../../../main/interfaces/appState';
 import * as styles from './connectorComponent.scss';
 import { FormEvent } from 'react';
 import Icon from '../../../ui/components/icon';
 import {
-	deleteFromConnector,
 	moveRuleBetweenConnectors,
-	moveRuleToNewConnector, setMatchingStrategy
+	moveRuleToNewConnector, setMatchingStrategy, updateConnector
 } from '../../fieldsActions';
 import { hexToString } from '../../helpers/hexToString';
 import RuleComponent from '../ruleComponent/ruleComponent';
@@ -23,9 +22,13 @@ import {
 	highlightNodes,
 	nodesSelect
 } from '../../../graph/graphActions';
+import ColorPicker from '../../../ui/components/colorPicker/colorPicker';
+import IconSelector from '../iconSelector/iconSelector';
+import { connectorColors, queryColors } from '../../../ui/uiConstants';
 
 interface State {
 	isHoveringOnDropArea: boolean;
+	iconSelectorOpen: boolean;
 }
 
 interface Props {
@@ -37,7 +40,8 @@ interface Props {
 
 class ConnectorComponent extends React.Component<Props, State> {
 	state: State = {
-		isHoveringOnDropArea: false
+		isHoveringOnDropArea: false,
+		iconSelectorOpen: false
 	};
 
 	getDragData(event: DragEvent) {
@@ -124,14 +128,50 @@ class ConnectorComponent extends React.Component<Props, State> {
 		dispatch(highlightNodes([]));
 	}
 
+	toggleIconSelector() {
+		const { iconSelectorOpen } = this.state;
+
+		this.setState({
+			iconSelectorOpen: !iconSelectorOpen
+		});
+	}
+
+	onColorChange(color: string) {
+		const { dispatch, connector } = this.props;
+
+		dispatch(updateConnector(connector.name, {
+			color
+		}));
+
+		this.setState({
+			iconSelectorOpen: false
+		});
+	}
+
+	onIconChange(icon: string) {
+		const { dispatch, connector } = this.props;
+
+		dispatch(updateConnector(connector.name, {
+			icon
+		}));
+
+		this.setState({
+			iconSelectorOpen: false
+		});
+	}
+
 	render() {
 		const { connector, isDragging, nodes } = this.props;
-		const { isHoveringOnDropArea } = this.state;
+		const { isHoveringOnDropArea, iconSelectorOpen } = this.state;
 
 		return (
 			<div className={styles.connector}>
 				{connector !== null && (
-					<div className={styles.icon} style={{backgroundColor: hexToString(connector.color)}}>{connector.icon}</div>
+					<div className={styles.icon}
+						 onClick={this.toggleIconSelector.bind(this)}
+						 style={{backgroundColor: connector.color}}>
+						{connector.icon}
+					</div>
 				)}
 
 				{connector !== null && (
@@ -141,7 +181,7 @@ class ConnectorComponent extends React.Component<Props, State> {
 						onMouseEnter={this.highlightNodes.bind(this)}
 						onMouseLeave={this.unHighlightNodes.bind(this)}>
 						{nodes.length}
-						<Icon name="ion-ios-color-wand"/>
+						<Icon name="ion-ios-color-wand" />
 					</button>
 				)}
 
@@ -177,6 +217,17 @@ class ConnectorComponent extends React.Component<Props, State> {
 						</div>
 					)}
 				</div>
+
+				{iconSelectorOpen && (
+					<div className={styles.iconSelector}>
+						<ColorPicker
+							available={connectorColors.concat(queryColors)}
+							selected={connector.color}
+							onChange={this.onColorChange.bind(this)}
+						/>
+						<IconSelector onSelectIcon={this.onIconChange.bind(this)}/>
+					</div>
+				)}
 			</div>
 		);
 	}

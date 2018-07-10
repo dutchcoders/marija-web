@@ -19,6 +19,15 @@
 .icon {
   font-size: 16px;
   width: 28px;
+  cursor: pointer;
+  font-family: "Ionicons", sans-serif;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
 }
 
 .nodes {
@@ -70,3 +79,11 @@
   }
 }
 
+.iconSelector {
+  position: absolute;
+  margin-top: 28px;
+  width: 100%;
+  left: 0;
+  padding: 1px;
+  background: #5C6777;
+}

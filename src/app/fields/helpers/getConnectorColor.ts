@@ -1,18 +1,11 @@
 import { Connector } from '../../graph/interfaces/connector';
 import { each } from 'lodash';
+import { connectorColors } from '../../ui/uiConstants';
 
-const colors = [
-	0x499DF2,
-	0x49D6F2,
-	0x00CCAA,
-	0x6b8fb3,
-	0x3990b0,
-];
-
-export function getConnectorColor(connectors: Connector[]): number {
+export function getConnectorColor(connectors: Connector[]): string {
 	const used = {};
 
-	colors.forEach(color => used[color] = 0);
+	connectorColors.forEach(color => used[color] = 0);
 	connectors.forEach(connector => used[connector.color] ++);
 
 	let leastUsedColor;

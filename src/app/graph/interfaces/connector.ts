@@ -7,7 +7,7 @@ export interface Connector {
 	rules: Rule[];
 	strategy: MatchingStrategy;
 	icon: string;
-	color: number;
+	color: string;
 }
 
 export interface Rule {

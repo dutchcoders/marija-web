@@ -463,7 +463,7 @@ test('should work with word similarity percentages', () => {
 			name: '1',
 			strategy: 'AND',
 			icon: 'x',
-			color: 0,
+			color: '',
 			rules: [{
 				id: '1',
 				field: {

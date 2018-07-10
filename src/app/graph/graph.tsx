@@ -251,7 +251,7 @@ class Graph extends React.PureComponent<Props, State> {
 		clearTimeout(this.textureZoomDebouncer);
 
 		this.textureZoomDebouncer = setTimeout(() => {
-			this.preProcessTextures(nodesForDisplay, newK, this.props.searches, this.props.isMapActive)
+			this.preProcessTextures(nodesForDisplay, newK, this.props.searches, this.props.connectors, this.props.isMapActive)
 				.then(() => {
 					this.tmpNodeSizeMultiplier = undefined;
 					this.nodeSizeMultiplier = newK;
@@ -291,23 +291,29 @@ class Graph extends React.PureComponent<Props, State> {
         }
     }
 
-    getConnectorColor(connectorName: string) {
-		const { connectors } = this.props;
-
+    getConnectorColor(connectorName: string, connectors: Connector[]) {
 		const connector = connectors.find(connector => connector.name === connectorName);
 
 		if (!connector) {
-			return 0x52657a;
+			return '#52657a';
 		}
 
 		return connector.color;
 	}
 
-    getNodeTextureKey(node: Node, searches: Search[]) {
+    getNodeTextureKey(node: Node, searches: Search[], connectors: Connector[]) {
+    	let color: string;
+
+    	if (node.type === 'item') {
+    		color = node.searchIds.map(searchId => this.getSearchColor(searchId, searches)).join(',');
+		} else  {
+    		color = this.getConnectorColor(node.connector, connectors);
+		}
+
         return node.icon
             + node.r
 			+ node.type
-            + node.searchIds.map(searchId => this.getSearchColor(searchId, searches)).join('');
+            + color;
     }
 
     getNodeTexture(node: Node, sizeMultiplier: number): PIXI.RenderTexture {
@@ -321,7 +327,7 @@ class Graph extends React.PureComponent<Props, State> {
 		return texture;
     }
 
-    async setNodeTexture(node: Node, sizeMultiplier: number, selected: boolean, searches: Search[]): Promise<true> {
+    async setNodeTexture(node: Node, sizeMultiplier: number, selected: boolean, searches: Search[], connectors: Connector[]): Promise<true> {
 		const key = node.textureKey + '-' + sizeMultiplier + '-' + (selected ? '1' : '0');
 		let texture = this.nodeTextures[key];
 
@@ -342,10 +348,9 @@ class Graph extends React.PureComponent<Props, State> {
 		if (node.type === 'connector') {
 			fontSize = radius;
 
-			const color = this.getConnectorColor(node.connector);
-			const string = hexToString(color);
+			const color = this.getConnectorColor(node.connector, connectors);
 
-			ctx.fillStyle = string;
+			ctx.fillStyle = color;
 			ctx.fillRect(margin, margin, radius * 2, radius * 2);
 			ctx.fill();
 		} else if (node.type === 'item') {
@@ -709,7 +714,8 @@ class Graph extends React.PureComponent<Props, State> {
 
 			if (!prevLink || prevLink && link.itemIds.length !== prevLink.itemIds.length || link.color !== link.color) {
 				let thickness = Math.max(1, Math.min(link.itemIds.length, 15));
-				this.renderedLinks.lineStyle(thickness, link.color);
+				const color = parseInt(link.color.replace('#', ''), 16);
+				this.renderedLinks.lineStyle(thickness, color);
 			}
 		}
 
@@ -942,9 +948,9 @@ class Graph extends React.PureComponent<Props, State> {
         return tooltipNodes;
     }
 
-    async preProcessTextures(nodes: Node[], sizeMultiplier: number, searches: Search[], isMapActive: boolean): Promise<any> {
+    async preProcessTextures(nodes: Node[], sizeMultiplier: number, searches: Search[], connectors: Connector[], isMapActive: boolean): Promise<any> {
 		nodes.forEach(node => {
-			node.textureKey = this.getNodeTextureKey(node, searches);
+			node.textureKey = this.getNodeTextureKey(node, searches, connectors);
 		});
 
 		const promises: Promise<any>[] = [];
@@ -958,16 +964,16 @@ class Graph extends React.PureComponent<Props, State> {
 					promises.push(this.setNodeMarkerTexture(node, true, searches));
 					promises.push(this.setNodeMarkerTexture(node, false, searches));
 				} else {
-					promises.push(this.setNodeTexture(node, 1, true, searches));
-					promises.push(this.setNodeTexture(node, 1, false, searches));
+					promises.push(this.setNodeTexture(node, 1, true, searches, connectors));
+					promises.push(this.setNodeTexture(node, 1, false, searches, connectors));
 				}
 			} else {
 				if (node.image) {
 					promises.push(this.setNodeImageTexture(node, sizeMultiplier, true));
 					promises.push(this.setNodeImageTexture(node, sizeMultiplier, false));
 				} else {
-					promises.push(this.setNodeTexture(node, sizeMultiplier, true, searches));
-					promises.push(this.setNodeTexture(node, sizeMultiplier, false, searches));
+					promises.push(this.setNodeTexture(node, sizeMultiplier, true, searches, connectors));
+					promises.push(this.setNodeTexture(node, sizeMultiplier, false, searches, connectors));
 				}
 			}
 		});
@@ -1009,7 +1015,7 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
     componentWillReceiveProps(nextProps: Props) {
-        const { searches, nodesForDisplay, linksForDisplay, showLabels, highlightedNodes, isMapActive } = this.props;
+        const { searches, nodesForDisplay, linksForDisplay, showLabels, highlightedNodes, isMapActive, connectors } = this.props;
 
         if (nextProps.isMapActive && !isMapActive) {
         	this.initMap();
@@ -1034,9 +1040,10 @@ class Graph extends React.PureComponent<Props, State> {
 		if (nextProps.nodesForDisplay !== nodesForDisplay
 			|| nextProps.linksForDisplay !== linksForDisplay
 			|| nextProps.searches !== searches
+			|| nextProps.connectors !== connectors
 			|| nextProps.isMapActive !== isMapActive) {
 
-			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier, nextProps.searches, nextProps.isMapActive)
+			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier, nextProps.searches, nextProps.connectors, nextProps.isMapActive)
 				.then(() => {
 					this.tmpNodeSizeMultiplier = undefined;
 					this.updateNodeMap(nextProps.nodesForDisplay);

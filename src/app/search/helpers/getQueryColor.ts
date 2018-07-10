@@ -1,19 +1,10 @@
 import { each } from 'lodash';
-
-const colors = [
-    '#de79f2',
-    '#917ef2',
-	'#ff7373',
-	'#ff5252',
-    '#ff884d',
-	'#ff6692',
-	'#bf8757',
-];
+import { queryColors } from '../../ui/uiConstants';
 
 export default function getQueryColor(searches) {
     const used = {};
 
-    colors.forEach(color => used[color] = 0);
+    queryColors.forEach(color => used[color] = 0);
     searches.forEach(search => used[search.color] ++);
 
     let leastUsedColor;

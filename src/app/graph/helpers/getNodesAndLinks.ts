@@ -214,7 +214,7 @@ export default function getNodesAndLinks(
     	return relevantMatches;
 	};
 
-    const createLink = (source: Node, target: Node, item: Item, color: number) => {
+    const createLink = (source: Node, target: Node, item: Item, color: string) => {
 		if (source.id === target.id) {
 			// Nodes should not link to themselves
 			return;
