@@ -49,6 +49,7 @@ class Timeline extends React.Component<Props, State> {
         const { onPaneEvent } = this.props;
 
 		onPaneEvent.addListener('resized', this.onResized.bind(this));
+		this.forceUpdate();
     }
 
     getSearchIds(): string[] {
