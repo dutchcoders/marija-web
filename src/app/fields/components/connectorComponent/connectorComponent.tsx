@@ -221,7 +221,6 @@ class ConnectorComponent extends React.Component<Props, State> {
 				{iconSelectorOpen && (
 					<div className={styles.iconSelector}>
 						<ColorPicker
-							available={connectorColors.concat(queryColors)}
 							selected={connector.color}
 							onChange={this.onColorChange.bind(this)}
 						/>

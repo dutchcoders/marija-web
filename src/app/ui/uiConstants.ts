@@ -10,20 +10,45 @@ export const RECEIVE_WORKSPACE = 'RECEIVE_WORKSPACE';
 export const WORKSPACE_CREATED = 'WORKSPACE_CREATED';
 export const UPDATE_WORKSPACE = 'UPDATE_WORKSPACE';
 
+export const colors = [
+	'#f44336',
+	'#e91e63',
+	'#ab47bc',
+	'#7e57c2',
+	'#5c6bc0',
+	'#2196f3',
+	'#03a9f4',
+	'#00bcd4',
+	'#009688',
+	'#4caf50',
+	'#8bc34a',
+	'#cddc39',
+	'#ffeb3b',
+	'#ffc107',
+	'#ff9800',
+	'#ff5722',
+	'#795548',
+	'#9e9e9e',
+	'#607d8b',
+	'#000000',
+];
+
 export const queryColors = [
-	'#de79f2',
-	'#917ef2',
-	'#ff7373',
-	'#ff5252',
-	'#ff884d',
-	'#ff6692',
-	'#bf8757',
+	'#ab47bc',
+	'#5c6bc0',
+	'#7e57c2',
+	'#e91e63',
+	'#f44336',
+	'#ff9800',
+	'#ff5722',
 ];
 
 export const connectorColors = [
-	'#499DF2',
-	'#49D6F2',
-	'#00CCAA',
-	'#6b8fb3',
-	'#3990b0',
+	'#2196f3',
+	'#03a9f4',
+	'#00bcd4',
+	'#009688',
+	'#4caf50',
+	'#8bc34a',
+	'#cddc39',
 ];

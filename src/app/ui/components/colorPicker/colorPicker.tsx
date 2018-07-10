@@ -1,19 +1,19 @@
 import * as React from 'react';
 import * as styles from './colorPicker.scss';
+import { colors } from '../../uiConstants';
 
 interface Props {
 	selected: string;
-	available: string[];
 	onChange: (color: string) => void
 }
 
 export default class ColorPicker extends React.Component<Props> {
 	render() {
-		const { selected, onChange, available } = this.props;
+		const { selected, onChange } = this.props;
 
 		return (
 			<ul className={styles.list}>
-				{available.map(color => (
+				{colors.map(color => (
 					<li
 						key={color}
 						className={styles.color + (selected === color ? ' ' + styles.selected : '')}
