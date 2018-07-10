@@ -10,6 +10,8 @@ import {DatasourcesState} from "./interfaces/datasourcesState";
 import { getIcon } from '../graph/helpers/getIcon';
 import { RECEIVE_WORKSPACE } from '../ui/uiConstants';
 import { Workspace } from '../ui/interfaces/workspace';
+import { FIELDS_RECEIVE } from '../fields/fieldsConstants';
+import { Field } from '../fields/interfaces/field';
 
 export const defaultDatasourcesState: DatasourcesState = {
     datasources: []
@@ -50,6 +52,64 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
                 datasources: datasources
             });
         }
+
+		case FIELDS_RECEIVE: {
+			const fields: Field[] = action.payload.fields;
+
+			if (!fields) {
+				return state;
+			}
+
+			const datasourceId: string = action.payload.datasource;
+			const datasources = state.datasources.concat([]);
+			const index = datasources.findIndex(datasource => datasource.id === datasourceId);
+
+			if (index === -1) {
+				return state;
+			}
+
+			const datasource = { ...datasources[index] };
+
+			if (!datasource.dateFieldPath) {
+				const field = fields.find(field => field.type === 'date');
+
+				if (field) {
+					datasource.dateFieldPath = field.path;
+				}
+			}
+
+			if (!datasource.imageFieldPath) {
+				const field = fields.find(field => field.type === 'image');
+
+				if (field) {
+					datasource.imageFieldPath = field.path;
+				}
+			}
+
+			if (!datasource.locationFieldPath) {
+				const field = fields.find(field => field.type === 'location');
+
+				if (field) {
+					datasource.locationFieldPath = field.path;
+				}
+			}
+
+			if (!datasource.labelFieldPath) {
+				const field = fields.find(field => field.type === 'text' || field.type === 'string');
+
+				if (field) {
+					datasource.labelFieldPath = field.path;
+				}
+			}
+
+			datasources[index] = datasource;
+
+			return {
+				...state,
+				datasources
+			};
+		}
+
         case DATASOURCE_ACTIVATED: {
             const index: number = state.datasources.findIndex(datasource => datasource.id === action.payload.datasourceId);
 
