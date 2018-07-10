@@ -10,22 +10,22 @@ import Url from '../../main/helpers/url';
 import Icon from '../../ui/components/icon';
 import { Search } from '../interfaces/search';
 import { activateLiveDatasource, deactivateLiveDatasource, deleteSearch, editSearch, pauseSearch, resumeSearch } from '../searchActions';
+import ColorPicker from '../../ui/components/colorPicker/colorPicker';
 
 interface Props {
     dispatch: Dispatch<any>;
     search: Search;
     nodes: Node[];
     selectedNodes: Node[];
-    handleEdit: Function;
 }
 
 interface State {
-    editSearchValue: string;
+    isColorPickerOpen: boolean;
 }
 
 class Query extends React.Component<Props, State> {
     state: State = {
-        editSearchValue: null
+		isColorPickerOpen: false
     };
 
     handleDelete() {
@@ -132,8 +132,25 @@ class Query extends React.Component<Props, State> {
         dispatch(deactivateLiveDatasource(search.liveDatasource));
     }
 
+    onColorChange(color: string) {
+		const { search, dispatch } = this.props;
+
+		dispatch(editSearch(search.searchId, {
+			color
+		}));
+    }
+
+    toggleColorPicker() {
+		const { isColorPickerOpen } = this.state;
+
+		this.setState({
+			isColorPickerOpen: !isColorPickerOpen
+		});
+    }
+
     render() {
-        const { search, handleEdit } = this.props;
+        const { search } = this.props;
+        const { isColorPickerOpen } = this.state;
 
         const displayNodes: number = this.countDisplayNodes();
         const nodes: number = this.countNodes();
@@ -238,7 +255,7 @@ class Query extends React.Component<Props, State> {
                     placement="bottom"
                     mouseLeaveDelay={0}
                     arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-                    <Icon onClick={() => handleEdit()} name="ion-ios-gear"/>
+                    <Icon onClick={this.toggleColorPicker.bind(this)} name="ion-ios-gear"/>
                 </Tooltip>
             );
 
@@ -321,17 +338,25 @@ class Query extends React.Component<Props, State> {
         }
 
         return (
-            <div key={search.searchId} style={{backgroundColor: search.color}} className="query">
-                {animation}
-                <div className="queryInner" style={{backgroundColor: search.color}}>
-                    {search.q}&nbsp;
-                    {count}
+        	<div className="queryWrapper">
+				<div key={search.searchId} style={{backgroundColor: search.color}} className="query">
+					{animation}
+					<div className="queryInner" style={{backgroundColor: search.color}}>
+						{search.q}&nbsp;
+						{count}
 
-                    <div className="actions">
-                        {actions}
-                    </div>
-                </div>
-            </div>
+						<div className="actions">
+							{actions}
+						</div>
+					</div>
+				</div>
+
+				{isColorPickerOpen && (
+					<div className="colorPickerWrapper">
+						<ColorPicker selected={search.color} onChange={this.onColorChange.bind(this)}/>
+					</div>
+				)}
+			</div>
         );
     }
 }

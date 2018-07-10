@@ -24,17 +24,14 @@ interface Props {
 
 interface State {
     query: string;
-    editSearchValue: Search;
     searchAroundOpen: boolean;
 }
 
 class SearchBox extends React.Component<Props, State> {
     state: State = {
         query: '',
-        editSearchValue: null,
         searchAroundOpen: false
     };
-    refs: any;
     searchForm: HTMLFormElement;
     queryInput: HTMLTextAreaElement;
     clickHandlerRef;
@@ -103,24 +100,6 @@ class SearchBox extends React.Component<Props, State> {
 		}
     }
 
-    handleEditSearch(search) {
-        this.setState({editSearchValue: search});
-        this.refs.editDialog.show();
-    }
-
-    handleChangeQueryColorComplete(color) {
-        const { dispatch } = this.props;
-        const search: any = Object.assign({}, this.state.editSearchValue);
-
-        search.color = color.hex;
-
-        dispatch(editSearch(search.searchId, {
-            color: color.hex
-        }));
-
-        this.setState({editSearchValue: search});
-    }
-
     toggleSearchAroundContainer() {
         const { searchAroundOpen } = this.state;
 
@@ -131,39 +110,18 @@ class SearchBox extends React.Component<Props, State> {
 
     render() {
         const { connected, searches, nodes } = this.props;
-        const { query, editSearchValue, searchAroundOpen } = this.state;
-
-        const editQueryDialogStyles = {
-            backgroundColor: '#fff',
-            color: '#000',
-            width: '400px',
-            height: '400px',
-            marginTop: '-200px',
-            marginLeft: '-200px',
-        };
-
-        let edit_query = null;
-        if (editSearchValue) {
-            edit_query = <form>
-                <SketchPicker
-                    color={ editSearchValue.color }
-                    onChangeComplete={(color) => this.handleChangeQueryColorComplete(color) }
-                />
-                <span className="colorBall" style={{backgroundColor: editSearchValue.color}}/>
-                { `${editSearchValue.q} (${editSearchValue.items.length})` }
-            </form>;
-        }
+        const { query, searchAroundOpen } = this.state;
 
         const userQueries = searches
             .filter(search => search.aroundNodeId === null)
             .map(search =>
-                <Query search={search} key={search.searchId} nodes={nodes} handleEdit={() => this.handleEditSearch(search)}/>
+                <Query search={search} key={search.searchId} nodes={nodes} />
             );
 
         const searchAroundQueries = searches
             .filter(search => search.aroundNodeId !== null)
             .map(search =>
-                <Query search={search} key={search.searchId} nodes={nodes} handleEdit={() => this.handleEditSearch(search)}/>
+                <Query search={search} key={search.searchId} nodes={nodes} />
             );
 
         const searchAroundLoading = searches
@@ -218,9 +176,6 @@ class SearchBox extends React.Component<Props, State> {
                     {searchAroundContainer}
                     {userQueries}
                 </div>
-                <SkyLight dialogStyles={editQueryDialogStyles} hideOnOverlayClicked ref="editDialog" title="Update query" >
-                    { edit_query }
-                </SkyLight>
             </nav>
         );
     }

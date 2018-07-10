@@ -229,6 +229,20 @@ i.settings {
     }
 }
 
+.queryWrapper {
+    position: relative;
+
+    .colorPickerWrapper {
+        position: absolute;
+        top: 40px;
+        left: 0;
+        border-radius: 4px;
+        padding: 5px;
+        margin: 4px;
+        background-color: #455164;
+    }
+}
+
 @keyframes queryAnimation {
     0%   {transform: translateX(-50%) translateY(-50%);}
     40%  {transform: translateX(50%) translateY(-50%);}
