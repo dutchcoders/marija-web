@@ -138,6 +138,10 @@ class Query extends React.Component<Props, State> {
 		dispatch(editSearch(search.searchId, {
 			color
 		}));
+
+		this.setState({
+			isColorPickerOpen: false
+		});
     }
 
     toggleColorPicker() {
