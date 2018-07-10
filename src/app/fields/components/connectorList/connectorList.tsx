@@ -76,7 +76,7 @@ class ConnectorList extends React.Component<Props, State> {
 							{isDragging ? 'Done' : 'Advanced'}
 						</button>,
 						<button key={1} className={styles.toggleHelp} onClick={this.toggleHelp.bind(this)}>
-							Help
+							{isHelpOpen ? 'Hide help' : 'Help'}
 						</button>
 					]) : null}
 
