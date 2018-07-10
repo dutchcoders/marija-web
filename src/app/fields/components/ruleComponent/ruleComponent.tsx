@@ -33,7 +33,7 @@ class RuleComponent extends React.Component<Props, State> {
 
 	componentWillReceiveProps(props: Props) {
 		this.setState({
-			unsavedSimilarity: props.rule.similarity
+			unsavedSimilarity: props.rule.similarity || 100
 		});
 	}
 
