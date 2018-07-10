@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const { gitDescribeSync } = require('git-describe');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const commonConfig = require('./webpack_common');
+const { execSync } = require('child_process');
+const lastCommitDate = execSync('git show -s --format=%ci ' + gitInfo.hash).toString();
 
 dotenv.config();
 const gitInfo = gitDescribeSync();
@@ -22,8 +24,10 @@ module.exports = Object.assign(commonConfig, {
     plugins: [
         new webpack.DefinePlugin({
             "process.env": {
-                WEBSOCKET_URI: process.env.WEBSOCKET_URI ? JSON.stringify(process.env.WEBSOCKET_URI) : null,
-                CLIENT_VERSION: JSON.stringify(gitInfo.raw)
+				NODE_ENV: JSON.stringify("production"),
+				WEBSOCKET_URI: process.env.WEBSOCKET_URI ? JSON.stringify(process.env.WEBSOCKET_URI) : null,
+				CLIENT_VERSION: JSON.stringify(gitInfo.raw),
+				LAST_COMMIT_DATE: JSON.stringify(lastCommitDate)
             }
         })
     ],

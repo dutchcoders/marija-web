@@ -3,28 +3,17 @@ const path = require('path');
 const dotenv = require('dotenv');
 const { gitDescribeSync } = require('git-describe');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const { execSync } = require('child_process');
 
 dotenv.config();
 
 const gitInfo = gitDescribeSync();
 const SRC_DIR = path.resolve(__dirname, 'src');
-const lastCommitDate = execSync('git show -s --format=%ci ' + gitInfo.hash).toString();
 
 module.exports = {
     entry: {
         app: SRC_DIR + '/demo/index.tsx'
     },
     plugins: [
-        new webpack.DefinePlugin({
-            "process.env": { 
-                NODE_ENV: JSON.stringify(process.env.NODE_ENV || "development"),
-                WEBSOCKET_URI: process.env.WEBSOCKET_URI ? JSON.stringify(process.env.WEBSOCKET_URI) : null,
-                CLIENT_VERSION: JSON.stringify(gitInfo.raw),
-                LAST_COMMIT_DATE: JSON.stringify(lastCommitDate),
-                MOCK_SERVER: JSON.stringify(process.env.MOCK_SERVER),
-            }
-        }),
         new HtmlWebpackPlugin({
             template: 'src/index.html',
             inject: true
