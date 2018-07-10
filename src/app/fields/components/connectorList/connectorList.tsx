@@ -45,9 +45,13 @@ class ConnectorList extends React.Component<Props, State> {
 					<ConnectorComponent connector={null} isDragging={true} />
 				}
 
-				<button className={styles.toggleAdvanced} onClick={this.toggleAdvanced.bind(this)}>
-					{isDragging ? 'Done' : 'Advanced'}
-				</button>
+				{connectors.length === 0
+					? <p>Select a field below to create a new connector.</p>
+					: (
+						<button className={styles.toggleAdvanced} onClick={this.toggleAdvanced.bind(this)}>
+							{isDragging ? 'Done' : 'Advanced'}
+						</button>
+					)}
 			</div>
 		);
 	}
