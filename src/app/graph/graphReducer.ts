@@ -80,8 +80,8 @@ export const defaultGraphState: GraphState = {
     isMapActive: false,
     timelineGrouping: 'day',
     graphWorkerCacheIsValid: false,
-	filterBoringNodes: true,
-	filterSecondaryQueries: true,
+	filterBoringNodes: false,
+	filterSecondaryQueries: false,
 	isDraggingSubFields: false,
 	importantNodeIds: [],
 	notes: []

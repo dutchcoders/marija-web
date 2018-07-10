@@ -14,6 +14,10 @@ import {
 	DATASOURCE_DEACTIVATED, UPDATE_DATASOURCE
 } from '../../datasources/datasourcesConstants';
 import { updateWorkspace } from '../uiActions';
+import {
+	SET_FILTER_BORING_NODES,
+	SET_FILTER_SECONDARY_QUERIES
+} from '../../graph/graphConstants';
 
 let debouncer;
 
@@ -30,7 +34,9 @@ export const workspaceMiddleware: Middleware = ({dispatch}) => next => action =>
 		DATASOURCE_ACTIVATED,
 		DATASOURCE_DEACTIVATED,
 		UPDATE_DATASOURCE,
-		UPDATE_CONNECTOR
+		UPDATE_CONNECTOR,
+		SET_FILTER_SECONDARY_QUERIES,
+		SET_FILTER_BORING_NODES
 	];
 
 	if (updateForActions.indexOf(action.type) !== -1) {

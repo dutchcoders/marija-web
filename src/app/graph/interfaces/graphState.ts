@@ -6,7 +6,7 @@ import {Node} from "./node";
 import {Link} from "./link";
 import {Via} from "./via";
 
-export type TimelineGrouping = 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month';
+export type TimelineGrouping = 'hour' | 'day' | 'week' | 'month';
 
 export interface Note {
     nodeId: number;

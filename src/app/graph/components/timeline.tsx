@@ -72,7 +72,7 @@ class Timeline extends React.Component<Props, State> {
 			};
 
 			searchIds.forEach(searchId => {
-				const nodes: Node[] = groups[period].filter(node => node.searchIds.indexOf(searchId) !== -1);
+				const nodes: Node[] = this.getNodes(period).filter(node => node.searchIds.indexOf(searchId) !== -1);
 
 				data[searchId] = nodes.length
 			});
@@ -123,7 +123,11 @@ class Timeline extends React.Component<Props, State> {
     private getNodes(period: string): Node[] {
         const { groups } = this.props.timelineGroups;
 
-        return groups[period];
+        if (groups[period]) {
+        	return groups[period];
+		}
+
+        return [];
     }
 
     mouseEnterBar(bar) {
@@ -227,8 +231,6 @@ class Timeline extends React.Component<Props, State> {
         }
 
         const groupOptions: TimelineGrouping[] = [
-        	'second',
-			'minute',
 			'hour',
 			'day',
 			'week',

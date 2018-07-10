@@ -30,6 +30,7 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
                     imageFieldPath: existing ? existing.imageFieldPath : null,
                     labelFieldPath: existing ? existing.labelFieldPath : null,
                     locationFieldPath: existing ? existing.locationFieldPath : null,
+                    dateFieldPath: existing ? existing.dateFieldPath : null,
                 };
             });
 

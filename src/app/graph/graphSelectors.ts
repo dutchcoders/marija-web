@@ -4,7 +4,7 @@ import {Link} from "./interfaces/link";
 import {AppState} from "../main/interfaces/appState";
 import { TimelineGrouping } from './interfaces/graphState';
 import { Item } from '../items/interfaces/item';
-import { Moment } from 'moment';
+import { Moment, unitOfTime } from 'moment';
 import { find, map, groupBy, reduce, forEach, filter, concat } from 'lodash';
 import fieldLocator from '../fields/helpers/fieldLocator';
 import { Field } from '../fields/interfaces/field';
@@ -97,19 +97,25 @@ export const getTimelineGroups = createSelector(
 		const times: Moment[] = [];
 
 		let format: string;
+		let unitPlural: string;
+		let unitSingular: unitOfTime.StartOf;
 
 		if (timelineGrouping === 'month') {
 			format = 'YYYY-M';
+			unitPlural = 'months';
+			unitSingular = 'month';
 		} else if (timelineGrouping === 'week') {
 			format = 'YYYY-w';
+			unitPlural = 'weeks';
+			unitSingular = 'week';
 		} else if (timelineGrouping === 'day') {
 			format = 'YYYY-M-D';
+			unitPlural = 'days';
+			unitSingular = 'day';
 		} else if (timelineGrouping === 'hour') {
 			format = 'YYYY-M-D H';
-		} else if (timelineGrouping === 'minute') {
-			format = 'YYYY-M-D H:mm';
-		} else if (timelineGrouping === 'second') {
-			format = 'YYYY-M-D H:mm:ss'
+			unitPlural = 'hours';
+			unitSingular = 'hour';
 		}
 
 		const groupedNodes = groupBy(nodes, (node: Node) => {
@@ -124,19 +130,24 @@ export const getTimelineGroups = createSelector(
 			return date.format(format);
 		});
 
-		times.sort((a: Moment, b: Moment) => {
-			return a.unix() - b.unix();
-		});
+		if (times.length === 0) {
+			return {
+				groups: {},
+				periods: []
+			}
+		}
+
+		times.sort((a: Moment, b: Moment) => a.unix() - b.unix());
 
 		const periods: string[] = [];
+		const start = times[0];
+		const end = times[times.length - 1];
+		let current: Moment = start;
 
-		times.forEach(moment => {
-			const period: string = moment.format(format);
-
-			if (periods.indexOf(period) === -1) {
-				periods.push(period);
-			}
-		});
+		do {
+			periods.push(current.format(format));
+			current.add({ [unitPlural]: 1 });
+		} while (current.clone().startOf(unitSingular).unix() <= end.clone().startOf(unitSingular).unix());
 
 		return {
 			groups: groupedNodes,
