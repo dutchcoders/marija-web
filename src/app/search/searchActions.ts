@@ -15,9 +15,7 @@ export function searchRequest(query: string, datasourceIds?: string[]) {
     return (dispatch, getState) => {
         const state: AppState = getState();
         const fields = getSelectedFields(state);
-
-        let fieldPaths: string[] = fields.map(field => field.path);
-        fieldPaths = fieldPaths.concat(state.graph.date_fields.map(field => field.path));
+        const fieldPaths: string[] = fields.map(field => field.path);
 
         if (!datasourceIds) {
         	datasourceIds = state.datasources.datasources
@@ -163,7 +161,6 @@ export function searchFieldsUpdate() {
         const state: AppState = getState();
 
         let fields = getSelectedFields(state).map(field => field.path);
-        fields = fields.concat(state.graph.date_fields.map(field => field.path));
 
         const newSearches = state.graph.searches.map(search => {
             if (search.liveDatasource) {

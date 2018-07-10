@@ -9,6 +9,5 @@ export interface Workspace {
 	datasources: Datasource[];
 	filterBoringNodes: boolean;
 	filterSecondaryQueries: boolean;
-	dateFields: Field[];
 	connectors: Connector[];
 }

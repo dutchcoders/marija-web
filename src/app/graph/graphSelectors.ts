@@ -9,6 +9,7 @@ import { find, map, groupBy, reduce, forEach, filter, concat } from 'lodash';
 import fieldLocator from '../fields/helpers/fieldLocator';
 import { Field } from '../fields/interfaces/field';
 import * as moment from 'moment';
+import { Datasource } from '../datasources/interfaces/datasource';
 
 
 export const getNodesForDisplay = createSelector(
@@ -67,11 +68,30 @@ const getDate = (node: Node, items: Item[], dateFields: Field[]): Moment | undef
 	}
 };
 
+export const getSelectedDateFields = createSelector(
+	(state: AppState) => state.datasources.datasources,
+	(state: AppState) => state.fields.availableFields,
+
+	(datasources: Datasource[], fields: Field[]): Field[] => {
+		const paths: string[] = [];
+
+		datasources.forEach(datasource => {
+			if (datasource.dateFieldPath) {
+				paths.push(datasource.dateFieldPath);
+			}
+		});
+
+		return fields.filter(field =>
+			paths.indexOf(field.path) !== -1
+		);
+	}
+);
+
 export const getTimelineGroups = createSelector(
     (state: AppState) => state.graph.timelineGrouping,
     (state: AppState) => state.graph.nodes,
     (state: AppState) => state.graph.items,
-	(state: AppState) => state.graph.date_fields,
+	(state: AppState) => getSelectedDateFields(state),
 
     (timelineGrouping: TimelineGrouping, nodes: Node[], items: Item[], dateFields: Field[]): TimelineGroups => {
 		const times: Moment[] = [];

@@ -81,6 +81,14 @@ class DatasourceComponent extends React.Component<Props, State> {
 		}));
 	}
 
+	onDateChange(field: Field) {
+		const { dispatch, datasource } = this.props;
+
+		dispatch(updateDatasource(datasource.id, {
+			dateFieldPath: field ? field.path : null
+		}));
+	}
+
 	onSelectIcon(icon: string) {
 		const { dispatch, datasource } = this.props;
 
@@ -186,6 +194,14 @@ class DatasourceComponent extends React.Component<Props, State> {
 							types={['location']}
 							selected={datasource.locationFieldPath}
 							onChange={this.onLocationChange.bind(this)}
+						/>
+
+						<h4 className={styles.optionTitle}>Date</h4>
+						<FieldSelector
+							datasourceId={datasource.id}
+							types={['date']}
+							selected={datasource.dateFieldPath}
+							onChange={this.onDateChange.bind(this)}
 						/>
 					</main>
 				)}

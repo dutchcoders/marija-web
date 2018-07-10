@@ -64,7 +64,6 @@ function getWorkspace(state: AppState): Workspace {
 		datasources: state.datasources.datasources,
 		filterBoringNodes: state.graph.filterBoringNodes,
 		filterSecondaryQueries: state.graph.filterSecondaryQueries,
-		dateFields: state.graph.date_fields,
 		connectors: state.fields.connectors,
 	};
 }

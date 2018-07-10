@@ -60,7 +60,15 @@ export function receiveInitialState(initialState) {
     };
 }
 
-export function updateDatasource(datasourceId: string, props: any) {
+export interface DatasourceProps {
+	imageFieldPath?: string;
+	locationFieldPath?: string;
+	labelFieldPath?: string;
+	dateFieldPath?: string;
+	icon?: string;
+}
+
+export function updateDatasource(datasourceId: string, props: DatasourceProps) {
 	return (dispatch, getState) => {
 		const oldFields: Field[] = getSelectedFields(getState());
 

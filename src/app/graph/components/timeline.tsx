@@ -6,8 +6,6 @@ import {Field} from "../../fields/interfaces/field";
 import {Item} from "../../items/interfaces/item";
 import {Node} from "../interfaces/node";
 import {FormEvent} from "react";
-import {dateFieldDelete} from '../../fields/fieldsActions';
-import {searchFieldsUpdate} from '../../search/searchActions';
 import {
 	highlightNodes,
 	nodesSelect,
@@ -16,124 +14,41 @@ import {
 import {BarChart, XAxis, YAxis, Bar, Tooltip} from 'recharts';
 import {Search} from "../../search/interfaces/search";
 import {
-	getNodesForDisplay,
+	getNodesForDisplay, getSelectedDateFields,
 	getTimelineGroups,
 	TimelineGroups
 } from "../graphSelectors";
 import {AppState} from "../../main/interfaces/appState";
-import {dateFieldAdd} from "../../fields/fieldsActions";
 import TimelineSlider from './timelineSlider/timelineSlider';
 import * as styles from './timeline.scss';
 import { EventEmitter } from 'fbemitter';
 import { TimelineGrouping } from '../interfaces/graphState';
-import {
-	DateFieldGroups,
-	getDateFieldGroups
-} from '../../fields/fieldsSelectors';
-import Icon from '../../ui/components/icon';
 
 interface Props {
 	onPaneEvent?: EventEmitter;
     normalizations: Normalization[];
     availableFields: Field[];
-    date_fields: Field[];
+    dateFields: Field[];
     items: Item[];
     nodes: Node[];
     dispatch: Dispatch<any>;
     searches: Search[];
     timelineGroups: TimelineGroups;
 	timelineGrouping: TimelineGrouping;
-	dateFieldGroups: DateFieldGroups;
 }
 
 interface State {
-    showAllFields: boolean;
 }
 
 class Timeline extends React.Component<Props, State> {
 	isPlaying: boolean = false;
-    state: State = {
-        showAllFields: false
-    };
 	container;
 	barChart;
 
-
     componentDidMount() {
-        const { onPaneEvent, date_fields } = this.props;
+        const { onPaneEvent } = this.props;
 
 		onPaneEvent.addListener('resized', this.onResized.bind(this));
-
-		if (date_fields.length === 0) {
-			this.setState({
-				showAllFields: true
-			});
-		}
-    }
-
-    handleFieldChange(event: FormEvent<HTMLInputElement>, field: Field) {
-        const { dispatch } = this.props;
-
-        if (event.currentTarget.checked) {
-            dispatch(dateFieldAdd(field));
-            dispatch(searchFieldsUpdate());
-        } else {
-            dispatch(dateFieldDelete(field));
-        }
-    }
-
-    renderDateField(field: Field) {
-        const { date_fields } = this.props;
-        const isSelected: boolean = typeof date_fields.find(search =>
-            search.path === field.path
-        ) !== 'undefined';
-
-        return (
-            <label className="dateField" key={field.path + field.datasourceId}>
-                <input
-                    type="checkbox"
-                    defaultChecked={isSelected}
-                    onChange={event => this.handleFieldChange(event, field)}
-                />
-                <span>{field.path}</span>
-            </label>
-        );
-    }
-
-    selectDateFields() {
-        const { dateFieldGroups } = this.props;
-        const { showAllFields } = this.state;
-
-		const datasources = Object.keys(dateFieldGroups);
-		const toggleIcon = showAllFields ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down';
-
-        return (
-            <div className="dateFields">
-				<h1 className={styles.selectFields} onClick={this.toggleAllFields.bind(this)}>
-					Select date fields
-					<Icon name={toggleIcon} />
-				</h1>
-
-				{showAllFields && (
-					datasources.map(datasourceId => (
-						<div className={styles.dateFieldGroup} key={datasourceId}>
-							<h2 className={styles.dateFieldTitle}>{datasourceId}</h2>
-							<div className={styles.dateFields}>
-								{dateFieldGroups[datasourceId].map(field =>
-									this.renderDateField(field)
-								)}
-							</div>
-						</div>
-					))
-				)}
-            </div>
-        );
-    }
-
-    toggleAllFields() {
-        this.setState({
-            showAllFields: !this.state.showAllFields
-        });
     }
 
     getSearchIds(): string[] {
@@ -167,9 +82,9 @@ class Timeline extends React.Component<Props, State> {
     }
 
     getChart() {
-        const { date_fields, items } = this.props;
+        const { items } = this.props;
 
-        if (!items.length || !date_fields.length || !this.container) {
+        if (!items.length || !this.container) {
             return;
         }
 
@@ -296,7 +211,7 @@ class Timeline extends React.Component<Props, State> {
 	}
 
     render() {
-        const { nodes, date_fields, timelineGrouping } = this.props;
+        const { nodes, dateFields, timelineGrouping } = this.props;
         const { periods } = this.props.timelineGroups;
 
         let noNodes = null;
@@ -305,7 +220,7 @@ class Timeline extends React.Component<Props, State> {
         }
 
         let noDateFields = null;
-        if (date_fields.length === 0) {
+        if (dateFields.length === 0) {
             noDateFields = (
                 <p>Select at least one date field above.</p>
             );
@@ -350,7 +265,6 @@ class Timeline extends React.Component<Props, State> {
 
         return (
             <div ref={ref => this.container = ref} className={styles.componentContainer}>
-                { this.selectDateFields() }
                 { noNodes }
                 { noDateFields }
                 <div className={styles.chartContainer}>
@@ -369,12 +283,11 @@ const select = (state: AppState, ownProps) => {
         availableFields: state.fields.availableFields,
         nodes: getNodesForDisplay(state),
         normalizations: state.graph.normalizations,
-        date_fields: state.graph.date_fields,
         items: state.graph.items,
         searches: state.graph.searches,
 		timelineGrouping: state.graph.timelineGrouping,
         timelineGroups: getTimelineGroups(state),
-		dateFieldGroups: getDateFieldGroups(state)
+		dateFields: getSelectedDateFields(state)
     };
 };
 

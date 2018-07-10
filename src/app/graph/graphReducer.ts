@@ -69,7 +69,6 @@ import { Workspace } from '../ui/interfaces/workspace';
 import { markHighlightedLinks } from './helpers/markHighlightedLinks';
 
 export const defaultGraphState: GraphState = {
-    date_fields: [],
     normalizations: [],
     items: [],
     searches: [],
@@ -196,27 +195,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 				graphWorkerCacheIsValid: false
             };
         }
-        case DATE_FIELD_ADD: {
-            const existing = state.date_fields.find(search => search.path === action.field.path);
 
-            if (typeof existing !== 'undefined') {
-                return state;
-            }
-
-            return {
-                ...state,
-                date_fields: concat(state.date_fields, action.field)
-            };
-        }
-        case DATE_FIELD_DELETE: {
-            const dateFields: Field[] = state.date_fields.filter(field =>
-                field.path !== action.field.path
-            );
-
-            return Object.assign({}, state, {
-                date_fields: dateFields
-            });
-        }
         case NODES_TOOLTIP: {
             const nodes = state.nodes.concat([]);
             const ids = action.nodes.map(node => node.id);
@@ -704,8 +683,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			return {
 				...state,
 				filterSecondaryQueries: workspace.filterSecondaryQueries,
-				filterBoringNodes: workspace.filterBoringNodes,
-				date_fields: workspace.dateFields
+				filterBoringNodes: workspace.filterBoringNodes
 			};
 		}
 

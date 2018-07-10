@@ -6,5 +6,6 @@ export interface Datasource {
     imageFieldPath?: string;
     locationFieldPath?: string;
     labelFieldPath?: string;
+    dateFieldPath?: string;
     icon?: string;
 }

@@ -79,6 +79,10 @@ export const getSelectedFields = createSelector(
 			if (datasource.locationFieldPath) {
 				fields.push(getField(datasource.locationFieldPath));
 			}
+
+			if (datasource.dateFieldPath) {
+				fields.push(getField(datasource.dateFieldPath));
+			}
 		});
 
 		return fields;
