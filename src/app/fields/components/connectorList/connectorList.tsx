@@ -46,8 +46,15 @@ class ConnectorList extends React.Component<Props, State> {
 				}
 
 				{connectors.length === 0
-					? <p>Select a field below to create a new connector.</p>
-					: (
+					? ([
+						<p key={0}>Select a field below to create a new connector. Connectors are used to link data together.</p>,
+						<p key={1}>
+							<strong>Example: </strong>
+							Let's say you have two items in your data with the same last name: Smith.
+							If you then create a connector for the field <em>last_name</em>, a square connector node will be drawn
+							between the two round item nodes.
+						</p>
+					]) : (
 						<button className={styles.toggleAdvanced} onClick={this.toggleAdvanced.bind(this)}>
 							{isDragging ? 'Done' : 'Advanced'}
 						</button>
