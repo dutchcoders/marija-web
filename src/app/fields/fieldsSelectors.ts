@@ -4,29 +4,6 @@ import { Field } from './interfaces/field';
 import { Connector } from '../graph/interfaces/connector';
 import { Datasource } from '../datasources/interfaces/datasource';
 
-export interface DateFieldGroups {
-	[datasourceId: string]: Field[]
-}
-
-export const getDateFieldGroups = createSelector(
-	(state: AppState) => state.fields.availableFields,
-
-	(fields: Field[]): DateFieldGroups => {
-		const dateFields = fields.filter(field => field.type === 'date');
-		const groups: DateFieldGroups = {};
-
-		dateFields.forEach(field => {
-			if (!groups[field.datasourceId]) {
-				groups[field.datasourceId] = [];
-			}
-
-			groups[field.datasourceId].push(field);
-		});
-
-		return groups;
-	}
-);
-
 export const getNonDateFields = createSelector(
 	(state: AppState) => state.fields.availableFields,
 
