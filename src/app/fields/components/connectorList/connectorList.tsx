@@ -48,12 +48,12 @@ class ConnectorList extends React.Component<Props, State> {
 				<p>Select a field below to create a new connector. Connectors are used to link data together.</p>
 				<p>
 					<strong>Example: </strong>
-					Let's say you have two items in your data with the same last name: Smith, but they both have a different
-					first name: John and William.
+					Let's say you have two people in your datasource: John Smith and William Smith. Their last name is
+					the same, but their first names are different.
 				</p>
 				<p>
 					If you create a connector for the field <em>last_name</em>, a square connector node will be drawn
-					between the two round item nodes. The <em>last_name</em> square node <strong>Smith</strong> will connect
+					between the two round people nodes. The <em>last_name</em> square node <strong>Smith</strong> will connect
 					the round nodes <strong>John Smith</strong> and <strong>William Smith</strong>.
 				</p>
 			</div>
