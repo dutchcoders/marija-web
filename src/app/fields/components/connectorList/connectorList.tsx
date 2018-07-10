@@ -9,6 +9,7 @@ import ConnectorComponent from '../connectorComponent/connectorComponent';
 
 interface State {
 	isDragging: boolean;
+	isHelpOpen: boolean;
 }
 
 interface Props {
@@ -18,7 +19,8 @@ interface Props {
 
 class ConnectorList extends React.Component<Props, State> {
 	state: State = {
-		isDragging: false
+		isDragging: false,
+		isHelpOpen: false
 	};
 
 	toggleAdvanced() {
@@ -29,9 +31,29 @@ class ConnectorList extends React.Component<Props, State> {
 		});
 	}
 
+	toggleHelp() {
+		const { isHelpOpen } = this.state;
+
+		this.setState({
+			isHelpOpen: !isHelpOpen
+		});
+	}
+
 	render() {
-		const { isDragging } = this.state;
+		const { isDragging, isHelpOpen } = this.state;
 		const { connectors } = this.props;
+
+		const help = (
+			<div className={styles.help}>
+				<p>Select a field below to create a new connector. Connectors are used to link data together.</p>
+				<p>
+					<strong>Example: </strong>
+					Let's say you have two items in your data with the same last name: Smith.
+					If you then create a connector for the field <em>last_name</em>, a square connector node will be drawn
+					between the two round item nodes.
+				</p>
+			</div>
+		);
 
 		return (
 			<div className={styles.connectors}>
@@ -45,20 +67,16 @@ class ConnectorList extends React.Component<Props, State> {
 					<ConnectorComponent connector={null} isDragging={true} />
 				}
 
-				{connectors.length === 0
-					? ([
-						<p key={0}>Select a field below to create a new connector. Connectors are used to link data together.</p>,
-						<p key={1}>
-							<strong>Example: </strong>
-							Let's say you have two items in your data with the same last name: Smith.
-							If you then create a connector for the field <em>last_name</em>, a square connector node will be drawn
-							between the two round item nodes.
-						</p>
-					]) : (
-						<button className={styles.toggleAdvanced} onClick={this.toggleAdvanced.bind(this)}>
+				{connectors.length > 0 ? ([
+						<button key={0} className={styles.toggleAdvanced} onClick={this.toggleAdvanced.bind(this)}>
 							{isDragging ? 'Done' : 'Advanced'}
+						</button>,
+						<button key={1} className={styles.toggleHelp} onClick={this.toggleHelp.bind(this)}>
+							Help
 						</button>
-					)}
+					]) : null}
+
+				{connectors.length === 0 || isHelpOpen ? help : null}
 			</div>
 		);
 	}
