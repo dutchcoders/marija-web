@@ -84,8 +84,9 @@ class Timeline extends React.Component<Props, State> {
 
     getChart() {
         const { items } = this.props;
+		const { periods } = this.props.timelineGroups;
 
-        if (!items.length || !this.container) {
+        if (!items.length || !this.container || !periods.length) {
             return;
         }
 
@@ -231,6 +232,13 @@ class Timeline extends React.Component<Props, State> {
             );
         }
 
+        let noDates = null;
+        if (!noNodes && !noDateFields && periods.length === 0) {
+        	noDates = (
+        		<p>No date information was found in the search results.</p>
+			);
+		}
+
         const groupOptions: TimelineGrouping[] = [
 			'hour',
 			'day',
@@ -241,7 +249,8 @@ class Timeline extends React.Component<Props, State> {
         let grouping = null;
         let slider = null;
 
-        if (!noNodes && !noDateFields) {
+
+        if (!noNodes && !noDateFields && !noDates) {
         	grouping = (
 				<div className={styles.grouping}>
 					<label className={styles.groupingLabel}>Group by</label>
@@ -270,6 +279,7 @@ class Timeline extends React.Component<Props, State> {
             <div ref={ref => this.container = ref} className={styles.componentContainer}>
                 { noNodes }
                 { noDateFields }
+				{ noDates }
                 <div className={styles.chartContainer}>
                 	{this.getChart()}
 					{grouping}

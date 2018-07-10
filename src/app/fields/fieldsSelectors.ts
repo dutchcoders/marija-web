@@ -46,19 +46,35 @@ export const getSelectedFields = createSelector(
 
 		datasources.forEach(datasource => {
 			if (datasource.labelFieldPath) {
-				fields.push(getField(datasource.labelFieldPath));
+				const field = getField(datasource.labelFieldPath);
+
+				if (field) {
+					fields.push(field);
+				}
 			}
 
 			if (datasource.imageFieldPath) {
-				fields.push(getField(datasource.imageFieldPath));
+				const field = getField(datasource.imageFieldPath);
+
+				if (field) {
+					fields.push(field);
+				}
 			}
 
 			if (datasource.locationFieldPath) {
-				fields.push(getField(datasource.locationFieldPath));
+				const field = getField(datasource.locationFieldPath);
+
+				if (field) {
+					fields.push(field);
+				}
 			}
 
 			if (datasource.dateFieldPath) {
-				fields.push(getField(datasource.dateFieldPath));
+				const field = getField(datasource.dateFieldPath);
+
+				if (field) {
+					fields.push(field);
+				}
 			}
 		});
 
