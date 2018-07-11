@@ -140,7 +140,7 @@ class Pane extends React.Component<any, any> {
     }
 
     render() {
-        const { handle, children, name, description, top, container, config } = this.props;
+        const { handle, children, name, description, top, container, config, alignHeaderRight } = this.props;
         const isOpen = config.open;
         const containerSize = container.getBoundingClientRect();
 
@@ -214,7 +214,7 @@ class Pane extends React.Component<any, any> {
                 <div className={`pane ${handle}`} style={style} onMouseDown={this.moveToTop.bind(this)}>
                     <div className="container-fluid">
                         <div className="row pane-header">
-                            <div className="col-md-12">
+                            <div className={'col-md-12' + (alignHeaderRight ? ' alignHeaderRight' : '')}>
                                 {name}
                                 {descriptionEl}
                                 <Icon onClick={this.close.bind(this)} name="ion-ios-close shut"/>

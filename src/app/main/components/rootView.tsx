@@ -87,7 +87,8 @@ class RootView extends React.Component<any, any> {
 
                     <Pane
                         name="Table"
-                        description={'data for ' + selectedNodes + ' selected nodes'}
+                        description={'data for ' + selectedNodes + ' nodes'}
+						alignHeaderRight={true}
                         buttonText="Export as CSV"
                         onButtonClick={() => this.exportTableEvents.emit('export')}
                         handle="table"

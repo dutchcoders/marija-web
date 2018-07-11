@@ -18,6 +18,7 @@ import {
 	SET_FILTER_BORING_NODES,
 	SET_FILTER_SECONDARY_QUERIES
 } from '../../graph/graphConstants';
+import { SET_PANE_CONFIG } from '../uiConstants';
 
 let debouncer;
 
@@ -36,7 +37,8 @@ export const workspaceMiddleware: Middleware = ({dispatch}) => next => action =>
 		UPDATE_DATASOURCE,
 		UPDATE_CONNECTOR,
 		SET_FILTER_SECONDARY_QUERIES,
-		SET_FILTER_BORING_NODES
+		SET_FILTER_BORING_NODES,
+		SET_PANE_CONFIG
 	];
 
 	if (updateForActions.indexOf(action.type) !== -1) {

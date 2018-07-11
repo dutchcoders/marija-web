@@ -46,8 +46,7 @@ export const defaultUiState: UiState = {
         table: {
             ...defaultPane,
             width: 500,
-            height: 400,
-            y: 300,
+            fullHeight: true,
             alignRight: true,
             alignBottom: true,
             minWidth: 430
