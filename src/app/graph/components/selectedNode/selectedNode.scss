@@ -1,0 +1,42 @@
+.node {
+  background: none !important;
+  border-bottom: 1px solid #3A4555;
+  padding: 10px !important;
+}
+
+.header {
+  display: flex;
+}
+
+.icon {
+  margin-right: 10px;
+  font-size: 1em;
+  background-color: rgba(255, 255, 255, 0.15);
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 20px;
+  display: inline-block;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.name {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  display: block;
+  line-height: 19px;
+}
+
+.focus,
+.deselect {
+  border: 1px solid rgba(255, 255, 255, .2);
+  padding: 3px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 1em;
+  background: none;
+  margin: 0 3px;
+}

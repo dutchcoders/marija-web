@@ -26,6 +26,7 @@ import { Node } from '../../interfaces/node';
 import { Normalization } from '../../interfaces/normalization';
 import { getSelectedNodes } from '../../graphSelectors';
 import * as styles from './nodes.scss';
+import SelectedNode from  '../selectedNode/selectedNode';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -285,36 +286,24 @@ class Nodes extends React.Component<Props, State> {
 
         return (
             selectedNodes.length > 0 ?
-                map(sortBy(selectedNodes, ['name']), (i_node) => {
-                    let merged = null;
+                map(sortBy(selectedNodes, ['name']), (node) => {
+                    // let merged = null;
+					//
+                    // if (i_node.normalizationId !== null) {
+                    //     merged = (
+                    //         <div className="merged">
+                    //             {this.getMergedNodes(i_node.normalizationId)}
+                    //             <button
+                    //                 className="undoMerge"
+                    //                 onClick={() => this.undoMerge(i_node.normalizationId)}>
+                    //                 <Icon name="ion-ios-undo"/>
+                    //                 Undo merge
+                    //             </button>
+                    //         </div>
+                    //     );
+                    // }
 
-                    if (i_node.normalizationId !== null) {
-                        merged = (
-                            <div className="merged">
-                                {this.getMergedNodes(i_node.normalizationId)}
-                                <button
-                                    className="undoMerge"
-                                    onClick={() => this.undoMerge(i_node.normalizationId)}>
-                                    <Icon name="ion-ios-undo"/>
-                                    Undo merge
-                                </button>
-                            </div>
-                        );
-                    }
-
-                    const listItem = (
-                        <li key={i_node.id} onMouseEnter={() => this.displayTooltip(i_node)}>
-                            {this.renderNode(i_node)}
-                            <div>
-                                <span className='description'>{i_node.description}</span>
-                            </div>
-                            {merged}
-                            <button className={styles.focus} onClick={() => this.focus(i_node)}>Focus</button>
-                            <button className={styles.deselect} onClick={() => this.deselect(i_node)}>Deselect</button>
-                        </li>
-                    );
-
-                    return listItem;
+                    return <SelectedNode node={node} key={node.id}/>
                 })
             : <li>No nodes selected</li>
         );
@@ -426,7 +415,7 @@ class Nodes extends React.Component<Props, State> {
             important = (
                 <button
                     type="button"
-                    className="btn btn-default"
+                    className="nodesButton"
                     aria-label="Mark important"
                     onClick={() => this.markImportant()}>
                     mark important
@@ -436,7 +425,7 @@ class Nodes extends React.Component<Props, State> {
             important = (
                 <button
                     type="button"
-                    className="btn btn-default"
+                    className="nodesButton"
                     aria-label="Undo important mark"
                     onClick={() => this.markNotImportant()}>
                     undo important mark
@@ -447,24 +436,24 @@ class Nodes extends React.Component<Props, State> {
         const searchAroundPossible = selectedNodes.length <= 10;
 
         return (
-            <div className="form-group toolbar">
-                <div className="nodes-btn-group" role="group">
-                    <button type="button" className="btn btn-default" aria-label="Select all nodes" onClick={() => this.handleSelectAllNodes()}>select all</button>
-                    <button type="button" className="btn btn-default" aria-label="Clear selection" onClick={() => this.handleClearSelection()}>deselect</button>
-                    <button type="button" className="btn btn-default" aria-label="Select related nodes" onClick={() => this.handleSelectRelatedNodes()}>related</button>
-                    <button type="button" className="btn btn-default" aria-label="Select directly related nodes" onClick={() => this.handleSelectDirectlyRelatedNodes()}>directly related</button>
-                    <button type="button" className="btn btn-default" aria-label="Delete selected nodes" onClick={() => this.handleDeleteAllNodes()}>delete</button>
-                    <button type="button" className="btn btn-default" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}>delete others</button>
-                    <button type="button" className="btn btn-default" aria-label="Search around" onClick={() => this.searchAround()} disabled={!searchAroundPossible}>search around</button>
-                    {/*<button type="button" className="btn btn-default" aria-label="Merge" onClick={() => this.merge()}>merge</button>*/}
-                    <button type="button" className="btn btn-default" aria-label="Select all nodes" onClick={() => this.selectImportant()}>select important</button>
+            <div className="form-group toolbar selectedNodesContent">
+                <div className="nodesBtnGroupTop" role="group">
+                    <button type="button" className="nodesButton" aria-label="Select related nodes" onClick={() => this.handleSelectRelatedNodes()}>related</button>
+                    <button type="button" className="nodesButton" aria-label="Select directly related nodes" onClick={() => this.handleSelectDirectlyRelatedNodes()}>directly related</button>
+                    <button type="button" className="nodesButton" aria-label="Delete selected nodes" onClick={() => this.handleDeleteAllNodes()}>delete</button>
+                    <button type="button" className="nodesButton" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}>delete others</button>
+                    <button type="button" className="nodesButton" aria-label="Search around" onClick={() => this.searchAround()} disabled={!searchAroundPossible}>search around</button>
                     {important}
                 </div>
-                <div>
-                    <ul onMouseLeave={this.hideTooltip.bind(this)}>
-                        {this.renderSelected()}
-                    </ul>
-                </div>
+				<ul onMouseLeave={this.hideTooltip.bind(this)} className="nodesList">
+					{this.renderSelected()}
+				</ul>
+				<div className="nodesBtnGroupBottom" role="group">
+					<button type="button" className="nodesButton" aria-label="Clear selection" onClick={() => this.handleClearSelection()}>deselect all</button>
+					<button type="button" className="nodesButton" aria-label="Select all nodes" onClick={() => this.handleSelectAllNodes()}>select all</button>
+					<button type="button" className="nodesButton" aria-label="Select important nodes" onClick={() => this.selectImportant()}>select important</button>
+				</div>
+
                 <SkyLight dialogStyles={updateNodeDialogStyles} hideOnOverlayClicked ref="editDialog" title="Update node" afterClose={ this.handleUpdateEditNode.bind(this) }>
                     { edit_node }
                 </SkyLight>

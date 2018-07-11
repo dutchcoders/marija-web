@@ -38,8 +38,9 @@ export const defaultUiState: UiState = {
         },
         nodes: {
             ...defaultPane,
-            width: 350,
-            height: 300,
+            width: 550,
+            height: 500,
+			y: 55,
             alignRight: true,
             minWidth: 300
         },
