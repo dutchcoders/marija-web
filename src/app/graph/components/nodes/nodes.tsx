@@ -305,7 +305,7 @@ class Nodes extends React.Component<Props, State> {
 
                     return <SelectedNode node={node} key={node.id}/>
                 })
-            : <li>No nodes selected</li>
+            : <p className="noSelectedNodes">No nodes selected.</p>
         );
     }
 

@@ -34,6 +34,8 @@ import {
 import { loadImage } from './helpers/loadImage';
 import { Connector } from './interfaces/connector';
 import { hexToString } from '../fields/helpers/hexToString';
+import { getNodeCanvas } from './helpers/getNodeCanvas';
+import { getNodeImageCanvas } from './helpers/getNodeImageCanvas';
 
 interface TextureMap {
     [hash: string]: PIXI.RenderTexture;
@@ -336,59 +338,8 @@ class Graph extends React.PureComponent<Props, State> {
 			return true;
 		}
 
-		const radius = node.r * sizeMultiplier;
-		const canvas = document.createElement('canvas');
-		const lineWidth = 3;
-		const margin = 2;
-		canvas.width = radius * 2 + lineWidth + margin;
-		canvas.height = radius * 2 + lineWidth + margin;
-		const ctx = canvas.getContext('2d');
-		let fontSize: number;
-
-		if (node.type === 'connector') {
-			fontSize = radius;
-
-			const color = this.getConnectorColor(node.connector, connectors);
-
-			ctx.fillStyle = color;
-			ctx.fillRect(margin, margin, radius * 2, radius * 2);
-			ctx.fill();
-		} else if (node.type === 'item') {
-			fontSize = radius;
-			const fractionPerSearch = 1 / node.searchIds.length;
-			const anglePerSearch = 2 * Math.PI * fractionPerSearch;
-			let currentAngle = .5 * Math.PI;
-
-			node.searchIds.forEach(searchId => {
-				ctx.beginPath();
-				ctx.fillStyle = this.getSearchColor(searchId, searches);
-				ctx.moveTo(radius, radius);
-				ctx.arc(radius + margin, radius + margin, radius, currentAngle, currentAngle + anglePerSearch);
-				ctx.fill();
-
-				currentAngle += anglePerSearch;
-			});
-		}
-
-		ctx.fillStyle = '#ffffff';
-		ctx.font = fontSize + 'px Ionicons, Roboto, Helvetica, Arial';
-		ctx.textAlign = 'center';
-		ctx.fillText(node.icon, radius - 1 + margin, radius + margin + (fontSize / 3));
-
+		const canvas = getNodeCanvas(node, sizeMultiplier, selected, searches, connectors);
 		texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
-
-		if (selected) {
-			ctx.lineWidth = lineWidth;
-			ctx.strokeStyle = '#fac04b';
-			ctx.beginPath();
-
-			if (node.type === 'item') {
-				ctx.arc(radius + margin, radius + margin, radius, 0, 2 * Math.PI);
-				ctx.stroke();
-			} else {
-				ctx.strokeRect(margin, margin, radius * 2, radius * 2);
-			}
-		}
 
 		// Save in cache
 		this.nodeTextures[key] = texture;
@@ -491,63 +442,8 @@ class Graph extends React.PureComponent<Props, State> {
 			return true;
 		}
 
-		const radius = node.r * sizeMultiplier;
-
-		const canvas = document.createElement('canvas');
-		const lineWidth = 3;
-		const margin = 2;
-		canvas.width = radius * 2 + lineWidth + margin;
-		canvas.height = radius * 2 + lineWidth + margin;
-		const ctx = canvas.getContext('2d');
-
-		ctx.beginPath();
-		ctx.arc(canvas.width / 2, canvas.height / 2, radius, 0, Math.PI * 2, false);
-		ctx.clip();
-
-		let image: HTMLImageElement;
-
-		try {
-			image = await loadImage(node.image);
-		}
-		catch (e) {
-			image = await loadImage('/images/logo.png');
-		}
-
-		const diameter = radius * 2;
-		let newImageWidth: number;
-		let newImageHeight: number;
-
-		if (image.width > diameter) {
-			newImageWidth = diameter;
-			newImageHeight = newImageWidth / image.width * image.height;
-		} else if (image.height > diameter) {
-			newImageHeight = diameter;
-			newImageWidth = newImageHeight / image.height * image.width;
-		} else {
-			newImageWidth = diameter;
-			newImageHeight = diameter;
-		}
-
-		const imageX = canvas.width / 2 - (newImageWidth / 2);
-		const imageY = canvas.height / 2 - (newImageHeight / 2);
-
-		ctx.drawImage(
-			image,
-			0, 0,
-			image.width, image.height,
-			imageX, imageY,
-			newImageWidth, newImageHeight
-		);
-
+		const canvas = await getNodeImageCanvas(node, sizeMultiplier, selected);
 		texture = PIXI.Texture.fromCanvas(canvas) as PIXI.RenderTexture;
-
-		if (selected) {
-			ctx.lineWidth = lineWidth;
-			ctx.strokeStyle = '#fac04b';
-			ctx.beginPath();
-			ctx.arc(radius + margin, radius + margin, radius, 0, 2 * Math.PI);
-			ctx.stroke();
-		}
 
 		// Save in cache
 		this.nodeTextures[key] = texture;
