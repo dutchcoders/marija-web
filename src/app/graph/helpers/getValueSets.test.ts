@@ -35,3 +35,14 @@ test('get all value sets 3', () => {
 
 	expect(output.length).toBe(6);
 });
+
+test('should not include null values', () => {
+	const input = {
+		first_name: 'thomas',
+		mentions: null
+	};
+
+	const output = getValueSets(input);
+
+	expect(output.length).toBe(1);
+});

@@ -2,7 +2,7 @@ import { Item } from '../../items/interfaces/item';
 import { Link } from '../interfaces/link';
 import { ChildData, GeoLocation, Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';
-import {forEach, isEmpty, uniqueId, findIndex} from 'lodash';
+import {forEach, isEmpty, uniqueId, findIndex, isEqual} from 'lodash';
 import { Connector, MatchingStrategy, Rule } from '../interfaces/connector';
 import { getValueSets, ValueSet } from './getValueSets';
 import { Datasource } from '../../datasources/interfaces/datasource';
@@ -42,177 +42,6 @@ export default function getNodesAndLinks(
 	// 		});
 	// 	}
 	// });
-
-	const addDataToNode = (node: Node, itemId: string, valueSet: ValueSet): void => {
-		forEach(valueSet, (value, key) => {
-			if (node.childData[key]) {
-				if (node.childData[key].indexOf(value) === -1) {
-					node.childData[key].push(value);
-				}
-			} else {
-				node.childData[key] = [value];
-			}
-		});
-
-		if (node.items.indexOf(itemId) === -1) {
-			node.items.push(itemId);
-		}
-	};
-
-	const matchData = (data, valueSet: ValueSet, connector: Connector): boolean => {
-		for (let i = 0; i < connector.rules.length; i ++) {
-			const rule = connector.rules[i];
-			const field = rule.field.path;
-			let values = data[field];
-			const a: string = valueSet[field];
-
-			if (typeof values === 'undefined' || typeof a === 'undefined' || a === null) {
-				if (connector.strategy === 'AND') {
-					return false;
-				}
-
-				continue;
-			}
-
-			if (!Array.isArray(values)) {
-				values = [values];
-			}
-
-			// Convert to strings
-			values = values.filter(value => typeof value !== 'undefined' && value !== null);
-			values = values.map(value => value + '');
-
-			let match: boolean = false;
-
-			for (let j = 0; j < values.length; j ++) {
-				const b: string = values[j];
-
-				if (rule.similarity && rule.similarity < 100) {
-					// Similarity matching
-					const similarity: number = getStringSimilarityLevenshtein(a, b);
-
-					if (similarity >= rule.similarity) {
-						match = true;
-						break;
-					}
-				} else {
-					// Normal matching
-					if (a === b) {
-						match = true;
-						break;
-					}
-				}
-			}
-
-			if (match && connector.strategy === 'OR') {
-				return true;
-			}
-
-			if (!match && connector.strategy === 'AND') {
-				return false;
-			}
-		}
-
-		if (connector.strategy === 'OR') {
-			return false;
-		} else if (connector.strategy === 'AND') {
-			return true;
-		}
-	};
-
-	const getMatchingNodes = (valueSet: ValueSet, connector: Connector): Node[] => {
-		return connectorNodes.filter(node => {
-			return matchData(node.childData, valueSet, connector);
-		});
-	};
-
-	const getMatchingItems = (itemId: string, valueSet: ValueSet, connector: Connector): Item[] => {
-		return items.filter(item => {
-			if (item.id === itemId) {
-				return false;
-			}
-
-			if (deletedNodeIds.indexOf(getHash(item.id)) !== -1) {
-				return false;
-			}
-
-			return matchData(item.fields, valueSet, connector);
-		});
-	};
-
-    const createConnectorNodes = (itemId: string, valueSet: ValueSet, connector: Connector): Node[] => {
-    	let matchingItems: Item[];
-
-		matchingItems = getMatchingItems(itemId, valueSet, connector);
-
-		let relevantMatches: Node[] = [];
-
-    	matchingItems.forEach(item => {
-    		const existing: Node[] = getMatchingNodes(valueSet, connector);
-
-			if (existing.length > 0) {
-    			existing.forEach(node => {
-    				addDataToNode(node, item.id, valueSet);
-				});
-
-    			relevantMatches = relevantMatches.concat(existing);
-    			return;
-			}
-
-			const names: string[] = connector.rules.reduce((prev: string[], rule: Rule) => {
-				const value = valueSet[rule.field.path];
-
-				if (value === null || typeof value === 'undefined') {
-					return prev;
-				}
-
-				return prev.concat([value]);
-			}, []);
-
-			const name = names.join(', ');
-
-			if (name === '') {
-				throw new Error('Tried to create connector node with empty name for valueSet: ' + JSON.stringify(valueSet));
-			}
-
-			const hash = getHash(name);
-
-			if (deletedNodeIds.indexOf(hash) !== -1) {
-				return;
-			}
-
-			const node: Node = {
-				id: hash,
-				searchIds: [item.searchId],
-				items: [item.id],
-				count: item.count,
-				name: name,
-				abbreviated: abbreviateNodeName(name, item.searchId, 40),
-				description: '',
-				icon: connector.icon,
-				fields: connector.rules.map(rule => rule.field.path),
-				hash: hash,
-				normalizationId: null,
-				display: true,
-				selected: false,
-				highlighted: false,
-				displayTooltip: false,
-				isNormalizationParent: false,
-				important: false,
-				isGeoLocation: false,
-				isImage: false,
-				childData: valueSetToArrayValues(valueSet),
-				connector: connector.name,
-				type: 'connector',
-				itemCount: item.count
-			};
-
-			connectorNodes.push(node);
-			relevantMatches.push(node);
-		});
-
-    	return relevantMatches;
-	};
 
     const createLink = (source: Node, target: Node, item: Item, color: string) => {
 		if (source.id === target.id) {
@@ -352,36 +181,99 @@ export default function getNodesAndLinks(
     	return node;
 	};
 
-    items.forEach(item => {
-    	const sourceNode: Node = createItemNode(item);
+    const createConnectorNode = (match: ValueSet, connector: Connector, items: Item[]): Node => {
+    	const existing: Node = connectorNodes.find(node => {
+    		const valueSets = getValueSets(node.childData);
+
+    		for (let i = 0; i < valueSets.length; i ++) {
+    			const matches = matchValueSets(match, valueSets[i], connector);
+
+    			if (matches.length > 0) {
+    				return true;
+				}
+			}
+
+    		return false;
+		});
+
+    	if (existing) {
+    		return existing;
+		}
+
+		const names: string[] = connector.rules.reduce((prev: string[], rule: Rule) => {
+			const value = match[rule.field.path];
+
+			if (value === null || typeof value === 'undefined') {
+				return prev;
+			}
+
+			return prev.concat([value]);
+		}, []);
+
+		const name = names.join(', ');
+    	const hash = getHash(name);
+
+		const node: Node = {
+			id: hash,
+			searchIds: items.map(item => item.searchId),
+			items: items.map(item => item.id),
+			count: 1,
+			name: name,
+			abbreviated: abbreviateNodeName(name, items[0].searchId, 40),
+			description: '',
+			icon: connector.icon,
+			fields: connector.rules.map(rule => rule.field.path),
+			hash: hash,
+			normalizationId: null,
+			display: true,
+			selected: false,
+			highlighted: false,
+			displayTooltip: false,
+			isNormalizationParent: false,
+			important: false,
+			isGeoLocation: false,
+			isImage: false,
+			childData: valueSetToArrayValues(match),
+			connector: connector.name,
+			type: 'connector',
+			itemCount: items[0].count
+		};
+
+		connectorNodes.push(node);
+
+		return node;
+	};
+
+    items.forEach(sourceItem => {
+    	const sourceNode: Node = createItemNode(sourceItem);
 
     	if (sourceNode === null) {
     		// Maybe it was deleted by the user
     		return;
 		}
 
-		connectors.forEach(connector => {
-			const data = {};
+		const sourceValueSets = getValueSets(sourceItem.fields);
 
-			connector.rules.forEach(rule => {
-				const value = item.fields[rule.field.path];
-
-				if (value) {
-					data[rule.field.path] = value;
+    	sourceValueSets.forEach(sourceValueSet => {
+    		items.forEach(targetItem => {
+    			// Item should not link to itself
+    			if (targetItem.id === sourceItem.id) {
+    				return;
 				}
-			});
 
-			if (isEmpty(data)) {
-				return;
-			}
+    			const targetValueSets = getValueSets(targetItem.fields);
 
-			const valueSets = getValueSets(data);
+				targetValueSets.forEach(targetValueSet => {
 
-			valueSets.forEach(valueSet => {
-				const targetNodes = createConnectorNodes(item.id, valueSet, connector);
+    				connectors.forEach(connector => {
+    					const matches = matchValueSets(sourceValueSet, targetValueSet, connector);
 
-				targetNodes.forEach(targetNode => {
-					createLink(sourceNode, targetNode, item, connector.color);
+						matches.forEach(match => {
+							const connectorNode = createConnectorNode(match, connector, [sourceItem, targetItem]);
+
+							createLink(sourceNode, connectorNode, sourceItem, connector.color);
+						});
+    				});
 				});
 			});
 		});
@@ -399,7 +291,9 @@ export default function getNodesAndLinks(
 
 	nodes.forEach(node => node.r = getNodeRadius(node, minCount, maxCount));
 
-	// console.log(nodes.map(node => [node.name]));
+	// console.log(nodes.map(node => [node.type, node.name, node.childData]));
+	// console.log(connectorNodes.map(node => node.childData));
+	//
 	// console.log(links.map(link => [
 	// 	nodes.find(node => node.id === link.source).name,
 	// 	nodes.find(node => node.id === link.target).name
@@ -409,6 +303,94 @@ export default function getNodesAndLinks(
         nodes: nodes,
         links: links
     };
+}
+
+function matchValueSets(a: ValueSet, b: ValueSet, connector: Connector): ValueSet[] {
+	if (connector.strategy === 'AND') {
+		const match = matchValueSetsAnd(a, b, connector);
+
+		if (match) {
+			return [match];
+		}
+
+		return [];
+	} else {
+		return matchValueSetsOr(a, b, connector);
+	}
+}
+
+function matchValueSetsAnd(a: ValueSet, b: ValueSet, connector: Connector): ValueSet | false {
+	const match: any = {};
+
+	for (let i = 0; i < connector.rules.length; i ++) {
+		const rule = connector.rules[i];
+		const field = rule.field.path;
+
+
+		if (typeof a[field] === 'undefined'
+			|| typeof b[field] === 'undefined') {
+			return false;
+		}
+
+		if (typeof rule.similarity === 'number' && rule.similarity < 100) {
+			if (getStringSimilarityLevenshtein(a[field], b[field]) < rule.similarity) {
+				return false;
+			}
+		} else {
+			if (a[field] !== b[field]) {
+				return false;
+			}
+		}
+
+		match[field] = a[field];
+	}
+
+	return match;
+}
+
+function matchValueSetsOr(a: ValueSet, b: ValueSet, connector: Connector): ValueSet[] {
+	const matches: any = [];
+
+	connector.rules.forEach(sourceRule => {
+		const sourceField = sourceRule.field.path;
+
+		connector.rules.forEach(targetRule => {
+			const targetField = targetRule.field.path;
+
+			if (typeof a[sourceField] === 'undefined'
+				|| typeof b[targetField] === 'undefined') {
+				return;
+			}
+
+			let similarity: number;
+			if (typeof sourceRule.similarity === 'number' && sourceRule.similarity) {
+				similarity = sourceRule.similarity;
+			}
+
+			if (typeof targetRule.similarity === 'number' && targetRule.similarity) {
+				if (typeof similarity === 'undefined' || targetRule.similarity < similarity) {
+					// Choose the lowest similarity from the target and source rule
+					similarity = targetRule.similarity;
+				}
+			}
+
+			let match: boolean;
+
+			if (typeof similarity !== 'undefined') {
+				match = getStringSimilarityLevenshtein(a[sourceField], b[targetField]) >= similarity;
+			} else {
+				match = a[sourceField] === b[targetField];
+			}
+
+			if (match) {
+				matches.push({
+					[sourceField]: a[sourceField]
+				});
+			}
+		});
+	});
+
+	return matches;
 }
 
 export function getHash(string) {

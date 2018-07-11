@@ -557,3 +557,96 @@ test('should work with OR match when one of the values is null', () => {
 	expect(nodes.length).toBe(3);
 	expect(links.length).toBe(2);
 });
+
+test('should not create connector nodes for null values', () => {
+	const items1 = [
+		{
+			id: '1',
+			fields: {
+				name: 'thomas',
+				lastName: null,
+			},
+			searchId: 'q'
+		},
+		{
+			id: '2',
+			fields: {
+				name: 'harry',
+				lastName: null,
+			},
+			searchId: 'q'
+		}
+	];
+
+	const fields = [
+		generateNodeTemplate('1', ['lastName'])
+	] as any;
+
+	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields);
+
+	/**
+	 * Expect:
+	 * thomas
+	 *
+	 * harry
+	 */
+	expect(nodes.length).toBe(2);
+	expect(links.length).toBe(0);
+});
+
+test('real world case', () => {
+	const connector: any = {
+		name: '6',
+		rules: [
+			{
+				id: '5',
+				field: {
+					path: 'bsn',
+					type: 'text',
+					datasourceId: 'a'
+				}
+			},
+			{
+				id: '13',
+				field: {
+					path: 'bsn_persgev',
+					type: 'text',
+					datasourceId: 'a'
+				}
+			}
+		],
+		strategy: 'OR',
+		icon: 'B',
+		color: '3772592'
+	};
+
+	const items: any = [{
+			id: '1',
+			fields:
+				{
+					bsn: 'same',
+					bsn_persgev: 'diff',
+				},
+			count: 1,
+			datasource: 'a',
+			datasourceId: 'a',
+			searchId: '3'
+		},
+		{
+			id: '2',
+			fields:
+				{
+					bsn: 'diff2',
+					bsn_persgev: 'same',
+				},
+			count: 1,
+			datasource: 'a',
+			datasourceId: 'a',
+			searchId: '3'
+		}];
+
+	const { nodes, links } = getNodesAndLinks([], [], items, [connector]);
+
+	expect(nodes.length).toBe(3);
+	expect(links.length).toBe(2);
+});

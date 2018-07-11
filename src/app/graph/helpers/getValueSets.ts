@@ -8,6 +8,11 @@ export interface ValueSet {
 
 export function getValueSets(values: Input): ValueSet[] {
 	const keys = Object.keys(values);
+
+	if (keys.length === 0) {
+		return [];
+	}
+
 	const output = [];
 
 	const recurse = (prevValues, index) => {
@@ -19,12 +24,13 @@ export function getValueSets(values: Input): ValueSet[] {
 		}
 
 		value.forEach(val => {
-			val += '';
-
 			const newValues = {
-				...prevValues,
-				[key]: val
+				...prevValues
 			};
+
+			if (val !== null) {
+				newValues[key] = val + '';
+			}
 
 			if (typeof keys[index + 1] !== 'undefined') {
 				recurse(newValues, index + 1);
