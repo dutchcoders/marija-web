@@ -135,7 +135,6 @@ class RecordDetail extends React.Component<any, any> {
             let field_value = highlight[value] || fieldLocator(record.fields, value);
 
             const activeAsColumn: boolean = columns.indexOf(value) !== -1;
-            const activeAsField: boolean = activeFields.indexOf(value) !== -1;
             let newHighlight: boolean = false;
 
             if (isHighlighting) {
@@ -158,13 +157,13 @@ class RecordDetail extends React.Component<any, any> {
                             </Tooltip>
 
                             <Tooltip
-                                overlay={activeAsField ? 'Is used in graph' : 'Add to graph'}
+                                overlay={'Create connector'}
                                 placement="bottom"
                                 mouseLeaveDelay={0}
                                 arrowContent={<div className="rc-tooltip-arrow-inner" />}>
                                 <Icon
                                     onClick={() => this.handleAddField(value)}
-                                    name={'ion-android-share-alt' + (activeAsField ? ' disabled' : '')}
+                                    name={'ion-android-share-alt'}
                                 />
                             </Tooltip>
                         </div>
