@@ -189,12 +189,12 @@ class ConnectorComponent extends React.Component<Props, State> {
 					{isDragging && connector && connector.rules.length > 1 && (
 						<form className={styles.strategy}>
 							<label>
-								<input type="radio" name="strategy" checked={connector.strategy === 'AND'} value="AND" onChange={this.onStrategyChange.bind(this)}/>
-								<span>Match all</span>
-							</label>
-							<label>
 								<input type="radio" name="strategy" checked={connector.strategy === 'OR'} value="OR" onChange={this.onStrategyChange.bind(this)}/>
 								<span>Match at least one</span>
+							</label>
+							<label>
+								<input type="radio" name="strategy" checked={connector.strategy === 'AND'} value="AND" onChange={this.onStrategyChange.bind(this)}/>
+								<span>Match all</span>
 							</label>
 						</form>
 					)}

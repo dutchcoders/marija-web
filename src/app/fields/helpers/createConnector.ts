@@ -10,7 +10,7 @@ export function createConnector(prevConnectors: Connector[], name: string, ruleI
 			id: ruleId,
 			field: field
 		}],
-		strategy: 'AND',
+		strategy: 'OR',
 		icon: getIcon(field.path, prevConnectors.map(matcher => matcher.icon)),
 		color: getConnectorColor(prevConnectors)
 	};
