@@ -100,18 +100,18 @@ class Navigation extends React.Component<any, any> {
                         () => this.togglePane('timeline'),
                         this.isActive('timeline')
                     )}
-                    {this.getButton(
-                        'ion-ios-circle-filled',
-                        'Chord diagram',
-                        () => this.togglePane('chordDiagram'),
-                        this.isActive('chordDiagram')
-                    )}
-                    {this.getButton(
-                        'ion-grid',
-                        'Adjacency matrix',
-                        () => this.togglePane('adjacencyMatrix'),
-                        this.isActive('adjacencyMatrix')
-                    )}
+                    {/*{this.getButton(*/}
+                        {/*'ion-ios-circle-filled',*/}
+                        {/*'Chord diagram',*/}
+                        {/*() => this.togglePane('chordDiagram'),*/}
+                        {/*this.isActive('chordDiagram')*/}
+                    {/*)}*/}
+                    {/*{this.getButton(*/}
+                        {/*'ion-grid',*/}
+                        {/*'Adjacency matrix',*/}
+                        {/*() => this.togglePane('adjacencyMatrix'),*/}
+                        {/*this.isActive('adjacencyMatrix')*/}
+                    {/*)}*/}
                 </ul>
                 <ul className="mapControls">
                     {this.getButton(
