@@ -6,6 +6,7 @@
 
 .header {
   display: flex;
+  cursor: pointer;
 }
 
 .icon {
@@ -39,4 +40,14 @@
   font-size: 1em;
   background: none;
   margin: 0 3px;
+}
+
+.toggle {
+  position: static !important;
+  line-height: 19px;
+  margin-right: 10px !important;
+}
+
+.main {
+  margin-top: 10px;
 }

@@ -131,17 +131,32 @@ class SelectedNode extends React.Component<Props, State> {
 		this.prepareImages(selectedNodes);
 	}
 
+	toggleExpanded() {
+		const { expanded } = this.state;
+
+		this.setState({
+			expanded: !expanded
+		});
+	}
+
 	render() {
 		const { node } = this.props;
+		const { expanded } = this.state;
 
 		const image = this.state.nodeImages[this.getImageKey(node)];
 
 		return (
 			<li onMouseEnter={() => this.displayTooltip()} className={styles.node}>
-				<header className={styles.header}>
+				<header className={styles.header} onClick={this.toggleExpanded.bind(this)}>
+					<Icon name={styles.toggle + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')}/>
 					<img className={styles.icon} src={image} />
 					<span className={styles.name}>{node.name}</span>
 				</header>
+				{expanded && (
+					<main className={styles.main}>
+						MAIN
+					</main>
+				)}
 				{/*<span className='description'>{node.description}</span>*/}
 				{/*<button className={styles.focus} onClick={() => this.focus()}>Focus</button>*/}
 				{/*<button className={styles.deselect} onClick={() => this.deselect()}>Deselect</button>*/}
