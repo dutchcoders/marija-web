@@ -2,6 +2,24 @@ import { Node } from '../interfaces/node';
 import { Connector } from '../interfaces/connector';
 import { Search } from '../../search/interfaces/search';
 
+function getConnectorColor(connectorName: string, connectors: Connector[]) {
+	const connector = connectors.find(connector => connector.name === connectorName);
+
+	if (!connector) {
+		return '#52657a';
+	}
+
+	return connector.color;
+}
+
+function getSearchColor(searchId: string, searches: Search[]) {
+	const search = searches.find(search => search.searchId === searchId);
+
+	if (typeof search !== 'undefined') {
+		return search.color;
+	}
+}
+
 export function getNodeCanvas(node: Node, sizeMultiplier: number, selected: boolean, searches: Search[], connectors: Connector[]): HTMLCanvasElement {
 	const radius = node.r * sizeMultiplier;
 	const canvas = document.createElement('canvas');
@@ -15,7 +33,7 @@ export function getNodeCanvas(node: Node, sizeMultiplier: number, selected: bool
 	if (node.type === 'connector') {
 		fontSize = radius;
 
-		const color = this.getConnectorColor(node.connector, connectors);
+		const color = getConnectorColor(node.connector, connectors);
 
 		ctx.fillStyle = color;
 		ctx.fillRect(margin, margin, radius * 2, radius * 2);
@@ -28,7 +46,7 @@ export function getNodeCanvas(node: Node, sizeMultiplier: number, selected: bool
 
 		node.searchIds.forEach(searchId => {
 			ctx.beginPath();
-			ctx.fillStyle = this.getSearchColor(searchId, searches);
+			ctx.fillStyle = getSearchColor(searchId, searches);
 			ctx.moveTo(radius, radius);
 			ctx.arc(radius + margin, radius + margin, radius, currentAngle, currentAngle + anglePerSearch);
 			ctx.fill();

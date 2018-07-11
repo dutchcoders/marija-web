@@ -54,7 +54,7 @@ class NodeIcon extends React.Component<Props, State> {
 const select = (state: AppState, ownProps) => ({
 	...ownProps,
 	searches: state.graph.searches,
-	selectedNodes: getSelectedNodes(state)
+	connectors: state.fields.connectors,
 });
 
 export default connect(select)(NodeIcon);

@@ -6,15 +6,21 @@ import { deselectNodes, nodesSelect, showTooltip } from '../../graphActions';
 import { Search } from '../../../search/interfaces/search';
 import Icon from '../../../ui/components/icon';
 import * as styles from './selectedNode.scss';
-import { getSelectedNodes } from '../../graphSelectors';
+import {
+	getLinksForDisplay,
+	getNodesForDisplay,
+	getSelectedNodes
+} from '../../graphSelectors';
 import { Connector } from '../../interfaces/connector';
 import NodeIcon from '../nodeIcon/nodeIcon';
+import getDirectlyRelatedNodes from '../../helpers/getDirectlyRelatedNodes';
+import { Link } from '../../interfaces/link';
 
 interface Props {
 	node: Node;
 	selectedNodes: Node[];
-	searches: Search[];
-	connectors: Connector[];
+	nodesForDisplay: Node[];
+	linksForDisplay: Link[];
 	dispatch: any;
 }
 
@@ -56,6 +62,41 @@ class SelectedNode extends React.Component<Props, State> {
 		});
 	}
 
+	renderItemMain() {
+		const { node, nodesForDisplay, linksForDisplay } = this.props;
+
+		const connectors = getDirectlyRelatedNodes([node], nodesForDisplay, linksForDisplay)
+			.filter(search => search.id !== node.id);
+
+		return (
+			<ul className={styles.connectors}>
+				{connectors.map(connector => {
+					const items = getDirectlyRelatedNodes([connector], nodesForDisplay, linksForDisplay)
+						.filter(search => search.id !== node.id && search.id !== connector.id);
+
+					return (
+						<li className={styles.connector} key={connector.id}>
+							<header className={styles.connectorHeader}>
+								<NodeIcon node={connector}/>
+								<span className={styles.name}>Same {connector.fields.join(',')}: {connector.name}</span>
+							</header>
+							<ul className={styles.items}>
+								{items.map(item => {
+									return (
+										<li key={item.id} className={styles.item}>
+											<NodeIcon node={item}/>
+											<span className={styles.name}>{item.name}</span>
+										</li>
+									);
+								})}
+							</ul>
+						</li>
+					);
+				})}
+			</ul>
+		);
+	}
+
 	render() {
 		const { node } = this.props;
 		const { expanded } = this.state;
@@ -69,11 +110,7 @@ class SelectedNode extends React.Component<Props, State> {
 					</div>
 					<span className={styles.name}>{node.name}</span>
 				</header>
-				{expanded && (
-					<main className={styles.main}>
-						MAIN
-					</main>
-				)}
+				{expanded && node.type === 'item' ? this.renderItemMain() : null}
 				{/*<span className='description'>{node.description}</span>*/}
 				{/*<button className={styles.focus} onClick={() => this.focus()}>Focus</button>*/}
 				{/*<button className={styles.deselect} onClick={() => this.deselect()}>Deselect</button>*/}
@@ -85,7 +122,9 @@ class SelectedNode extends React.Component<Props, State> {
 const select = (state: AppState, ownProps) => ({
 	...ownProps,
 	searches: state.graph.searches,
-	selectedNodes: getSelectedNodes(state)
+	selectedNodes: getSelectedNodes(state),
+	nodesForDisplay: getNodesForDisplay(state),
+	linksForDisplay: getLinksForDisplay(state)
 });
 
 export default connect(select)(SelectedNode);

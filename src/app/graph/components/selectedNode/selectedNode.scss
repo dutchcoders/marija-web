@@ -31,7 +31,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  display: block;
+  display: inline-block;
   line-height: 30px;
 }
 
@@ -54,4 +54,30 @@
 
 .main {
   margin-top: 10px;
+}
+
+.connector,
+.item {
+  background: none !important;
+  padding: 5px !important;
+
+  img {
+    margin-right: 10px;
+  }
+}
+
+.connectors {
+  margin-left: 56px;
+}
+
+.items {
+  margin-left: 38px;
+}
+
+.connectorHeader {
+  display: flex;
+}
+
+.item {
+  display: flex;
 }
