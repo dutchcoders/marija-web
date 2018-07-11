@@ -517,3 +517,43 @@ test('should find relations with nodes that already existed', () => {
 	expect(result.nodes.length).toBe(3);
 	expect(result.links.length).toBe(2);
 });
+
+test('should work with OR match when one of the values is null', () => {
+	const items1 = [
+		{
+			id: '1',
+			fields: {
+				name: 'thomas',
+				company: 'dutchsec',
+				city: 'utrecht'
+			},
+			searchId: 'q'
+		},
+		{
+			id: '2',
+			fields: {
+				name: 'harry',
+				company: 'dutchsec',
+				city: null
+			},
+			searchId: 'q'
+		}
+	];
+
+	const fields = [
+		generateNodeTemplate('1', ['company', 'city'])
+	] as any;
+
+	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields);
+
+	/**
+	 * Expect:
+	 * thomas
+	 * |
+	 * utrecht
+	 * |
+	 * harry
+	 */
+	expect(nodes.length).toBe(3);
+	expect(links.length).toBe(2);
+});
