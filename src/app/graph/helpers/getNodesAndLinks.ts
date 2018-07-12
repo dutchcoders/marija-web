@@ -26,20 +26,20 @@ export default function getNodesAndLinks(
 	const connectorNodes: Node[] = previousNodes.filter(node => node.type === 'connector');
 
 	// Proof that items with the same fields sometimes have a different ID
-	items.forEach(item => {
-		const stringified = JSON.stringify(item.fields);
-
-		const content = contents.find(content => content.stringified === stringified);
-
-		if (content && content.item.id !== item.id) {
-			console.error('Original', content.item, ' New', item);
-		} else {
-			contents.push({
-				item,
-				stringified
-			});
-		}
-	});
+	// items.forEach(item => {
+	// 	const stringified = JSON.stringify(item.fields);
+	//
+	// 	const content = contents.find(content => content.stringified === stringified);
+	//
+	// 	if (content && content.item.id !== item.id) {
+	// 		console.error('Original', content.item, ' New', item);
+	// 	} else {
+	// 		contents.push({
+	// 			item,
+	// 			stringified
+	// 		});
+	// 	}
+	// });
 
     const createLink = (source: Node, target: Node, item: Item, color: string) => {
 		if (source.id === target.id) {
