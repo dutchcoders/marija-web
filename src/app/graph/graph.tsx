@@ -104,7 +104,6 @@ class Graph extends React.PureComponent<Props, State> {
     worker: Worker;
     transform: any = d3.zoomIdentity;
     shift: boolean;
-    alt: boolean;
     lastLoopTimestamp: number;
     frameTime: number = 0;
     lastDispatchedFpsTimestamp: number = 0;
@@ -1736,7 +1735,7 @@ class Graph extends React.PureComponent<Props, State> {
 			this.mainDragSubject = node;
 			const { nodesForDisplay, linksForDisplay, selectedNodes } = this.props;
 
-			if (this.alt) {
+			if (event.altKey) {
 				this.dragSubjects = getDirectlyRelatedNodes([node], nodesForDisplay, linksForDisplay);
 			} else if (node.selected) {
 				this.dragSubjects = selectedNodes;
@@ -1905,9 +1904,7 @@ class Graph extends React.PureComponent<Props, State> {
 
         if (event.keyCode === shiftKey) {
             this.shift = true;
-        } else if (event.altKey) {
-        	this.alt = true;
-		}
+        }
     }
 
     handleKeyUp(event: KeyboardEvent) {
@@ -1916,8 +1913,6 @@ class Graph extends React.PureComponent<Props, State> {
         if (event.keyCode === shiftKey) {
             this.shiftDisengaged();
         }
-
-        this.alt = false;
     }
 
     shiftDisengaged() {
