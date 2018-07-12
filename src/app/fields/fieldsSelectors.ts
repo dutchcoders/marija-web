@@ -36,9 +36,17 @@ export const getSelectedFields = createSelector(
 	(connectors: Connector[], datasources: Datasource[], availableFields: Field[]) => {
 		let fields: Field[] = [];
 
+		const push = (field: Field) => {
+			const existing = fields.find(search => search.path === field.path);
+
+			if (!existing) {
+				fields.push(field);
+			}
+		};
+
 		connectors.forEach(connector =>
 			connector.rules.forEach(rule =>
-				fields.push(rule.field)
+				push(rule.field)
 			)
 		);
 
@@ -49,7 +57,7 @@ export const getSelectedFields = createSelector(
 				const field = getField(datasource.labelFieldPath);
 
 				if (field) {
-					fields.push(field);
+					push(field);
 				}
 			}
 
@@ -57,7 +65,7 @@ export const getSelectedFields = createSelector(
 				const field = getField(datasource.imageFieldPath);
 
 				if (field) {
-					fields.push(field);
+					push(field);
 				}
 			}
 
@@ -65,7 +73,7 @@ export const getSelectedFields = createSelector(
 				const field = getField(datasource.locationFieldPath);
 
 				if (field) {
-					fields.push(field);
+					push(field);
 				}
 			}
 
@@ -73,11 +81,30 @@ export const getSelectedFields = createSelector(
 				const field = getField(datasource.dateFieldPath);
 
 				if (field) {
-					fields.push(field);
+					push(field);
 				}
 			}
 		});
 
 		return fields;
+	}
+);
+
+export const getSelectedDateFields = createSelector(
+	(state: AppState) => state.datasources.datasources,
+	(state: AppState) => state.fields.availableFields,
+
+	(datasources: Datasource[], fields: Field[]): Field[] => {
+		const paths: string[] = [];
+
+		datasources.forEach(datasource => {
+			if (datasource.dateFieldPath) {
+				paths.push(datasource.dateFieldPath);
+			}
+		});
+
+		return fields.filter(field =>
+			paths.indexOf(field.path) !== -1
+		);
 	}
 );

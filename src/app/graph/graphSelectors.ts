@@ -1,15 +1,15 @@
 import { createSelector } from 'reselect';
-import {Node} from "./interfaces/node";
-import {Link} from "./interfaces/link";
-import {AppState} from "../main/interfaces/appState";
+import { Node } from "./interfaces/node";
+import { Link } from "./interfaces/link";
+import { AppState } from "../main/interfaces/appState";
 import { TimelineGrouping } from './interfaces/graphState';
 import { Item } from '../items/interfaces/item';
+import * as moment from 'moment';
 import { Moment, unitOfTime } from 'moment';
-import { find, map, groupBy, reduce, forEach, filter, concat } from 'lodash';
+import { groupBy } from 'lodash';
 import fieldLocator from '../fields/helpers/fieldLocator';
 import { Field } from '../fields/interfaces/field';
-import * as moment from 'moment';
-import { Datasource } from '../datasources/interfaces/datasource';
+import { getSelectedDateFields } from '../fields/fieldsSelectors';
 
 
 export const getNodesForDisplay = createSelector(
@@ -68,24 +68,7 @@ const getDate = (node: Node, items: Item[], dateFields: Field[]): Moment | undef
 	}
 };
 
-export const getSelectedDateFields = createSelector(
-	(state: AppState) => state.datasources.datasources,
-	(state: AppState) => state.fields.availableFields,
 
-	(datasources: Datasource[], fields: Field[]): Field[] => {
-		const paths: string[] = [];
-
-		datasources.forEach(datasource => {
-			if (datasource.dateFieldPath) {
-				paths.push(datasource.dateFieldPath);
-			}
-		});
-
-		return fields.filter(field =>
-			paths.indexOf(field.path) !== -1
-		);
-	}
-);
 
 export const getTimelineGroups = createSelector(
     (state: AppState) => state.graph.timelineGrouping,

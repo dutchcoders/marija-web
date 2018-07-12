@@ -14,8 +14,7 @@ import {
 import {BarChart, XAxis, YAxis, Bar, Tooltip} from 'recharts';
 import {Search} from "../../search/interfaces/search";
 import {
-	getNodesForDisplay, getSelectedDateFields,
-	getTimelineGroups,
+	getNodesForDisplay, getTimelineGroups,
 	TimelineGroups
 } from "../graphSelectors";
 import {AppState} from "../../main/interfaces/appState";
@@ -23,6 +22,7 @@ import TimelineSlider from './timelineSlider/timelineSlider';
 import * as styles from './timeline.scss';
 import { EventEmitter } from 'fbemitter';
 import { TimelineGrouping } from '../interfaces/graphState';
+import { getSelectedDateFields } from '../../fields/fieldsSelectors';
 
 interface Props {
 	onPaneEvent?: EventEmitter;
