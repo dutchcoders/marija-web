@@ -91,7 +91,10 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
     switch (action.type) {
         case NODES_DELETE: {
         	const deletedNodeIds: number[] = state.deletedNodeIds.concat([]);
-        	const deleteNodeIds: number[] = action.payload.nodes.map(node => node.id);
+        	const deleteNodeIds: number[] = action.payload.nodes
+                // Connector nodes can not be deleted
+                .filter(node => node.type === 'item')
+                .map(node => node.id);
 
         	deleteNodeIds.forEach(nodeId => {
         		if (deletedNodeIds.indexOf(nodeId) === -1) {

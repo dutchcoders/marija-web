@@ -298,6 +298,19 @@ class ContextMenu extends React.Component<Props, State> {
 			)
 		}
 
+		let deleteElement = null;
+        if (node.type === 'item') {
+            // Connector nodes can not be deleted
+            deleteElement = (
+				<li>
+					<button onClick={this.delete.bind(this)} className={styles.button}>
+						<Icon name={'ion-ios-trash ' + styles.icon} />
+						<span className={styles.buttonText}>Delete</span>
+					</button>
+				</li>
+            );
+        }
+
         return (
             <div className={styles.contextMenu} ref={ref => this.contextMenu = ref}>
                 <div className={styles.main}>
@@ -325,12 +338,7 @@ class ContextMenu extends React.Component<Props, State> {
                         <li>
                             {noteButton}
                         </li>
-                        <li>
-                            <button onClick={this.delete.bind(this)} className={styles.button}>
-                                <Icon name={'ion-ios-trash ' + styles.icon} />
-                                <span className={styles.buttonText}>Delete</span>
-                            </button>
-                        </li>
+                        {deleteElement}
                     </ul>
                 </div>
                 {note}
