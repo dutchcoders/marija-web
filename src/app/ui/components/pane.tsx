@@ -193,13 +193,16 @@ class Pane extends React.Component<any, any> {
             })
         );
 
+        rndStyle.zIndex = config.zIndex;
+
         return (
             <Rnd
                 default={{
                     x: x,
                     y: y,
                     width: width,
-                    height: height
+                    height: height,
+                    zIndex: config.zIndex
                 }}
                 minWidth={config.minWidth}
                 minHeight={config.minHeight}
