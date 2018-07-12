@@ -25,7 +25,7 @@ const generateItem = (fields: any = undefined) => {
         requestedExtraData: false,
         nodes: [],
         receivedExtraData: false,
-		datasourceId: null
+		datasourceId: '1'
     } as Item;
 };
 
@@ -43,6 +43,15 @@ const generateNodeTemplate = (name, fields: string[], strategy = 'OR') => {
 	};
 };
 
+const defaultArguments: any = [
+	null,
+	[],
+	[{
+		id: '1',
+		labelFieldPath: 'first_name'
+	}]
+];
+
 test('should output nodes', () => {
     const previousNodes = [];
     const previousLinks = [];
@@ -57,7 +66,7 @@ test('should output nodes', () => {
         // generateNodeTemplate('1', 'text')
     ];
 
-    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields);
+    const { nodes } = getNodesAndLinks(previousNodes, previousLinks, items, fields, ...defaultArguments);
 
     expect(nodes.length).toBe(3);
 });
@@ -72,14 +81,16 @@ test('node templates 1', () => {
 			fields: {
 				first_name: 'Thomas',
 				last_name: 'Kuipers',
-			}
+			},
+			datasourceId: '1',
 		},
 		{
 			id: '2',
 			fields: {
 				first_name: 'Harry',
 				last_name: 'Kuipers'
-			}
+			},
+			datasourceId: '1'
 		}
 	];
 
@@ -87,7 +98,7 @@ test('node templates 1', () => {
 		generateNodeTemplate('family', ['first_name', 'last_name'])
 	];
 
-	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields as any);
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields as any, ...defaultArguments);
 
 	/**
 	 * Expect:
@@ -112,21 +123,24 @@ test('node templates 2', () => {
 			fields: {
 				first_name: 'Thomas',
 				last_name: 'Kuipers',
-			}
+			},
+			datasourceId: '1'
 		},
 		{
 			id: '2',
 			fields: {
 				first_name: 'Harry',
 				last_name: 'Kuipers'
-			}
+			},
+			datasourceId: '1'
 		},
 		{
 			id: '3',
 			fields: {
 				first_name: 'Barry',
 				last_name: 'Kuipers'
-			}
+			},
+			datasourceId: '1'
 		}
 	];
 
@@ -134,7 +148,7 @@ test('node templates 2', () => {
 		generateNodeTemplate('family', ['first_name', 'last_name'])
 	];
 
-	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields as any);
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields as any, ...defaultArguments);
 
 	/**
 	 * Expect:
@@ -159,14 +173,16 @@ test('node templates 3', () => {
 			fields: {
 				first_name: 'Thomas',
 				last_name: 'Kuipers',
-			}
+			},
+			datasourceId: '1'
 		},
 		{
 			id: '2',
 			fields: {
 				first_name: ['Harry', 'Barry'],
 				last_name: 'Kuipers'
-			}
+			},
+			datasourceId: '1'
 		}
 	];
 
@@ -174,7 +190,7 @@ test('node templates 3', () => {
 		generateNodeTemplate('family', ['first_name', 'last_name'])
 	];
 
-	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields as any);
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields as any, ...defaultArguments);
 
 	/**
 	 * Expect:
@@ -199,14 +215,16 @@ test('node templates 4', () => {
 			fields: {
 				first_name: 'Thomas',
 				last_name: 'Kuipers',
-			}
+			},
+			datasourceId: '1'
 		},
 		{
 			id: '2',
 			fields: {
 				first_name: 'Harry',
 				last_name: ['Boer', 'Kuipers']
-			}
+			},
+			datasourceId: '1'
 		}
 	];
 
@@ -214,7 +232,7 @@ test('node templates 4', () => {
 		generateNodeTemplate('family', ['first_name', 'last_name'])
 	] as any;
 
-	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields);
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, ...defaultArguments);
 
 	/**
 	 * Expect:
@@ -240,7 +258,8 @@ test('node templates 5', () => {
 				first_name: 'Thomas',
 				born: 1990,
 				last_name: 'Kuipers',
-			}
+			},
+			datasourceId: '1'
 		},
 		{
 			id: '2',
@@ -248,7 +267,8 @@ test('node templates 5', () => {
 				first_name: 'Harry',
 				born: 1990,
 				last_name: 'Kuipers'
-			}
+			},
+			datasourceId: '1'
 		}
 	];
 
@@ -257,7 +277,7 @@ test('node templates 5', () => {
 		generateNodeTemplate('born_in_same_year', ['born'])
 	] as any;
 
-	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields);
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, ...defaultArguments);
 
 	/**
 	 * Expect:
@@ -282,21 +302,24 @@ test('node templates 6', () => {
 			fields: {
 				first_name: 'Thomas',
 				last_name: 'Kuipers',
-			}
+			},
+			datasourceId: '1'
 		},
 		{
 			id: '2',
 			fields: {
 				first_name: 'Harry',
 				last_name: 'Kuipers'
-			}
+			},
+			datasourceId: '1'
 		},
 		{
 			id: '3',
 			fields: {
 				first_name: 'Henk',
 				last_name: 'Boer'
-			}
+			},
+			datasourceId: '1'
 		}
 	];
 
@@ -304,7 +327,7 @@ test('node templates 6', () => {
 		generateNodeTemplate('family', ['last_name'])
 	] as any;
 
-	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields);
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, ...defaultArguments);
 
 	/**
 	 * Expect:
@@ -332,7 +355,8 @@ test('node templates 7', () => {
 				first_name: 'Thomas',
 				last_name: 'Kuipers',
 				born: 1990
-			}
+			},
+			datasourceId: '1'
 		},
 		{
 			id: '2',
@@ -340,7 +364,8 @@ test('node templates 7', () => {
 				first_name: 'Harry',
 				last_name: 'Kuipers',
 				born: 1980
-			}
+			},
+			datasourceId: '1'
 		},
 		{
 			id: '3',
@@ -348,7 +373,8 @@ test('node templates 7', () => {
 				first_name: 'Henk',
 				last_name: 'Boer',
 				born: 1980
-			}
+			},
+			datasourceId: '1'
 		}
 	];
 
@@ -357,7 +383,7 @@ test('node templates 7', () => {
 		generateNodeTemplate('born_same_year', ['born']),
 	] as any;
 
-	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields);
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields, ...defaultArguments);
 
 	/**
 	 * Expect:
@@ -383,14 +409,16 @@ test('should output separate connectors for each connecting array value', () => 
 			fields: {
 				name: 'Thomas',
 				nicknames: ['Dude', 'Man'],
-			}
+			},
+			datasourceId: '1'
 		},
 		{
 			id: '2',
 			fields: {
 				name: 'Barry',
 				nicknames: ['Dude', 'Man'],
-			}
+			},
+			datasourceId: '1'
 		}
 	];
 
@@ -398,7 +426,7 @@ test('should output separate connectors for each connecting array value', () => 
 		generateNodeTemplate('nicknames', ['nicknames'])
 	] as any;
 
-	const { nodes, links } = getNodesAndLinks([], [], items as any, fields);
+	const { nodes, links } = getNodesAndLinks([], [], items as any, fields, ...defaultArguments);
 
 	/**
 	 * Expect
@@ -418,13 +446,15 @@ test('connector nodes should contain item ids of all related items', () => {
 			id: '1',
 			fields: {
 				name: 'Thomas',
-			}
+			},
+			datasourceId: '1'
 		},
 		{
 			id: '2',
 			fields: {
 				name: 'Thomas',
-			}
+			},
+			datasourceId: '1'
 		}
 	];
 
@@ -432,7 +462,7 @@ test('connector nodes should contain item ids of all related items', () => {
 		generateNodeTemplate('name', ['name'])
 	] as any;
 
-	const { nodes, links } = getNodesAndLinks([], [], items as any, fields);
+	const { nodes, links } = getNodesAndLinks([], [], items as any, fields, ...defaultArguments);
 
 	expect(nodes.length).toBe(3);
 	expect(links.length).toBe(2);
@@ -448,13 +478,15 @@ test('should work with word similarity percentages', () => {
 			id: '1',
 			fields: {
 				name: 'Thomas',
-			}
+			},
+			datasourceId: '1'
 		},
 		{
 			id: '2',
 			fields: {
 				name: 'Thomat',
-			}
+			},
+			datasourceId: '1'
 		}
 	];
 
@@ -476,7 +508,7 @@ test('should work with word similarity percentages', () => {
 		}
 	];
 
-	const { nodes, links } = getNodesAndLinks([], [], items as any, connectors);
+	const { nodes, links } = getNodesAndLinks([], [], items as any, connectors, ...defaultArguments);
 
 	expect(nodes.length).toBe(3);
 });
@@ -488,7 +520,8 @@ test('should find relations with nodes that already existed', () => {
 			fields: {
 				name: 'thomas',
 			},
-			searchId: 'q'
+			searchId: 'q',
+			datasourceId: '1'
 		}
 	];
 
@@ -496,7 +529,7 @@ test('should find relations with nodes that already existed', () => {
 		generateNodeTemplate('name', ['name'])
 	] as any;
 
-	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields);
+	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields, ...defaultArguments);
 
 	expect(nodes.length).toBe(1);
 	expect(links.length).toBe(0);
@@ -507,12 +540,13 @@ test('should find relations with nodes that already existed', () => {
 			fields: {
 				name: 'thomas',
 			},
-			searchId: 'q'
+			searchId: 'q',
+			datasourceId: '1'
 		}
 	];
 
 	const allItems = items1.concat(items2);
-	const result = getNodesAndLinks(nodes, links, allItems as any, fields);
+	const result = getNodesAndLinks(nodes, links, allItems as any, fields, ...defaultArguments);
 
 	expect(result.nodes.length).toBe(3);
 	expect(result.links.length).toBe(2);
@@ -527,7 +561,8 @@ test('should work with OR match when one of the values is null', () => {
 				company: 'dutchsec',
 				city: 'utrecht'
 			},
-			searchId: 'q'
+			searchId: 'q',
+			datasourceId: '1'
 		},
 		{
 			id: '2',
@@ -536,7 +571,8 @@ test('should work with OR match when one of the values is null', () => {
 				company: 'dutchsec',
 				city: null
 			},
-			searchId: 'q'
+			searchId: 'q',
+			datasourceId: '1'
 		}
 	];
 
@@ -544,7 +580,7 @@ test('should work with OR match when one of the values is null', () => {
 		generateNodeTemplate('1', ['company', 'city'])
 	] as any;
 
-	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields);
+	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields, ...defaultArguments);
 
 	/**
 	 * Expect:
@@ -566,7 +602,8 @@ test('should not create connector nodes for null values', () => {
 				name: 'thomas',
 				lastName: null,
 			},
-			searchId: 'q'
+			searchId: 'q',
+			datasourceId: '1'
 		},
 		{
 			id: '2',
@@ -574,7 +611,8 @@ test('should not create connector nodes for null values', () => {
 				name: 'harry',
 				lastName: null,
 			},
-			searchId: 'q'
+			searchId: 'q',
+			datasourceId: '1'
 		}
 	];
 
@@ -582,7 +620,7 @@ test('should not create connector nodes for null values', () => {
 		generateNodeTemplate('1', ['lastName'])
 	] as any;
 
-	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields);
+	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields, ...defaultArguments);
 
 	/**
 	 * Expect:
@@ -602,7 +640,8 @@ test('should not create connector nodes for empty values', () => {
 				name: 'thomas',
 				lastName: '',
 			},
-			searchId: 'q'
+			searchId: 'q',
+			datasourceId: '1'
 		},
 		{
 			id: '2',
@@ -610,7 +649,8 @@ test('should not create connector nodes for empty values', () => {
 				name: 'harry',
 				lastName: '',
 			},
-			searchId: 'q'
+			searchId: 'q',
+			datasourceId: '1'
 		}
 	];
 
@@ -618,7 +658,7 @@ test('should not create connector nodes for empty values', () => {
 		generateNodeTemplate('1', ['lastName'])
 	] as any;
 
-	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields);
+	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields, ...defaultArguments);
 
 	/**
 	 * Expect:
@@ -640,7 +680,7 @@ test('real world case', () => {
 					path: 'bsn',
 					type: 'text',
 					datasourceId: 'a'
-				}
+				},
 			},
 			{
 				id: '13',
@@ -648,7 +688,7 @@ test('real world case', () => {
 					path: 'bsn_persgev',
 					type: 'text',
 					datasourceId: 'a'
-				}
+				},
 			}
 		],
 		strategy: 'OR',
@@ -665,8 +705,8 @@ test('real world case', () => {
 				},
 			count: 1,
 			datasource: 'a',
-			datasourceId: 'a',
-			searchId: '3'
+			datasourceId: '1',
+			searchId: '3',
 		},
 		{
 			id: '2',
@@ -677,11 +717,11 @@ test('real world case', () => {
 				},
 			count: 1,
 			datasource: 'a',
-			datasourceId: 'a',
+			datasourceId: '1',
 			searchId: '3'
 		}];
 
-	const { nodes, links } = getNodesAndLinks([], [], items, [connector]);
+	const { nodes, links } = getNodesAndLinks([], [], items, [connector], ...defaultArguments);
 
 	expect(nodes.length).toBe(3);
 	expect(links.length).toBe(2);
@@ -695,7 +735,8 @@ test('boukes case', () => {
 				name: 'bouke',
 				brother: 'harry',
 			},
-			searchId: 'q'
+			searchId: 'q',
+			datasourceId: '1'
 		},
 		{
 			id: '2',
@@ -703,7 +744,8 @@ test('boukes case', () => {
 				name: 'harry',
 				brother: 'karel',
 			},
-			searchId: 'q'
+			searchId: 'q',
+			datasourceId: '1'
 		}
 	];
 
@@ -711,7 +753,7 @@ test('boukes case', () => {
 		generateNodeTemplate('1', ['name', 'brother'])
 	] as any;
 
-	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields);
+	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields, ...defaultArguments);
 
 	/**
 	 * Expect:
@@ -733,7 +775,8 @@ test('boukes case 2', () => {
 				name: 'bouke',
 				brother: 'harry',
 			},
-			searchId: 'q'
+			searchId: 'q',
+			datasourceId: '1'
 		},
 		{
 			id: '2',
@@ -741,7 +784,8 @@ test('boukes case 2', () => {
 				name: 'harry',
 				brother: 'karel',
 			},
-			searchId: 'q'
+			searchId: 'q',
+			datasourceId: '1'
 		},
 		{
 			id: '3',
@@ -749,7 +793,8 @@ test('boukes case 2', () => {
 				name: 'thomas',
 				brother: 'harry',
 			},
-			searchId: 'q'
+			searchId: 'q',
+			datasourceId: '1'
 		}
 	];
 
@@ -757,7 +802,7 @@ test('boukes case 2', () => {
 		generateNodeTemplate('1', ['name', 'brother'])
 	] as any;
 
-	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields);
+	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields, ...defaultArguments);
 
 	/**
 	 * Expect:

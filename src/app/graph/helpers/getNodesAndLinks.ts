@@ -85,11 +85,14 @@ export default function getNodesAndLinks(
 
     const createItemNode = (item: Item): Node => {
     	const datasource = datasources.find(datasource => datasource.id === item.datasourceId);
-    	const labelField = datasource && datasource.labelFieldPath ? datasource.labelFieldPath : Object.keys(item.fields)[0];
-		let name = item.fields[labelField] || '';
+		let name: string = '';
 
-		if (Array.isArray(name)) {
-			name = name.join(', ');
+		if (datasource.labelFieldPath && item.fields[datasource.labelFieldPath]) {
+			name = item.fields[datasource.labelFieldPath];
+
+			if (Array.isArray(name)) {
+				name = name.join(', ');
+			}
 		}
 
 		const imageField = datasource && datasource.imageFieldPath ? datasource.imageFieldPath : null;

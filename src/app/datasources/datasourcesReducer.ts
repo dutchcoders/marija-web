@@ -70,7 +70,7 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
 
 			const datasource = { ...datasources[index] };
 
-			if (!datasource.dateFieldPath) {
+			if (typeof datasource.dateFieldPath === 'undefined') {
 				const field = fields.find(field => field.type === 'date');
 
 				if (field) {
@@ -78,7 +78,7 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
 				}
 			}
 
-			if (!datasource.imageFieldPath) {
+			if (typeof datasource.imageFieldPath === 'undefined') {
 				const field = fields.find(field => field.type === 'image');
 
 				if (field) {
@@ -86,7 +86,7 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
 				}
 			}
 
-			if (!datasource.locationFieldPath) {
+			if (typeof datasource.locationFieldPath === 'undefined') {
 				const field = fields.find(field => field.type === 'location');
 
 				if (field) {
@@ -94,7 +94,7 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
 				}
 			}
 
-			if (!datasource.labelFieldPath) {
+			if (typeof datasource.labelFieldPath === 'undefined') {
 				const field = fields.find(field => field.type === 'text' || field.type === 'string');
 
 				if (field) {

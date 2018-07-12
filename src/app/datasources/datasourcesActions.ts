@@ -10,9 +10,6 @@ import {
 } from './datasourcesConstants';
 import { Datasource } from './interfaces/datasource';
 import { rebuildGraph } from '../graph/graphActions';
-import { Field } from '../fields/interfaces/field';
-import { AppState } from '../main/interfaces/appState';
-import { getSelectedFields } from '../fields/fieldsSelectors';
 
 export function datasourceActivated(datasourceId: string) {
     return {
@@ -66,20 +63,12 @@ export interface DatasourceProps {
 
 export function updateDatasource(datasourceId: string, props: DatasourceProps) {
 	return (dispatch, getState) => {
-		const oldFields: Field[] = getSelectedFields(getState());
-
 		dispatch({
 			type: UPDATE_DATASOURCE,
 			payload: {
 				datasourceId,
 				props
 			}
-		});
-
-		const newState: AppState = getState();
-		const newFields: Field[] = getSelectedFields(newState);
-		const newField = newFields.find(field => {
-			return typeof oldFields.find(search => search.path === field.path) === 'undefined';
 		});
 
 		dispatch(rebuildGraph());
