@@ -67,6 +67,10 @@ export function searchAround(node: Node) {
         	const item = getItemByNode(node, state.graph.items);
 			const fieldPaths = Object.keys(item.fields);
 			query = fieldPaths.reduce((query: string, fieldPath: string) => {
+			    if (!item.fields[fieldPath]) {
+			        return query;
+                }
+
 				return query + ' "' + item.fields[fieldPath] + '"';
 			}, '');
 		} else {
