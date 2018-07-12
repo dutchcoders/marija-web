@@ -12,7 +12,6 @@ import { Item } from '../items/interfaces/item';
 import { requestItems } from '../items/itemsActions';
 import { AppState } from '../main/interfaces/appState';
 import { Search } from '../search/interfaces/search';
-import { searchFieldsUpdate } from '../search/searchActions';
 import Icon from '../ui/components/icon';
 import Record from './components/record';
 import RecordDetail from './components/recordDetail';
@@ -85,7 +84,6 @@ class Table extends React.Component<Props, State> {
         const field = availableFields.find(search => search.path === path);
 
         dispatch(createNewConnector(field));
-        dispatch(searchFieldsUpdate());
     }
 
     getSelectedItems(selectedNodes: Node[], items: Item[]): Item[] {

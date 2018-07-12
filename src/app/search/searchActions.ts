@@ -162,47 +162,6 @@ export function editSearch(searchId: string, opts) {
     };
 }
 
-export function searchFieldsUpdate() {
-    return (dispatch, getState) => {
-        const state: AppState = getState();
-
-        let fields = getSelectedFields(state).map(field => field.path);
-
-        const newSearches = state.graph.searches.map(search => {
-            if (search.liveDatasource) {
-                return search;
-            }
-
-            if (!search.completed) {
-                dispatch(cancelRequest(search.requestId));
-            }
-
-            const newRequestId = uniqueId();
-
-            dispatch(webSocketSend({
-                type: SEARCH_REQUEST,
-                datasources: search.datasources,
-                query: search.q,
-                fields: fields,
-                'request-id': newRequestId
-            }));
-
-            return {
-                ...search,
-                requestId: newRequestId,
-                completed: false
-            };
-        });
-
-        dispatch({
-            type: SEARCH_FIELDS_UPDATE,
-            payload: {
-                searches: newSearches
-            }
-        });
-    }
-}
-
 export function pauseSearch(search: Search) {
     return (dispatch, getState) => {
         dispatch({

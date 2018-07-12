@@ -22,7 +22,6 @@ import { rebuildGraph } from '../graph/graphActions';
 import {
 	MatchingStrategy
 } from '../graph/interfaces/connector';
-import { searchFieldsUpdate } from '../search/searchActions';
 import { getConnectorRuleId } from './helpers/getConnectorRuleId';
 import { getConnectorName } from './helpers/getConnectorName';
 
@@ -124,7 +123,7 @@ export function createNewConnector(field: Field) {
 			}
 		});
 
-        dispatch(searchFieldsUpdate());
+        dispatch(rebuildGraph());
     };
 }
 

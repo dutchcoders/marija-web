@@ -1,9 +1,6 @@
 import { getFields } from '../fields/fieldsActions';
-import Url from '../main/helpers/url';
 import {
-	activateLiveDatasource,
-	addLiveDatasourceSearch,
-	searchFieldsUpdate
+	addLiveDatasourceSearch
 } from '../search/searchActions';
 import {
 	DATASOURCE_ACTIVATED,
@@ -13,7 +10,6 @@ import {
 } from './datasourcesConstants';
 import { Datasource } from './interfaces/datasource';
 import { rebuildGraph } from '../graph/graphActions';
-import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 import { Field } from '../fields/interfaces/field';
 import { AppState } from '../main/interfaces/appState';
 import { getSelectedFields } from '../fields/fieldsSelectors';
@@ -86,12 +82,6 @@ export function updateDatasource(datasourceId: string, props: DatasourceProps) {
 			return typeof oldFields.find(search => search.path === field.path) === 'undefined';
 		});
 
-		if (newField) {
-			// We have selected a field that wasnt there before, so we need to fetch more
-			// data from the server
-			dispatch(searchFieldsUpdate());
-		} else {
-			dispatch(rebuildGraph());
-		}
+		dispatch(rebuildGraph());
 	};
 }
