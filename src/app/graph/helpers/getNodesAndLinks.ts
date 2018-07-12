@@ -33,11 +33,11 @@ export default function getNodesAndLinks(
 	//
 	// 	const content = contents.find(content => content.stringified === stringified);
 	//
-	// 	if (content && content.id !== item.id) {
-	// 		console.error('Original', content, ' New', item);
+	// 	if (content && content.item.id !== item.id) {
+	// 		console.error('Original', content.item, ' New', item);
 	// 	} else {
 	// 		contents.push({
-	// 			id: item.id,
+	// 			item,
 	// 			stringified
 	// 		});
 	// 	}
