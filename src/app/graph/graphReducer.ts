@@ -36,7 +36,7 @@ import {
 	NORMALIZATION_ADD,
 	NORMALIZATION_DELETE,
 	SELECT_FIELD_NODES,
-	SELECTION_CLEAR,
+	SELECTION_CLEAR, SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID,
 	SET_FIELD_PARENT,
 	SET_FILTER_BORING_NODES,
 	SET_FILTER_SECONDARY_QUERIES, SET_IMPORTANT_NODE,
@@ -68,6 +68,7 @@ import { Item } from '../items/interfaces/item';
 import { RECEIVE_WORKSPACE } from '../ui/uiConstants';
 import { Workspace } from '../ui/interfaces/workspace';
 import { markHighlightedLinks } from './helpers/markHighlightedLinks';
+import { GraphWorkerOutput } from './helpers/graphWorkerClass';
 
 export const defaultGraphState: GraphState = {
     normalizations: [],
@@ -85,7 +86,9 @@ export const defaultGraphState: GraphState = {
 	filterSecondaryQueries: false,
 	isDraggingSubFields: false,
 	importantNodeIds: [],
-	notes: []
+	notes: [],
+	graphWorkerLoading: false,
+	expectedGraphWorkerOutputId: ''
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -348,12 +351,19 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
         case GRAPH_WORKER_OUTPUT: {
         	markPerformance('graphWorkerOutput');
 
-        	action.nodes.forEach(node => {
+        	const payload: GraphWorkerOutput = action.payload;
+
+        	if (payload.outputId !== state.expectedGraphWorkerOutputId) {
+        		// Graph is outdated, soon the next update will follow so we can skip this one
+        		return state;
+			}
+
+        	payload.nodes.forEach(node => {
         		node.important = state.importantNodeIds.indexOf(node.id) !== -1
 			});
 
         	state.notes.forEach(note => {
-        		const node = action.nodes.find(node => node.id === note.nodeId);
+        		const node = payload.nodes.find(node => node.id === note.nodeId);
 
         		if (node) {
         			node.description = note.note;
@@ -361,11 +371,12 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			});
 
             const updates: any = {
-                nodes: action.nodes,
-                links: action.links,
-                items: action.items,
-                searches: action.searches,
-				graphWorkerHasValidNodes: true
+                nodes: payload.nodes,
+                links: payload.links,
+                items: payload.items,
+                searches: payload.searches,
+				graphWorkerHasValidNodes: true,
+				graphWorkerLoading: false
             };
 
             return Object.assign({}, state, updates);
@@ -688,6 +699,14 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 				...state,
 				filterSecondaryQueries: workspace.filterSecondaryQueries,
 				filterBoringNodes: workspace.filterBoringNodes
+			};
+		}
+
+		case SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID: {
+			return {
+				...state,
+				graphWorkerLoading: true,
+				expectedGraphWorkerOutputId: action.payload.id
 			};
 		}
 

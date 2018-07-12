@@ -25,7 +25,6 @@ import {sortItems} from "../../items/helpers/sortItems";
 import { REBUILD_GRAPH } from '../graphConstants';
 import { Connector } from '../interfaces/connector';
 import { Datasource } from '../../datasources/interfaces/datasource';
-import { createNewConnector } from '../../fields/fieldsActions';
 import { createConnector } from '../../fields/helpers/createConnector';
 import { getConnectorName } from '../../fields/helpers/getConnectorName';
 import { getConnectorRuleId } from '../../fields/helpers/getConnectorRuleId';
@@ -47,6 +46,7 @@ export interface GraphWorkerPayload {
     filterSecondaryQueries: boolean;
     connectors: Connector[];
     datasources: Datasource[];
+	outputId: string;
 }
 
 export interface GraphWorkerOutput {
@@ -54,7 +54,8 @@ export interface GraphWorkerOutput {
     links: Link[];
     items: Item[];
     connectors: Connector[];
-    searches: Search[]
+    searches: Search[];
+	outputId: string;
 }
 
 let prevNodeCache: Node[];
@@ -171,7 +172,8 @@ export default class GraphWorkerClass {
             links: links,
             items: items,
             connectors: connectors,
-            searches: searches
+            searches: searches,
+			outputId: payload.outputId
         };
 
         prevNodeCache = nodes;

@@ -20,7 +20,7 @@ import {
 	TOGGLE_LABELS,
 	REBUILD_GRAPH,
 	VIA_ADD,
-	VIA_DELETE
+	VIA_DELETE, SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID
 } from './graphConstants';
 import {
 	GraphWorkerOutput,
@@ -31,6 +31,7 @@ import { TimelineGrouping } from './interfaces/graphState';
 import { AppState } from '../main/interfaces/appState';
 import { getGraphWorkerPayload } from './helpers/getGraphWorkerPayload';
 import { Node } from './interfaces/node';
+import { uniqueId } from 'lodash';
 
 export function deselectNodes(opts) {
     return {
@@ -116,11 +117,9 @@ export function nodesSelect(opts) {
 export function graphWorkerOutput(output: GraphWorkerOutput) {
     return {
         type: GRAPH_WORKER_OUTPUT,
-        nodes: output.nodes,
-        links: output.links,
-        items: output.items,
-        connectors: output.connectors,
-        searches: output.searches
+		payload: {
+			...output
+		}
     }
 }
 
@@ -230,7 +229,16 @@ export function setIsDraggingSubFields(enabled: boolean) {
 export function rebuildGraph() {
 	return (dispatch, getState) => {
 		const state: AppState = getState();
-		const payload = getGraphWorkerPayload(state);
+
+		if (state.graph.items.length === 0) {
+			// Don't rebuild when there is no data
+			return;
+		}
+
+		dispatch(setExpectedGraphWorkerOutputId(uniqueId()));
+
+		const newState: AppState = getState();
+		const payload = getGraphWorkerPayload(newState);
 
 		payload.prevNodes = [];
 		payload.prevLinks = [];
@@ -251,6 +259,15 @@ export function setNote(nodeId: number, note: string) {
 		payload: {
 			nodeId,
 			note
+		}
+	};
+}
+
+export function setExpectedGraphWorkerOutputId(id: string) {
+	return {
+		type: SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID,
+		payload: {
+			id
 		}
 	};
 }

@@ -35,6 +35,7 @@ import { Connector } from './interfaces/connector';
 import { getNodeCanvas } from './helpers/getNodeCanvas';
 import { getNodeImageCanvas } from './helpers/getNodeImageCanvas';
 import { searchAround } from '../search/searchActions';
+import Loader from '../ui/components/loader';
 
 interface TextureMap {
     [hash: string]: PIXI.RenderTexture;
@@ -55,7 +56,8 @@ interface Props {
     isMapActive: boolean;
     isContextMenuActive: boolean;
     importantNodeIds: number[];
-    connectors: Connector[]
+    connectors: Connector[];
+	graphWorkerLoading: boolean;
 }
 
 interface State {
@@ -2008,7 +2010,7 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     render() {
-    	const { isMapActive } = this.props;
+    	const { isMapActive, graphWorkerLoading } = this.props;
 
         return (
 			<div
@@ -2021,6 +2023,11 @@ class Graph extends React.PureComponent<Props, State> {
 					ref={pixiContainer => this.pixiContainer = pixiContainer}
 					onClick={this.hideContextMenu.bind(this)}
 				/>
+				{graphWorkerLoading && (
+					<div className="graphWorkerLoading">
+						<Loader classes={['graphWorkerLoader']} show={true}/>
+					</div>
+				)}
 				<div id="map" className={isMapActive ? 'mapIsActive' : 'mapIsNotActive' } />
 			</div>
         );
@@ -2039,7 +2046,8 @@ const select = (state: AppState, ownProps) => {
 		isMapActive: state.graph.isMapActive,
 		isContextMenuActive: isContextMenuActive(state),
 		imporantNodeIds: state.graph.importantNodeIds,
-		connectors: state.fields.connectors
+		connectors: state.fields.connectors,
+		graphWorkerLoading: state.graph.graphWorkerLoading
     };
 };
 

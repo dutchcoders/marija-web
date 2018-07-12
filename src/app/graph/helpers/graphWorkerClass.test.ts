@@ -81,7 +81,8 @@ const defaultPayload: GraphWorkerPayload = {
     filterBoringNodes: true,
     filterSecondaryQueries: true,
     connectors: [],
-    datasources: []
+    datasources: [],
+    outputId: '1'
 };
 
 const getAction = (payload: GraphWorkerPayload) => {

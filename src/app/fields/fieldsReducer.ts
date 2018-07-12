@@ -265,7 +265,7 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 		}
 
 		case GRAPH_WORKER_OUTPUT: {
-			const output: GraphWorkerOutput = action;
+			const output: GraphWorkerOutput = action.payload;
 
 			return {
 				...state,

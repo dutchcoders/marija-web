@@ -30,4 +30,6 @@ export interface GraphState {
     isDraggingSubFields: boolean;
     importantNodeIds: number[];
     notes: Note[];
+	graphWorkerLoading: boolean;
+	expectedGraphWorkerOutputId: string;
 }
