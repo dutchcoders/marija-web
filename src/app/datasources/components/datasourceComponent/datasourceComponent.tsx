@@ -3,7 +3,6 @@ import { AppState } from '../../../main/interfaces/appState';
 import { Datasource } from '../../interfaces/datasource';
 import * as styles from './datasourceComponent.scss';
 import Icon from '../../../ui/components/icon';
-import { FormEvent } from 'react';
 import {
 	datasourceActivated,
 	datasourceDeactivated, updateDatasource
@@ -39,7 +38,9 @@ class DatasourceComponent extends React.Component<Props, State> {
 		iconSelectorOpen: false
 	};
 
-	toggleActive(event: FormEvent<HTMLInputElement>) {
+	toggleActive(event: MouseEvent) {
+		event.stopPropagation();
+
 		const { datasource, dispatch } = this.props;
 
 		if (datasource.active) {
@@ -101,7 +102,9 @@ class DatasourceComponent extends React.Component<Props, State> {
 		});
 	}
 
-	toggleIconSelector() {
+	toggleIconSelector(event: MouseEvent) {
+		event.stopPropagation();
+
 		const { iconSelectorOpen } = this.state;
 
 		this.setState({
@@ -109,7 +112,9 @@ class DatasourceComponent extends React.Component<Props, State> {
 		});
 	}
 
-	selectNodes() {
+	selectNodes(event: MouseEvent) {
+		event.stopPropagation();
+
 		const { nodes, dispatch } = this.props;
 
 		let allSelected = true;
@@ -146,7 +151,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 
 		return (
 			<form className={styles.datasource}>
-				<header className={styles.header}>
+				<header className={styles.header} onClick={this.toggleExpanded.bind(this)}>
 					<div className={styles.icon} onClick={this.toggleIconSelector.bind(this)}>{datasource.icon}</div>
 
 					<button
@@ -159,11 +164,11 @@ class DatasourceComponent extends React.Component<Props, State> {
 						<Icon name="ion-ios-color-wand"/>
 					</button>
 
-					<h3 className={styles.name}>
-						<input className={styles.active} type="checkbox" checked={datasource.active} onChange={this.toggleActive.bind(this)}/>
+					<h3 className={styles.name} onClick={this.toggleActive.bind(this)}>
+						<input className={styles.active} type="checkbox" checked={datasource.active} />
 						{datasource.name}
 					</h3>
-					<Icon name={styles.toggle + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')} onClick={this.toggleExpanded.bind(this)}/>
+					<Icon name={styles.toggle + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')} />
 				</header>
 
 				{iconSelectorOpen && (
