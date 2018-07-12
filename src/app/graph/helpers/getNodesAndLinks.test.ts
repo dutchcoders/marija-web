@@ -594,6 +594,42 @@ test('should not create connector nodes for null values', () => {
 	expect(links.length).toBe(0);
 });
 
+test('should not create connector nodes for empty values', () => {
+	const items1 = [
+		{
+			id: '1',
+			fields: {
+				name: 'thomas',
+				lastName: '',
+			},
+			searchId: 'q'
+		},
+		{
+			id: '2',
+			fields: {
+				name: 'harry',
+				lastName: '',
+			},
+			searchId: 'q'
+		}
+	];
+
+	const fields = [
+		generateNodeTemplate('1', ['lastName'])
+	] as any;
+
+	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields);
+
+	/**
+	 * Expect:
+	 * thomas
+	 *
+	 * harry
+	 */
+	expect(nodes.length).toBe(2);
+	expect(links.length).toBe(0);
+});
+
 test('real world case', () => {
 	const connector: any = {
 		name: '6',

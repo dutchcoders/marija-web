@@ -46,3 +46,14 @@ test('should not include null values', () => {
 
 	expect(output.length).toBe(1);
 });
+
+test('should not include empty values', () => {
+	const input = {
+		first_name: 'thomas',
+		mentions: ''
+	};
+
+	const output = getValueSets(input);
+
+	expect(output.length).toBe(1);
+});

@@ -28,7 +28,7 @@ export function getValueSets(values: Input): ValueSet[] {
 				...prevValues
 			};
 
-			if (val !== null) {
+			if (val !== null && val !== '') {
 				newValues[key] = val + '';
 			}
 
