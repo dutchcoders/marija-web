@@ -23,6 +23,7 @@ import {
 } from '../search/searchConstants';
 import {TABLE_SORT} from '../table/tableConstants';
 import {
+	DEFAULT_DISPLAY_NODES_PER_SEARCH,
 	FIELD_NODES_HIGHLIGHT,
 	GRAPH_WORKER_OUTPUT,
 	MAX_FIELDS,
@@ -529,7 +530,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 q: action.payload.datasource.name,
                 color: getQueryColor(state.searches),
                 total: 0,
-                displayNodes: 500,
+                displayNodes: DEFAULT_DISPLAY_NODES_PER_SEARCH,
                 items: [],
                 requestId: uniqueId(),
                 completed: false,

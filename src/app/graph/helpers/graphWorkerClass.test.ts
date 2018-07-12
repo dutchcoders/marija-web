@@ -10,6 +10,7 @@ import {Field} from "../../fields/interfaces/field";
 import {Search} from "../../search/interfaces/search";
 import {Link} from "../interfaces/link";
 import { getHash } from './getNodesAndLinks';
+import { DEFAULT_DISPLAY_NODES_PER_SEARCH } from '../graphConstants';
 
 
 const getItem = (data, query = 'query', id = uniqueId()) => {
@@ -29,7 +30,7 @@ const getField = (name) => {
 
 const getSearch = (query, liveDatasource = null, aroundNodeId = null) => {
     return {
-        displayNodes: 500,
+        displayNodes: DEFAULT_DISPLAY_NODES_PER_SEARCH,
         aroundNodeId: aroundNodeId,
         q: query,
         liveDatasource: liveDatasource,

@@ -10,6 +10,7 @@ import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 import { getSelectedFields } from '../fields/fieldsSelectors';
 import { getItemByNode } from '../graph/helpers/getItemByNode';
 import Url from '../main/helpers/url';
+import { DEFAULT_DISPLAY_NODES_PER_SEARCH } from '../graph/graphConstants';
 
 export function searchRequest(query: string, datasourceIds?: string[]) {
     return (dispatch, getState) => {
@@ -41,7 +42,7 @@ export function searchRequest(query: string, datasourceIds?: string[]) {
             receivedAt: Date.now(),
             query: query,
             aroundNodeId: null,
-            displayNodes: 500,
+            displayNodes: DEFAULT_DISPLAY_NODES_PER_SEARCH,
             datasourceIds: datasourceIds,
             requestId: requestId
         });
@@ -87,7 +88,7 @@ export function searchAround(node: Node) {
 			receivedAt: Date.now(),
 			query: query,
 			aroundNodeId: node.id,
-			displayNodes: 500,
+			displayNodes: DEFAULT_DISPLAY_NODES_PER_SEARCH,
 			datasourceIds: datasourceIds,
 			requestId: requestId
 		});
