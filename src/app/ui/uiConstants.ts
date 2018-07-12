@@ -45,10 +45,10 @@ export const queryColors = [
 
 export const connectorColors = [
 	'#2196f3',
-	'#03a9f4',
 	'#00bcd4',
 	'#009688',
 	'#4caf50',
+	'#03a9f4',
 	'#8bc34a',
 	'#cddc39',
 ];
