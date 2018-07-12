@@ -54,8 +54,10 @@ class RuleComponent extends React.Component<Props, State> {
 		event.dataTransfer.setData('text', data);
 	}
 
-	deleteRule(rule: Rule) {
-		const { dispatch, connector } = this.props;
+	deleteRule(event: MouseEvent) {
+		event.stopPropagation();
+
+		const { dispatch, connector, rule } = this.props;
 
 		dispatch(deleteFromConnector(connector.name, rule.id));
 	}
@@ -101,13 +103,14 @@ class RuleComponent extends React.Component<Props, State> {
 
 				<div className={styles.header}
 					 draggable={true}
-					 onDragStart={(event: any) => this.onDragStart(event, rule)}>
+					 onDragStart={(event: any) => this.onDragStart(event, rule)}
+					 onClick={this.toggleExpanded.bind(this)}>
 					<span>{rule.field.path}</span>
 					<div className={styles.buttons}>
 						{isTextType && (
-							<Icon name={styles.toggle + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')} onClick={this.toggleExpanded.bind(this)}/>
+							<Icon name={styles.toggle + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')} />
 						)}
-						<Icon name={styles.delete + ' ion-ios-close'} onClick={() => this.deleteRule(rule)}/>
+						<Icon name={styles.delete + ' ion-ios-close'} onClick={this.deleteRule.bind(this)}/>
 					</div>
 				</div>
 

@@ -9,6 +9,7 @@
 .header {
   display: flex;
   padding: 5px 10px;
+  cursor: pointer;
 }
 
 .buttons {
@@ -20,7 +21,6 @@
   font-size: 18px;
   line-height: 28px;
   margin-right: 10px;
-  cursor: pointer;
 }
 
 .delete {
