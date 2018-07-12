@@ -48,9 +48,14 @@ export function searchRequest(query: string, datasourceIds?: string[]) {
     };
 }
 
-export function searchAround(node: Node, datasourceIds: string[]) {
+export function searchAround(node: Node) {
     return (dispatch, getState) => {
         const state: AppState = getState();
+
+        const datasourceIds = state.datasources.datasources
+			.filter(datasource => datasource.active && datasource.type !== 'live')
+			.map(datasource => datasource.id);
+
         let query: string;
 
         const fields = getSelectedFields(state)

@@ -93,12 +93,12 @@ class ContextMenu extends React.Component<Props, State> {
         this.close();
     }
 
-    searchAround(datasourceId: string) {
+    searchAround() {
         const { dispatch, nodeId } = this.props;
 
         const node = this.getNode(nodeId);
 
-		dispatch(searchAround(node, [datasourceId]));
+		dispatch(searchAround(node));
         this.close();
     }
 
@@ -163,34 +163,6 @@ class ContextMenu extends React.Component<Props, State> {
 
 		dispatch(setImportantNode(nodeId, false));
 		this.close();
-    }
-
-    renderSearchAround() {
-        const { datasources } = this.props;
-
-        const useDatasources = datasources.filter(datasource =>
-            datasource.type !== 'live'
-        );
-
-        return (
-            <li>
-                <h2 className={styles.searchAroundHeading}>
-                    <Icon name={'ion-ios-search ' + styles.icon} />
-                    <span className={styles.buttonText}>Search around in</span>
-                </h2>
-                <ul className={styles.datasourceList}>
-                    {useDatasources.map(datasource =>
-                        <li key={datasource.id}>
-                            <button
-                                className={styles.datasource}
-                                onClick={() => this.searchAround(datasource.id)}>
-                                &mdash; {datasource.name}
-                            </button>
-                        </li>
-                    )}
-                </ul>
-            </li>
-        )
     }
 
     componentDidUpdate() {
@@ -332,13 +304,18 @@ class ContextMenu extends React.Component<Props, State> {
                     <h1 className={styles.title}>{node.name}</h1>
                     <ul>
 						{image}
+						<li>
+							<button onClick={this.searchAround.bind(this)} className={styles.button}>
+								<Icon name={'ion-ios-search ' + styles.icon} />
+								<span className={styles.buttonText}>Search around</span>
+							</button>
+						</li>
                         <li>
                             <button onClick={this.selectRelated.bind(this)} className={styles.button}>
                                 <Icon name={'ion-qr-scanner ' + styles.icon} />
                                 <span className={styles.buttonText}>Select related</span>
                             </button>
                         </li>
-                        {this.renderSearchAround()}
                         <li>
                             {rename}
                         </li>

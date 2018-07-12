@@ -323,13 +323,8 @@ class Nodes extends React.Component<Props, State> {
     searchAround() {
         const { dispatch, datasources, selectedNodes } = this.props;
 
-        const useDatasources = datasources.filter(datasource =>
-            datasource.active && datasource.type !== 'live'
-        );
-        const datasourceIds: string[] = useDatasources.map(datasource => datasource.id);
-
         selectedNodes.forEach(node => {
-            dispatch(searchAround(node, datasourceIds));
+            dispatch(searchAround(node));
         });
     }
 

@@ -1,13 +1,11 @@
 import { Item } from '../../items/interfaces/item';
 import { Link } from '../interfaces/link';
-import { ChildData, GeoLocation, Node } from '../interfaces/node';
+import { GeoLocation, Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';
-import {forEach, isEmpty, uniqueId, findIndex, isEqual} from 'lodash';
-import { Connector, MatchingStrategy, Rule } from '../interfaces/connector';
+import { Connector, Rule } from '../interfaces/connector';
 import { getValueSets, ValueSet } from './getValueSets';
 import { Datasource } from '../../datasources/interfaces/datasource';
 import { getStringSimilarityLevenshtein } from './getStringSimilarityLevenshtein';
-import { getStringSimilaritySsdeep } from './getStringSimilaritySsdeep';
 
 const contents = [];
 
@@ -28,20 +26,20 @@ export default function getNodesAndLinks(
 	const connectorNodes: Node[] = previousNodes.filter(node => node.type === 'connector');
 
 	// Proof that items with the same fields sometimes have a different ID
-	// items.forEach(item => {
-	// 	const stringified = JSON.stringify(item.fields);
-	//
-	// 	const content = contents.find(content => content.stringified === stringified);
-	//
-	// 	if (content && content.item.id !== item.id) {
-	// 		console.error('Original', content.item, ' New', item);
-	// 	} else {
-	// 		contents.push({
-	// 			item,
-	// 			stringified
-	// 		});
-	// 	}
-	// });
+	items.forEach(item => {
+		const stringified = JSON.stringify(item.fields);
+
+		const content = contents.find(content => content.stringified === stringified);
+
+		if (content && content.item.id !== item.id) {
+			console.error('Original', content.item, ' New', item);
+		} else {
+			contents.push({
+				item,
+				stringified
+			});
+		}
+	});
 
     const createLink = (source: Node, target: Node, item: Item, color: string) => {
 		if (source.id === target.id) {
