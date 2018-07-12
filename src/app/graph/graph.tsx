@@ -1088,6 +1088,10 @@ class Graph extends React.PureComponent<Props, State> {
 
 			if (node.childData) {
 				forEach(node.childData, (value, key) => {
+					if (!value) {
+						return;
+					}
+
 					description += key + ': ';
 
 					if (Array.isArray(value)) {
