@@ -78,6 +78,7 @@ class RootView extends React.Component<any, any> {
                     <Pane
                         name="Selected nodes"
                         description={selectedNodes + '/' + nodes.length}
+						alignHeaderRight={true}
                         handle="nodes"
                         config={panes.nodes}
                         dispatch={dispatch}

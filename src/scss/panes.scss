@@ -60,7 +60,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        padding: 15px 0px;
+        padding: 0;
     }
 
     .pane-content {
@@ -108,17 +108,6 @@
                 .btn-group button {
                     border-radius: 0;
                 }
-            }
-        }
-
-        .nodes-btn-group {
-            display: flex;
-            flex-wrap: wrap;
-
-            .btn {
-                flex-grow: 1;
-                border-radius: 0;
-                padding: 6px 10px;
             }
         }
 
@@ -530,4 +519,45 @@
         transform: translateX(200px) skew(-45deg);
         opacity: 0;
     }
+}
+
+.selectedNodesContent {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    margin: 0 !important;
+}
+
+.nodesBtnGroupTop,
+.nodesBtnGroupBottom {
+    display: flex;
+    flex-wrap: wrap;
+    background: #435266;
+    padding: 10px 0 0 5px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    z-index: 1;
+    width: 100%;
+
+    .nodesButton {
+        border-radius: 3px;
+        background: #3A4555;
+        padding: 5px;
+        border: none;
+        margin: 0 5px 10px 0;
+        height: 30px;
+    }
+}
+
+.nodesBtnGroupBottom {
+    bottom: 0;
+}
+
+.nodesList {
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.noSelectedNodes {
+    margin: 10px;
 }
