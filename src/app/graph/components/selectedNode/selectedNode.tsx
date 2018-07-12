@@ -66,6 +66,12 @@ class SelectedNode extends React.Component<Props, State> {
 		dispatch(showTooltip([node]));
 	}
 
+	hideTooltip() {
+		const { dispatch } = this.props;
+
+		dispatch(showTooltip([]));
+	}
+
 	deselectOthers(event: MouseEvent) {
 		event.stopPropagation();
 
@@ -106,14 +112,22 @@ class SelectedNode extends React.Component<Props, State> {
 
 					return (
 						<li className={styles.level2Element} key={connector.id}>
-							<header className={styles.level2Header} onMouseEnter={() => this.displayTooltip(connector)}>
+							<header
+								className={styles.level2Header}
+								onMouseEnter={() => this.displayTooltip(connector)}
+								onMouseLeave={this.hideTooltip.bind(this)}>
+
 								<NodeIcon node={connector}/>
 								<span className={styles.name}>Same {connector.fields.join(',')}: {connector.name}</span>
 							</header>
 							<ul className={styles.level3}>
 								{items.map(item => {
 									return (
-										<li key={item.id} className={styles.level3Element} onMouseEnter={() => this.displayTooltip(item)}>
+										<li key={item.id}
+											className={styles.level3Element}
+											onMouseEnter={() => this.displayTooltip(item)}
+											onMouseLeave={this.hideTooltip.bind(this)}>
+
 											<NodeIcon node={item}/>
 											<span className={styles.name}>{item.name}</span>
 										</li>
@@ -137,7 +151,12 @@ class SelectedNode extends React.Component<Props, State> {
 			<ul className={styles.level2}>
 				{items.map(item => {
 					return (
-						<li className={styles.level2Element} key={item.id} onMouseEnter={() => this.displayTooltip(item)}>
+						<li
+							className={styles.level2Element}
+							key={item.id}
+							onMouseEnter={() => this.displayTooltip(item)}
+							onMouseLeave={this.hideTooltip.bind(this)}>
+
 							<header className={styles.level2Header}>
 								<NodeIcon node={item}/>
 								<span className={styles.name}>{item.name}</span>
@@ -155,7 +174,11 @@ class SelectedNode extends React.Component<Props, State> {
 
 		return (
 			<li className={styles.node}>
-				<header className={styles.header} onClick={this.toggleExpanded.bind(this)} onMouseEnter={() => this.displayTooltip(node)}>
+				<header
+					className={styles.header}
+					onClick={this.toggleExpanded.bind(this)}
+					onMouseEnter={() => this.displayTooltip(node)}
+					onMouseLeave={this.hideTooltip.bind(this)}>
 					<Icon name={styles.toggle + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')}/>
 					<div className={styles.icon}>
 						<NodeIcon node={node} />
