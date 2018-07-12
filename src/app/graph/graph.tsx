@@ -127,12 +127,6 @@ class Graph extends React.PureComponent<Props, State> {
     linkMap = new Map<number, Link>();
     lockRendering: boolean = false;
 
-    constructor(props, context) {
-    	super(props, context);
-
-    	console.log(context);
-	}
-
     postWorkerMessage(message) {
     	this.worker.postMessage(JSON.stringify(message));
     }

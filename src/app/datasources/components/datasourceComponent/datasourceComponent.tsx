@@ -165,7 +165,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 					</button>
 
 					<h3 className={styles.name} onClick={this.toggleActive.bind(this)}>
-						<input className={styles.active} type="checkbox" checked={datasource.active} />
+						<input className={styles.active} type="checkbox" checked={datasource.active} readOnly={true} />
 						{datasource.name}
 					</h3>
 					<Icon name={styles.toggle + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')} />
