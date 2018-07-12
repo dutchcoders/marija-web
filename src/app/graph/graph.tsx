@@ -31,9 +31,7 @@ import {
 	markPerformance,
 	measurePerformance
 } from '../main/helpers/performance';
-import { loadImage } from './helpers/loadImage';
 import { Connector } from './interfaces/connector';
-import { hexToString } from '../fields/helpers/hexToString';
 import { getNodeCanvas } from './helpers/getNodeCanvas';
 import { getNodeImageCanvas } from './helpers/getNodeImageCanvas';
 
@@ -49,6 +47,7 @@ interface Props {
     highlightedNodes: Node[];
     zoomEvents: any;
     centerEvents: any;
+	resetPositionEvents: any;
     dispatch: Dispatch<any>;
     version: string;
     showLabels: boolean;
@@ -127,6 +126,12 @@ class Graph extends React.PureComponent<Props, State> {
     nodeMap = new Map<number, Node>();
     linkMap = new Map<number, Link>();
     lockRendering: boolean = false;
+
+    constructor(props, context) {
+    	super(props, context);
+
+    	console.log(context);
+	}
 
     postWorkerMessage(message) {
     	this.worker.postMessage(JSON.stringify(message));
@@ -1539,7 +1544,7 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
     componentDidMount() {
-        const { zoomEvents, isMapActive, centerEvents } = this.props;
+        const { zoomEvents, isMapActive, centerEvents, resetPositionEvents } = this.props;
 
         this.createArrowTexture();
         this.initWorker();
@@ -1551,6 +1556,7 @@ class Graph extends React.PureComponent<Props, State> {
         window.addEventListener('resize', this.handleWindowResize.bind(this));
         zoomEvents.addListener('zoomIn', this.zoomIn.bind(this));
         zoomEvents.addListener('zoomOut', this.zoomOut.bind(this));
+        resetPositionEvents.addListener('resetPosition', this.onResetPosition.bind(this));
         centerEvents.addListener('center', this.centerView.bind(this));
         window.addEventListener('blur', this.onBlur.bind(this));
     }
@@ -1560,6 +1566,21 @@ class Graph extends React.PureComponent<Props, State> {
         document.removeEventListener('keyup', this.handleKeyUp.bind(this));
         window.removeEventListener('resize', this.handleWindowResize.bind(this));
     }
+
+    onResetPosition(nodes: Node[]) {
+		const nodesToPost: Node[] = nodes.map(node => {
+			return {
+				...node,
+				fx: null,
+				fy: null
+			}
+		});
+
+		this.postWorkerMessage({
+			nodes: nodesToPost,
+			type: 'restart'
+		});
+	}
 
     centerView() {
 		const { nodesForDisplay, isMapActive } = this.props;

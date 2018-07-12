@@ -24,6 +24,7 @@ class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();
     centerEvents = new EventEmitter();
     exportTableEvents = new EventEmitter();
+    resetPositionEvents = new EventEmitter();
     main: any;
 
     constructor(props) {
@@ -60,6 +61,7 @@ class RootView extends React.Component<any, any> {
                         className="graph"
                         zoomEvents={this.zoomEvents}
                         centerEvents={this.centerEvents}
+                        resetPositionEvents={this.resetPositionEvents}
                     />
 
                     <Stats />
@@ -83,7 +85,9 @@ class RootView extends React.Component<any, any> {
                         config={panes.nodes}
                         dispatch={dispatch}
                         container={this.main}>
-                        <Nodes />
+                        <Nodes
+							onResetPosition={nodes => this.resetPositionEvents.emit('resetPosition', nodes)}
+						/>
                     </Pane>
 
                     <Pane

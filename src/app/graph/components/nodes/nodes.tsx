@@ -36,6 +36,7 @@ interface Props {
     links: Link[];
     normalizations: Normalization[];
     datasources: Datasource[];
+	onResetPosition: (nodes: Node[]) => void
 }
 
 interface State {
@@ -310,12 +311,18 @@ class Nodes extends React.Component<Props, State> {
     }
 
     searchAround() {
-        const { dispatch, datasources, selectedNodes } = this.props;
+        const { dispatch, selectedNodes } = this.props;
 
         selectedNodes.forEach(node => {
             dispatch(searchAround(node));
         });
     }
+
+    resetPosition() {
+		const { onResetPosition, selectedNodes } = this.props;
+
+		onResetPosition(selectedNodes);
+	}
 
     escapeRegExp(text: string) {
         return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
@@ -438,6 +445,7 @@ class Nodes extends React.Component<Props, State> {
                     <button type="button" className="nodesButton" aria-label="Delete selected nodes" onClick={() => this.handleDeleteAllNodes()}>delete</button>
                     <button type="button" className="nodesButton" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}>delete others</button>
                     <button type="button" className="nodesButton" aria-label="Search around" onClick={() => this.searchAround()} disabled={!searchAroundPossible}>search around</button>
+                    <button type="button" className="nodesButton" aria-label="Reset position" onClick={() => this.resetPosition()} disabled={!searchAroundPossible}>reset position</button>
                     {important}
                 </div>
 				<ul onMouseLeave={this.hideTooltip.bind(this)} className="nodesList">
