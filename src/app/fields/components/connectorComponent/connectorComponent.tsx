@@ -13,7 +13,6 @@ import {
 	moveRuleBetweenConnectors,
 	moveRuleToNewConnector, setMatchingStrategy, updateConnector
 } from '../../fieldsActions';
-import { hexToString } from '../../helpers/hexToString';
 import RuleComponent from '../ruleComponent/ruleComponent';
 import { createGetNodesByConnector } from '../../../graph/graphSelectors';
 import { Node } from '../../../graph/interfaces/node';
@@ -24,7 +23,6 @@ import {
 } from '../../../graph/graphActions';
 import ColorPicker from '../../../ui/components/colorPicker/colorPicker';
 import IconSelector from '../iconSelector/iconSelector';
-import { connectorColors, queryColors } from '../../../ui/uiConstants';
 
 interface State {
 	isHoveringOnDropArea: boolean;
@@ -34,7 +32,6 @@ interface State {
 interface Props {
 	dispatch: Dispatch<any>;
 	connector: Connector | null;
-	isDragging: boolean;
 	nodes: Node[];
 }
 
@@ -161,7 +158,7 @@ class ConnectorComponent extends React.Component<Props, State> {
 	}
 
 	render() {
-		const { connector, isDragging, nodes } = this.props;
+		const { connector, nodes } = this.props;
 		const { isHoveringOnDropArea, iconSelectorOpen } = this.state;
 
 		return (
@@ -186,7 +183,7 @@ class ConnectorComponent extends React.Component<Props, State> {
 				)}
 
 				<div className={styles.main}>
-					{isDragging && connector && connector.rules.length > 1 && (
+					{connector && connector.rules.length > 1 && (
 						<form className={styles.strategy}>
 							<label>
 								<input type="radio" name="strategy" checked={connector.strategy === 'OR'} value="OR" onChange={this.onStrategyChange.bind(this)}/>
@@ -207,15 +204,13 @@ class ConnectorComponent extends React.Component<Props, State> {
 						</ul>
 					)}
 
-					{isDragging && (
-						<div className={styles.dropZone + (isHoveringOnDropArea ? ' ' + styles.hovering : '')}
-							 onDragOver={this.onDragOver.bind(this)}
-							 onDragEnter={this.onDragEnter.bind(this)}
-							 onDragLeave={this.onDragLeave.bind(this)}
-							 onDrop={this.onDrop.bind(this)}>
-							{connector === null ? 'Drop field here to create new connector' : 'Drop field here to make part of connector'}
-						</div>
-					)}
+					<div className={styles.dropZone + (isHoveringOnDropArea ? ' ' + styles.hovering : '')}
+						 onDragOver={this.onDragOver.bind(this)}
+						 onDragEnter={this.onDragEnter.bind(this)}
+						 onDragLeave={this.onDragLeave.bind(this)}
+						 onDrop={this.onDrop.bind(this)}>
+						{connector === null ? 'Drop field here to create new connector' : 'Drop field here to make part of connector'}
+					</div>
 				</div>
 
 				{iconSelectorOpen && (

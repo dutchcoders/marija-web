@@ -8,7 +8,6 @@ import * as styles from './connectorList.scss';
 import ConnectorComponent from '../connectorComponent/connectorComponent';
 
 interface State {
-	isDragging: boolean;
 	isHelpOpen: boolean;
 }
 
@@ -19,17 +18,8 @@ interface Props {
 
 class ConnectorList extends React.Component<Props, State> {
 	state: State = {
-		isDragging: false,
 		isHelpOpen: false
 	};
-
-	toggleAdvanced() {
-		const { isDragging } = this.state;
-
-		this.setState({
-			isDragging: !isDragging
-		});
-	}
 
 	toggleHelp() {
 		const { isHelpOpen } = this.state;
@@ -40,8 +30,12 @@ class ConnectorList extends React.Component<Props, State> {
 	}
 
 	render() {
-		const { isDragging, isHelpOpen } = this.state;
+		const { isHelpOpen } = this.state;
 		const { connectors } = this.props;
+
+		const hasConnectorsWithMultipleRules: boolean = typeof connectors.find(connector =>
+			connector.rules.length > 1
+		) !== 'undefined';
 
 		const help = (
 			<div className={styles.help}>
@@ -64,21 +58,18 @@ class ConnectorList extends React.Component<Props, State> {
 				<h2>Connectors</h2>
 
 				{connectors.map(connector => (
-					<ConnectorComponent connector={connector} isDragging={isDragging} key={connector.name} />
+					<ConnectorComponent connector={connector} key={connector.name} />
 				))}
 
-				{isDragging &&
-					<ConnectorComponent connector={null} isDragging={true} />
+				{hasConnectorsWithMultipleRules &&
+					<ConnectorComponent connector={null} />
 				}
 
-				{connectors.length > 0 ? ([
-						<button key={0} className={styles.toggleAdvanced} onClick={this.toggleAdvanced.bind(this)}>
-							{isDragging ? 'Done' : 'Advanced'}
-						</button>,
-						<button key={1} className={styles.toggleHelp} onClick={this.toggleHelp.bind(this)}>
-							{isHelpOpen ? 'Hide help' : 'Help'}
-						</button>
-					]) : null}
+				{connectors.length > 0 ? (
+					<button key={1} className={styles.toggleHelp} onClick={this.toggleHelp.bind(this)}>
+						{isHelpOpen ? 'Hide help' : 'Help'}
+					</button>
+				) : null}
 
 				{connectors.length === 0 || isHelpOpen ? help : null}
 			</div>
