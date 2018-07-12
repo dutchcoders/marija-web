@@ -34,6 +34,7 @@ import {
 import { Connector } from './interfaces/connector';
 import { getNodeCanvas } from './helpers/getNodeCanvas';
 import { getNodeImageCanvas } from './helpers/getNodeImageCanvas';
+import { searchAround } from '../search/searchActions';
 
 interface TextureMap {
     [hash: string]: PIXI.RenderTexture;
@@ -1991,6 +1992,22 @@ class Graph extends React.PureComponent<Props, State> {
         }
     }
 
+    onDoubleClick(event) {
+		const { dispatch } = this.props;
+
+		event.preventDefault();
+
+		const rect: ClientRect = this.pixiContainer.getBoundingClientRect();
+		const { x, y } = this.getMouseCoordinates(event);
+		const transformedX = this.invertX(x);
+		const transformedY = this.invertY(y);
+		const node = this.findNode(transformedX, transformedY);
+
+		if (node) {
+			dispatch(searchAround(node));
+		}
+	}
+
     hideContextMenu() {
         const { dispatch } = this.props;
         dispatch(hideContextMenu());
@@ -2003,6 +2020,7 @@ class Graph extends React.PureComponent<Props, State> {
 			<div
 				className="graphComponent"
 				onContextMenu={this.onContextMenu.bind(this)}
+				onDoubleClick={this.onDoubleClick.bind(this)}
 				ref={ref => this.graphComponent = ref}>
 				<div
 					className={'graphContainer ' + (isMapActive ? 'mapIsActive' : 'mapIsNotActive')}
