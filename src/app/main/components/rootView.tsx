@@ -19,6 +19,7 @@ import { AppState } from '../interfaces/appState';
 import Configuration from './configuration/configuration';
 import AdjacencyMatrix from "../../graph/components/adjacencyMatrix/adjacencyMatrix";
 import LightboxOutlet from '../../ui/components/lightboxOutlet/lightboxOutlet';
+import MapLegend from '../../graph/components/mapLegend/mapLegend';
 
 class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();
@@ -56,6 +57,8 @@ class RootView extends React.Component<any, any> {
                         zoomOut={() => this.zoomEvents.emit('zoomOut')}
                         center={() => this.centerEvents.emit('center')}
                     />
+
+					<MapLegend/>
 
                     <Graph
                         className="graph"

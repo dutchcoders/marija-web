@@ -15,11 +15,7 @@ import {
 	createGetNodesByDatasource
 } from '../../../graph/graphSelectors';
 import { Node } from '../../../graph/interfaces/node';
-import {
-	deselectNodes,
-	highlightNodes,
-	nodesSelect
-} from '../../../graph/graphActions';
+import MagicWand from '../../../graph/components/magicWand/magicWand';
 
 interface Props {
 	datasource: Datasource;
@@ -112,39 +108,6 @@ class DatasourceComponent extends React.Component<Props, State> {
 		});
 	}
 
-	selectNodes(event: MouseEvent) {
-		event.stopPropagation();
-
-		const { nodes, dispatch } = this.props;
-
-		let allSelected = true;
-		nodes.forEach(node => {
-			if (!node.selected) {
-				allSelected = false;
-			}
-		});
-
-		if (allSelected) {
-			dispatch(deselectNodes(nodes));
-		} else {
-			dispatch(nodesSelect(nodes));
-		}
-
-		return false;
-	}
-
-	highlightNodes() {
-		const { nodes, dispatch } = this.props;
-
-		dispatch(highlightNodes(nodes));
-	}
-
-	unHighlightNodes() {
-		const { dispatch } = this.props;
-
-		dispatch(highlightNodes([]));
-	}
-
 	render() {
 		const { datasource, nodes } = this.props;
 		const { expanded, iconSelectorOpen } = this.state;
@@ -153,16 +116,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 			<form className={styles.datasource}>
 				<header className={styles.header} onClick={this.toggleExpanded.bind(this)}>
 					<div className={styles.icon} onClick={this.toggleIconSelector.bind(this)}>{datasource.icon}</div>
-
-					<button
-						type="button"
-						className={styles.nodes}
-						onMouseEnter={this.highlightNodes.bind(this)}
-						onMouseLeave={this.unHighlightNodes.bind(this)}
-						onClick={this.selectNodes.bind(this)}>
-						{nodes.length}
-						<Icon name="ion-ios-color-wand"/>
-					</button>
+					<MagicWand nodes={nodes} cssClass={styles.magicWand} />
 
 					<h3 className={styles.name} onClick={this.toggleActive.bind(this)}>
 						<input className={styles.active} type="checkbox" checked={datasource.active} readOnly={true} />

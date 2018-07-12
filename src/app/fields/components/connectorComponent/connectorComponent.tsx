@@ -8,7 +8,6 @@ import {
 import { AppState } from '../../../main/interfaces/appState';
 import * as styles from './connectorComponent.scss';
 import { FormEvent } from 'react';
-import Icon from '../../../ui/components/icon';
 import {
 	moveRuleBetweenConnectors,
 	moveRuleToNewConnector, setMatchingStrategy, updateConnector
@@ -16,13 +15,9 @@ import {
 import RuleComponent from '../ruleComponent/ruleComponent';
 import { createGetNodesByConnector } from '../../../graph/graphSelectors';
 import { Node } from '../../../graph/interfaces/node';
-import {
-	deselectNodes,
-	highlightNodes,
-	nodesSelect
-} from '../../../graph/graphActions';
 import ColorPicker from '../../../ui/components/colorPicker/colorPicker';
 import IconSelector from '../iconSelector/iconSelector';
+import MagicWand from '../../../graph/components/magicWand/magicWand';
 
 interface State {
 	isHoveringOnDropArea: boolean;
@@ -96,34 +91,6 @@ class ConnectorComponent extends React.Component<Props, State> {
 		dispatch(setMatchingStrategy(connector.name, event.currentTarget.value as MatchingStrategy));
 	}
 
-	selectNodes() {
-		const { nodes, dispatch } = this.props;
-
-		let allSelected = true;
-		nodes.forEach(node => {
-			if (!node.selected) {
-				allSelected = false;
-			}
-		});
-
-		if (allSelected) {
-			dispatch(deselectNodes(nodes));
-		} else {
-			dispatch(nodesSelect(nodes));
-		}
-	}
-
-	highlightNodes() {
-		const { nodes, dispatch } = this.props;
-
-		dispatch(highlightNodes(nodes));
-	}
-
-	unHighlightNodes() {
-		const { dispatch } = this.props;
-
-		dispatch(highlightNodes([]));
-	}
 
 	toggleIconSelector() {
 		const { iconSelectorOpen } = this.state;
@@ -172,14 +139,7 @@ class ConnectorComponent extends React.Component<Props, State> {
 				)}
 
 				{connector !== null && (
-					<button
-						className={styles.nodes}
-						onClick={this.selectNodes.bind(this)}
-						onMouseEnter={this.highlightNodes.bind(this)}
-						onMouseLeave={this.unHighlightNodes.bind(this)}>
-						{nodes.length}
-						<Icon name="ion-ios-color-wand" />
-					</button>
+					<MagicWand nodes={nodes} cssClass={styles.magicWand}/>
 				)}
 
 				<div className={styles.main}>

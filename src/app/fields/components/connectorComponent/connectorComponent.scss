@@ -45,6 +45,7 @@
 
 .main {
   flex-grow: 1;
+  margin-left: 5px;
 }
 
 .dropZone {
@@ -86,4 +87,8 @@
   left: 0;
   padding: 1px;
   background: #5C6777;
+}
+
+.magicWand {
+  background: #3A4555;
 }

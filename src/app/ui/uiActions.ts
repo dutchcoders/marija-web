@@ -55,7 +55,7 @@ export function closeLightbox() {
     };
 }
 
-const workspaceVersion: number = 1;
+const workspaceVersion: number = 2;
 
 function getWorkspace(state: AppState): Workspace {
 	return {

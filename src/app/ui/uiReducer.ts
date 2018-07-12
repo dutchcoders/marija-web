@@ -23,7 +23,7 @@ const defaultPane: PaneInterface = {
     alignBottom: false,
     minWidth: 200,
     minHeight: 100,
-    zIndex: 2
+    zIndex: 3
 };
 
 export const defaultUiState: UiState = {

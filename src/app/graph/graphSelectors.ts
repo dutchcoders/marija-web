@@ -10,6 +10,7 @@ import { groupBy } from 'lodash';
 import fieldLocator from '../fields/helpers/fieldLocator';
 import { Field } from '../fields/interfaces/field';
 import { getSelectedDateFields } from '../fields/fieldsSelectors';
+import { Connector } from './interfaces/connector';
 
 
 export const getNodesForDisplay = createSelector(
@@ -161,5 +162,29 @@ export const createGetNodesByDatasource = () => createSelector(
 
 	(nodes: Node[], datasourceId: string): Node[] => {
 		return nodes.filter(node => node.datasourceId === datasourceId);
+	}
+);
+
+export interface GroupedNodes {
+	[key: string]: Node[]
+}
+
+export const getNodesGroupedByConnector = createSelector(
+	(state: AppState) => state.graph.nodes,
+
+	(nodes: Node[]) => {
+		let connectorNodes = nodes.filter(node => node.type === 'connector');
+
+		return groupBy(nodes, node => node.connector);
+	}
+);
+
+export const getNodesGroupedByDatasource = createSelector(
+	(state: AppState) => state.graph.nodes,
+
+	(nodes: Node[]) => {
+		let connectorNodes = nodes.filter(node => node.type === 'item');
+
+		return groupBy(nodes, node => node.datasourceId);
 	}
 );
