@@ -60,8 +60,8 @@ class SelectedNode extends React.Component<Props, State> {
 		});
 	}
 
-	displayTooltip() {
-		const { dispatch, node } = this.props;
+	displayTooltip(node) {
+		const { dispatch } = this.props;
 
 		dispatch(showTooltip([node]));
 	}
@@ -106,14 +106,14 @@ class SelectedNode extends React.Component<Props, State> {
 
 					return (
 						<li className={styles.level2Element} key={connector.id}>
-							<header className={styles.level2Header}>
+							<header className={styles.level2Header} onMouseEnter={() => this.displayTooltip(connector)}>
 								<NodeIcon node={connector}/>
 								<span className={styles.name}>Same {connector.fields.join(',')}: {connector.name}</span>
 							</header>
 							<ul className={styles.level3}>
 								{items.map(item => {
 									return (
-										<li key={item.id} className={styles.level3Element}>
+										<li key={item.id} className={styles.level3Element} onMouseEnter={() => this.displayTooltip(item)}>
 											<NodeIcon node={item}/>
 											<span className={styles.name}>{item.name}</span>
 										</li>
@@ -137,7 +137,7 @@ class SelectedNode extends React.Component<Props, State> {
 			<ul className={styles.level2}>
 				{items.map(item => {
 					return (
-						<li className={styles.level2Element} key={item.id}>
+						<li className={styles.level2Element} key={item.id} onMouseEnter={() => this.displayTooltip(item)}>
 							<header className={styles.level2Header}>
 								<NodeIcon node={item}/>
 								<span className={styles.name}>{item.name}</span>
@@ -154,8 +154,8 @@ class SelectedNode extends React.Component<Props, State> {
 		const { expanded } = this.state;
 
 		return (
-			<li onMouseEnter={() => this.displayTooltip()} className={styles.node}>
-				<header className={styles.header} onClick={this.toggleExpanded.bind(this)}>
+			<li className={styles.node}>
+				<header className={styles.header} onClick={this.toggleExpanded.bind(this)} onMouseEnter={() => this.displayTooltip(node)}>
 					<Icon name={styles.toggle + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')}/>
 					<div className={styles.icon}>
 						<NodeIcon node={node} />
