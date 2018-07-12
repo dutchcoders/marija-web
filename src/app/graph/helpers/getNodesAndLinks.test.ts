@@ -688,3 +688,49 @@ test('boukes case', () => {
 	expect(nodes.length).toBe(3);
 	expect(links.length).toBe(2);
 });
+
+test('boukes case 2', () => {
+	const items1 = [
+		{
+			id: '1',
+			fields: {
+				name: 'bouke',
+				brother: 'harry',
+			},
+			searchId: 'q'
+		},
+		{
+			id: '2',
+			fields: {
+				name: 'harry',
+				brother: 'karel',
+			},
+			searchId: 'q'
+		},
+		{
+			id: '3',
+			fields: {
+				name: 'thomas',
+				brother: 'harry',
+			},
+			searchId: 'q'
+		}
+	];
+
+	const fields = [
+		generateNodeTemplate('1', ['name', 'brother'])
+	] as any;
+
+	const { nodes, links } = getNodesAndLinks([], [], items1 as any, fields);
+
+	/**
+	 * Expect:
+	 * bouke
+	 * |
+	 * brother/name: harry --- thomas
+	 * |
+	 * harry
+	 */
+	expect(nodes.length).toBe(4);
+	expect(links.length).toBe(3);
+});
