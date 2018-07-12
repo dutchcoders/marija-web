@@ -66,14 +66,18 @@ class SelectedNode extends React.Component<Props, State> {
 		dispatch(showTooltip([node]));
 	}
 
-	focus() {
+	deselectOthers(event: MouseEvent) {
+		event.stopPropagation();
+
 		const { dispatch, selectedNodes, node } = this.props;
 
 		dispatch(deselectNodes(selectedNodes));
 		dispatch(nodesSelect([node]));
 	}
 
-	deselect() {
+	deselect(event: MouseEvent) {
+		event.stopPropagation();
+
 		const { dispatch, node } = this.props;
 
 		dispatch(deselectNodes([node]));
@@ -146,7 +150,7 @@ class SelectedNode extends React.Component<Props, State> {
 	}
 
 	render() {
-		const { node } = this.props;
+		const { node, isOnlySelectedNode } = this.props;
 		const { expanded } = this.state;
 
 		return (
@@ -157,6 +161,12 @@ class SelectedNode extends React.Component<Props, State> {
 						<NodeIcon node={node} />
 					</div>
 					<span className={styles.name}>{node.name}</span>
+					<div className={styles.buttons}>
+						<button className={styles.button} onClick={this.deselect.bind(this)}>deselect</button>
+						{!isOnlySelectedNode && (
+							<button className={styles.button} onClick={this.deselectOthers.bind(this)}>deselect others</button>
+						)}
+					</div>
 				</header>
 				{expanded && node.type === 'item' ? this.renderItemMain() : null}
 				{expanded && node.type === 'connector' ? this.renderConnectorMain() : null}

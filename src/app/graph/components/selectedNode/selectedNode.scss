@@ -76,3 +76,21 @@
 .level3Element {
   display: flex;
 }
+
+.buttons {
+  margin-left: auto;
+}
+
+.button {
+  border-radius: 3px;
+  background: none;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 5px;
+  margin-left: 5px;
+  height: 30px;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.2);
+  }
+}
