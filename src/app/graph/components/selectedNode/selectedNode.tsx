@@ -3,7 +3,6 @@ import { AppState } from '../../../main/interfaces/appState';
 import { connect } from 'react-redux';
 import { Node } from '../../interfaces/node';
 import { deselectNodes, nodesSelect, showTooltip } from '../../graphActions';
-import { Search } from '../../../search/interfaces/search';
 import Icon from '../../../ui/components/icon';
 import * as styles from './selectedNode.scss';
 import {
@@ -11,13 +10,13 @@ import {
 	getNodesForDisplay,
 	getSelectedNodes
 } from '../../graphSelectors';
-import { Connector } from '../../interfaces/connector';
 import NodeIcon from '../nodeIcon/nodeIcon';
 import getDirectlyRelatedNodes from '../../helpers/getDirectlyRelatedNodes';
 import { Link } from '../../interfaces/link';
 
 interface Props {
 	node: Node;
+	isOnlySelectedNode: boolean;
 	selectedNodes: Node[];
 	nodesForDisplay: Node[];
 	linksForDisplay: Link[];
@@ -26,14 +25,40 @@ interface Props {
 
 interface State {
 	expanded: boolean;
+	userSelectedExpanded: boolean;
 	nodeImages: any;
 }
 
 class SelectedNode extends React.Component<Props, State> {
 	state: State = {
 		expanded: false,
-		nodeImages: {}
+		nodeImages: {},
+		userSelectedExpanded: false
 	};
+
+	componentDidMount() {
+		const { isOnlySelectedNode } = this.props;
+
+		if (isOnlySelectedNode) {
+			this.setState({
+				expanded: true
+			});
+		}
+	}
+
+	componentWillReceiveProps(props: Props) {
+		const { userSelectedExpanded } = this.state;
+
+		if (userSelectedExpanded) {
+			// If the user already clicked on the expand toggle, don't do any
+			// magic of automatically opening/closing the node.
+			return;
+		}
+
+		this.setState({
+			expanded: props.isOnlySelectedNode
+		});
+	}
 
 	displayTooltip() {
 		const { dispatch, node } = this.props;
@@ -58,7 +83,8 @@ class SelectedNode extends React.Component<Props, State> {
 		const { expanded } = this.state;
 
 		this.setState({
-			expanded: !expanded
+			expanded: !expanded,
+			userSelectedExpanded: true
 		});
 	}
 
@@ -69,27 +95,49 @@ class SelectedNode extends React.Component<Props, State> {
 			.filter(search => search.id !== node.id);
 
 		return (
-			<ul className={styles.connectors}>
+			<ul className={styles.level2}>
 				{connectors.map(connector => {
 					const items = getDirectlyRelatedNodes([connector], nodesForDisplay, linksForDisplay)
 						.filter(search => search.id !== node.id && search.id !== connector.id);
 
 					return (
-						<li className={styles.connector} key={connector.id}>
-							<header className={styles.connectorHeader}>
+						<li className={styles.level2Element} key={connector.id}>
+							<header className={styles.level2Header}>
 								<NodeIcon node={connector}/>
 								<span className={styles.name}>Same {connector.fields.join(',')}: {connector.name}</span>
 							</header>
-							<ul className={styles.items}>
+							<ul className={styles.level3}>
 								{items.map(item => {
 									return (
-										<li key={item.id} className={styles.item}>
+										<li key={item.id} className={styles.level3Element}>
 											<NodeIcon node={item}/>
 											<span className={styles.name}>{item.name}</span>
 										</li>
 									);
 								})}
 							</ul>
+						</li>
+					);
+				})}
+			</ul>
+		);
+	}
+
+	renderConnectorMain() {
+		const { node, nodesForDisplay, linksForDisplay } = this.props;
+
+		const items = getDirectlyRelatedNodes([node], nodesForDisplay, linksForDisplay)
+			.filter(search => search.id !== node.id);
+
+		return (
+			<ul className={styles.level2}>
+				{items.map(item => {
+					return (
+						<li className={styles.level2Element} key={item.id}>
+							<header className={styles.level2Header}>
+								<NodeIcon node={item}/>
+								<span className={styles.name}>{item.name}</span>
+							</header>
 						</li>
 					);
 				})}
@@ -111,6 +159,7 @@ class SelectedNode extends React.Component<Props, State> {
 					<span className={styles.name}>{node.name}</span>
 				</header>
 				{expanded && node.type === 'item' ? this.renderItemMain() : null}
+				{expanded && node.type === 'connector' ? this.renderConnectorMain() : null}
 				{/*<span className='description'>{node.description}</span>*/}
 				{/*<button className={styles.focus} onClick={() => this.focus()}>Focus</button>*/}
 				{/*<button className={styles.deselect} onClick={() => this.deselect()}>Deselect</button>*/}

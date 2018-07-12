@@ -303,7 +303,7 @@ class Nodes extends React.Component<Props, State> {
                     //     );
                     // }
 
-                    return <SelectedNode node={node} key={node.id}/>
+                    return <SelectedNode node={node} key={node.id} isOnlySelectedNode={selectedNodes.length === 1}/>
                 })
             : <p className="noSelectedNodes">No nodes selected.</p>
         );

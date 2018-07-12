@@ -4,7 +4,7 @@ import { getNodeImageCanvas } from '../../helpers/getNodeImageCanvas';
 import { getNodeCanvas } from '../../helpers/getNodeCanvas';
 import { connect } from 'react-redux';
 import { AppState } from '../../../main/interfaces/appState';
-import { getSelectedNodes } from '../../graphSelectors';
+import * as styles from './nodeIcon.scss';
 import { Search } from '../../../search/interfaces/search';
 import { Connector } from '../../interfaces/connector';
 
@@ -47,7 +47,7 @@ class NodeIcon extends React.Component<Props, State> {
 	render() {
 		const { icon } = this.state;
 
-		return <img src={icon} />
+		return <img className={styles.image} src={icon} />
 	}
 }
 
