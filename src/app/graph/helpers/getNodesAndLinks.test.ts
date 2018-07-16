@@ -906,3 +906,73 @@ test('boukes case 2', () => {
 	expect(nodes.length).toBe(4);
 	expect(links.length).toBe(3);
 });
+
+test('real world case - one valueset can have multiple connectors', () => {
+	const items1 = [
+		{
+			id: '1',
+			fields: {
+				mentions: 'argenisdarienzo'
+			},
+			count: 1,
+			datasource: 'twitter-tweets',
+			datasourceId: 'twitter-tweets',
+			searchId: '3'
+		},
+		{
+			id: '2',
+			fields: {
+				mentions: 'NorahODonnell'
+			},
+			count: 1,
+			datasource: 'twitter-tweets',
+			datasourceId: 'twitter-tweets',
+			searchId: '3'
+		},
+		{
+			id: '3',
+			fields: {
+				mentions: 'NormEisen',
+			},
+			count: 1,
+			datasource: 'twitter-tweets',
+			datasourceId: 'twitter-tweets',
+			searchId: '3'
+		},
+	];
+
+	const connectors: Connector[] = [
+		{
+			name: '1',
+			strategy: 'AND',
+			icon: 'x',
+			color: '',
+			rules: [{
+				id: '1',
+				field: {
+					path: 'mentions',
+					type: 'text',
+					datasourceId: '1'
+				},
+				similarity: 26
+			}]
+		}
+	];
+
+	const datasources: any = [{
+		id: 'twitter-tweets',
+		labelFieldPath: 'mentions'
+	}];
+
+	const { nodes, links } = getNodesAndLinks([], [], items1 as any, connectors, null, [], datasources);
+
+	const connector = nodes.find(node => node.type === 'connector' && node.childData.mentions && node.childData.mentions[0] === 'NorahODonnell');
+
+	if (connector) {
+		const connectedLinks = links.filter(link => link.target === connector.id || link.source === connector.id);
+
+		if (connectedLinks.length < 2) {
+			fail('There is a connector with less than 2 links');
+		}
+	}
+});

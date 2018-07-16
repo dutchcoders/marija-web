@@ -202,8 +202,8 @@ export default function getNodesAndLinks(
 		});
 	};
 
-    const createConnectorNode = (match: ValueSet, connector: Connector, items: Item[]): Node => {
-    	const existing: Node = connectorNodes.find(node => {
+    const createConnectorNode = (match: ValueSet, connector: Connector, items: Item[]): Node[] => {
+    	const existing: Node[] = connectorNodes.filter(node => {
     		const valueSets = getValueSets(node.childData);
 
     		for (let i = 0; i < valueSets.length; i ++) {
@@ -217,8 +217,11 @@ export default function getNodesAndLinks(
     		return false;
 		});
 
-    	if (existing) {
-    		addDataToConnectorNode(existing, match, items);
+    	if (existing.length > 0) {
+    		existing.forEach(node => {
+				addDataToConnectorNode(node, match, items);
+			});
+
     		return existing;
 		}
 
@@ -263,7 +266,7 @@ export default function getNodesAndLinks(
 
 		connectorNodes.push(node);
 
-		return node;
+		return [node];
 	};
 
     items.forEach(sourceItem => {
@@ -285,15 +288,17 @@ export default function getNodesAndLinks(
 
     			const targetValueSets = getValueSets(targetItem.fields);
 
-				targetValueSets.forEach(targetValueSet => {
+    			targetValueSets.forEach(targetValueSet => {
 
     				connectors.forEach(connector => {
     					const matches = matchValueSets(sourceValueSet, targetValueSet, connector);
 
 						matches.forEach(match => {
-							const connectorNode = createConnectorNode(match, connector, [sourceItem, targetItem]);
+							const connectorNodes = createConnectorNode(match, connector, [sourceItem, targetItem]);
 
-							createLink(sourceNode, connectorNode, sourceItem, connector.color);
+							connectorNodes.forEach(connectorNode => {
+								createLink(sourceNode, connectorNode, sourceItem, connector.color);
+							});
 						});
     				});
 				});
@@ -314,13 +319,17 @@ export default function getNodesAndLinks(
 
     const nodes = itemNodes.concat(connectorNodes);
 
-	// console.log(nodes.map(node => [node.type, node.name, node.childData]));
-	// console.log(connectorNodes.map(node => node.childData));
+	// console.log('items:', itemNodes.map(node => [node.items.join(','), node.childData]));
+	// console.log('connectors:', connectorNodes.map(node => node.childData));
+	// console.log('links: ', links.map(link => {
+	// 	const source = nodes.find(node => node.id === link.source);
+	// 	const target = nodes.find(node => node.id === link.target);
 	//
-	// console.log(links.map(link => [
-	// 	nodes.find(node => node.id === link.source).name,
-	// 	nodes.find(node => node.id === link.target).name
-	// ]));
+	// 	return [
+	// 		source.items.join(',') + '-' + source.name,
+	// 		target.items.join(',') + '-' + JSON.stringify(target.childData),
+	// 	];
+	// }));
 
 	return {
         nodes: nodes,

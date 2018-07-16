@@ -27,8 +27,8 @@ class Stats extends React.Component<Props, State> {
         return (
             <p className="stats">
                 {fps.toFixed(1)} FPS<br />
-				{nodesForDisplay.length}/{nodes.length} nodes<br />
-				{linksForDisplay.length}/{links.length} links
+				{nodesForDisplay.length}/{nodes.length} Nodes<br />
+				{linksForDisplay.length}/{links.length} Links
             </p>
         );
     }
