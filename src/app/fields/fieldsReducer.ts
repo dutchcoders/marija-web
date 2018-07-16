@@ -1,6 +1,5 @@
 import {
 	CREATE_NEW_CONNECTOR, DELETE_FROM_CONNECTOR,
-	FIELDS_CLEAR,
 	FIELDS_RECEIVE,
 	FIELDS_REQUEST,
 	MOVE_RULE_BETWEEN_CONNECTORS,
@@ -74,15 +73,6 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
                 fieldsFetching: true
             });
 
-        case FIELDS_CLEAR: {
-            const fields = state.availableFields.filter(field =>
-                field.datasourceId !== action.payload.datasource
-            );
-
-            return Object.assign({}, state, {
-                availableFields: fields
-            });
-        }
 
 		case MOVE_RULE_BETWEEN_CONNECTORS: {
 			const ruleId: string = action.payload.ruleId;

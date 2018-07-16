@@ -41,9 +41,9 @@ class DatasourceComponent extends React.Component<Props, State> {
 		const { datasource, dispatch } = this.props;
 
 		if (datasource.active) {
-			dispatch(datasourceDeactivated(datasource.id));
+			dispatch(datasourceDeactivated(datasource));
 		} else {
-			dispatch(datasourceActivated(datasource.id));
+			dispatch(datasourceActivated(datasource));
 		}
 	}
 

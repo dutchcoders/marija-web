@@ -1,12 +1,5 @@
-import {concat, find, isEqual, remove, uniqueId, without} from 'lodash';
-
+import {concat, isEqual, uniqueId, without} from 'lodash';
 import {REQUEST_COMPLETED} from '../connection/connectionConstants';
-import {
-    DATE_FIELD_ADD,
-    DATE_FIELD_DELETE,
-    FIELD_UPDATE
-} from '../fields/fieldsConstants';
-import {Field} from '../fields/interfaces/field';
 import {sortItems} from '../items/helpers/sortItems';
 import {ITEMS_RECEIVE, ITEMS_REQUEST} from '../items/itemsConstants';
 import darkenColor from '../search/helpers/darkenColor';

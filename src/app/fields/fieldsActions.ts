@@ -1,16 +1,10 @@
 import { webSocketSend } from '../connection/connectionActions';
-import { datasourceDeactivated } from '../datasources/datasourcesActions';
 import { Datasource } from '../datasources/interfaces/datasource';
 import { Via } from '../graph/interfaces/via';
 import { AppState } from '../main/interfaces/appState';
 import {
 	CREATE_NEW_CONNECTOR,
-	DATE_FIELD_ADD,
-	DATE_FIELD_DELETE, DELETE_FROM_CONNECTOR,
-	FIELD_ADD,
-	FIELD_DELETE,
-	FIELD_UPDATE,
-	FIELDS_CLEAR,
+	DELETE_FROM_CONNECTOR,
 	FIELDS_RECEIVE,
 	FIELDS_REQUEST,
 	MOVE_RULE_BETWEEN_CONNECTORS,
@@ -24,15 +18,6 @@ import {
 } from '../graph/interfaces/connector';
 import { getConnectorRuleId } from './helpers/getConnectorRuleId';
 import { getConnectorName } from './helpers/getConnectorName';
-
-export function clearFields(datasource){
-    return {
-        type: FIELDS_CLEAR,
-        payload: {
-            datasource: datasource
-        }
-    };
-}
 
 export function receiveFields(fields: Field[], datasource: string, defaultFields: Field[], defaultVia: Via[]) {
     return {
@@ -61,22 +46,6 @@ export function getFields(datasources: Datasource[]) {
             type: FIELDS_REQUEST,
             datasources: datasourceIds
         }));
-    };
-}
-
-export function dateFieldAdd(field: Field) {
-    return {
-        type: DATE_FIELD_ADD,
-        receivedAt: Date.now(),
-        field: field
-    };
-}
-
-export function dateFieldDelete(field: Field) {
-    return {
-        type: DATE_FIELD_DELETE,
-        receivedAt: Date.now(),
-        field: field
     };
 }
 

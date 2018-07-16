@@ -11,20 +11,20 @@ import {
 import { Datasource } from './interfaces/datasource';
 import { rebuildGraph } from '../graph/graphActions';
 
-export function datasourceActivated(datasourceId: string) {
+export function datasourceActivated(datasource: Datasource) {
     return {
         type: DATASOURCE_ACTIVATED,
         payload: {
-            datasourceId: datasourceId
+            datasource
         }
     };
 }
 
-export function datasourceDeactivated(datasourceId: string) {
+export function datasourceDeactivated(datasource: Datasource) {
     return {
         type: DATASOURCE_DEACTIVATED,
         payload: {
-            datasourceId: datasourceId
+            datasource
         }
     };
 }
