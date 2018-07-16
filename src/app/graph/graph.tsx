@@ -1081,7 +1081,9 @@ class Graph extends React.PureComponent<Props, State> {
 
 		let description = '';
 
-		forEach(node.childData, (value, key) => {
+		Object.keys(node.childData).forEach(key => {
+			const value = node.childData[key];
+
 			if (!value) {
 				return;
 			}
