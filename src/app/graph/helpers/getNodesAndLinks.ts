@@ -182,6 +182,24 @@ export default function getNodesAndLinks(
     	return node;
 	};
 
+    const addDataToConnectorNode = (node: Node, match: ValueSet, items: Item[]) => {
+    	items.forEach(item => {
+    		if (node.items.indexOf(item.id) === -1) {
+    			node.items.push(item.id);
+			}
+		});
+
+    	const keys: string[] = Object.keys(match);
+
+    	keys.forEach(key => {
+    		if (node.childData[key]) {
+    			node.childData[key].push(match[key]);
+			} else {
+    			node.childData[key] = [match[key]];
+			}
+		});
+	};
+
     const createConnectorNode = (match: ValueSet, connector: Connector, items: Item[]): Node => {
     	const existing: Node = connectorNodes.find(node => {
     		const valueSets = getValueSets(node.childData);
@@ -198,6 +216,7 @@ export default function getNodesAndLinks(
 		});
 
     	if (existing) {
+    		addDataToConnectorNode(existing, match, items);
     		return existing;
 		}
 

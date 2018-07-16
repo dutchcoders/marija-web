@@ -472,6 +472,45 @@ test('connector nodes should contain item ids of all related items', () => {
 	expect(connector.items.length).toBe(2);
 });
 
+test('connector nodes should contain item ids of all related items when there are more than 2 items', () => {
+	const items = [
+		{
+			id: '1',
+			fields: {
+				name: 'Thomas',
+			},
+			datasourceId: '1'
+		},
+		{
+			id: '2',
+			fields: {
+				name: 'Thomas',
+			},
+			datasourceId: '1'
+		},
+		{
+			id: '3',
+			fields: {
+				name: 'Thomas',
+			},
+			datasourceId: '1'
+		}
+	];
+
+	const fields = [
+		generateNodeTemplate('name', ['name'])
+	] as any;
+
+	const { nodes, links } = getNodesAndLinks([], [], items as any, fields, ...defaultArguments);
+
+	expect(nodes.length).toBe(4);
+	expect(links.length).toBe(3);
+
+	const connector = nodes.find(node => node.type === 'connector');
+
+	expect(connector.items.length).toBe(3);
+});
+
 test('should work with word similarity percentages', () => {
 	const items = [
 		{
