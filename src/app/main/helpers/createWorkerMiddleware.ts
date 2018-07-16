@@ -3,6 +3,8 @@ import { GraphWorkerPayload } from '../../graph/helpers/graphWorkerClass';
 import { LIVE_RECEIVE, SEARCH_RECEIVE } from '../../search/searchConstants';
 import { AppState } from '../interfaces/appState';
 import { REBUILD_GRAPH } from '../../graph/graphConstants';
+import { setExpectedGraphWorkerOutputId } from '../../graph/graphActions';
+import { uniqueId } from 'lodash';
 
 export function createWorkerMiddleware(worker) {
 	/*
@@ -73,6 +75,12 @@ export function createWorkerMiddleware(worker) {
 					}
 
 					markPerformance('beforePostToGraphWorker');
+
+					const outputId = uniqueId();
+
+					dispatch(setExpectedGraphWorkerOutputId(outputId));
+
+					payload.outputId = outputId;
 
 					worker.postMessage(action);
 

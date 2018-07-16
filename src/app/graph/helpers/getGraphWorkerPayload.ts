@@ -20,6 +20,7 @@ export function getGraphWorkerPayload(state: AppState, items: Item[] = [], searc
 		filterSecondaryQueries: state.graph.filterSecondaryQueries,
 		connectors: state.fields.connectors,
 		datasources: state.datasources.datasources,
-		outputId: state.graph.expectedGraphWorkerOutputId
+		// Will be set in the middleware, right before sending it to the worker
+		outputId: null
 	};
 }

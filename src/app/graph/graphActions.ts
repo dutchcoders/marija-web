@@ -235,8 +235,6 @@ export function rebuildGraph() {
 			return;
 		}
 
-		dispatch(setExpectedGraphWorkerOutputId(uniqueId()));
-
 		const newState: AppState = getState();
 		const payload = getGraphWorkerPayload(newState);
 

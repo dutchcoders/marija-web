@@ -125,8 +125,6 @@ class SearchBox extends React.Component<Props, State> {
         const { connected, searches, nodes } = this.props;
         const { query, searchAroundOpen, noDatasourcesError } = this.state;
 
-        console.log(noDatasourcesError);
-
         const userQueries = searches
             .filter(search => search.aroundNodeId === null)
             .map(search =>

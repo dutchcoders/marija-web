@@ -11,7 +11,6 @@ import { getSelectedFields } from '../fields/fieldsSelectors';
 import { getItemByNode } from '../graph/helpers/getItemByNode';
 import Url from '../main/helpers/url';
 import { DEFAULT_DISPLAY_NODES_PER_SEARCH } from '../graph/graphConstants';
-import { setExpectedGraphWorkerOutputId } from '../graph/graphActions';
 
 export function searchRequest(query: string, datasourceIds?: string[]) {
     return (dispatch, getState) => {
@@ -102,8 +101,6 @@ export function searchAround(node: Node) {
 
 export function searchReceive(items: Item[], requestId: string) {
 	return (dispatch, getState) => {
-		dispatch(setExpectedGraphWorkerOutputId(uniqueId()));
-
         const state: AppState = getState();
         const search: Search = state.graph.searches.find((search: Search) =>
             search.requestId === requestId
@@ -126,8 +123,6 @@ export function searchReceive(items: Item[], requestId: string) {
 
 export function liveReceive(items: Item[], datasourceId: string) {
     return (dispatch, getState) => {
-		dispatch(setExpectedGraphWorkerOutputId(uniqueId()));
-
 		const state: AppState = getState();
 
 		// Search id is the same as the datasource id for live_receive
