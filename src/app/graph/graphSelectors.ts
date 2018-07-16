@@ -170,7 +170,7 @@ export interface GroupedNodes {
 }
 
 export const getNodesGroupedByConnector = createSelector(
-	(state: AppState) => state.graph.nodes,
+	(state: AppState) => getNodesForDisplay(state),
 
 	(nodes: Node[]) => {
 		let connectorNodes = nodes.filter(node => node.type === 'connector');
@@ -180,7 +180,7 @@ export const getNodesGroupedByConnector = createSelector(
 );
 
 export const getNodesGroupedByDatasource = createSelector(
-	(state: AppState) => state.graph.nodes,
+	(state: AppState) => getNodesForDisplay(state),
 
 	(nodes: Node[]) => {
 		let connectorNodes = nodes.filter(node => node.type === 'item');
