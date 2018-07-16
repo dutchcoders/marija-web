@@ -120,7 +120,6 @@ class DatasourceComponent extends React.Component<Props, State> {
 					<MagicWand nodes={nodes} cssClass={styles.magicWand} />
 
 					<Tooltip
-						key="deactivate"
 						overlay="Search in this datasource"
 						placement="bottom"
 						mouseLeaveDelay={0}
@@ -146,6 +145,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 							selected={datasource.labelFieldPath}
 							onChange={this.onLabelChange.bind(this)}
 						/>
+						<p className={styles.help}>Select a field that will be displayed as the nodes' label on the graph.</p>
 
 						<h4 className={styles.optionTitle}>Image</h4>
 						<FieldSelector
@@ -154,6 +154,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 							selected={datasource.imageFieldPath}
 							onChange={this.onImageChange.bind(this)}
 						/>
+						<p className={styles.help}>Select a field with image urls to render nodes as images.</p>
 
 						<h4 className={styles.optionTitle}>Geo location</h4>
 						<FieldSelector
@@ -162,6 +163,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 							selected={datasource.locationFieldPath}
 							onChange={this.onLocationChange.bind(this)}
 						/>
+						<p className={styles.help}>Select a field with geo location (in the format [lat, long]) to display them on the map.</p>
 
 						<h4 className={styles.optionTitle}>Date</h4>
 						<FieldSelector
@@ -170,6 +172,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 							selected={datasource.dateFieldPath}
 							onChange={this.onDateChange.bind(this)}
 						/>
+						<p className={styles.help}>Select a field with dates/times to display them in the timeline.</p>
 					</main>
 				)}
 			</form>

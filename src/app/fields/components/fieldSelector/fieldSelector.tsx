@@ -50,9 +50,14 @@ class FieldSelector extends React.Component<Props> {
 			}
 		}
 
+		const disabled = fields.length === 0;
+		const placeholder = disabled ? 'No fields available for this type.' : 'Select a field';
+
 		return (
 			<VirtualizedSelect
 				filterOption={FieldSelector.filterOption}
+				disabled={disabled}
+				placeholder={placeholder}
 				value={selectedOption}
 				options={options}
 				onChange={this.onChange.bind(this)}

@@ -42,12 +42,13 @@
 }
 
 .main {
-  padding: 10px 10px 20px;
+  padding: 1em 10px 1px;
   border-top: 1px solid rgba(255, 255, 255, .1);
 }
 
 .optionTitle {
-  font-size: 1em;
+  font-size: 1.3em;
+  margin: 0 0 .5em;
 }
 
 .icon {
@@ -68,4 +69,8 @@
   text-transform: none;
   text-rendering: auto;
   -webkit-font-smoothing: antialiased;
+}
+
+.help {
+  margin: .5em 0 1.5em;
 }
