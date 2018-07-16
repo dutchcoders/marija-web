@@ -54,10 +54,10 @@ export function receiveInitialState(initialState) {
 }
 
 export interface DatasourceProps {
-	imageFieldPath?: string;
-	locationFieldPath?: string;
-	labelFieldPath?: string;
-	dateFieldPath?: string;
+	imageFieldPath?: string | false;
+	locationFieldPath?: string | false;
+	labelFieldPath?: string | false;
+	dateFieldPath?: string | false;
 	icon?: string;
 }
 

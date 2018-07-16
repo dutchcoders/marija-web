@@ -58,7 +58,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 		const { dispatch, datasource } = this.props;
 
 		dispatch(updateDatasource(datasource.id, {
-			imageFieldPath: field ? field.path : null
+			imageFieldPath: field ? field.path : false
 		}));
 	}
 
@@ -66,7 +66,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 		const { dispatch, datasource } = this.props;
 
 		dispatch(updateDatasource(datasource.id, {
-			labelFieldPath: field ? field.path : null
+			labelFieldPath: field ? field.path : false
 		}));
 	}
 
@@ -74,7 +74,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 		const { dispatch, datasource } = this.props;
 
 		dispatch(updateDatasource(datasource.id, {
-			locationFieldPath: field ? field.path : null
+			locationFieldPath: field ? field.path : false
 		}));
 	}
 
@@ -82,7 +82,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 		const { dispatch, datasource } = this.props;
 
 		dispatch(updateDatasource(datasource.id, {
-			dateFieldPath: field ? field.path : null
+			dateFieldPath: field ? field.path : false
 		}));
 	}
 
