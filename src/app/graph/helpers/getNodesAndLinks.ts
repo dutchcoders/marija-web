@@ -487,7 +487,11 @@ function setConnectorRadius(connectors: Node[]) {
 	const rangeItems = maxItems - minItems;
 
 	connectors.forEach(node => {
-		const relative = (node.items.length - minItems) / rangeItems;
-		node.r = relative * rangeRadius + minRadius;
+		if (rangeItems === 0) {
+			node.r = minRadius;
+		} else {
+			const relative = (node.items.length - minItems) / rangeItems;
+			node.r = relative * rangeRadius + minRadius;
+		}
 	});
 }
