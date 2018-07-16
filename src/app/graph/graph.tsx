@@ -221,13 +221,8 @@ class Graph extends React.PureComponent<Props, State> {
     	this.transform.x = 0;
     	this.transform.y = 0;
     	this.mapOffset = Leaflet.point(0, 0);
-
-    	this.zoom();
+    	this.renderedSince.lastZoom = false;
 	}
-
-    zoom() {
-        this.renderedSince.lastZoom = false;
-    }
 
     d3ZoomStart() {
 		this.isZooming = true;
@@ -241,12 +236,17 @@ class Graph extends React.PureComponent<Props, State> {
     		return;
 		}
 
-		const { nodesForDisplay } = this.props;
-    	const transform = d3.event.transform;
+		this.transform = d3.event.transform;
 
 		this.zoom();
+    }
 
-		this.transform = transform;
+    d3ZoomEnd() {
+    	this.isZooming = false;
+	}
+
+	zoom() {
+		const { nodesForDisplay } = this.props;
 
 		const newK = this.transform.k;
 		this.tmpNodeSizeMultiplier = newK;
@@ -259,20 +259,15 @@ class Graph extends React.PureComponent<Props, State> {
 				.then(() => {
 					this.tmpNodeSizeMultiplier = undefined;
 					this.nodeSizeMultiplier = newK;
-					this.renderedSince.lastTick = false;
+					this.renderedSince.lastZoom = false;
 				});
 		}, 200);
-    }
-
-    d3ZoomEnd() {
-    	this.isZooming = false;
 	}
 
     mapZoomed(event) {
     	this.mapOffset = this.map.latLngToContainerPoint(this.initialMapBounds.getNorthWest());
 		this.transform.k = this.map.getZoomScale(this.map.getZoom(), this.initialMapZoom);
-
-		this.zoom();
+		this.renderedSince.lastZoom = false;
 	}
 
 	fitMapToMarkers(nodes: Node[]) {
@@ -1638,7 +1633,8 @@ class Graph extends React.PureComponent<Props, State> {
 		this.transform.k = zoom;
 		this.transform.x = -1 * zoom * minX + sideMargin + leftOverWidth / 2;
 		this.transform.y = -1 * zoom * minY + topMargin + leftOverHeight / 2;
-		this.renderedSince.lastZoom = false;
+
+		this.zoom();
 	}
 
     handleWindowResize = debounce(() => {
@@ -1945,7 +1941,6 @@ class Graph extends React.PureComponent<Props, State> {
         }
 
         this.transform.k = newK;
-
         this.zoom();
     }
 
@@ -1964,7 +1959,6 @@ class Graph extends React.PureComponent<Props, State> {
         }
 
         this.transform.k = newK;
-
         this.zoom();
     }
 
