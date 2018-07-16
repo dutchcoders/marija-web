@@ -1078,33 +1078,23 @@ class Graph extends React.PureComponent<Props, State> {
             accumulator.concat(search.datasources)
         , []);
 
-		let description;
+		let description = '';
 
-        if (node.type === 'item') {
-			description = '';
-
-			if (node.childData) {
-				forEach(node.childData, (value, key) => {
-					if (!value) {
-						return;
-					}
-
-					description += key + ': ';
-
-					if (Array.isArray(value)) {
-						description += value.join(', ');
-					} else {
-						description += value;
-					}
-
-					description += "\n";
-				});
+		forEach(node.childData, (value, key) => {
+			if (!value) {
+				return;
 			}
 
-			description += 'Count: ' + node.itemCount + "\n";
-		} else {
-        	description = node.name + "\n";
-		}
+			description += key + ': ';
+
+			if (Array.isArray(value)) {
+				description += value.join(', ');
+			} else {
+				description += value;
+			}
+
+			description += "\n";
+		});
 
 		description += 'Queries: ' + queries.join(', ') + "\n"
 			+ 'Datasources: ' + datasources.join(', ');
@@ -1112,7 +1102,10 @@ class Graph extends React.PureComponent<Props, State> {
         const text = new PIXI.Text(description, {
             fontFamily: 'Arial',
             fontSize: '12px',
-            fill: '#ffffff'
+            fill: '#ffffff',
+			wordWrap: true,
+			wordWrapWidth: 250,
+			breakWords: true
         });
 
         text.x = 10;

@@ -193,7 +193,9 @@ export default function getNodesAndLinks(
 
     	keys.forEach(key => {
     		if (node.childData[key]) {
-    			node.childData[key].push(match[key]);
+    			if (node.childData[key].indexOf(match[key]) === -1) {
+					node.childData[key].push(match[key]);
+				}
 			} else {
     			node.childData[key] = [match[key]];
 			}

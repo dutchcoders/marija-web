@@ -552,6 +552,58 @@ test('should work with word similarity percentages', () => {
 	expect(nodes.length).toBe(3);
 });
 
+test('connector should contain all values when working with word similarity percentages', () => {
+	const items = [
+		{
+			id: '1',
+			fields: {
+				name: 'Thomas',
+			},
+			datasourceId: '1'
+		},
+		{
+			id: '2',
+			fields: {
+				name: 'Thomat',
+			},
+			datasourceId: '1'
+		},
+		{
+			id: '3',
+			fields: {
+				name: 'Thomab',
+			},
+			datasourceId: '1'
+		}
+	];
+
+	const connectors: Connector[] = [
+		{
+			name: '1',
+			strategy: 'AND',
+			icon: 'x',
+			color: '',
+			rules: [{
+				id: '1',
+				field: {
+					path: 'name',
+					type: 'text',
+					datasourceId: '1'
+				},
+				similarity: 80
+			}]
+		}
+	];
+
+	const { nodes, links } = getNodesAndLinks([], [], items as any, connectors, ...defaultArguments);
+
+	expect(nodes.length).toBe(4);
+
+	const connector = nodes.find(node => node.type === 'connector');
+
+	expect(connector.childData.name.length).toBe(3);
+});
+
 test('should find relations with nodes that already existed', () => {
 	const items1 = [
 		{
