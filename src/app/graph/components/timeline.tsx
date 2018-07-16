@@ -157,39 +157,45 @@ class Timeline extends React.Component<Props, State> {
         return search.color;
     }
 
-    onSliderChange(minFraction: number, maxFraction: number) {
-		const { dispatch } = this.props;
+    getActiveNodesInSlider(minFraction: number, maxFraction: number): Node[] {
+		const searchIds = this.getSearchIds();
+		const chartData = this.getChartData(searchIds);
 
-        const searchIds = this.getSearchIds();
-        const chartData = this.getChartData(searchIds);
+		const xAxis = this.container.querySelector('.recharts-xAxis line');
 
-        const xAxis = this.container.querySelector('.recharts-xAxis line');
-
-        if (!xAxis) {
-        	return;
+		if (!xAxis) {
+			return;
 		}
 
-        const xAxisRect: SVGRect = xAxis.getBBox();
+		const xAxisRect: SVGRect = xAxis.getBBox();
 		const minMiddlePoint: number = xAxisRect.width * minFraction + xAxisRect.x;
-        const maxMiddlePoint: number = xAxisRect.width * maxFraction + xAxisRect.x;
+		const maxMiddlePoint: number = xAxisRect.width * maxFraction + xAxisRect.x;
 
-        const bars: SVGRectElement[] = this.container.querySelectorAll('.recharts-bar-rectangle');
-        const periods: string[] = [];
+		const bars: SVGRectElement[] = this.container.querySelectorAll('.recharts-bar-rectangle');
+		const periods: string[] = [];
 
-        bars.forEach((bar, index) => {
-            const rect = bar.getBBox();
-            const middlePoint = rect.x + rect.width / 2;
+		bars.forEach((bar, index) => {
+			const rect = bar.getBBox();
+			const middlePoint = rect.x + rect.width / 2;
 
-            if (middlePoint <= maxMiddlePoint && middlePoint >= minMiddlePoint) {
-                periods.push(chartData[index].name);
-            }
-        });
+			if (middlePoint <= maxMiddlePoint && middlePoint >= minMiddlePoint) {
+				periods.push(chartData[index].name);
+			}
+		});
 
 		let nodes = [];
 
-        periods.forEach(period =>
-            nodes = nodes.concat(this.getNodes(period))
-        );
+		periods.forEach(period =>
+			nodes = nodes.concat(this.getNodes(period))
+		);
+
+		return nodes;
+	}
+
+    onSliderChange(minFraction: number, maxFraction: number) {
+		const { dispatch } = this.props;
+
+        const nodes = this.getActiveNodesInSlider(minFraction, maxFraction);
 
         if (nodes.length || !this.isPlaying) {
         	// Dont highlight when there are no nodes while we're playing the
@@ -197,6 +203,14 @@ class Timeline extends React.Component<Props, State> {
 			dispatch(highlightNodes(nodes));
 		}
     }
+
+    onSliderSelect(minFraction: number, maxFraction: number) {
+		const { dispatch } = this.props;
+
+		const nodes = this.getActiveNodesInSlider(minFraction, maxFraction);
+
+		dispatch(nodesSelect(nodes));
+	}
 
     onStartPlaying() {
     	this.isPlaying = true;
@@ -268,6 +282,7 @@ class Timeline extends React.Component<Props, State> {
 						playTime={periods.length * 600}
 						playWindowWidth={Math.round(1 / periods.length * 100) / 100}
 						onChange={this.onSliderChange.bind(this)}
+						onSelect={this.onSliderSelect.bind(this)}
 						onStartPlaying={this.onStartPlaying.bind(this)}
 						onFinishPlaying={this.onFinishPlaying.bind(this)}
 					/>

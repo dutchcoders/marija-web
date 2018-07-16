@@ -5,6 +5,7 @@ import Icon from '../../../ui/components/icon';
 
 interface Props {
 	onChange: (minFraction: number, maxFraction: number) => void;
+	onSelect: (minFraction: number, maxFraction: number) => void;
 	onStartPlaying: () => void;
 	onFinishPlaying: () => void;
 	playTime: number;
@@ -214,6 +215,7 @@ class TimelineSlider extends React.Component<Props, State> {
 
 	render() {
 		const { isPlaying } = this.state;
+		const { onSelect } = this.props;
 
 		return (
 			<div className={styles.timelineSlider}>
@@ -223,6 +225,9 @@ class TimelineSlider extends React.Component<Props, State> {
 					</button>
 					<button className={styles.handleRight} onMouseDown={this.startDraggingHandleRight}>
 						<Icon name="ion-arrow-swap" />
+					</button>
+					<button className={styles.select} onClick={() => onSelect(this.minFraction, this.maxFraction)}>
+						Select nodes
 					</button>
 				</div>
 				<nav className={styles.actions}>
