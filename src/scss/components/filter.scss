@@ -22,16 +22,17 @@
 
     input {
       border: none;
-      padding: 0 7px;
+      padding: 0 25px 0 7px;
       height: 30px;//
       font-size: 14px;
       color: white;
       box-sizing: border-box;
-      width: 120px;
-      margin: 5px 30px;
-      background: #3C5168;
+      width: 145px;
+      margin: 5px 30px 5px 5px;
+      background: #425166;
       border-radius: 3px;
-      box-shadow: inset 2px 2px 5px 0px rgba(0,0,0,0.4);
+      box-shadow: inset 2px 2px 5px 0px rgba(0, 0, 0, 0.3);
+      outline: none;
 
       &::placeholder {
         color: white;
@@ -42,7 +43,7 @@
       position: absolute;
       top: 11px;
       font-size: 18px;
-      left: 10px;
+      right: 39px;
     }
 
     .ion-ios-arrow-up,
