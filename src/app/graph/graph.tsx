@@ -1095,7 +1095,9 @@ class Graph extends React.PureComponent<Props, State> {
 				string = value;
 			}
 
-			string = string.substring(0, 200);
+			if (typeof string === 'string') {
+				string = string.substring(0, 200);
+			}
 
 			description += ' ' + string + "\n";
 		});
