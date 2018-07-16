@@ -309,9 +309,10 @@ export default function getNodesAndLinks(
 		return Math.max(prev, current.itemCount);
 	}, 1);
 
-    const nodes = itemNodes.concat(connectorNodes);
+	setConnectorRadius(connectorNodes);
+	itemNodes.forEach(node => node.r = getItemRadius(node, minCount, maxCount));
 
-	nodes.forEach(node => node.r = getNodeRadius(node, minCount, maxCount));
+    const nodes = itemNodes.concat(connectorNodes);
 
 	// console.log(nodes.map(node => [node.type, node.name, node.childData]));
 	// console.log(connectorNodes.map(node => node.childData));
@@ -432,7 +433,7 @@ export function getHash(string) {
 	return hash;
 }
 
-function getNodeRadius(node: Node, minCount: number, maxCount: number): number {
+function getItemRadius(node: Node, minCount: number, maxCount: number): number {
 	if (node.type === 'connector') {
 		return 15;
 	}
@@ -459,4 +460,25 @@ function valueSetToArrayValues(valueSet) {
 	});
 
 	return newObject;
+}
+
+function setConnectorRadius(connectors: Node[]) {
+	const minRadius = 15;
+	const maxRadius = 30;
+	const rangeRadius = maxRadius - minRadius;
+
+	const minItems = connectors.reduce((prev: number, node: Node) =>
+		Math.min(prev, node.items.length), 9999
+	);
+
+	const maxItems = connectors.reduce((prev: number, node: Node) =>
+		Math.max(prev, node.items.length), 0
+	);
+
+	const rangeItems = maxItems - minItems;
+
+	connectors.forEach(node => {
+		const relative = (node.items.length - minItems) / rangeItems;
+		node.r = relative * rangeRadius + minRadius;
+	});
 }
