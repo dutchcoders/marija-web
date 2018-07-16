@@ -21,6 +21,7 @@ import { exportData, importData } from '../../mainActions';
 import { FormEvent } from 'react';
 import DatasourceList from '../../../datasources/components/datasourceList/datasourceList';
 import ConnectorList from '../../../fields/components/connectorList/connectorList';
+import Version from '../version/version';
 
 interface State {
     normalization_error: string;
@@ -413,6 +414,8 @@ class Configuration extends React.Component<Props, State> {
                 <div className="form-group">
                     <button className="btn btn-primary" onClick={this.resetConfig.bind(this)}>Reset config</button>
                 </div>
+
+				<Version/>
             </div>
         );
     }
