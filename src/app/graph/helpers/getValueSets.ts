@@ -6,8 +6,10 @@ export interface ValueSet {
 	[key: string]: string;
 }
 
-export function getValueSets(values: Input): ValueSet[] {
-	const keys = Object.keys(values);
+export function getValueSets(values: Input, relevantFields: string[]): ValueSet[] {
+	const keys = Object.keys(values).filter(key =>
+		relevantFields.indexOf(key) !== -1
+	);
 
 	if (keys.length === 0) {
 		return [];

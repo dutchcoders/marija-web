@@ -6,7 +6,7 @@ test('get all value sets', () => {
 		mentions: ['barry', 'harry']
 	};
 
-	const output = getValueSets(input);
+	const output = getValueSets(input, ['first_name', 'mentions']);
 
 	expect(output.length).toBe(2);
 });
@@ -18,7 +18,7 @@ test('get all value sets 2', () => {
 		buddies: ['piet', 'karel', 'jan']
 	};
 
-	const output = getValueSets(input);
+	const output = getValueSets(input, ['first_name', 'mentions', 'buddies']);
 
 	expect(output.length).toBe(27);
 });
@@ -31,7 +31,7 @@ test('get all value sets 3', () => {
 		name: 'kees'
 	};
 
-	const output = getValueSets(input);
+	const output = getValueSets(input,  ['first_name', 'mentions', 'buddies', 'name']);
 
 	expect(output.length).toBe(6);
 });
@@ -42,7 +42,7 @@ test('should not include null values', () => {
 		mentions: null
 	};
 
-	const output = getValueSets(input);
+	const output = getValueSets(input, ['first_name', 'mentions']);
 
 	expect(output.length).toBe(1);
 });
@@ -53,7 +53,20 @@ test('should not include empty values', () => {
 		mentions: ''
 	};
 
-	const output = getValueSets(input);
+	const output = getValueSets(input, ['first_name', 'mentions']);
 
 	expect(output.length).toBe(1);
+});
+
+test('should skip fields that are not specified as relevant', () => {
+	const input = {
+		first_name: 'thomas',
+		mentions: 'something',
+		skip_me: 'lalala'
+	};
+
+	const output = getValueSets(input, ['first_name', 'mentions']);
+
+	expect(output.length).toBe(1);
+	expect(output[0].skip_me).toBeUndefined();
 });

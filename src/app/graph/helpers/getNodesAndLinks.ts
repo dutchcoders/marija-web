@@ -25,6 +25,14 @@ export default function getNodesAndLinks(
 	const itemNodes: Node[] = previousNodes.filter(node => node.type === 'item');
 	const connectorNodes: Node[] = previousNodes.filter(node => node.type === 'connector');
 
+	const relevantFields: string[] = [];
+
+	connectors.forEach(connector =>
+		connector.rules.forEach(rule =>
+			relevantFields.push(rule.field.path)
+		)
+	);
+
 	// Proof that items with the same fields sometimes have a different ID
 	// items.forEach(item => {
 	// 	const stringified = JSON.stringify(item.fields);
@@ -204,7 +212,7 @@ export default function getNodesAndLinks(
 
     const createConnectorNode = (match: ValueSet, connector: Connector, items: Item[]): Node[] => {
     	const existing: Node[] = connectorNodes.filter(node => {
-    		const valueSets = getValueSets(node.childData);
+    		const valueSets = getValueSets(node.childData, relevantFields);
 
     		for (let i = 0; i < valueSets.length; i ++) {
     			const matches = matchValueSets(match, valueSets[i], connector);
@@ -277,7 +285,7 @@ export default function getNodesAndLinks(
     		return;
 		}
 
-		const sourceValueSets = getValueSets(sourceItem.fields);
+		const sourceValueSets = getValueSets(sourceItem.fields, relevantFields);
 
     	sourceValueSets.forEach(sourceValueSet => {
     		items.forEach(targetItem => {
@@ -286,7 +294,7 @@ export default function getNodesAndLinks(
     				return;
 				}
 
-    			const targetValueSets = getValueSets(targetItem.fields);
+    			const targetValueSets = getValueSets(targetItem.fields, relevantFields);
 
     			targetValueSets.forEach(targetValueSet => {
 
