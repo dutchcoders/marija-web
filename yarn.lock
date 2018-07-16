@@ -5933,6 +5933,10 @@ pixi-gl-core@^1.1.4:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/pixi-gl-core/-/pixi-gl-core-1.1.4.tgz#8b4b5c433b31e419bc379dc565ce1b835a91b372"
 
+pixi-multistyle-text@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/pixi-multistyle-text/-/pixi-multistyle-text-0.6.0.tgz#f06e98dac42e0824d75694dd29a6286bf53619e9"
+
 pixi.js@^4.6.2:
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/pixi.js/-/pixi.js-4.6.2.tgz#f13c87b567ca4c8ada3c1a9a0bd3639417b9ecf7"

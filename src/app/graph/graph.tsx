@@ -36,6 +36,7 @@ import { getNodeCanvas } from './helpers/getNodeCanvas';
 import { getNodeImageCanvas } from './helpers/getNodeImageCanvas';
 import { searchAround } from '../search/searchActions';
 import Loader from '../ui/components/loader';
+import MultiStyleText from 'pixi-multistyle-text';
 
 interface TextureMap {
     [hash: string]: PIXI.RenderTexture;
@@ -1085,28 +1086,36 @@ class Graph extends React.PureComponent<Props, State> {
 				return;
 			}
 
-			description += key + ': ';
+			description += '<bold>' + key + ': </bold> ';
+			let string: string;
 
 			if (Array.isArray(value)) {
-				description += value.join(', ');
+				string = value.join(', ');
 			} else {
-				description += value;
+				string = value;
 			}
 
-			description += "\n";
+			string = string.substring(0, 200);
+
+			description += ' ' + string + "\n";
 		});
 
-		description += 'Queries: ' + queries.join(', ') + "\n"
-			+ 'Datasources: ' + datasources.join(', ');
+		description += '<bold>Queries: </bold>' + queries.join(', ') + "\n"
+			+ '<bold>Datasources: </bold>' + datasources.join(', ');
 
-        const text = new PIXI.Text(description, {
-            fontFamily: 'Arial',
-            fontSize: '12px',
-            fill: '#ffffff',
-			wordWrap: true,
-			wordWrapWidth: 250,
-			breakWords: true
-        });
+        const text = new MultiStyleText(description, {
+			default: {
+				fontFamily: 'Arial',
+				fontSize: '12px',
+				fill: '#eeeeee',
+				wordWrap: true,
+				wordWrapWidth: 250,
+				breakWords: true
+			},
+			bold: {
+				fontWeight: 'bold'
+			}
+		});
 
         text.x = 10;
         text.y = 5;
