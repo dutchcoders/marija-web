@@ -496,7 +496,6 @@ class Graph extends React.PureComponent<Props, State> {
     renderNodes() {
         this.renderedNodesContainer.removeChildren();
         this.renderedIcons.removeChildren();
-		// this.nodeSizeMultiplier = this.getNodeSizeMultiplier();
 
         this.nodeMap.forEach(this.renderNode.bind(this));
     }
@@ -938,9 +937,15 @@ class Graph extends React.PureComponent<Props, State> {
 			|| nextProps.connectors !== connectors
 			|| nextProps.isMapActive !== isMapActive) {
 
-			this.preProcessTextures(nextProps.nodesForDisplay, this.nodeSizeMultiplier, nextProps.searches, nextProps.connectors, nextProps.isMapActive)
+        	const sizeMultiplier = this.tmpNodeSizeMultiplier || this.nodeSizeMultiplier;
+
+			this.preProcessTextures(nextProps.nodesForDisplay, sizeMultiplier, nextProps.searches, nextProps.connectors, nextProps.isMapActive)
 				.then(() => {
-					this.tmpNodeSizeMultiplier = undefined;
+					if (typeof this.tmpNodeSizeMultiplier !== 'undefined') {
+						this.nodeSizeMultiplier = this.tmpNodeSizeMultiplier;
+						this.tmpNodeSizeMultiplier = undefined;
+					}
+
 					this.updateNodeMap(nextProps.nodesForDisplay);
 					this.updateLinkMap(nextProps.linksForDisplay);
 
