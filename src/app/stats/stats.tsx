@@ -8,6 +8,7 @@ import {
 	getLinksForDisplay,
 	getNodesForDisplay
 } from '../graph/graphSelectors';
+import { Item } from '../items/interfaces/item';
 
 interface Props {
     fps: number;
@@ -15,6 +16,7 @@ interface Props {
     linksForDisplay: Link[];
     nodes: Node[];
     links: Link[];
+    items: Item[];
 }
 
 interface State {
@@ -22,13 +24,14 @@ interface State {
 
 class Stats extends React.Component<Props, State> {
     render() {
-        const { fps, nodesForDisplay, linksForDisplay, nodes, links } = this.props;
+        const { fps, nodesForDisplay, linksForDisplay, nodes, links, items } = this.props;
 
         return (
             <p className="stats">
                 {fps.toFixed(1)} FPS<br />
 				{nodesForDisplay.length}/{nodes.length} Nodes<br />
-				{linksForDisplay.length}/{links.length} Links
+				{linksForDisplay.length}/{links.length} Links<br />
+				{items.length} Items
             </p>
         );
     }
@@ -42,6 +45,7 @@ const select = (state: AppState, ownProps) => {
 		links: state.graph.links,
         nodesForDisplay: getNodesForDisplay(state),
         linksForDisplay: getLinksForDisplay(state),
+		items: state.graph.items
     };
 };
 
