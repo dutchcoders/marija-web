@@ -16,6 +16,7 @@ import {
 } from '../../../graph/graphSelectors';
 import { Node } from '../../../graph/interfaces/node';
 import MagicWand from '../../../graph/components/magicWand/magicWand';
+import Tooltip from 'rc-tooltip';
 
 interface Props {
 	datasource: Datasource;
@@ -118,10 +119,17 @@ class DatasourceComponent extends React.Component<Props, State> {
 					<div className={styles.icon} onClick={this.toggleIconSelector.bind(this)}>{datasource.icon}</div>
 					<MagicWand nodes={nodes} cssClass={styles.magicWand} />
 
-					<h3 className={styles.name} onClick={this.toggleActive.bind(this)}>
-						<input className={styles.active} type="checkbox" checked={datasource.active} readOnly={true} />
-						{datasource.name}
-					</h3>
+					<Tooltip
+						key="deactivate"
+						overlay="Search in this datasource"
+						placement="bottom"
+						mouseLeaveDelay={0}
+						arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+						<h3 className={styles.name} onClick={this.toggleActive.bind(this)}>
+							<input className={styles.active} type="checkbox" checked={datasource.active} readOnly={true} />
+							{datasource.name}
+						</h3>
+					</Tooltip>
 					<Icon name={styles.toggle + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')} />
 				</header>
 

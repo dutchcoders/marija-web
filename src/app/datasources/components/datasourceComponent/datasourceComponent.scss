@@ -19,12 +19,20 @@
 .name {
   font-size: 1em;
   font-weight: 300;
-  margin: 0 0 4px;
+  margin: 0;
+  border-radius: 3px;
+  line-height: 28px;
+  padding: 0 5px;
+}
+
+.name:hover {
+  background: rgba(255, 255, 255, .1);
 }
 
 .active {
   margin-right: 5px !important;
   display: inline-block;
+  cursor: pointer;
 }
 
 .toggle {
