@@ -1,15 +1,13 @@
 import * as React from 'react';
-import SketchPicker from 'react-color';
 import { connect, Dispatch } from 'react-redux';
-import SkyLight from 'react-skylight';
 import { Datasource } from '../../datasources/interfaces/datasource';
 import { Node } from '../../graph/interfaces/node';
 import { AppState } from '../../main/interfaces/appState';
 import Icon from '../../ui/components/icon';
 import { Search } from '../interfaces/search';
-import { editSearch } from '../searchActions';
 import Query from './query';
 import * as styles from './searchBox.scss';
+import { getActiveNonLiveDatasources } from '../../datasources/datasourcesSelectors';
 const logo = require('../../../images/logo.png');
 
 interface Props {
@@ -25,16 +23,26 @@ interface Props {
 interface State {
     query: string;
     searchAroundOpen: boolean;
+	noDatasourcesError: boolean;
 }
 
 class SearchBox extends React.Component<Props, State> {
     state: State = {
         query: '',
-        searchAroundOpen: false
+        searchAroundOpen: false,
+        noDatasourcesError: false
     };
     searchForm: HTMLFormElement;
     queryInput: HTMLTextAreaElement;
     clickHandlerRef;
+
+    setNoDatasourcesError(datasources: Datasource[]) {
+        const { query } = this.state;
+
+        this.setState({
+            noDatasourcesError: !!query && datasources.length === 0
+        });
+    }
 
     onInputFocus() {
         this.clickHandlerRef = this.collapseForm.bind(this);
@@ -47,7 +55,9 @@ class SearchBox extends React.Component<Props, State> {
 		const maxHeight = 300;
 
 		this.queryInput.style.height = 'auto';
-		this.queryInput.style.height = Math.min(this.queryInput.scrollHeight, maxHeight) + 'px';
+		requestAnimationFrame(() => {
+			this.queryInput.style.height = Math.min(this.queryInput.scrollHeight, maxHeight) + 'px';
+		});
     }
 
     resetInputHeight() {
@@ -70,13 +80,9 @@ class SearchBox extends React.Component<Props, State> {
         const { query } = this.state;
         const { datasources } = this.props;
 
-        const activeDatasources = datasources.filter(datasource =>
-            datasource.active
-        );
-
         const trimmed = query.trim();
 
-        if (trimmed === '' || activeDatasources.length === 0) {
+        if (trimmed === '' || datasources.length === 0) {
             return;
         }
 
@@ -86,8 +92,11 @@ class SearchBox extends React.Component<Props, State> {
     }
 
     handleQueryChange(event) {
+    	const { datasources } = this.props;
+
 		this.setState({
-			query: event.target.value
+			query: event.target.value,
+			noDatasourcesError: !!event.target.value && datasources.length === 0
 		});
 
 		this.adjustInputHeight();
@@ -108,9 +117,15 @@ class SearchBox extends React.Component<Props, State> {
         });
     }
 
+    componentWillReceiveProps(nextProps: Props) {
+		this.setNoDatasourcesError(nextProps.datasources);
+	}
+
     render() {
         const { connected, searches, nodes } = this.props;
-        const { query, searchAroundOpen } = this.state;
+        const { query, searchAroundOpen, noDatasourcesError } = this.state;
+
+        console.log(noDatasourcesError);
 
         const userQueries = searches
             .filter(search => search.aroundNodeId === null)
@@ -159,17 +174,20 @@ class SearchBox extends React.Component<Props, State> {
                 <div className={styles.queriesContainer}>
                     <div className={styles.formWrapper}>
                         <form onSubmit={this.handleSubmit.bind(this)} className={styles.form + ' ' + styles.formCollapsed} ref={form => this.searchForm = form}>
-                            <textarea
+							<textarea
 								ref={ref => this.queryInput = ref}
-                                className={styles.queryInput}
-                                placeholder="Search"
-                                rows={1}
-                                value={ query }
-                                onChange={this.handleQueryChange.bind(this)}
-                                onKeyDown={this.handleQueryKeyDown.bind(this)}
-                                onFocus={this.onInputFocus.bind(this)}
-                            />
+								className={styles.queryInput + (noDatasourcesError ? ' ' + styles.noDatasources : '')}
+								placeholder="Search"
+								rows={1}
+								value={ query }
+								onChange={this.handleQueryChange.bind(this)}
+								onKeyDown={this.handleQueryKeyDown.bind(this)}
+								onFocus={this.onInputFocus.bind(this)}
+							/>
 							<Icon name="ion-ios-search" className={'ion-ios-search ' + styles.searchIcon} />
+							{noDatasourcesError && (
+								<span className={styles.noDatasourcesMessage}>First select a datasource in the config</span>
+							)}
                         </form>
                     </div>
 
@@ -185,7 +203,7 @@ const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
         searches: state.graph.searches,
-        datasources: state.datasources.datasources,
+        datasources: getActiveNonLiveDatasources(state),
         nodes: state.graph.nodes.filter(node => node.isNormalizationParent || node.normalizationId === null),
     };
 };

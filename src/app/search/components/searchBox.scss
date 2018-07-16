@@ -90,3 +90,16 @@
   font-size: 18px;
   top: 13px;
 }
+
+.noDatasources {
+  background: #a72e25;
+}
+
+.noDatasourcesMessage {
+  background: #a72e25;
+  padding: 5px;
+  border-radius: 3px;
+  bottom: -20px;
+  position: absolute;
+  left: 10px;
+}
