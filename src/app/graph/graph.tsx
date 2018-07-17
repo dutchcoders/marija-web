@@ -988,8 +988,8 @@ class Graph extends React.PureComponent<Props, State> {
 					new Leaflet.LatLng(node.geoLocation.lat, node.geoLocation.lng)
 				);
 
-				fx = this.transform.invertX(containerPoint.x);
-				fy = this.transform.invertY(containerPoint.y);
+				fx = (containerPoint.x - this.mapOffset.x) / this.transform.k;
+				fy = (containerPoint.y - this.mapOffset.y) / this.transform.k;
 			}
 
 			return {
