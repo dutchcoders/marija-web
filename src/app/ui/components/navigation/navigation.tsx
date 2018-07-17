@@ -72,6 +72,8 @@ class Navigation extends React.Component<any, any> {
     render() {
         const { zoomIn, zoomOut, showLabels, isMapAvailable, isMapActive, center } = this.props;
 
+        const isMapDisabled = !isMapAvailable && !isMapActive;
+
         return (
             <nav className="navigation">
                 <Filter />
@@ -116,10 +118,10 @@ class Navigation extends React.Component<any, any> {
                 <ul className="mapControls">
                     {this.getButton(
 						'ion-android-globe',
-						isMapAvailable ? 'Map' : 'Map is unavailable for this data',
+						isMapDisabled ? 'Map is unavailable for this data' : 'Map',
 						() => this.toggleMapActive(),
 						isMapActive,
-                        !isMapAvailable
+                        isMapDisabled
 					)}
                     {this.getButton(
                         'ion-ios-pricetag',
