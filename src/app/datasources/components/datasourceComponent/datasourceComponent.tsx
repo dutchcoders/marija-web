@@ -176,7 +176,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 							selected={datasource.locationFieldPath}
 							onChange={this.onLocationChange.bind(this)}
 						/>
-						<p className={styles.help}>Select a field with geo location (in the format [lat, long]) to display nodes on the map.</p>
+						<p className={styles.help}>Select a field with geo location (in the format: <strong>52.1, 4.2</strong>) to display nodes on the map.</p>
 
 						<h4 className={styles.optionTitle}>Date</h4>
 						<FieldSelector
