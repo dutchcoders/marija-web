@@ -77,11 +77,19 @@
 
 .customButtons {
   margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
 }
 
-.delete {
+.delete,
+.showAll {
   border-radius: 3px;
   background: #f44336;
   border: none;
   padding: 5px 10px;
+  outline: none;
+}
+
+.showAll {
+  background: #6C9FE0;
 }

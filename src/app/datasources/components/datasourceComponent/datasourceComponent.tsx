@@ -17,6 +17,7 @@ import {
 import { Node } from '../../../graph/interfaces/node';
 import MagicWand from '../../../graph/components/magicWand/magicWand';
 import Tooltip from 'rc-tooltip';
+import { showAllItemsOfCustomDatasource } from '../../../search/searchActions';
 
 interface Props {
 	datasource: Datasource;
@@ -116,7 +117,9 @@ class DatasourceComponent extends React.Component<Props, State> {
 	}
 
 	showAllItems() {
+		const { dispatch, datasource } = this.props;
 
+		dispatch(showAllItemsOfCustomDatasource(datasource));
 	}
 
 	render() {
@@ -186,8 +189,8 @@ class DatasourceComponent extends React.Component<Props, State> {
 
 						{datasource.isCustom && (
 							<div className={styles.customButtons}>
+								<button type="button" className={styles.showAll} onClick={this.showAllItems.bind(this)}>Show all items</button>
 								<button type="button" className={styles.delete} onClick={this.deleteCustomDatasource.bind(this)}>Delete datasource</button>
-								{/*<button className={styles.delete} onClick={this.deleteCustomDatasource.bind(this)}>Show all items</button>*/}
 							</div>
 						)}
 					</main>

@@ -312,5 +312,20 @@ export function searchCustomDatasource(query: string, datasource: Datasource, re
 }
 
 export function showAllItemsOfCustomDatasource(datasource: Datasource) {
+	return (dispatch, getState) => {
+		const requestId = uniqueId();
 
+		dispatch({
+			type: SEARCH_REQUEST,
+			receivedAt: Date.now(),
+			query: 'Show all',
+			aroundNodeId: null,
+			displayNodes: DEFAULT_DISPLAY_NODES_PER_SEARCH,
+			datasourceIds: [datasource.id],
+			requestId: requestId
+		});
+
+		dispatch(searchReceive(datasource.items, requestId));
+		dispatch(requestCompleted(requestId));
+	}
 }
