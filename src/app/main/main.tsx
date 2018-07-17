@@ -1,7 +1,8 @@
 import { createBrowserHistory } from 'history';
 import * as React from 'react';
 import { Provider } from 'react-redux';
-import { Route, Router } from 'react-router';
+import { Router } from 'react-router';
+import { Route } from 'react-router-dom';
 import { routerReducer, syncHistoryWithStore } from 'react-router-redux';
 import { applyMiddleware, combineReducers, compose, createStore } from 'redux';
 import thunk from 'redux-thunk';
@@ -26,6 +27,9 @@ import { workspaceMiddleware } from '../ui/helpers/workspaceMiddleware';
 import Url from './helpers/url';
 import { requestWorkspace } from '../ui/uiActions';
 import { queryMiddleware } from '../search/helpers/queryMiddleware';
+import CreateCustomDatasource
+	from '../datasources/components/createCustomDatasource/createCustomDatasource';
+import { getHistory } from './helpers/getHistory';
 
 require('../../scss/app.scss');
 require('../../images/favicon.png');
@@ -62,7 +66,7 @@ function configureStore() {
 }
 
 const store = configureStore();
-const history = syncHistoryWithStore(createBrowserHistory(), store);
+const history = getHistory(); //syncHistoryWithStore(getHistory(), store);
 
 interface Props {
     backendUri?: string;
@@ -91,7 +95,8 @@ class App extends React.Component<Props, State> {
                 <Provider store={store}>
                     <Router history={history}>
                         <div className="routerWrapper">
-                            <Route path='*' component={RootView} />
+							<Route path='/create-custom-datasource' component={CreateCustomDatasource} />
+							<Route path='*' component={RootView} />
                         </div>
                     </Router>
                 </Provider>

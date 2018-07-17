@@ -1,7 +1,8 @@
 import createBrowserHistory from 'history/createBrowserHistory';
 import queryString from 'query-string';
+import { getHistory } from './getHistory';
 
-const history = createBrowserHistory();
+const history = getHistory();
 let currentLocation = history.location;
 
 // Update our current location whenever the url changes
@@ -45,6 +46,10 @@ export default class Url {
     static getWorkspaceId(): string {
         return Url.getParam('workspace');
     }
+
+    static getQueryString(): string {
+    	return currentLocation.search;
+	}
 
     private static getParam(param: string) {
 		const queryParams = queryString.parse(currentLocation.search);

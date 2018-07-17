@@ -163,7 +163,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 							selected={datasource.locationFieldPath}
 							onChange={this.onLocationChange.bind(this)}
 						/>
-						<p className={styles.help}>Select a field with geo location (in the format [lat, long]) to display them on the map.</p>
+						<p className={styles.help}>Select a field with geo location (in the format [lat, long]) to display nodes on the map.</p>
 
 						<h4 className={styles.optionTitle}>Date</h4>
 						<FieldSelector
@@ -172,7 +172,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 							selected={datasource.dateFieldPath}
 							onChange={this.onDateChange.bind(this)}
 						/>
-						<p className={styles.help}>Select a field with dates/times to display them in the timeline.</p>
+						<p className={styles.help}>Select a field with dates/times to display nodes on the timeline.</p>
 					</main>
 				)}
 			</form>

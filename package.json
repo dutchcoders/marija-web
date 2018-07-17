@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@types/rison": "^0.0.6",
+    "csv-parse": "^2.5.0",
     "d3": "^4.3.0",
     "fast-levenshtein": "^2.0.6",
     "fbemitter": "^2.1.1",

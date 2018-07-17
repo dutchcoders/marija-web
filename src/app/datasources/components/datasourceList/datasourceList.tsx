@@ -4,9 +4,12 @@ import { Datasource } from '../../interfaces/datasource';
 import DatasourceComponent from '../datasourceComponent/datasourceComponent';
 import { connect } from 'react-redux';
 import * as styles from './datasourceList.scss';
+import { Link, withRouter } from 'react-router-dom';
+import Url from '../../../main/helpers/url';
 
 interface Props {
 	datasources: Datasource[];
+	dispatch: any;
 }
 
 interface State {
@@ -14,6 +17,10 @@ interface State {
 }
 
 class DatasourceList extends React.Component<Props, State> {
+	createCustomDatasource() {
+		const { dispatch } = this.props;
+	}
+
 	render() {
 		const { datasources } = this.props;
 
@@ -24,13 +31,18 @@ class DatasourceList extends React.Component<Props, State> {
 				{datasources.map(datasource => (
 					<DatasourceComponent datasource={datasource} key={datasource.id} />
 				))}
+
+				<Link to={{ pathname: '/create-custom-datasource', search: Url.getQueryString() }}>
+					<button className={styles.create} onClick={this.createCustomDatasource.bind(this)}>Create CSV datasource</button>
+				</Link>
 			</div>
 		);
 	}
 }
 
-const select = (state: AppState) => ({
+const select = (state: AppState, ownProps) => ({
+	...ownProps,
 	datasources: state.datasources.datasources.filter(datasource => datasource.type !== 'live')
 });
 
-export default connect(select)(DatasourceList);
+export default withRouter(connect(select)(DatasourceList));

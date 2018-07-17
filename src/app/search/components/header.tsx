@@ -19,11 +19,9 @@ interface State {
 
 class Header extends React.Component<Props, State> {
     onSearchSubmit(q) {
-        const { dispatch, datasources } = this.props;
+        const { dispatch } = this.props;
 
-        const datasourceIds: string[] = datasources.map(datasource => datasource.id);
-
-        dispatch(searchRequest(q, datasourceIds));
+        dispatch(searchRequest(q));
     }
 
     render() {

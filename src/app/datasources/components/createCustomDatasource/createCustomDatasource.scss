@@ -1,0 +1,162 @@
+@import "../../../../scss/mixins/shadow";
+
+.modal {
+  width: 1000px;
+  top: 20px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  @include shadow();
+}
+
+.header {
+  padding: 0 20px;
+  background-color: #5CA1E6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 1.2em;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 50px;
+}
+
+.close {
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.main {
+  padding: 20px;
+  background-color: #455B73;
+  position: relative;
+}
+
+.loaderOverlay {
+  position: absolute;
+  background: rgba(0, 0, 0, .3);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.main .loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -35px;
+  margin-left: -35px;
+  width: 70px;
+  height: 70px;
+  border-width: 3px;
+}
+
+.overlay {
+  position: fixed;
+  background: rgba(0, 0, 0, .5);
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99999999;
+}
+
+.stepTitle {
+  font-size: 1.2em;
+  margin: 0 0 20px;
+}
+
+.chooseFile {
+  border-radius: 3px;
+  background: #6C9FE0;
+  border: none;
+  padding: 5px 10px;
+  margin-bottom: 10px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.label {
+  display: block;
+  font-weight: normal;
+  margin: 0 0 5px;
+}
+
+.input {
+  display: block;
+  background: #425166;
+  border-radius: 3px;
+  box-shadow: inset 2px 2px 5px 0px rgba(0, 0, 0, 0.3);
+  border: none;
+  padding: 0 10px;
+  height: 30px;
+  margin-bottom: 5px;
+  width: 200px;
+}
+
+.fileContents {
+  width: 100%;
+  box-sizing: border-box;
+  height: 250px;
+  outline: none;
+  font-family: monospace;
+  cursor: not-allowed;
+  padding: 10px;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.prev,
+.next {
+  border-radius: 3px;
+  padding: 10px 20px;
+  font-size: 1.2em;
+}
+
+.prev {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, .2);
+}
+
+.next {
+  background: #6C9FE0;
+  border: none;
+
+  &[disabled] {
+    opacity: .3;
+  }
+}
+
+.table {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.td {
+  padding: 5px;
+}
+
+.thead .td {
+  font-weight: bold;
+  background: rgba(0, 0, 0, .2);
+}
+
+.error {
+  background: #f44336;
+  padding: 5px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.formItem {
+  margin-bottom: 15px;
+}

@@ -1,5 +1,9 @@
 import { uniqueId } from 'lodash';
-import { cancelRequest, webSocketSend } from '../connection/connectionActions';
+import {
+	cancelRequest,
+	requestCompleted,
+	webSocketSend
+} from '../connection/connectionActions';
 import { Datasource } from '../datasources/interfaces/datasource';
 import { Node } from '../graph/interfaces/node';
 import { Item } from '../items/interfaces/item';
@@ -27,40 +31,45 @@ import {
 	DEFAULT_DISPLAY_NODES_PER_SEARCH
 } from '../graph/graphConstants';
 
-export function searchRequest(query: string, datasourceIds?: string[]) {
+export function searchRequest(query: string) {
     return (dispatch, getState) => {
         const state: AppState = getState();
         const fields = getSelectedFields(state);
         const fieldPaths: string[] = fields.map(field => field.path);
+		const requestId = uniqueId();
 
-        if (!datasourceIds) {
-        	datasourceIds = state.datasources.datasources
-				.filter(datasource => datasource.active)
-				.map(datasource => datasource.id);
-		}
-
-        const requestId = uniqueId();
-
-        dispatch(webSocketSend({
-            type: SEARCH_REQUEST,
-            datasources: datasourceIds,
-            fields: fieldPaths,
-            query: query,
-            'request-id': requestId
-        }));
-
+		const datasources = state.datasources.datasources
+			.filter(datasource => datasource.active);
 
 		Url.addQuery(query);
 
-        dispatch({
-            type: SEARCH_REQUEST,
-            receivedAt: Date.now(),
-            query: query,
-            aroundNodeId: null,
-            displayNodes: DEFAULT_DISPLAY_NODES_PER_SEARCH,
-            datasourceIds: datasourceIds,
-            requestId: requestId
-        });
+		dispatch({
+			type: SEARCH_REQUEST,
+			receivedAt: Date.now(),
+			query: query,
+			aroundNodeId: null,
+			displayNodes: DEFAULT_DISPLAY_NODES_PER_SEARCH,
+			datasourceIds: datasources.map(datasource => datasource.id),
+			requestId: requestId
+		});
+
+		const clientSide = datasources.filter(datasource => datasource.isCustom);
+
+		clientSide.forEach(datasource => {
+			dispatch(searchCustomDatasource(query, datasource, requestId));
+		});
+
+		const serverSide = datasources.filter(datasource => !datasource.isCustom);
+
+		if (serverSide.length > 0) {
+			dispatch(webSocketSend({
+				type: SEARCH_REQUEST,
+				datasources: serverSide.map(datasource => datasource.id),
+				fields: fieldPaths,
+				query: query,
+				'request-id': requestId
+			}));
+		}
     };
 }
 
@@ -276,4 +285,28 @@ export function resumeSearch(search: Search) {
             }
         });
     };
+}
+
+export function searchCustomDatasource(query: string, datasource: Datasource, requestId: string) {
+	return (dispatch, getState) => {
+		const matches = datasource.items.filter(item => {
+			const keys = Object.keys(item.fields);
+
+			for (let i = 0; i < keys.length; i ++) {
+				const value: string = item.fields[keys[i]];
+
+				if (value.toLowerCase().includes(query.toLowerCase())) {
+					return true;
+				}
+			}
+
+			return false;
+		});
+
+		if (matches.length > 0) {
+			dispatch(searchReceive(matches, requestId));
+		}
+
+		dispatch(requestCompleted(requestId));
+	};
 }

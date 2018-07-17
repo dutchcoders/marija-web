@@ -168,7 +168,7 @@ class Query extends React.Component<Props, State> {
 
     render() {
         const { search } = this.props;
-        const { isColorPickerOpen } = this.state;//
+        const { isColorPickerOpen } = this.state;
 
         const displayNodes: number = this.countDisplayNodes();
         const nodes: number = this.countNodes();

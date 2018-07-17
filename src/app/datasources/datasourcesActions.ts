@@ -3,6 +3,7 @@ import {
 	addLiveDatasourceSearch
 } from '../search/searchActions';
 import {
+	CREATE_CUSTOM_DATASOURCE,
 	DATASOURCE_ACTIVATED,
 	DATASOURCE_DEACTIVATED,
 	INITIAL_STATE_RECEIVE,
@@ -10,6 +11,8 @@ import {
 } from './datasourcesConstants';
 import { Datasource } from './interfaces/datasource';
 import { rebuildGraph } from '../graph/graphActions';
+import { Item } from '../items/interfaces/item';
+import { FIELDS_RECEIVE } from '../fields/fieldsConstants';
 
 export function datasourceActivated(datasource: Datasource) {
     return {
@@ -72,5 +75,32 @@ export function updateDatasource(datasourceId: string, props: DatasourceProps) {
 		});
 
 		dispatch(rebuildGraph());
+	};
+}
+
+export function createCustomDatasource(name: string, items: Item[]) {
+	return (dispatch, getState) => {
+		dispatch({
+			type: CREATE_CUSTOM_DATASOURCE,
+			payload: {
+				name,
+				items
+			}
+		});
+
+		const fieldPaths: string[] = Object.keys(items[0].fields);
+		const fields = fieldPaths.map(path => ({
+			path: path,
+			type: 'string',
+			datasourceId: name
+		}));
+
+		dispatch({
+			type: FIELDS_RECEIVE,
+			payload: {
+				datasource: name,
+				fields: fields
+			}
+		});
 	};
 }

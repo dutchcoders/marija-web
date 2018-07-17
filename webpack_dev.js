@@ -24,7 +24,10 @@ module.exports = merge(common, {
     ],
     devServer: {
         publicPath: "/",
-        contentBase: "./src"
+        contentBase: "./src",
+		historyApiFallback: {
+			disableDotRule: true,
+		}
     },
     mode: 'development'
 });

@@ -1,6 +1,7 @@
 import {Search} from '../search/interfaces/search';
 import {SEARCH_DELETE} from '../search/searchConstants';
 import {
+	CREATE_CUSTOM_DATASOURCE,
 	DATASOURCE_ACTIVATED,
 	DATASOURCE_DEACTIVATED,
 	INITIAL_STATE_RECEIVE, UPDATE_DATASOURCE
@@ -12,6 +13,7 @@ import { RECEIVE_WORKSPACE } from '../ui/uiConstants';
 import { Workspace } from '../ui/interfaces/workspace';
 import { FIELDS_RECEIVE } from '../fields/fieldsConstants';
 import { Field } from '../fields/interfaces/field';
+import { Item } from '../items/interfaces/item';
 
 export const defaultDatasourcesState: DatasourcesState = {
     datasources: []
@@ -189,6 +191,30 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
 			return {
 				...state,
 				datasources: workspace.datasources
+			};
+		}
+
+		case CREATE_CUSTOM_DATASOURCE: {
+			const name: string = action.payload.name;
+			const items: Item[] = action.payload.items;
+
+			const datasource: Datasource = {
+				name: name,
+				id: name,
+				active: true,
+				type: 'csv',
+				isCustom: true,
+				icon: getIcon(name, []),
+				items: items,
+				labelFieldPath: null,
+				imageFieldPath: null,
+				locationFieldPath: null,
+				dateFieldPath: null
+			};
+
+			return {
+				...state,
+				datasources: state.datasources.concat([datasource])
 			};
 		}
 
