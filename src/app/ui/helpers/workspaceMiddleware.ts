@@ -10,7 +10,7 @@ import {
 import {
 	CREATE_CUSTOM_DATASOURCE,
 	DATASOURCE_ACTIVATED,
-	DATASOURCE_DEACTIVATED, UPDATE_DATASOURCE
+	DATASOURCE_DEACTIVATED, DELETE_CUSTOM_DATASOURCE, UPDATE_DATASOURCE
 } from '../../datasources/datasourcesConstants';
 import { updateWorkspace } from '../uiActions';
 import {
@@ -36,7 +36,8 @@ export const workspaceMiddleware: Middleware = ({dispatch}) => next => action =>
 		SET_FILTER_SECONDARY_QUERIES,
 		SET_FILTER_BORING_NODES,
 		SET_PANE_CONFIG,
-		CREATE_CUSTOM_DATASOURCE
+		CREATE_CUSTOM_DATASOURCE,
+		DELETE_CUSTOM_DATASOURCE
 	];
 
 	if (updateForActions.indexOf(action.type) !== -1) {

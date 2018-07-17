@@ -3,7 +3,7 @@ import {SEARCH_DELETE} from '../search/searchConstants';
 import {
 	CREATE_CUSTOM_DATASOURCE,
 	DATASOURCE_ACTIVATED,
-	DATASOURCE_DEACTIVATED,
+	DATASOURCE_DEACTIVATED, DELETE_CUSTOM_DATASOURCE,
 	INITIAL_STATE_RECEIVE, UPDATE_DATASOURCE
 } from './datasourcesConstants';
 import {Datasource} from './interfaces/datasource';
@@ -220,6 +220,15 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
 			return {
 				...state,
 				datasources: state.datasources.concat([datasource])
+			};
+		}
+
+		case DELETE_CUSTOM_DATASOURCE: {
+			const datasource: Datasource = action.payload.datasource;
+
+			return {
+				...state,
+				datasources: state.datasources.filter(search => search.id !== datasource.id)
 			};
 		}
 

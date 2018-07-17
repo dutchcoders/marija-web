@@ -5,7 +5,7 @@ import * as styles from './datasourceComponent.scss';
 import Icon from '../../../ui/components/icon';
 import {
 	datasourceActivated,
-	datasourceDeactivated, updateDatasource
+	datasourceDeactivated, deleteCustomDatasource, updateDatasource
 } from '../../datasourcesActions';
 import FieldSelector from '../../../fields/components/fieldSelector/fieldSelector';
 import { connect } from 'react-redux';
@@ -109,6 +109,16 @@ class DatasourceComponent extends React.Component<Props, State> {
 		});
 	}
 
+	deleteCustomDatasource() {
+		const { dispatch, datasource } = this.props;
+
+		dispatch(deleteCustomDatasource(datasource));
+	}
+
+	showAllItems() {
+
+	}
+
 	render() {
 		const { datasource, nodes } = this.props;
 		const { expanded, iconSelectorOpen } = this.state;
@@ -173,6 +183,13 @@ class DatasourceComponent extends React.Component<Props, State> {
 							onChange={this.onDateChange.bind(this)}
 						/>
 						<p className={styles.help}>Select a field with dates/times to display nodes on the timeline.</p>
+
+						{datasource.isCustom && (
+							<div className={styles.customButtons}>
+								<button type="button" className={styles.delete} onClick={this.deleteCustomDatasource.bind(this)}>Delete datasource</button>
+								{/*<button className={styles.delete} onClick={this.deleteCustomDatasource.bind(this)}>Show all items</button>*/}
+							</div>
+						)}
 					</main>
 				)}
 			</form>

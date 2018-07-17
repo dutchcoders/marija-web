@@ -5,7 +5,7 @@ import {
 import {
 	CREATE_CUSTOM_DATASOURCE,
 	DATASOURCE_ACTIVATED,
-	DATASOURCE_DEACTIVATED,
+	DATASOURCE_DEACTIVATED, DELETE_CUSTOM_DATASOURCE,
 	INITIAL_STATE_RECEIVE,
 	UPDATE_DATASOURCE
 } from './datasourcesConstants';
@@ -102,5 +102,14 @@ export function createCustomDatasource(name: string, items: Item[]) {
 				fields: fields
 			}
 		});
+	};
+}
+
+export function deleteCustomDatasource(datasource: Datasource) {
+	return {
+		type: DELETE_CUSTOM_DATASOURCE,
+		payload: {
+			datasource
+		}
 	};
 }
