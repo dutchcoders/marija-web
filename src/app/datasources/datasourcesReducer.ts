@@ -22,8 +22,8 @@ export const defaultDatasourcesState: DatasourcesState = {
 export default function datasourcesReducer(state: DatasourcesState = defaultDatasourcesState, action) {
     switch (action.type) {
         case INITIAL_STATE_RECEIVE: {
-            const datasources: Datasource[] = action.initial_state.datasources.map(datasource => {
-                const existing = state.datasources.find(search => search.id === datasource.id);
+            let datasources: Datasource[] = action.initial_state.datasources.map(datasource => {
+                const existing = state.datasources.find(search => !search.isCustom && search.id === datasource.id);
 
                 return {
                     id: datasource.id,
@@ -49,6 +49,11 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
 
                 return 0;
             });
+
+			// Add custom datasources from the workspace
+			datasources = datasources.concat(state.datasources.filter(datasource =>
+				datasource.isCustom
+			));
 
             return Object.assign({}, state, {
                 datasources: datasources
