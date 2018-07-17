@@ -5,12 +5,27 @@ import { Node } from '../graph/interfaces/node';
 import { Item } from '../items/interfaces/item';
 import { AppState } from '../main/interfaces/appState';
 import { Search } from './interfaces/search';
-import { ACTIVATE_LIVE_DATASOURCE, ADD_LIVE_DATASOURCE_SEARCH, DEACTIVATE_LIVE_DATASOURCE, LIVE_RECEIVE, SEARCH_DELETE, SEARCH_EDIT, SEARCH_FIELDS_UPDATE, SEARCH_RECEIVE, SEARCH_REQUEST } from './searchConstants';
+import {
+	ACTIVATE_LIVE_DATASOURCE,
+	ADD_LIVE_DATASOURCE_SEARCH,
+	CONFIRM_ITEMS,
+	DEACTIVATE_LIVE_DATASOURCE,
+	ITEMS_NEED_CONFIRMATION,
+	ITEMS_NEED_CONFIRMATION_THRESHOLD,
+	LIVE_RECEIVE,
+	SEARCH_DELETE,
+	SEARCH_EDIT,
+	SEARCH_FIELDS_UPDATE,
+	SEARCH_RECEIVE,
+	SEARCH_REQUEST
+} from './searchConstants';
 import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 import { getSelectedFields } from '../fields/fieldsSelectors';
 import { getItemByNode } from '../graph/helpers/getItemByNode';
 import Url from '../main/helpers/url';
-import { DEFAULT_DISPLAY_NODES_PER_SEARCH } from '../graph/graphConstants';
+import {
+	DEFAULT_DISPLAY_NODES_PER_SEARCH
+} from '../graph/graphConstants';
 
 export function searchRequest(query: string, datasourceIds?: string[]) {
     return (dispatch, getState) => {
@@ -99,7 +114,7 @@ export function searchAround(node: Node) {
     }
 }
 
-export function searchReceive(items: Item[], requestId: string) {
+export function searchReceive(items: Item[], requestId: string, hasConfirmed: boolean = false) {
 	return (dispatch, getState) => {
         const state: AppState = getState();
         const search: Search = state.graph.searches.find((search: Search) =>
@@ -111,13 +126,28 @@ export function searchReceive(items: Item[], requestId: string) {
             return;
         }
 
-        dispatch({
-            type: SEARCH_RECEIVE,
-            meta: {
-                WebWorker: true
-            },
-            payload: getGraphWorkerPayload(state, items, search.searchId)
-        });
+		// Save per item for which query we received it (so we can keep track of where data came from)
+		items.forEach(item => {
+			item.searchId = search.searchId;
+		});
+
+        if (!hasConfirmed && items.length > ITEMS_NEED_CONFIRMATION_THRESHOLD) {
+        	dispatch({
+				type: ITEMS_NEED_CONFIRMATION,
+				payload: {
+					search,
+					items
+				}
+			});
+		} else {
+			dispatch({
+				type: SEARCH_RECEIVE,
+				meta: {
+					WebWorker: true
+				},
+				payload: getGraphWorkerPayload(state, items, search.searchId)
+			});
+		}
     }
 }
 
@@ -136,6 +166,19 @@ export function liveReceive(items: Item[], datasourceId: string) {
             payload: getGraphWorkerPayload(state, items, searchId)
         });
     }
+}
+
+export function confirmItems(search: Search) {
+	return (dispatch, getState) => {
+		dispatch({
+			type: CONFIRM_ITEMS,
+			payload: {
+				search
+			}
+		});
+
+		dispatch(searchReceive(search.itemsToConfirm, search.requestId, true));
+	};
 }
 
 export function deleteSearch(search: Search) {

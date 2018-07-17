@@ -9,7 +9,15 @@ import { Node } from '../../graph/interfaces/node';
 import Url from '../../main/helpers/url';
 import Icon from '../../ui/components/icon';
 import { Search } from '../interfaces/search';
-import { activateLiveDatasource, deactivateLiveDatasource, deleteSearch, editSearch, pauseSearch, resumeSearch } from '../searchActions';
+import {
+	activateLiveDatasource,
+	confirmItems,
+	deactivateLiveDatasource,
+	deleteSearch,
+	editSearch,
+	pauseSearch,
+	resumeSearch
+} from '../searchActions';
 import ColorPicker from '../../ui/components/colorPicker/colorPicker';
 
 interface Props {
@@ -152,9 +160,15 @@ class Query extends React.Component<Props, State> {
 		});
     }
 
+    confirmItems() {
+    	const { search, dispatch } = this.props;
+
+    	dispatch(confirmItems(search));
+	}
+
     render() {
         const { search } = this.props;
-        const { isColorPickerOpen } = this.state;
+        const { isColorPickerOpen } = this.state;//
 
         const displayNodes: number = this.countDisplayNodes();
         const nodes: number = this.countNodes();
@@ -360,6 +374,16 @@ class Query extends React.Component<Props, State> {
 						<ColorPicker selected={search.color} onChange={this.onColorChange.bind(this)}/>
 					</div>
 				)}
+
+                {search.itemsToConfirm.length > 0 && (
+                    <div className="confirmItems">
+						<p className="confirmMessage">
+                        	{search.itemsToConfirm.length} search results found. Would you like to continue?
+						</p>
+						<button onClick={this.confirmItems.bind(this)} className="confirmContinue">Continue</button>
+						<button onClick={this.handleDelete.bind(this)} className="confirmCancel">Delete query</button>
+                    </div>
+                )}
 			</div>
         );
     }

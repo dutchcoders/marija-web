@@ -2,7 +2,6 @@ import { EventEmitter } from 'fbemitter';
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import { webSocketConnect } from '../../connection/connectionActions';
 import ContextMenu from '../../contextMenu/contextMenu';
 import ChordDiagram from '../../graph/components/chordDiagram/chordDiagram';
 import Filter from '../../graph/components/filter';

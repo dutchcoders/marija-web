@@ -104,11 +104,6 @@ export default class GraphWorkerClass {
 			searches[searchIndex] = search;
 			search.items = search.items.concat(payload.items);
 
-			// Save per item for which query we received it (so we can keep track of where data came from)
-			payload.items.forEach(item => {
-				item.searchId = search.searchId;
-			});
-
 			// For live datasources we automatically add all the fields that are present in the items
 			if (isLive) {
 				connectors = GraphWorkerClass.createConnectorsFromData(connectors, payload.items, search.liveDatasource);

@@ -232,7 +232,8 @@ i.settings {
 .queryWrapper {
     position: relative;
 
-    .colorPickerWrapper {
+    .colorPickerWrapper,
+    .confirmItems {
         position: absolute;
         top: 40px;
         left: 0;
@@ -240,6 +241,24 @@ i.settings {
         padding: 5px;
         margin: 4px;
         background-color: #455164;
+    }
+
+    .confirmItems {
+        .confirmContinue {
+            background: #6C9FE0;
+            cursor: pointer;
+            border-radius: 3px;
+            padding: 5px 10px;
+            border: none;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .confirmCancel {
+            background: none;
+            border: none;
+            text-decoration: underline;
+        }
     }
 }
 

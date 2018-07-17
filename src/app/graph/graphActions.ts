@@ -11,10 +11,8 @@ import {
 	NORMALIZATION_DELETE,
 	SELECT_FIELD_NODES,
 	SELECTION_CLEAR,
-	SET_FIELD_PARENT,
 	SET_FILTER_BORING_NODES,
 	SET_FILTER_SECONDARY_QUERIES, SET_IMPORTANT_NODE,
-	SET_IS_DRAGGING_SUB_FIELDS,
 	SET_MAP_ACTIVE, SET_NOTE,
 	SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
@@ -23,15 +21,13 @@ import {
 	VIA_DELETE, SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID
 } from './graphConstants';
 import {
-	GraphWorkerOutput,
-	GraphWorkerPayload
+	GraphWorkerOutput
 } from './helpers/graphWorkerClass';
 import { Via } from './interfaces/via';
 import { TimelineGrouping } from './interfaces/graphState';
 import { AppState } from '../main/interfaces/appState';
 import { getGraphWorkerPayload } from './helpers/getGraphWorkerPayload';
 import { Node } from './interfaces/node';
-import { uniqueId } from 'lodash';
 
 export function deselectNodes(opts) {
     return {
@@ -214,15 +210,6 @@ export function setFilterSecondaryQueries(enabled: boolean) {
 		});
 
 		dispatch(rebuildGraph());
-	};
-}
-
-export function setIsDraggingSubFields(enabled: boolean) {
-	return {
-		type: SET_IS_DRAGGING_SUB_FIELDS,
-		payload: {
-			enabled
-		}
 	};
 }
 

@@ -6,13 +6,13 @@ import darkenColor from '../search/helpers/darkenColor';
 import getQueryColor from '../search/helpers/getQueryColor';
 import {Search} from '../search/interfaces/search';
 import {
-    ACTIVATE_LIVE_DATASOURCE,
-    ADD_LIVE_DATASOURCE_SEARCH,
-    DEACTIVATE_LIVE_DATASOURCE,
-    SEARCH_DELETE,
-    SEARCH_EDIT,
-    SEARCH_FIELDS_UPDATE,
-    SEARCH_REQUEST
+	ACTIVATE_LIVE_DATASOURCE,
+	ADD_LIVE_DATASOURCE_SEARCH, CONFIRM_ITEMS,
+	DEACTIVATE_LIVE_DATASOURCE, ITEMS_NEED_CONFIRMATION,
+	SEARCH_DELETE,
+	SEARCH_EDIT,
+	SEARCH_FIELDS_UPDATE,
+	SEARCH_REQUEST
 } from '../search/searchConstants';
 import {TABLE_SORT} from '../table/tableConstants';
 import {
@@ -319,6 +319,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 total: 0,
                 displayNodes: action.displayNodes,
                 items: [],
+				itemsToConfirm: [],
                 requestId: action.requestId,
                 completed: false,
                 aroundNodeId: action.aroundNodeId,
@@ -536,6 +537,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 total: 0,
                 displayNodes: DEFAULT_DISPLAY_NODES_PER_SEARCH,
                 items: [],
+				itemsToConfirm: [],
                 requestId: uniqueId(),
                 completed: false,
                 aroundNodeId: null,
@@ -700,6 +702,39 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 				...state,
 				graphWorkerLoading: true,
 				expectedGraphWorkerOutputId: action.payload.id
+			};
+		}
+
+		case ITEMS_NEED_CONFIRMATION: {
+			const search: Search = action.payload.search;
+			const items: Item[] = action.payload.items;
+			const searches: Search[] = state.searches.concat([]);
+			const index = searches.findIndex(loop => loop.searchId === search.searchId);
+
+			searches[index] = {
+				...searches[index],
+				itemsToConfirm: searches[index].itemsToConfirm.concat(items)
+			};
+
+			return {
+				...state,
+				searches
+			};
+		}
+
+		case CONFIRM_ITEMS: {
+			const search: Search = action.payload.search;
+			const searches: Search[] = state.searches.concat([]);
+			const index = searches.findIndex(loop => loop.searchId === search.searchId);
+
+			searches[index] = {
+				...searches[index],
+				itemsToConfirm: []
+			};
+
+			return {
+				...state,
+				searches
 			};
 		}
 

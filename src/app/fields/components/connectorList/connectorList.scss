@@ -1,21 +1,10 @@
-.toggleAdvanced,
 .toggleHelp {
-  border: none;
   padding: 5px 10px;
   border-radius: 3px;
   margin-bottom: 10px;
   cursor: pointer;
   outline: none;
-}
-
-.toggleAdvanced {
-  background: #6C9FE0;
-  margin-right: 10px;
-}
-
-.toggleHelp {
   background: none;
-  outline: none;
   border: 1px solid rgba(255, 255, 255, .2);
 }
 

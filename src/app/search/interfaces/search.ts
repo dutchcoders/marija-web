@@ -6,6 +6,7 @@ export interface Search {
     completed: boolean;
     displayNodes: number;
     items: Item[];
+    itemsToConfirm: Item[];
     q: string;
     requestId: string;
     total: number;
