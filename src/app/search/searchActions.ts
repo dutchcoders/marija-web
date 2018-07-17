@@ -310,3 +310,7 @@ export function searchCustomDatasource(query: string, datasource: Datasource, re
 		dispatch(requestCompleted(requestId));
 	};
 }
+
+export function showAllItemsOfCustomDatasource(datasource: Datasource) {
+
+}

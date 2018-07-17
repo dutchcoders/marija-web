@@ -10,4 +10,5 @@ export interface Workspace {
 	filterBoringNodes: boolean;
 	filterSecondaryQueries: boolean;
 	connectors: Connector[];
+	availableFields: Field[];
 }

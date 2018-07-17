@@ -10,6 +10,7 @@ import { AppState } from '../main/interfaces/appState';
 import { Workspace } from './interfaces/workspace';
 import Url from '../main/helpers/url';
 import { uniqueId } from 'lodash';
+import { Field } from '../fields/interfaces/field';
 
 export function openPane(pane) {
     return {
@@ -55,9 +56,17 @@ export function closeLightbox() {
     };
 }
 
-const workspaceVersion: number = 2;
+const workspaceVersion: number = 3;
 
 function getWorkspace(state: AppState): Workspace {
+	// Only save the fields of custom datasources, we get the other fields from the server
+	const customDatasourceIds = state.datasources.datasources
+		.filter(datasource => datasource.isCustom)
+		.map(datasource => datasource.id);
+
+	const customFields: Field[] = state.fields.availableFields
+		.filter(field => customDatasourceIds.indexOf(field.datasourceId) !== -1);
+
 	return {
 		version: workspaceVersion,
 		panes: state.ui.panes,
@@ -65,6 +74,7 @@ function getWorkspace(state: AppState): Workspace {
 		filterBoringNodes: state.graph.filterBoringNodes,
 		filterSecondaryQueries: state.graph.filterSecondaryQueries,
 		connectors: state.fields.connectors,
+		availableFields: customFields
 	};
 }
 

@@ -27,7 +27,5 @@ export function csvToItems(csv: string, delimiter: string, datasourceId: string)
 		}
 	});
 
-	console.log(items);
-
 	return items;
 }
