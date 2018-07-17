@@ -4,4 +4,5 @@ export interface Field {
     datasourceId: string;
     icon?: string;
     childOf?: string;
+    exampleValues?: string[];
 }

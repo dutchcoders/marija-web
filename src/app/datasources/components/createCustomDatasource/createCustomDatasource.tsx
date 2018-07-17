@@ -11,6 +11,9 @@ import Loader from '../../../ui/components/loader';
 import { createCustomDatasource } from '../../datasourcesActions';
 import { getHistory } from '../../../main/helpers/getHistory';
 import Url from '../../../main/helpers/url';
+import CustomFieldList from '../customFieldList/customFieldList';
+import { Field } from '../../../fields/interfaces/field';
+import { createFieldsFromData } from '../../helpers/createFieldsFromData';
 
 interface Props {
 	dispatch: any;
@@ -27,6 +30,7 @@ interface State {
 	isLoading: boolean;
 	fileError: string;
 	parseError: string;
+	fields: Field[];
 }
 
 class CreateCustomDatasource extends React.Component<Props, State> {
@@ -40,7 +44,8 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 		parsedItems: [],
 		isLoading: false,
 		fileError: null,
-		parseError: null
+		parseError: null,
+		fields: []
 	};
 
 	checkNameAvailable(name: string): boolean {
@@ -139,7 +144,8 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 			activeStep: 3,
 			parsedItems: parsedItems,
 			isLoading: false,
-			parseError: null
+			parseError: null,
+			fields: createFieldsFromData(parsedItems, name)
 		});
 	}
 
@@ -151,9 +157,9 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 
 	finish() {
 		const { dispatch } = this.props;
-		const { name, parsedItems } = this.state;
+		const { name, parsedItems, fields } = this.state;
 
-		dispatch(createCustomDatasource(name, parsedItems));
+		dispatch(createCustomDatasource(name, parsedItems, fields));
 		this.close();
 	}
 
@@ -170,8 +176,22 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 		event.stopPropagation();
 	}
 
+	onFieldTypeChange(field: Field, type: string) {
+		const fields = this.state.fields.concat([]);
+		const index = fields.findIndex(search => search.path === field.path);
+
+		fields[index] = {
+			...fields[index],
+			type: type
+		};
+
+		this.setState({
+			fields
+		});
+	}
+
 	render() {
-		const { activeStep, fileContents, delimiter, name, parsedItems, isNameAvailable, isLoading, fileError, parseError } = this.state;
+		const { activeStep, fileContents, delimiter, name, parsedItems, isNameAvailable, isLoading, fileError, parseError, fields } = this.state;
 
 		const loader = isLoading ? (
 			<div className={styles.loaderOverlay}>
@@ -242,6 +262,8 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 						<main className={styles.main}>
 							<h2 className={styles.stepTitle}>Step 3/3 &mdash; Preview</h2>
 
+							<CustomFieldList fields={fields} onTypeChange={(field, type) => this.onFieldTypeChange(field, type)}/>
+
 							<p>Found {parsedItems.length} items &mdash; displaying the first {Math.min(parsedItems.length, 10)}</p>
 
 							<table className={styles.table}>
@@ -253,7 +275,7 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 								</tr>
 								</thead>
 								<tbody>
-								{parsedItems.splice(0, 10).map(item =>
+								{parsedItems.slice().splice(0, 10).map(item =>
 									<tr key={item.id}>
 										{Object.keys(parsedItems[0].fields).map(key =>
 											<td className={styles.td} key={key}>{item.fields[key]}</td>

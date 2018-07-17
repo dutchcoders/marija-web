@@ -13,6 +13,7 @@ import { Datasource } from './interfaces/datasource';
 import { rebuildGraph } from '../graph/graphActions';
 import { Item } from '../items/interfaces/item';
 import { FIELDS_RECEIVE } from '../fields/fieldsConstants';
+import { Field } from '../fields/interfaces/field';
 
 export function datasourceActivated(datasource: Datasource) {
     return {
@@ -78,7 +79,7 @@ export function updateDatasource(datasourceId: string, props: DatasourceProps) {
 	};
 }
 
-export function createCustomDatasource(name: string, items: Item[]) {
+export function createCustomDatasource(name: string, items: Item[], fields: Field[]) {
 	return (dispatch, getState) => {
 		dispatch({
 			type: CREATE_CUSTOM_DATASOURCE,
@@ -87,13 +88,6 @@ export function createCustomDatasource(name: string, items: Item[]) {
 				items
 			}
 		});
-
-		const fieldPaths: string[] = Object.keys(items[0].fields);
-		const fields = fieldPaths.map(path => ({
-			path: path,
-			type: 'string',
-			datasourceId: name
-		}));
 
 		dispatch({
 			type: FIELDS_RECEIVE,
