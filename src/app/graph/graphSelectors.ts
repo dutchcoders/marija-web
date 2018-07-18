@@ -10,8 +10,6 @@ import { groupBy } from 'lodash';
 import fieldLocator from '../fields/helpers/fieldLocator';
 import { Field } from '../fields/interfaces/field';
 import { getSelectedDateFields } from '../fields/fieldsSelectors';
-import { Connector } from './interfaces/connector';
-
 
 export const getNodesForDisplay = createSelector(
     (state: AppState) => state.graph.nodes,
@@ -68,8 +66,6 @@ const getDate = (node: Node, items: Item[], dateFields: Field[]): Moment | undef
 		}
 	}
 };
-
-
 
 export const getTimelineGroups = createSelector(
     (state: AppState) => state.graph.timelineGrouping,
@@ -180,4 +176,14 @@ export const getNodesGroupedByDatasource = createSelector(
 
 		return groupBy(nodes, node => node.datasourceId);
 	}
+);
+
+export const getItemNodeByItemId = createSelector(
+	(state: AppState) => state.graph.nodes,
+	(state: AppState, itemId: string) => itemId,
+
+	(nodes: Node[], itemId: string) =>
+		nodes.find(node =>
+			node.type === 'item' && node.items.indexOf(itemId) !== -1
+		)
 );

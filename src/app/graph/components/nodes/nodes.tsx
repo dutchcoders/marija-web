@@ -11,12 +11,8 @@ import Icon from '../../../ui/components/icon';
 import {
 	clearSelection,
 	deleteNodes,
-	deselectNodes,
-	highlightNodes,
 	nodesSelect,
 	nodeUpdate,
-	normalizationAdd,
-	normalizationDelete,
 	showTooltip
 } from '../../graphActions';
 import getDirectlyRelatedNodes from '../../helpers/getDirectlyRelatedNodes';
@@ -25,7 +21,6 @@ import { Link } from '../../interfaces/link';
 import { Node } from '../../interfaces/node';
 import { Normalization } from '../../interfaces/normalization';
 import { getSelectedNodes } from '../../graphSelectors';
-import * as styles from './nodes.scss';
 import SelectedNode from  '../selectedNode/selectedNode';
 
 interface Props {
@@ -47,7 +42,6 @@ interface State {
 }
 
 class Nodes extends React.Component<Props, State> {
-    refs: any;
     state: State = {
         editNode: null,
         value: "",
@@ -60,11 +54,6 @@ class Nodes extends React.Component<Props, State> {
         dispatch(clearSelection());
     }
 
-    handleCancelEditNode(node) {
-        const { dispatch } = this.props;
-        this.setState({editNode: null});
-    }
-
     handleUpdateEditNode(node) {
         const { editNode, value, description } = this.state;
         const { dispatch } = this.props;
@@ -72,22 +61,6 @@ class Nodes extends React.Component<Props, State> {
         dispatch(nodeUpdate(editNode.id, {name: value, description: description }));
 
         this.setState({editNode: null});
-    }
-
-
-    handleEditNode(node) {
-        this.setState({editNode: node, value: node.name});
-        this.refs.editDialog.show();
-    }
-
-    handleDeselectNode(node) {
-        const { dispatch } = this.props;
-        dispatch(deselectNodes([node]));
-    }
-
-    handleDeleteNode(node) {
-        const { dispatch } = this.props;
-        dispatch(deleteNodes([node]));
     }
 
     handleDeleteAllButSelectedNodes() {
@@ -134,152 +107,10 @@ class Nodes extends React.Component<Props, State> {
         dispatch(deleteNodes(selectedNodes));
     }
 
-    displayTooltip(node) {
-        const { dispatch } = this.props;
-
-        dispatch(showTooltip([node]));
-    }
-
     hideTooltip() {
         const { dispatch } = this.props;
 
         dispatch(showTooltip([]));
-    }
-
-    getQueryColor(searchId: string) {
-        const { searches } = this.props;
-        const search = searches.find(search => search.searchId === searchId);
-
-        if (typeof search !== 'undefined') {
-            return search.color;
-        }
-    }
-
-    getImageKey(node) {
-        return node.icon
-            + node.searchIds.map(searchId => this.getQueryColor(searchId)).join('');
-    }
-
-    prepareImage(key, node) {
-        const { nodeImages } = this.state;
-
-        if (nodeImages[key]) {
-            return;
-        }
-
-        const width = 20;
-        const height = 20;
-        const radius = width / 2;
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-
-        const fractionPerQuery = 1 / node.searchIds.length;
-        const anglePerQuery = 2 * Math.PI * fractionPerQuery;
-        let currentAngle = .5 * Math.PI;
-
-        node.searchIds.forEach(searchId => {
-            ctx.beginPath();
-            ctx.fillStyle = this.getQueryColor(searchId);
-            ctx.moveTo(radius, radius);
-            ctx.arc(radius, radius, radius, currentAngle, currentAngle + anglePerQuery);
-            ctx.fill();
-
-            currentAngle += anglePerQuery;
-        });
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'italic 12px Roboto, Helvetica, Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(node.icon, radius - 1, radius + 5);
-
-        this.setState(prevState => ({
-            nodeImages: {
-                ...prevState.nodeImages,
-                [key]: canvas.toDataURL()
-            }
-        }));
-    }
-
-    prepareImages(nodes) {
-        const keys = {};
-
-        nodes.forEach(node => {
-            const key = this.getImageKey(node);
-
-            if (typeof keys[key] === 'undefined') {
-                keys[key] = node;
-            }
-        });
-
-        forEach(keys, (node, key) => {
-            this.prepareImage(key, node);
-        });
-    }
-
-    componentWillReceiveProps(nextProps: Props) {
-        const { selectedNodes } = nextProps;
-
-        this.prepareImages(selectedNodes);
-    }
-
-    componentWillMount() {
-        const { selectedNodes } = this.props;
-
-        this.prepareImages(selectedNodes);
-    }
-
-    renderNode(node) {
-        const { nodeImages } = this.state;
-        const maxNameLength = 200;
-        const image = nodeImages[this.getImageKey(node)];
-        let name = node.name;
-
-        if (node.name.length > maxNameLength) {
-            name = node.name.substr(0, maxNameLength) + '...';
-        }
-
-        return (
-            <div className="node" key={node.id}>
-                <img className="nodeIcon" src={image} />
-                <span>{name}</span>
-                <Icon style={{'marginRight': '60px'}}  className="glyphicon" name={ node.icon[0] } />
-                <Icon style={{'marginRight': '40px'}} onClick={(n) => this.handleEditNode(node)} name="ion-ios-remove-circle-outline"/>
-                <Icon style={{'marginRight': '20px'}} onClick={(n) => this.handleDeselectNode(node)} name="ion-ios-remove-circle-outline"/>
-                <Icon onClick={(n) => this.handleDeleteNode(node)} name="ion-ios-close-circle-outline"/>
-            </div>
-        );
-    }
-
-    getMergedNodes(normalizationId) {
-        const { nodes } = this.props;
-
-        return nodes
-            .filter(node => !node.isNormalizationParent && node.normalizationId === normalizationId)
-            .map(node => this.renderNode(node));
-    }
-
-    undoMerge(normalizationId) {
-        const { normalizations, dispatch } = this.props;
-
-        const normalization = normalizations.find(search => search.id === normalizationId);
-
-        dispatch(normalizationDelete(normalization));
-    }
-
-    focus(node: Node) {
-		const { dispatch, selectedNodes } = this.props;
-
-		dispatch(deselectNodes(selectedNodes));
-		dispatch(nodesSelect([node]));
-    }
-
-    deselect(node: Node) {
-        const { dispatch } = this.props;
-
-        dispatch(deselectNodes([node]));
     }
 
     renderSelected() {
@@ -287,25 +118,9 @@ class Nodes extends React.Component<Props, State> {
 
         return (
             selectedNodes.length > 0 ?
-                map(sortBy(selectedNodes, ['name']), (node) => {
-                    // let merged = null;
-					//
-                    // if (i_node.normalizationId !== null) {
-                    //     merged = (
-                    //         <div className="merged">
-                    //             {this.getMergedNodes(i_node.normalizationId)}
-                    //             <button
-                    //                 className="undoMerge"
-                    //                 onClick={() => this.undoMerge(i_node.normalizationId)}>
-                    //                 <Icon name="ion-ios-undo"/>
-                    //                 Undo merge
-                    //             </button>
-                    //         </div>
-                    //     );
-                    // }
-
-                    return <SelectedNode node={node} key={node.id} isOnlySelectedNode={selectedNodes.length === 1}/>
-                })
+                map(sortBy(selectedNodes, ['name']), (node) =>
+                    <SelectedNode node={node} key={node.id} isOnlySelectedNode={selectedNodes.length === 1}/>
+                )
             : <p className="noSelectedNodes">No nodes selected.</p>
         );
     }
@@ -323,28 +138,6 @@ class Nodes extends React.Component<Props, State> {
 
 		onResetPosition(selectedNodes);
 	}
-
-    escapeRegExp(text: string) {
-        return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-    }
-
-    merge() {
-        const { dispatch, selectedNodes } = this.props;
-
-        const ids = selectedNodes.map(node => this.escapeRegExp(node.name));
-        const regex = '^' + ids.join('$|^') + '$';
-        const maxLength = 200;
-        const name =
-            'Merged nodes: ' +
-            selectedNodes.map(node => node.name)
-            .join('+')
-            .substring(0, maxLength);
-
-        dispatch(normalizationAdd({
-            regex: regex,
-            replaceWith: name
-        }));
-    }
 
     markImportant() {
         const { dispatch, selectedNodes } = this.props;

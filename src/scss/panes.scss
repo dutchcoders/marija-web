@@ -326,6 +326,12 @@
             }
 
             tr.record {
+                cursor: pointer;
+
+                img {
+                    margin-right: 5px;
+                }
+
                 > td {
                     padding: 10px;
                 }
@@ -336,6 +342,7 @@
 
                 &.noColumns .itemIcons {
                     justify-content: center;
+                    align-items: center;
                 }
             }
 

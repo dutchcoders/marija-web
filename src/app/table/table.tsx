@@ -1,9 +1,8 @@
 import { EventEmitter } from 'fbemitter';
 import { saveAs } from 'file-saver';
-import { concat, findIndex, map, pull, forEach } from 'lodash';
+import { concat, findIndex, map, pull } from 'lodash';
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
-
 import { Field } from '../fields/interfaces/field';
 import { getSelectedNodes } from '../graph/graphSelectors';
 import { Node } from '../graph/interfaces/node';
@@ -17,7 +16,6 @@ import RecordDetail from './components/recordDetail';
 import { Column } from './interfaces/column';
 import { SortType } from './interfaces/sortType';
 import { tableColumnAdd, tableColumnRemove, tableSort } from './tableActions';
-import Loader from '../ui/components/loader';
 import * as styles from './table.scss';
 import { FormEvent } from 'react';
 import { getSelectedFields } from '../fields/fieldsSelectors';
@@ -40,19 +38,13 @@ interface Props {
 interface State {
     items: Item[];
     expandedItems: any[];
-    queryColorMap: QueryColorMap;
     filter: string;
-}
-
-export interface QueryColorMap {
-    [itemId: string]: string[]
 }
 
 class Table extends React.Component<Props, State> {
     state: State = {
         items: [],
         expandedItems: [],
-        queryColorMap: {},
 		filter: ''
     };
 
@@ -110,34 +102,6 @@ class Table extends React.Component<Props, State> {
         return selectedItems;
     }
 
-    setQueryColorMap(selectedNodes: Node[], searches: Search[]) {
-        const colorMap = {};
-        searches.forEach(search => colorMap[search.searchId] = search.color);
-
-        const queryMap: QueryColorMap = {};
-
-        selectedNodes.forEach(node => {
-            node.items.forEach(itemId => {
-                node.searchIds.forEach(searchId => {
-                    const color: string = colorMap[searchId];
-
-                    if (!queryMap[itemId]) {
-                        queryMap[itemId] = [color];
-                        return;
-                    }
-
-                    if (queryMap[itemId].indexOf(color) === -1) {
-                        queryMap[itemId].push(color);
-                    }
-                });
-            });
-        });
-
-        this.setState({
-            queryColorMap: queryMap
-        });
-    }
-
     componentWillReceiveProps(nextProps: Props) {
         const sortChanged: boolean =
             nextProps.sortColumn !== this.props.sortColumn
@@ -148,12 +112,11 @@ class Table extends React.Component<Props, State> {
         if (selectionChanged || sortChanged) {
             const items = this.getSelectedItems(nextProps.selectedNodes, nextProps.items);
             this.setState({items: items});
-            this.setQueryColorMap(nextProps.selectedNodes, nextProps.searches);
         }
     }
 
     componentDidMount() {
-        const { exportEvents, selectedNodes, items } = this.props;
+        const { exportEvents } = this.props;
 
         exportEvents.addListener('export', this.exportCsv.bind(this));
     }
@@ -165,8 +128,8 @@ class Table extends React.Component<Props, State> {
     }
 
     renderBody() {
-        const { columns, searches, fields, selectedNodes } = this.props;
-        const { items, queryColorMap, filter } = this.state;
+        const { columns, searches, fields } = this.props;
+        const { items, filter } = this.state;
 
         const activeFields = fields.map(field => field.path);
         let filteredItems = items;
@@ -205,12 +168,10 @@ class Table extends React.Component<Props, State> {
                 <Record
                     key={'record' + record.id}
                     columns={ columns }
-                    selectedNodes={ selectedNodes }
                     record={ record }
                     searches={ searches }
                     toggleExpand = { this.toggleExpand.bind(this) }
                     expanded = { expanded }
-                    queryColorMap={queryColorMap}
                     className={className}
                 />,
                 <RecordDetail

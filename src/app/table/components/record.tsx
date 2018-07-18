@@ -6,41 +6,32 @@ import { Item } from '../../graph/interfaces/item';
 import { Search } from '../../search/interfaces/search';
 import Icon from '../../ui/components/icon';
 import { Column } from '../interfaces/column';
-import { QueryColorMap } from '../table';
+import { AppState } from '../../main/interfaces/appState';
+import { getItemNodeByItemId } from '../../graph/graphSelectors';
+import { connect } from 'react-redux';
+import NodeIcon from '../../graph/components/nodeIcon/nodeIcon';
 
 interface Props {
     toggleExpand: Function;
     record: Item;
     columns: Column[];
-    selectedNodes: Node[];
     searches: Search[];
     className: string;
     expanded: boolean;
-    queryColorMap: QueryColorMap;
+    node: Node;
 }
 
 interface State {
 }
 
-export default class Record extends React.Component<Props, State> {
+class Record extends React.Component<Props, State> {
     handleToggleExpand(id) {
         const { toggleExpand } = this.props;
         toggleExpand(id);
     }
 
-    getQueryInfo() {
-        const { queryColorMap, record } = this.props;
-
-        const queryElements = [];
-        queryColorMap[record.id].forEach(color => {
-            queryElements.push(<Icon name='ion-ios-lightbulb' style={{ color: color }} key={color} />);
-        });
-
-        return queryElements;
-    }
-
     render() {
-        const { record, columns, className } = this.props;
+        const { record, columns, className, node } = this.props;
         const { expanded } = this.props;
 
         const renderedColumns = (columns || []).map((value) => {
@@ -54,12 +45,13 @@ export default class Record extends React.Component<Props, State> {
         });
 
         return (
-            <tr key={`record_${record.id}`} className={`columns record ${className} ${expanded ? 'expanded' : 'closed'}`}>
+            <tr key={`record_${record.id}`}
+				onClick={() => this.handleToggleExpand(record.id) }
+				className={`columns record ${className} ${expanded ? 'expanded' : 'closed'}`}>
                 <td>
                     <div className="itemIcons">
-                        <Icon onClick={() => this.handleToggleExpand(record.id) }
-                          name={expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down'}/>
-                        { this.getQueryInfo() }
+						<NodeIcon node={node} />
+                        <Icon name={expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down'} />
                     </div>
                 </td>
                 { renderedColumns}
@@ -67,3 +59,10 @@ export default class Record extends React.Component<Props, State> {
         );
     }
 }
+
+const select = (state: AppState, ownProps) => ({
+	...ownProps,
+	node: getItemNodeByItemId(state, ownProps.record.id)
+});
+
+export default connect(select)(Record);
