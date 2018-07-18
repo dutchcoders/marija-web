@@ -3,7 +3,7 @@ import Tooltip from 'rc-tooltip';
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 
-import { cancelRequest } from '../../connection/connectionActions';
+import { cancelRequest, error } from '../../connection/connectionActions';
 import { deleteNodes, deselectNodes, nodesSelect } from '../../graph/graphActions';
 import { Node } from '../../graph/interfaces/node';
 import Url from '../../main/helpers/url';
@@ -164,6 +164,12 @@ class Query extends React.Component<Props, State> {
     	const { search, dispatch } = this.props;
 
     	dispatch(confirmItems(search));
+	}
+
+	closeError() {
+		const { search, dispatch } = this.props;
+
+		dispatch(error(null, search.requestId));
 	}
 
     render() {
@@ -384,6 +390,13 @@ class Query extends React.Component<Props, State> {
 						<button onClick={this.handleDelete.bind(this)} className="confirmCancel">Delete query</button>
                     </div>
                 )}
+
+				{search.error && (
+					<div className="searchError">
+						<p>{search.error}</p>
+						<button onClick={this.closeError.bind(this)} className="closeSearchError">Close message</button>
+					</div>
+				)}
 			</div>
         );
     }

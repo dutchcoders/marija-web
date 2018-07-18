@@ -17,7 +17,7 @@ interface State {
 class Notifications extends React.Component<Props, State> {
     closeError() {
         const { dispatch } = this.props;
-        dispatch(error(null));
+        dispatch(error('', null));
     }
 
     render() {
@@ -41,7 +41,7 @@ class Notifications extends React.Component<Props, State> {
 
 const select = (state: AppState) => {
     return {
-        errors: state.connection.errors,
+        errors: state.connection.genericErrors,
     };
 };
 

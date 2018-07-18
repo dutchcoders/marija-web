@@ -14,4 +14,5 @@ export interface Search {
     paused: boolean;
     datasources: string[];
     searchId: string;
+    error: string;
 }

@@ -1,5 +1,10 @@
+export interface ErrorList {
+	[requestId: string]: string;
+}
+
 export interface ConnectionState {
     backendUri: string;
-    errors: any;
+    requestErrors: ErrorList;
+    genericErrors: string;
     connected: boolean;
 }

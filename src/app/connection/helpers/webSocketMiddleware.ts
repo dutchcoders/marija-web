@@ -116,7 +116,8 @@ function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {
             break;
 
         case 'ERROR':
-            dispatch(error(data.message));
+        	console.error(data);
+            dispatch(error(data.message, data['request-id']));
     }
 }
 

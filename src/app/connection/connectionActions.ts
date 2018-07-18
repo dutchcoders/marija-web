@@ -52,11 +52,12 @@ export function cancelRequest(requestId) {
     });
 }
 
-export function error(errors: string) {
+export function error(error: string, requestId: string) {
     return {
         type: ERROR,
         payload: {
-            errors: errors
+            error,
+            requestId
         }
     };
 }

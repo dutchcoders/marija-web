@@ -233,7 +233,8 @@ i.settings {
     position: relative;
 
     .colorPickerWrapper,
-    .confirmItems {
+    .confirmItems,
+    .searchError {
         position: absolute;
         top: 40px;
         left: 0;
@@ -258,6 +259,23 @@ i.settings {
             background: none;
             border: none;
             text-decoration: underline;
+        }
+    }
+
+    .searchError {
+        background: #f44336;
+        right: 0;
+        box-sizing: border-box;
+
+        .closeSearchError {
+            background: white;
+            color: #f44336;
+            cursor: pointer;
+            border-radius: 3px;
+            padding: 5px 10px;
+            border: none;
+            display: inline-block;
+            margin-right: 10px;
         }
     }
 }

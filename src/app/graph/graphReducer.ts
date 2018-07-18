@@ -1,5 +1,5 @@
 import {concat, isEqual, uniqueId, without} from 'lodash';
-import {REQUEST_COMPLETED} from '../connection/connectionConstants';
+import { ERROR, REQUEST_COMPLETED } from '../connection/connectionConstants';
 import {sortItems} from './helpers/sortItems';
 import darkenColor from '../search/helpers/darkenColor';
 import getQueryColor from '../search/helpers/getQueryColor';
@@ -324,7 +324,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 liveDatasource: null,
                 paused: false,
                 datasources: datasources,
-                searchId: uniqueId()
+                searchId: uniqueId(),
+				error: null
             };
 
             searches.push(search);
@@ -472,7 +473,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 liveDatasource: action.payload.datasource.id,
                 paused: true,
                 datasources: [action.payload.datasource.id],
-                searchId: action.payload.datasource.id
+                searchId: action.payload.datasource.id,
+				error: null
             };
 
             return Object.assign({}, state, {
@@ -658,6 +660,31 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			searches[index] = {
 				...searches[index],
 				itemsToConfirm: []
+			};
+
+			return {
+				...state,
+				searches
+			};
+		}
+
+		case ERROR: {
+			const requestId: string = action.payload.requestId;
+
+			if (!requestId) {
+				return state;
+			}
+
+			const searches: Search[] = state.searches.concat([]);
+			const index = searches.findIndex(loop => loop.requestId === requestId);
+
+			if (index === -1) {
+				return state;
+			}
+
+			searches[index] = {
+				...searches[index],
+				error: action.payload.error
 			};
 
 			return {

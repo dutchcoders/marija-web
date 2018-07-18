@@ -4,7 +4,8 @@ import {AUTH_CONNECTED, ERROR, SET_BACKEND_URI} from "./connectionConstants";
 export const defaultConnectionState: ConnectionState = {
     backendUri: null,
     connected: false,
-    errors: null
+    requestErrors: {},
+    genericErrors: ''
 };
 
 export default function connectionReducer(state: ConnectionState = defaultConnectionState, action): ConnectionState {
@@ -13,14 +14,27 @@ export default function connectionReducer(state: ConnectionState = defaultConnec
             return {
                 ...state,
                 connected: action.payload.connected,
-                errors: action.payload.errors
+                genericErrors: action.payload.errors
             };
         }
 
         case ERROR: {
+            const error: string = action.payload.error;
+            const requestId: string = action.payload.requestId;
+
+            if (requestId) {
+                return {
+                    ...state,
+                    requestErrors: {
+                        ...state.requestErrors,
+                        [requestId]: error
+                    }
+                };
+            }
+
             return {
                 ...state,
-                errors: action.payload.errors
+                genericErrors: error
             };
         }
 
