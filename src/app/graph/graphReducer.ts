@@ -413,7 +413,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
         }
 
         case NODES_HIGHLIGHT: {
-            const nodes = markHighlightedNodes(state.nodes, action.nodes);
+            const nodes = markHighlightedNodes(state.nodes, action.payload.nodes);
             const links = markHighlightedLinks(nodes, state.links);
 
             return {

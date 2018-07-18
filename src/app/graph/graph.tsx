@@ -539,7 +539,23 @@ class Graph extends React.PureComponent<Props, State> {
 		if (!isHighlighting) {
 			renderedNode.alpha = 1;
 		} else {
-			renderedNode.alpha = node.highlighted ? 1 : .3;
+			let alpha: number;
+
+			switch (node.highlightLevel) {
+				case 1:
+					alpha = 1;
+					break;
+				case 2:
+					alpha = .7;
+					break;
+				case 3:
+					alpha = .4;
+					break;
+				default:
+					alpha = .1;
+			}
+
+			renderedNode.alpha = alpha;
 		}
 
 		this.renderedNodesContainer.addChild(renderedNode);

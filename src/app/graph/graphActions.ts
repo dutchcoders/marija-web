@@ -51,21 +51,14 @@ export function deleteNodes(nodes: Node[]) {
 	};
 }
 
-export function highlightNodes(opts) {
+export function highlightNodes(nodes: Node[] | Array<Node[]>) {
     return {
         type: NODES_HIGHLIGHT,
         receivedAt: Date.now(),
-        nodes: opts
+		payload: {
+        	nodes
+		}
     };
-}
-
-export function fieldNodesHighlight(fieldPath: string) {
-    return {
-        type: FIELD_NODES_HIGHLIGHT,
-        payload: {
-            fieldPath: fieldPath
-        }
-    }
 }
 
 export function showTooltip(nodes) {

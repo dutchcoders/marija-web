@@ -12,7 +12,7 @@ import { Link } from '../interfaces/link';
 export function markHighlightedLinks(nodes: Node[], links: Link[]): Link[] {
 	const highlightedNodes = new Map<number, true>();
 
-	nodes.filter(node => node.highlighted)
+	nodes.filter(node => node.highlightLevel !== null)
 		.forEach(node => highlightedNodes.set(node.id, true));
 
 	return links.map(link => {

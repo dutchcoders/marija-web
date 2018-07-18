@@ -157,7 +157,17 @@ class Timeline extends React.Component<Props, State> {
         return search.color;
     }
 
-    getActiveNodesInSlider(minFraction: number, maxFraction: number): Node[] {
+    getNodesForPeriods(periods: string[]): Node[] {
+		let nodes = [];
+
+		periods.forEach(period =>
+			nodes = nodes.concat(this.getNodes(period))
+		);
+
+		return nodes;
+	}
+
+	getPeriodsForSLiderLocation(minFraction, maxFraction): string[] {
 		const searchIds = this.getSearchIds();
 		const chartData = this.getChartData(searchIds);
 
@@ -183,31 +193,61 @@ class Timeline extends React.Component<Props, State> {
 			}
 		});
 
-		let nodes = [];
+		return periods;
+	}
 
-		periods.forEach(period =>
-			nodes = nodes.concat(this.getNodes(period))
-		);
+	getPreviousPeriodWithNodes(currentPeriod: string): string {
+    	const { groups, periods } = this.props.timelineGroups;
 
-		return nodes;
+    	let index = periods.indexOf(currentPeriod);
+    	let nodes: Node[];
+    	let period: string;
+
+    	do {
+    		index --;
+    		period = periods[index];
+    		nodes = groups[period];
+		} while (index >= 0 && (!nodes || !nodes.length));
+
+    	return period;
 	}
 
     onSliderChange(minFraction: number, maxFraction: number) {
 		const { dispatch } = this.props;
 
-        const nodes = this.getActiveNodesInSlider(minFraction, maxFraction);
+		const periods = this.getPeriodsForSLiderLocation(minFraction, maxFraction);
+        const nodes = this.getNodesForPeriods(periods);
 
         if (nodes.length || !this.isPlaying) {
         	// Dont highlight when there are no nodes while we're playing the
 			// slider animation
-			dispatch(highlightNodes(nodes));
+			const nodeGroups: Array<Node[]> = [];
+
+			nodeGroups.push(nodes);
+
+			const prevPeriod = this.getPreviousPeriodWithNodes(periods[0]);
+
+			if (prevPeriod) {
+				const prevNodes = this.getNodes(prevPeriod);
+				nodeGroups.push(prevNodes);
+
+				const prevPeriod2 = this.getPreviousPeriodWithNodes(prevPeriod);
+
+				if (prevPeriod2) {
+					const prevNodes2 = this.getNodes(prevPeriod2);
+					nodeGroups.push(prevNodes2);
+				}
+			}
+
+			dispatch(highlightNodes(nodeGroups));
 		}
     }
 
     onSliderSelect(minFraction: number, maxFraction: number) {
 		const { dispatch } = this.props;
 
-		const nodes = this.getActiveNodesInSlider(minFraction, maxFraction);
+		const periods = this.getPeriodsForSLiderLocation(minFraction, maxFraction);
+		const nodes = this.getNodesForPeriods(periods);
 
 		dispatch(nodesSelect(nodes));
 	}

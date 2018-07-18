@@ -34,7 +34,7 @@ export const getSelectedNodes = createSelector(
 
 export const getHighlightedNodes = createSelector(
     (state: AppState) => state.graph.nodes,
-    (nodes: Node[]) => nodes.filter(node => node.highlighted)
+    (nodes: Node[]) => nodes.filter(node => node.highlightLevel !== null)
 );
 
 export const isMapAvailable = createSelector(

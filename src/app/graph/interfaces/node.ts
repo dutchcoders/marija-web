@@ -22,8 +22,9 @@ export interface Node {
 
     /**
      * Whether this node is highlighted, making it stand out in the graph.
+	 * 1 is the highest level, 2 and 3 are also options
      */
-    highlighted: boolean;
+    highlightLevel: number | null;
 
     /**
      * Per search a user can choose the amount of nodes that he wants to be
