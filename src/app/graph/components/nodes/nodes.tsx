@@ -1,13 +1,10 @@
-import { concat, differenceWith, filter, find, forEach, map, sortBy, uniq, without } from 'lodash';
+import { differenceWith, map, sortBy } from 'lodash';
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
-import SkyLight from 'react-skylight';
-
 import { Datasource } from '../../../datasources/interfaces/datasource';
 import { AppState } from '../../../main/interfaces/appState';
 import { Search } from '../../../search/interfaces/search';
 import { searchAround } from '../../../search/searchActions';
-import Icon from '../../../ui/components/icon';
 import {
 	clearSelection,
 	deleteNodes,
@@ -35,32 +32,12 @@ interface Props {
 }
 
 interface State {
-    editNode: Node;
-    value: string;
-    description: string;
-    nodeImages: any;
 }
 
 class Nodes extends React.Component<Props, State> {
-    state: State = {
-        editNode: null,
-        value: "",
-        description: "",
-        nodeImages: {}
-    };
-
     handleClearSelection() {
         const { dispatch } = this.props;
         dispatch(clearSelection());
-    }
-
-    handleUpdateEditNode(node) {
-        const { editNode, value, description } = this.state;
-        const { dispatch } = this.props;
-
-        dispatch(nodeUpdate(editNode.id, {name: value, description: description }));
-
-        this.setState({editNode: null});
     }
 
     handleDeleteAllButSelectedNodes() {
@@ -91,14 +68,6 @@ class Nodes extends React.Component<Props, State> {
 
         const relatedNodes = getDirectlyRelatedNodes(selectedNodes, nodes, links);
         dispatch(nodesSelect(relatedNodes));
-    }
-
-    handleNodeChangeName(event) {
-        this.setState({value: event.target.value});
-    }
-
-    handleNodeChangeDescription(event) {
-        this.setState({description: event.target.value});
     }
 
     handleDeleteAllNodes() {
@@ -176,32 +145,7 @@ class Nodes extends React.Component<Props, State> {
     }
 
     render() {
-        const { editNode, value, description } = this.state;
         const { selectedNodes } = this.props;
-
-        const updateNodeDialogStyles = {
-            backgroundColor: '#fff',
-            color: '#000',
-            width: '400px',
-            height: '400px',
-            marginTop: '-200px',
-            marginLeft: '-200px',
-        };
-
-        let edit_node = null;
-        if (editNode) {
-            edit_node = <form>
-                                <Icon className="glyphicon" name={ editNode.icon }></Icon>
-                                <div className="form-group">
-                                    <label>Name</label>
-                                    <input type="text" className="form-control" value={value} onChange={ this.handleNodeChangeName.bind(this) } placeholder='name' />
-                                </div>
-                                <div className="form-group">
-                                    <label>Description</label>
-		                                <textarea className="form-control" value={description} onChange={ this.handleNodeChangeDescription.bind(this) } placeholder='description' />
-		                            </div>
-	          </form>;
-	      }
 
 	    let important;
         const notImportantNode = selectedNodes.find(node => !node.important);
@@ -249,10 +193,6 @@ class Nodes extends React.Component<Props, State> {
 					<button type="button" className="nodesButton" aria-label="Select all nodes" onClick={() => this.handleSelectAllNodes()}>select all</button>
 					<button type="button" className="nodesButton" aria-label="Select important nodes" onClick={() => this.selectImportant()}>select important</button>
 				</div>
-
-                <SkyLight dialogStyles={updateNodeDialogStyles} hideOnOverlayClicked ref="editDialog" title="Update node" afterClose={ this.handleUpdateEditNode.bind(this) }>
-                    { edit_node }
-                </SkyLight>
             </div>
         );
     }
