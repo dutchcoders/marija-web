@@ -1088,7 +1088,7 @@ class Graph extends React.PureComponent<Props, State> {
 				return;
 			}
 
-			description += '<bold>' + key + ': </bold> ';
+			description += '<bold>' + key + ': </bold>';
 			let string: string;
 
 			if (Array.isArray(value)) {
@@ -1101,7 +1101,7 @@ class Graph extends React.PureComponent<Props, State> {
 				string = string.substring(0, 200);
 			}
 
-			description += ' ' + string + "\n";
+			description += string + "\n";
 		});
 
 		description += '<bold>Queries: </bold>' + queries.join(', ') + "\n"
@@ -1113,8 +1113,7 @@ class Graph extends React.PureComponent<Props, State> {
 				fontSize: '12px',
 				fill: '#eeeeee',
 				wordWrap: true,
-				wordWrapWidth: 250,
-				breakWords: true
+				wordWrapWidth: 250
 			},
 			bold: {
 				fontWeight: 'bold'
