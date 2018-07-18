@@ -10,6 +10,7 @@ import { AppState } from '../../main/interfaces/appState';
 import { getItemNodeByItemId } from '../../graph/graphSelectors';
 import { connect } from 'react-redux';
 import NodeIcon from '../../graph/components/nodeIcon/nodeIcon';
+import { showTooltip } from '../../graph/graphActions';
 
 interface Props {
     toggleExpand: Function;
@@ -19,6 +20,7 @@ interface Props {
     className: string;
     expanded: boolean;
     node: Node;
+    dispatch: any;
 }
 
 interface State {
@@ -28,6 +30,18 @@ class Record extends React.Component<Props, State> {
     handleToggleExpand(id) {
         const { toggleExpand } = this.props;
         toggleExpand(id);
+    }
+
+    onMouseEnter() {
+        const { node, dispatch } = this.props;
+
+        dispatch(showTooltip([node]));
+    }
+
+    onMouseLeave() {
+		const { dispatch } = this.props;
+
+		dispatch(showTooltip([]));
     }
 
     render() {
@@ -47,6 +61,8 @@ class Record extends React.Component<Props, State> {
         return (
             <tr key={`record_${record.id}`}
 				onClick={() => this.handleToggleExpand(record.id) }
+                onMouseEnter={this.onMouseEnter.bind(this)}
+                onMouseLeave={this.onMouseLeave.bind(this)}
 				className={`columns record ${className} ${expanded ? 'expanded' : 'closed'}`}>
                 <td>
                     <div className="itemIcons">
