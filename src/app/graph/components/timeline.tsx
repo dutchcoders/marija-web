@@ -254,6 +254,7 @@ class Timeline extends React.Component<Props, State> {
 		}
 
         const groupOptions: TimelineGrouping[] = [
+        	'minute',
 			'hour',
 			'day',
 			'week',

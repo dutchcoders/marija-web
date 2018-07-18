@@ -1,4 +1,3 @@
-import {Field} from "../../fields/interfaces/field";
 import {Normalization} from "./normalization";
 import {Item} from "./item";
 import {Search} from "../../search/interfaces/search";
@@ -6,7 +5,7 @@ import {Node} from "./node";
 import {Link} from "./link";
 import {Via} from "./via";
 
-export type TimelineGrouping = 'hour' | 'day' | 'week' | 'month';
+export type TimelineGrouping = 'minute' | 'hour' | 'day' | 'week' | 'month';
 
 export interface Note {
     nodeId: number;

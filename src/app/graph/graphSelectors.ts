@@ -69,7 +69,7 @@ const getDate = (node: Node, items: Item[], dateFields: Field[]): Moment | undef
 
 export const getTimelineGroups = createSelector(
     (state: AppState) => state.graph.timelineGrouping,
-    (state: AppState) => state.graph.nodes,
+    (state: AppState) => getNodesForDisplay(state),
     (state: AppState) => state.graph.items,
 	(state: AppState) => getSelectedDateFields(state),
 
@@ -93,9 +93,13 @@ export const getTimelineGroups = createSelector(
 			unitPlural = 'days';
 			unitSingular = 'day';
 		} else if (timelineGrouping === 'hour') {
-			format = 'YYYY-M-D H';
+			format = 'YYYY-M-D HH';
 			unitPlural = 'hours';
 			unitSingular = 'hour';
+		} else if (timelineGrouping === 'minute') {
+			format = 'YYYY-M-D HH:mm';
+			unitPlural = 'minutes';
+			unitSingular = 'minute';
 		}
 
 		const groupedNodes = groupBy(nodes, (node: Node) => {
@@ -119,7 +123,8 @@ export const getTimelineGroups = createSelector(
 
 		times.sort((a: Moment, b: Moment) => a.unix() - b.unix());
 
-		const periods: string[] = [];
+		let periods: string[] = [];
+		const maxPeriods = 100;
 		const start = times[0];
 		const end = times[times.length - 1];
 		let current: Moment = start;
@@ -127,7 +132,14 @@ export const getTimelineGroups = createSelector(
 		do {
 			periods.push(current.format(format));
 			current.add({ [unitPlural]: 1 });
-		} while (current.clone().startOf(unitSingular).unix() <= end.clone().startOf(unitSingular).unix());
+		} while (
+			current.clone().startOf(unitSingular).unix() <= end.clone().startOf(unitSingular).unix()
+			&& periods.length <= maxPeriods
+		);
+
+		if (periods.length > maxPeriods) {
+			periods = Object.keys(groupedNodes);
+		}
 
 		return {
 			groups: groupedNodes,
