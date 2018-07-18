@@ -684,7 +684,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
 			searches[index] = {
 				...searches[index],
-				error: action.payload.error
+				error: action.payload.error,
+				completed: true
 			};
 
 			return {
