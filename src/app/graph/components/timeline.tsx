@@ -3,7 +3,7 @@ import {connect, Dispatch} from 'react-redux';
 import Dimensions from 'react-dimensions';
 import {Normalization} from "../interfaces/normalization";
 import {Field} from "../../fields/interfaces/field";
-import {Item} from "../../items/interfaces/item";
+import {Item} from "../interfaces/item";
 import {Node} from "../interfaces/node";
 import {FormEvent} from "react";
 import {

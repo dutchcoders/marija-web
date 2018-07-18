@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as styles from './createCustomDatasource.scss';
 import Icon from '../../../ui/components/icon';
 import { FormEvent } from 'react';
-import { Item } from '../../../items/interfaces/item';
+import { Item } from '../../../graph/interfaces/item';
 import { csvToItems } from '../../helpers/csvToItems';
 import { AppState } from '../../../main/interfaces/appState';
 import { connect } from 'react-redux';

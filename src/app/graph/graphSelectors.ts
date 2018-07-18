@@ -3,7 +3,7 @@ import { Node } from "./interfaces/node";
 import { Link } from "./interfaces/link";
 import { AppState } from "../main/interfaces/appState";
 import { TimelineGrouping } from './interfaces/graphState';
-import { Item } from '../items/interfaces/item';
+import { Item } from './interfaces/item';
 import * as moment from 'moment';
 import { Moment, unitOfTime } from 'moment';
 import { groupBy } from 'lodash';
@@ -138,13 +138,6 @@ export const getTimelineGroups = createSelector(
 			periods: periods
 		};
     }
-);
-
-export const isTableLoading = createSelector(
-	(state: AppState) => state.graph.items,
-
-	(items: Item[]) =>
-		typeof items.find(item => item.requestedExtraData && !item.receivedExtraData) !== 'undefined'
 );
 
 export const createGetNodesByConnector = () => createSelector(

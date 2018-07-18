@@ -11,7 +11,7 @@ import {
 } from './datasourcesConstants';
 import { Datasource } from './interfaces/datasource';
 import { rebuildGraph } from '../graph/graphActions';
-import { Item } from '../items/interfaces/item';
+import { Item } from '../graph/interfaces/item';
 import { FIELDS_RECEIVE } from '../fields/fieldsConstants';
 import { Field } from '../fields/interfaces/field';
 

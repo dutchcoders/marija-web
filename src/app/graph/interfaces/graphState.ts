@@ -1,6 +1,6 @@
 import {Field} from "../../fields/interfaces/field";
 import {Normalization} from "./normalization";
-import {Item} from "../../items/interfaces/item";
+import {Item} from "./item";
 import {Search} from "../../search/interfaces/search";
 import {Node} from "./node";
 import {Link} from "./link";

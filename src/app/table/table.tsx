@@ -5,11 +5,10 @@ import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 
 import { Field } from '../fields/interfaces/field';
-import { getSelectedNodes, isTableLoading } from '../graph/graphSelectors';
+import { getSelectedNodes } from '../graph/graphSelectors';
 import { Node } from '../graph/interfaces/node';
 import { Normalization } from '../graph/interfaces/normalization';
-import { Item } from '../items/interfaces/item';
-import { requestItems } from '../items/itemsActions';
+import { Item } from '../graph/interfaces/item';
 import { AppState } from '../main/interfaces/appState';
 import { Search } from '../search/interfaces/search';
 import Icon from '../ui/components/icon';
@@ -36,7 +35,6 @@ interface Props {
     searches: Search[];
     availableFields: Field[];
     exportEvents: EventEmitter;
-    isTableLoading: boolean;
 }
 
 interface State {
@@ -112,17 +110,6 @@ class Table extends React.Component<Props, State> {
         return selectedItems;
     }
 
-    requestData(selectedNodes: Node[], items: Item[]) {
-        const selectedItems = this.getSelectedItems(selectedNodes, items);
-        const { dispatch } = this.props;
-
-        const request = selectedItems.filter(item => !item.requestedExtraData && !item.receivedExtraData);
-
-        if (request.length > 0) {
-            dispatch(requestItems(request));
-        }
-    }
-
     setQueryColorMap(selectedNodes: Node[], searches: Search[]) {
         const colorMap = {};
         searches.forEach(search => colorMap[search.searchId] = search.color);
@@ -163,17 +150,10 @@ class Table extends React.Component<Props, State> {
             this.setState({items: items});
             this.setQueryColorMap(nextProps.selectedNodes, nextProps.searches);
         }
-
-        if (nextProps.selectedNodes.length !== this.props.selectedNodes.length) {
-            // Fetch more info about the items from the server
-            this.requestData(nextProps.selectedNodes, nextProps.items);
-        }
     }
 
     componentDidMount() {
         const { exportEvents, selectedNodes, items } = this.props;
-
-        this.requestData(selectedNodes, items);
 
         exportEvents.addListener('export', this.exportCsv.bind(this));
     }
@@ -189,10 +169,10 @@ class Table extends React.Component<Props, State> {
         const { items, queryColorMap, filter } = this.state;
 
         const activeFields = fields.map(field => field.path);
-        let receivedItems = items.filter(item => item.receivedExtraData);
+        let filteredItems = items;
 
         if (filter.length > 0) {
-        	receivedItems = receivedItems.filter(item => {
+        	filteredItems = filteredItems.filter(item => {
         		const keys = Object.keys(item.fields);
         		const lowercaseFilter: string = filter.toLowerCase();
 
@@ -217,7 +197,7 @@ class Table extends React.Component<Props, State> {
 			});
 		}
 
-        return map(receivedItems, (record, i) => {
+        return map(filteredItems, (record, i) => {
             const expanded = (findIndex(this.state.expandedItems, function(o) { return o == record.id; }) >= 0);
             const className = (i % 2 === 0 ? 'odd' : 'even') + (columns.length ? '' : ' noColumns');
 
@@ -332,7 +312,7 @@ class Table extends React.Component<Props, State> {
 
     render() {
         const { items, filter } = this.state;
-        const { selectedNodes, isTableLoading } = this.props;
+        const { selectedNodes } = this.props;
 
         if (!selectedNodes.length) {
             return <p className="noNodes">Select some nodes first</p>;
@@ -353,13 +333,6 @@ class Table extends React.Component<Props, State> {
 					/>
 					<Icon name="ion-ios-search" className={'ion-ios-search ' + styles.searchIcon} />
 				</form>
-
-                {isTableLoading && (
-                    <div className="tableLoader">
-                        <Loader show={true} />
-						<span>Fetching extra data</span>
-                    </div>
-                )}
 
                 <table className="tableView">
                     <tbody>
@@ -387,8 +360,7 @@ function select(state: AppState) {
         columns: state.table.columns,
         sortColumn: state.table.sortColumn,
         sortType: state.table.sortType,
-        availableFields: state.fields.availableFields,
-        isTableLoading: isTableLoading(state)
+        availableFields: state.fields.availableFields
     };
 }
 

@@ -6,7 +6,7 @@ import {
 } from '../connection/connectionActions';
 import { Datasource } from '../datasources/interfaces/datasource';
 import { Node } from '../graph/interfaces/node';
-import { Item } from '../items/interfaces/item';
+import { Item } from '../graph/interfaces/item';
 import { AppState } from '../main/interfaces/appState';
 import { Search } from './interfaces/search';
 import {

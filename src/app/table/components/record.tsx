@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import fieldLocator from '../../fields/helpers/fieldLocator';
 import { Node } from '../../graph/interfaces/node';
-import { Item } from '../../items/interfaces/item';
+import { Item } from '../../graph/interfaces/item';
 import { Search } from '../../search/interfaces/search';
 import Icon from '../../ui/components/icon';
 import { Column } from '../interfaces/column';

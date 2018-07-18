@@ -1,4 +1,4 @@
-import { Item } from '../../items/interfaces/item';
+import { Item } from '../../graph/interfaces/item';
 
 export interface Search {
     aroundNodeId: null|number;

@@ -8,7 +8,7 @@ import {
 	getLinksForDisplay,
 	getNodesForDisplay
 } from '../graph/graphSelectors';
-import { Item } from '../items/interfaces/item';
+import { Item } from '../graph/interfaces/item';
 
 interface Props {
     fps: number;

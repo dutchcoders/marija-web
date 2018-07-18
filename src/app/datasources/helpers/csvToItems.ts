@@ -1,4 +1,4 @@
-import { Item } from '../../items/interfaces/item';
+import { Item } from '../../graph/interfaces/item';
 import * as parse from 'csv-parse/lib/sync';
 import { uniqueId } from 'lodash';
 

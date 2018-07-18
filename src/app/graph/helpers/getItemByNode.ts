@@ -1,4 +1,4 @@
-import { Item } from '../../items/interfaces/item';
+import { Item } from '../interfaces/item';
 import { Node } from '../interfaces/node';
 
 export function getItemByNode(node: Node, items: Item[]): Item {

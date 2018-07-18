@@ -1,4 +1,4 @@
-import { Item } from '../../items/interfaces/item';
+import { Item } from '../../graph/interfaces/item';
 import { Field } from '../../fields/interfaces/field';
 import { detectFieldType } from './detectFieldType';
 

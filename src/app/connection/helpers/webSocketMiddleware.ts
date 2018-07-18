@@ -5,14 +5,12 @@ import {
 import * as ReconnectingWebsocket from 'reconnecting-websocket';
 import {Dispatch, Middleware} from 'redux';
 import {authConnected, error} from "../connectionActions";
-import {Item} from "../../items/interfaces/item";
+import {Item} from "../../graph/interfaces/item";
 import {liveReceive, searchReceive} from "../../search/searchActions";
 import {requestCompleted} from "../connectionActions";
-import {receiveItems} from "../../items/itemsActions";
 import {FIELDS_RECEIVE} from "../../fields/fieldsConstants";
 import {receiveFields} from "../../fields/fieldsActions";
 import {LIVE_RECEIVE, SEARCH_RECEIVE} from "../../search/searchConstants";
-import {ITEMS_RECEIVE} from "../../items/itemsConstants";
 import {INITIAL_STATE_RECEIVE} from "../../datasources/datasourcesConstants";
 import {receiveInitialState} from "../../datasources/datasourcesActions";
 import Timer = NodeJS.Timer;
@@ -115,10 +113,6 @@ function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {
 
         case REQUEST_COMPLETED:
             dispatch(requestCompleted(data['request-id']));
-            break;
-
-        case ITEMS_RECEIVE:
-            dispatch(receiveItems(data.items, data['item-id']));
             break;
 
         case 'ERROR':

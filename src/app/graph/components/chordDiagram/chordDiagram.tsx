@@ -7,7 +7,7 @@ import {
     getLinksForDisplay,
     getNodesForDisplay, getSelectedNodes
 } from '../../graphSelectors';
-import {Item} from '../../../items/interfaces/item';
+import {Item} from '../../interfaces/item';
 import {Selection} from 'd3-selection';
 import {EventEmitter} from 'fbemitter';
 import * as styles from './chordDiagram.scss';

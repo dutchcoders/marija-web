@@ -3,7 +3,7 @@ import GraphWorkerClass, {
     GraphWorkerPayload
 } from './graphWorkerClass';
 import {SEARCH_RECEIVE} from '../../search/searchConstants';
-import {Item} from "../../items/interfaces/item";
+import {Item} from "../interfaces/item";
 import {Node} from "../interfaces/node";
 import {uniqueId} from 'lodash';
 import {Field} from "../../fields/interfaces/field";

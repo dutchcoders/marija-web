@@ -13,7 +13,7 @@ import { RECEIVE_WORKSPACE } from '../ui/uiConstants';
 import { Workspace } from '../ui/interfaces/workspace';
 import { FIELDS_RECEIVE } from '../fields/fieldsConstants';
 import { Field } from '../fields/interfaces/field';
-import { Item } from '../items/interfaces/item';
+import { Item } from '../graph/interfaces/item';
 
 export const defaultDatasourcesState: DatasourcesState = {
     datasources: []

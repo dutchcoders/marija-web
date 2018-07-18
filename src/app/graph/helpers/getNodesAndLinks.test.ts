@@ -4,7 +4,7 @@ import {
 	getHash,
 	default as getNodesAndLinks
 } from './getNodesAndLinks';
-import {Item} from "../../items/interfaces/item";
+import {Item} from "../interfaces/item";
 import {Field} from "../../fields/interfaces/field";
 import { Connector } from '../interfaces/connector';
 

@@ -1,4 +1,4 @@
-import { Item } from '../../items/interfaces/item';
+import { Item } from '../interfaces/item';
 import { Link } from '../interfaces/link';
 import { GeoLocation, Node } from '../interfaces/node';
 import abbreviateNodeName from './abbreviateNodeName';

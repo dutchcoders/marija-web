@@ -1,4 +1,4 @@
-import { Node } from '../../graph/interfaces/node';
+import { Node } from './node';
 
 export interface Item {
     id: string;
@@ -9,7 +9,5 @@ export interface Item {
     fields: {
         [key: string]: any
     };
-    requestedExtraData: boolean;
-    receivedExtraData: boolean;
     nodes: Node[];
 }

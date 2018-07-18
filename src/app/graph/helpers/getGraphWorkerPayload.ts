@@ -1,4 +1,4 @@
-import { Item } from '../../items/interfaces/item';
+import { Item } from '../interfaces/item';
 import { AppState } from '../../main/interfaces/appState';
 import { GraphWorkerPayload } from './graphWorkerClass';
 

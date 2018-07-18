@@ -1,7 +1,6 @@
 import {concat, isEqual, uniqueId, without} from 'lodash';
 import {REQUEST_COMPLETED} from '../connection/connectionConstants';
-import {sortItems} from '../items/helpers/sortItems';
-import {ITEMS_RECEIVE, ITEMS_REQUEST} from '../items/itemsConstants';
+import {sortItems} from './helpers/sortItems';
 import darkenColor from '../search/helpers/darkenColor';
 import getQueryColor from '../search/helpers/getQueryColor';
 import {Search} from '../search/interfaces/search';
@@ -19,7 +18,6 @@ import {
 	DEFAULT_DISPLAY_NODES_PER_SEARCH,
 	FIELD_NODES_HIGHLIGHT,
 	GRAPH_WORKER_OUTPUT,
-	MAX_FIELDS,
 	NODE_UPDATE,
 	NODES_DELETE,
 	NODES_DESELECT,
@@ -57,7 +55,7 @@ import {Normalization} from './interfaces/normalization';
 import {Via} from './interfaces/via';
 import {GraphState} from "./interfaces/graphState";
 import { markPerformance } from '../main/helpers/performance';
-import { Item } from '../items/interfaces/item';
+import { Item } from './interfaces/item';
 import { RECEIVE_WORKSPACE } from '../ui/uiConstants';
 import { Workspace } from '../ui/interfaces/workspace';
 import { markHighlightedLinks } from './helpers/markHighlightedLinks';
@@ -436,76 +434,6 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 				...state,
 				nodes
 			};
-        }
-
-        case ITEMS_REQUEST: {
-            const newItems = state.items.concat([]);
-
-            action.items.forEach(item => {
-                const index = state.items.findIndex(search => search.id === item.id);
-
-                newItems[index] = Object.assign({}, newItems[index], {
-                    requestedExtraData: true
-                });
-            });
-
-            return {
-                ...state,
-                items: newItems,
-				graphWorkerCacheIsValid: false
-            };
-        }
-        case ITEMS_RECEIVE: {
-            if (!action.payload.items || !action.payload.items.length) {
-                return state;
-            }
-
-            let nodes: Node[] = state.nodes.concat([]);
-
-            action.payload.items.forEach(item => item.receivedExtraData = true);
-
-			let items = state.items.concat([]);
-
-            // We might need to delete the previous item
-            if (action.payload.prevItemId) {
-            	const prevItem = items.find(item => item.id === action.payload.prevItemId);
-                items = items.filter(item => item.id !== action.payload.prevItemId);
-
-                const newItems: Item[] = action.payload.items.map(item => {
-                	return {
-						...prevItem,
-						...item,
-					}
-				});
-
-                items = items.concat(newItems);
-
-                nodes = nodes.map(node => {
-                    const itemIndex = node.items.indexOf(action.payload.prevItemId);
-
-                    if (itemIndex === -1) {
-                        return node;
-                    }
-
-                    const itemIds = node.items.concat([]);
-                    itemIds[itemIndex] = action.payload.items[0].id;
-
-                    return Object.assign({}, node, {
-                        items: itemIds
-                    });
-                });
-            }
-
-            if (action.payload.sortColumn) {
-                items = sortItems(items, action.payload.sortColumn, action.payload.sortType);
-            }
-
-            return {
-                ...state,
-                nodes: nodes,
-                items: items,
-				graphWorkerCacheIsValid: false
-            };
         }
 
         case TABLE_SORT: {
