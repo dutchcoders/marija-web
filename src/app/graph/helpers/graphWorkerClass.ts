@@ -28,6 +28,9 @@ import { Datasource } from '../../datasources/interfaces/datasource';
 import { createConnector } from '../../fields/helpers/createConnector';
 import { getConnectorName } from '../../fields/helpers/getConnectorName';
 import { getConnectorRuleId } from '../../fields/helpers/getConnectorRuleId';
+import { getSuggestedConnectors } from '../../fields/helpers/getSuggestedConnectors';
+import { createNewConnector } from '../../fields/fieldsActions';
+import { uniqueId } from 'lodash';
 
 export interface GraphWorkerPayload {
     items: Item[];
@@ -47,6 +50,7 @@ export interface GraphWorkerPayload {
     connectors: Connector[];
     datasources: Datasource[];
 	outputId: string;
+	automaticallyCreateConnectors: boolean;
 }
 
 export interface GraphWorkerOutput {
@@ -81,7 +85,7 @@ export default class GraphWorkerClass {
 			prevItemCache = payload.prevItems;
 		}
 
-		let connectors = payload.connectors;
+
 		let search: Search;
 		let searches: Search[] = payload.searches;
 		let useItems: Item[];
@@ -105,11 +109,29 @@ export default class GraphWorkerClass {
 			search.items = search.items.concat(payload.items);
 
 			// For live datasources we automatically add all the fields that are present in the items
-			if (isLive) {
-				connectors = GraphWorkerClass.createConnectorsFromData(connectors, payload.items, search.liveDatasource);
-			}
+			// if (isLive) {
+			// 	connectors = GraphWorkerClass.createConnectorsFromData(connectors, payload.items, search.liveDatasource);
+			// }
 
 			useItems = prevItemCache.concat(payload.items);
+		}
+
+
+		let connectors: Connector[] = [];//
+
+		if (payload.automaticallyCreateConnectors) {
+			const suggested = getSuggestedConnectors(useItems);
+			suggested.forEach(connector => {
+				const fields = connector.fields.map(field => ({
+					path: field,
+					type: 'text',
+					datasourceId: ''
+				}));
+
+				connectors.push(createConnector(connectors, uniqueId(), fields))
+			});
+		} else {
+			connectors = payload.connectors;
 		}
 
         // update nodes and links

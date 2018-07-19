@@ -8,6 +8,8 @@ import * as styles from './connectorList.scss';
 import ConnectorComponent from '../connectorComponent/connectorComponent';
 import { Link, withRouter } from 'react-router-dom';
 import Url from '../../../main/helpers/url';
+import { FormEvent } from 'react';
+import { setAutomaticallyCreateConnectors } from '../../../graph/graphActions';
 
 interface State {
 	isHelpOpen: boolean;
@@ -17,6 +19,7 @@ interface Props {
 	dispatch: Dispatch<any>;
 	connectors: Connector[];
 	experimentalFeatures: boolean;
+	automaticallyCreateConnectors: boolean;
 }
 
 class ConnectorList extends React.Component<Props, State> {
@@ -32,9 +35,15 @@ class ConnectorList extends React.Component<Props, State> {
 		});
 	}
 
+	setAutomaticallyCreateConnectors(event: FormEvent<HTMLInputElement>) {
+		const { dispatch, automaticallyCreateConnectors } = this.props;
+
+		dispatch(setAutomaticallyCreateConnectors(!automaticallyCreateConnectors));
+	}
+
 	render() {
 		const { isHelpOpen } = this.state;
-		const { connectors, experimentalFeatures } = this.props;
+		const { connectors, experimentalFeatures, automaticallyCreateConnectors } = this.props;
 
 		const hasConnectorsWithMultipleRules: boolean = typeof connectors.find(connector =>
 			connector.rules.length > 1
@@ -77,20 +86,26 @@ class ConnectorList extends React.Component<Props, State> {
 				{connectors.length === 0 || isHelpOpen ? help : null}
 
 				{experimentalFeatures && (
-					<Link to={{ pathname: '/connector-wizard', search: Url.getQueryString() }}>
-						<button className={styles.connectorWizard}>Open connector wizard</button>
-					</Link>
+					<div>
+						<Link to={{ pathname: '/connector-wizard', search: Url.getQueryString() }}>
+							<button className={styles.connectorWizard}>Suggest connectors</button>
+						</Link>
+						<label>
+							<input type="checkbox" onChange={this.setAutomaticallyCreateConnectors.bind(this)} checked={automaticallyCreateConnectors}/>
+							Automatically create connectors
+						</label>
+					</div>
 				)}
 			</div>
 		);
 	}
 }
 
-
 function select(state: AppState) {
 	return {
 		connectors: state.fields.connectors,
-		experimentalFeatures: state.ui.experimentalFeatures
+		experimentalFeatures: state.ui.experimentalFeatures,
+		automaticallyCreateConnectors: state.graph.automaticallyCreateConnectors
 	};
 }
 

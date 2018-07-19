@@ -14,6 +14,7 @@ import {
 } from '../../datasources/datasourcesConstants';
 import { updateWorkspace } from '../uiActions';
 import {
+	SET_AUTOMATICALLY_CREATE_CONNECTORS,
 	SET_FILTER_BORING_NODES,
 	SET_FILTER_SECONDARY_QUERIES
 } from '../../graph/graphConstants';
@@ -38,7 +39,8 @@ export const workspaceMiddleware: Middleware = ({dispatch}) => next => action =>
 		SET_PANE_CONFIG,
 		CREATE_CUSTOM_DATASOURCE,
 		DELETE_CUSTOM_DATASOURCE,
-		SET_EXPERIMENTAL_FEATURES
+		SET_EXPERIMENTAL_FEATURES,
+		SET_AUTOMATICALLY_CREATE_CONNECTORS
 	];
 
 	if (updateForActions.indexOf(action.type) !== -1) {

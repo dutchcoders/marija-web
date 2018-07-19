@@ -19,8 +19,6 @@ class SuggestedConnectorList extends React.Component<Props> {
 	create(suggested: SuggestedConnector) {
 		const { dispatch, availableFields } = this.props;
 
-		console.log(suggested.fields);
-
 		const fields = [];
 
 		suggested.fields.forEach(field => {

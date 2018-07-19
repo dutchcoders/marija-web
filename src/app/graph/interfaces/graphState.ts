@@ -31,4 +31,5 @@ export interface GraphState {
     notes: Note[];
 	graphWorkerLoading: boolean;
 	expectedGraphWorkerOutputId: string;
+	automaticallyCreateConnectors: boolean;
 }

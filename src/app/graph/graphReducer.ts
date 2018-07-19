@@ -27,12 +27,16 @@ import {
 	NORMALIZATION_ADD,
 	NORMALIZATION_DELETE,
 	SELECT_FIELD_NODES,
-	SELECTION_CLEAR, SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID,
+	SELECTION_CLEAR,
+	SET_AUTOMATICALLY_CREATE_CONNECTORS,
+	SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID,
 	SET_FIELD_PARENT,
 	SET_FILTER_BORING_NODES,
-	SET_FILTER_SECONDARY_QUERIES, SET_IMPORTANT_NODE,
+	SET_FILTER_SECONDARY_QUERIES,
+	SET_IMPORTANT_NODE,
 	SET_IS_DRAGGING_SUB_FIELDS,
-	SET_MAP_ACTIVE, SET_NOTE,
+	SET_MAP_ACTIVE,
+	SET_NOTE,
 	SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
 	VIA_ADD,
@@ -82,7 +86,8 @@ export const defaultGraphState: GraphState = {
 	importantNodeIds: [],
 	notes: [],
 	graphWorkerLoading: false,
-	expectedGraphWorkerOutputId: ''
+	expectedGraphWorkerOutputId: '',
+	automaticallyCreateConnectors: false
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -694,6 +699,13 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			return {
 				...state,
 				searches
+			};
+		}
+
+		case SET_AUTOMATICALLY_CREATE_CONNECTORS: {
+			return {
+				...state,
+				automaticallyCreateConnectors: action.payload.enabled
 			};
 		}
 

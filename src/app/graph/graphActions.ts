@@ -12,13 +12,17 @@ import {
 	SELECT_FIELD_NODES,
 	SELECTION_CLEAR,
 	SET_FILTER_BORING_NODES,
-	SET_FILTER_SECONDARY_QUERIES, SET_IMPORTANT_NODE,
-	SET_MAP_ACTIVE, SET_NOTE,
+	SET_FILTER_SECONDARY_QUERIES,
+	SET_IMPORTANT_NODE,
+	SET_MAP_ACTIVE,
+	SET_NOTE,
 	SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
 	REBUILD_GRAPH,
 	VIA_ADD,
-	VIA_DELETE, SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID
+	VIA_DELETE,
+	SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID,
+	SET_AUTOMATICALLY_CREATE_CONNECTORS
 } from './graphConstants';
 import {
 	GraphWorkerOutput
@@ -28,6 +32,7 @@ import { TimelineGrouping } from './interfaces/graphState';
 import { AppState } from '../main/interfaces/appState';
 import { getGraphWorkerPayload } from './helpers/getGraphWorkerPayload';
 import { Node } from './interfaces/node';
+import { SET_EXPERIMENTAL_FEATURES } from '../ui/uiConstants';
 
 export function deselectNodes(opts) {
     return {
@@ -246,6 +251,15 @@ export function setExpectedGraphWorkerOutputId(id: string) {
 		type: SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID,
 		payload: {
 			id
+		}
+	};
+}
+
+export function setAutomaticallyCreateConnectors(enabled: boolean) {
+	return {
+		type: SET_AUTOMATICALLY_CREATE_CONNECTORS,
+		payload: {
+			enabled
 		}
 	};
 }
