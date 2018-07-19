@@ -973,13 +973,10 @@ class Graph extends React.PureComponent<Props, State> {
 						);
 					} else {
 						this.renderedSince.lastTick = false;
+						this.renderedSince.lastHighlights = false;
 					}
 				});
 		}
-
-        if (nextProps.highlightedNodes !== highlightedNodes) {
-            this.renderedSince.lastHighlights = false;
-        }
 
         if (nextProps.showLabels !== showLabels) {
             this.renderedSince.lastNodeLableToggle = false;
@@ -1267,7 +1264,9 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     renderNodeLabels() {
-        const { showLabels, isMapActive, nodesForDisplay } = this.props;
+        const { showLabels, isMapActive, highlightedNodes } = this.props;
+
+        const isHighlighting: boolean = highlightedNodes.length > 0;
 
         this.renderedNodeLabels.removeChildren();
 
@@ -1286,6 +1285,10 @@ class Graph extends React.PureComponent<Props, State> {
 
         this.nodeMap.forEach(node => {
         	if (!node.x) {
+        		return;
+			}
+
+			if (isHighlighting && node.highlightLevel !== 1) {
         		return;
 			}
 
