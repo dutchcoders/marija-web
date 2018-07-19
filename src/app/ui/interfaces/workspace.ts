@@ -11,4 +11,5 @@ export interface Workspace {
 	filterSecondaryQueries: boolean;
 	connectors: Connector[];
 	availableFields: Field[];
+	experimentalFeatures: boolean;
 }

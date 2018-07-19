@@ -158,7 +158,8 @@ export default function uiReducer(state: UiState = defaultUiState, action): UiSt
 
             return {
                 ...state,
-                panes: workspace.panes
+                panes: workspace.panes,
+				experimentalFeatures: workspace.experimentalFeatures
             };
         }
 
