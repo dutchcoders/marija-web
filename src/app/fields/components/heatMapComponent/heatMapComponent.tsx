@@ -33,7 +33,9 @@ class HeatMapComponent extends React.Component<Props> {
 								key={target.targetField}
 								style={{ backgroundColor: '#' + gradient.rgbAt(target.score).toHex()}}
 							>
-								{target.score}
+								Score: {target.score}<br />
+								Uniques: {target.uniqueConnectors}<br />
+								Connected: {target.links}
 							</td>
 						)}
 					</tr>
