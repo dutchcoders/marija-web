@@ -19,9 +19,11 @@ test('should compute with single field', () => {
 	const heatMap = getHeatMap(items);
 
 	expect(heatMap).toEqual({
-		first_name: {
-			first_name: 2
-		}
+		first_name: [{
+			targetField: 'first_name',
+			links: 2,
+			normalized: 1
+		}]
 	});
 });
 
@@ -35,14 +37,30 @@ test('should compute with multiple fields', () => {
 	const heatMap = getHeatMap(items);
 
 	expect(heatMap).toEqual({
-		first_name: {
-			first_name: 2,
-			last_name: 0
-		},
-		last_name: {
-			first_name: 0,
-			last_name: 2
-		}
+		first_name: [
+			{
+				targetField: 'first_name',
+				links: 2,
+				normalized: 1
+			},
+			{
+				targetField: 'last_name',
+				links: 0,
+				normalized: 0
+			}
+		],
+		last_name: [
+			{
+				targetField: 'first_name',
+				links: 0,
+				normalized: 0
+			},
+			{
+				targetField: 'last_name',
+				links: 2,
+				normalized: 1
+			}
+		],
 	});
 });
 
@@ -55,19 +73,34 @@ test('should find cross-field similarities', () => {
 	const heatMap = getHeatMap(items);
 
 	expect(heatMap).toEqual({
-		first_name: {
-			first_name: 0,
-			last_name: 2
-		},
-		last_name: {
-			first_name: 2,
-			last_name: 0
-		}
+		first_name: [
+			{
+				targetField: 'first_name',
+				links: 0,
+				normalized: 0
+			},
+			{
+				targetField: 'last_name',
+				links: 2,
+				normalized: 1
+			}
+		],
+		last_name: [
+			{
+				targetField: 'first_name',
+				links: 2,
+				normalized: 1
+			},
+			{
+				targetField: 'last_name',
+				links: 0,
+				normalized: 0
+			}
+		],
 	});
 });
 
-
-test('derp 1', () => {
+test('heatmaps 1', () => {
 	const items = [
 		getItem({ first_name: ['barry'] }),
 		getItem({ first_name: ['barry'] }),
@@ -77,34 +110,17 @@ test('derp 1', () => {
 	const heatMap = getHeatMap(items);
 
 	expect(heatMap).toEqual({
-		first_name: {
-			first_name: 3
-		}
+		first_name: [
+			{
+				targetField: 'first_name',
+				links: 3,
+				normalized: 1
+			}
+		]
 	});
 });
 
-test('derp 2', () => {
-	const items = [
-		getItem({ first_name: ['barry'], last_name: ['kuipers'] }),
-		getItem({ first_name: ['barry'], last_name: ['kuipers'] }),
-		getItem({ first_name: ['barry'], last_name: ['kuipers'] }),
-	];
-
-	const heatMap = getHeatMap(items);
-
-	expect(heatMap).toEqual({
-		first_name: {
-			first_name: 3,
-			last_name: 0
-		},
-		last_name: {
-			first_name: 0,
-			last_name: 3
-		}
-	});
-});
-
-test('derp 3', () => {
+test('heatmaps 2', () => {
 	const items = [
 		getItem({ first_name: ['barry'] }),
 		getItem({ first_name: ['barry'] }),
@@ -116,8 +132,12 @@ test('derp 3', () => {
 	const heatMap = getHeatMap(items);
 
 	expect(heatMap).toEqual({
-		first_name: {
-			first_name: 5
-		}
+		first_name: [
+			{
+				targetField: 'first_name',
+				links: 5,
+				normalized: 1
+			},
+		],
 	});
 });

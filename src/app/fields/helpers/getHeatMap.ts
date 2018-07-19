@@ -1,10 +1,14 @@
 import { Item } from '../../graph/interfaces/item';
 import { getValueSets } from '../../graph/helpers/getValueSets';
 
+interface HeatMapItem {
+	links: number,
+	normalized: number,
+	targetField: string
+}
+
 export interface HeatMap {
-	[sourceFieldPath: string]: {
-		[targetFieldPath: string]: number
-	}
+	[sourceField: string]: HeatMapItem[]
 }
 
 interface FastData {
@@ -71,10 +75,14 @@ export function getHeatMap(items: Item[]): HeatMap {
 	const heatMap: HeatMap = {};
 
 	fields.forEach(sourceField => {
-		heatMap[sourceField] = {};
+		heatMap[sourceField] = [];
 
 		fields.forEach(targetField => {
-			heatMap[sourceField][targetField] = 0;
+			heatMap[sourceField].push({
+				targetField,
+				normalized: 0,
+				links: 0
+			});
 
 			const existing = fakeConnectors.find(connector =>
 				(connector.sourceField === sourceField && connector.targetField === targetField)
@@ -151,16 +159,30 @@ export function getHeatMap(items: Item[]): HeatMap {
 		});
 	});
 
+	let maxLinks: number = 0;
+
 	fakeConnectorNodes.forEach(connector => {
-		heatMap[connector.fields[0]][connector.fields[1]] =
-			heatMap[connector.fields[0]][connector.fields[1]]
-			+ connector.itemIds.length;
+		const source = heatMap[connector.fields[0]];
+		const target = source.find(item => item.targetField === connector.fields[1]);
+
+		target.links = target.links + connector.itemIds.length;
+		maxLinks = Math.max(target.links, maxLinks);
 	});
 
 	// Do the reverse heat map
 	Object.keys(heatMap).forEach(sourceField => {
-		Object.keys(heatMap[sourceField]).forEach(targetField => {
-			heatMap[targetField][sourceField] = heatMap[sourceField][targetField];
+		heatMap[sourceField].forEach(item => {
+			const oppositeSource = heatMap[item.targetField];
+			const oppositeTarget = oppositeSource.find(search => search.targetField === sourceField);
+
+			oppositeTarget.links = item.links;
+		});
+	});
+
+	// Normalized values
+	Object.keys(heatMap).forEach(sourceField => {
+		heatMap[sourceField].forEach(target => {
+			target.normalized = target.links / maxLinks;
 		});
 	});
 

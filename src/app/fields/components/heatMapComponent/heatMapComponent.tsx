@@ -4,10 +4,13 @@ import { HeatMap } from '../../helpers/getHeatMap';
 import { selectHeatMap } from '../../fieldsSelectors';
 import { connect } from 'react-redux';
 import * as styles from './heatMapComponent.scss';
+import * as tinygradient from 'tinygradient';
 
 interface Props {
 	heatMap: HeatMap;
 }
+
+const gradient = tinygradient('blue', 'red');
 
 class HeatMapComponent extends React.Component<Props> {
 	render() {
@@ -25,15 +28,20 @@ class HeatMapComponent extends React.Component<Props> {
 					<tr key={sourceField}>
 						<td>{sourceField}</td>
 
-						{Object.keys(heatMap[sourceField]).map(targetField =>
-							<td key={targetField}>{heatMap[sourceField][targetField]}</td>
+						{heatMap[sourceField].map(target =>
+							<td
+								key={target.targetField}
+								style={{ backgroundColor: '#' + gradient.rgbAt(target.normalized).toHex()}}
+							>
+								{target.links}
+							</td>
 						)}
 					</tr>
 				)}
 				<tr>
 					<td />
-					{Object.keys(heatMap[sourceFields[0]]).map(targetField =>
-						<td key={targetField}>{targetField}</td>
+					{heatMap[sourceFields[0]].map(target =>
+						<td key={target.targetField}>{target.targetField}</td>
 					)}
 				</tr>
 				</tbody>
