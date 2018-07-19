@@ -268,8 +268,7 @@ export default class GraphWorkerClass {
 
                 const field = createField(usedFields, key, 'string', datasource);
                 const name = getConnectorName(connectors);
-                const ruleId = getConnectorRuleId(connectors);
-                const connector = createConnector(connectors, name, ruleId, field);
+                const connector = createConnector(connectors, name, [field]);
 
                 usedFields.push(field);
                 connectors = connectors.concat([connector]);

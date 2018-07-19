@@ -77,17 +77,15 @@ export function moveRuleToNewConnector(ruleId: string, fromConnectorName: string
 	});
 }
 
-export function createNewConnector(field: Field) {
+export function createNewConnector(fields: Field[]) {
     return (dispatch, getState) => {
     	const state: AppState = getState();
-    	const ruleId = getConnectorRuleId(state.fields.connectors);
     	const name = getConnectorName(state.fields.connectors);
 
         dispatch({
 			type: CREATE_NEW_CONNECTOR,
 			payload: {
-				field,
-				ruleId,
+				fields,
 				name
 			}
 		});

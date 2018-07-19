@@ -1,14 +1,14 @@
 import * as React from 'react';
 import Modal from '../../../ui/components/modal/modal';
-import HeatMapComponent from '../heatMapComponent/heatMapComponent';
+import SuggestedConnectorList from '../suggestedConnectorList/suggestedConnectorList';
 import * as styles from './connectorWizard.scss';
 
 class ConnectorWizard extends React.Component {
 	render() {
 		return (
-			<Modal title="Create connectors">
+			<Modal title="Suggested connectors">
 				<main className={styles.main}>
-					<HeatMapComponent/>
+					<SuggestedConnectorList/>
 				</main>
 			</Modal>
 		)

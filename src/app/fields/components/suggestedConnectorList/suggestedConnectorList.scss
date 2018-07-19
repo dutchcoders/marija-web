@@ -1,0 +1,31 @@
+.list,
+.fieldList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.suggested {
+  padding: 20px;
+  border-bottom: 1px solid #3A4555;
+}
+
+.field {
+  background: #3A4555;
+  border-radius: 3px;
+  display: inline-block;
+  margin: 0 10px 10px 0;
+  padding: 5px;
+}
+
+.description {
+  margin: 0;
+}
+
+.create {
+  border-radius: 3px;
+  background: #6C9FE0;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}

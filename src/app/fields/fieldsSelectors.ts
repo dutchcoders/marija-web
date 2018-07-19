@@ -4,7 +4,11 @@ import { Field } from './interfaces/field';
 import { Connector } from '../graph/interfaces/connector';
 import { Datasource } from '../datasources/interfaces/datasource';
 import { Item } from '../graph/interfaces/item';
-import { getHeatMap, HeatMap } from './helpers/getHeatMap';
+import {
+	getSuggestedConnectors,
+	SuggestedConnector
+} from './helpers/getSuggestedConnectors';
+import { doesConnectorExist } from './helpers/doesConnectorExist';
 
 export const getNonDateFields = createSelector(
 	(state: AppState) => state.fields.availableFields,
@@ -111,8 +115,10 @@ export const getSelectedDateFields = createSelector(
 	}
 );
 
-export const selectHeatMap = createSelector(
+export const selectSuggestedConnectors = createSelector(
 	(state: AppState) => state.graph.items,
+	(state: AppState) => state.fields.connectors,
 
-	(items: Item[]): HeatMap => getHeatMap(items)
+	(items: Item[], connectors): SuggestedConnector[] => getSuggestedConnectors(items)
+		.filter(suggested => !doesConnectorExist(suggested.fields, connectors))
 );

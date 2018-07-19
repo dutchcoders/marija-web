@@ -149,10 +149,9 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 		}
 
 		case CREATE_NEW_CONNECTOR: {
-			const field: Field = action.payload.field;
+			const fields: Field[] = action.payload.fields;
 			const name: string = action.payload.name;
-			const ruleId: string = action.payload.ruleId;
-			const connector = createConnector(state.connectors, name, ruleId, field);
+			const connector = createConnector(state.connectors, name, fields);
 
 			return {
 				...state,

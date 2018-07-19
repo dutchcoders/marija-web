@@ -1,11 +1,19 @@
 import { Item } from '../../graph/interfaces/item';
 import { getValueSets } from '../../graph/helpers/getValueSets';
+import { isEqual } from 'lodash';
 
 interface HeatMapItem {
 	links: number,
 	normalized: number,
 	targetField: string,
 	score: number;
+	uniqueConnectors: number;
+}
+
+export interface SuggestedConnector {
+	fields: string[];
+	links: number;
+	normalizedLinks: number;
 	uniqueConnectors: number;
 }
 
@@ -31,7 +39,7 @@ interface FakeConnectorNode {
 	value: any;
 }
 
-export function getHeatMap(items: Item[]): HeatMap {
+export function getSuggestedConnectors(items: Item[]): SuggestedConnector[] {
 	let fields: string[] = [];
 
 	items.forEach(item => {
@@ -74,18 +82,21 @@ export function getHeatMap(items: Item[]): HeatMap {
 	});
 
 	const fakeConnectors: FakeConnector[] = [];
-	const heatMap: HeatMap = {};
+	let suggestedConnectors: SuggestedConnector[] = [];
 
 	fields.forEach(sourceField => {
-		heatMap[sourceField] = [];
-
 		fields.forEach(targetField => {
-			heatMap[sourceField].push({
-				targetField,
-				normalized: 0,
+			const fields = [sourceField];
+
+			if (targetField !== sourceField) {
+				fields.push(targetField);
+			}
+
+			suggestedConnectors.push({
+				fields,
 				links: 0,
-				uniqueConnectors: 0,
-				score: 0
+				normalizedLinks: 0,
+				uniqueConnectors: 0
 			});
 
 			const existing = fakeConnectors.find(connector =>
@@ -166,34 +177,33 @@ export function getHeatMap(items: Item[]): HeatMap {
 	let maxLinks: number = 0;
 
 	fakeConnectorNodes.forEach(connector => {
-		const source = heatMap[connector.fields[0]];
-		const target = source.find(item => item.targetField === connector.fields[1]);
+		const suggested = suggestedConnectors.find(search => {
+			if (search.fields.length === 1) {
+				return search.fields[0] === connector.fields[0] && search.fields[0] === connector.fields[1];
+			}
 
-		target.links = target.links + connector.itemIds.length;
-		target.uniqueConnectors ++;
-		maxLinks = Math.max(target.links, maxLinks);
-	});
-
-	// Do the reverse heat map
-	Object.keys(heatMap).forEach(sourceField => {
-		heatMap[sourceField].forEach(item => {
-			const oppositeSource = heatMap[item.targetField];
-			const oppositeTarget = oppositeSource.find(search => search.targetField === sourceField);
-
-			oppositeTarget.links = item.links;
+			return isEqual(search.fields.sort(), connector.fields.sort())
 		});
+
+		suggested.links = suggested.links + connector.itemIds.length;
+		suggested.uniqueConnectors ++;
+		maxLinks = Math.max(suggested.links, maxLinks);
 	});
 
 	// Normalized values and calculate score
-	Object.keys(heatMap).forEach(sourceField => {
-		heatMap[sourceField].forEach(target => {
-			target.normalized = target.links / maxLinks;
+	const minUniqueConnectors = 2;
+	const maxUniqueConnectors = .9 * items.length;
 
-			if (target.uniqueConnectors < .9 * items.length && target.uniqueConnectors > 1) {
-				target.score = target.normalized;
-			}
-		});
+	suggestedConnectors = suggestedConnectors.filter(suggested =>
+		suggested.uniqueConnectors <= maxUniqueConnectors
+		&& suggested.uniqueConnectors >= minUniqueConnectors
+	);
+
+	suggestedConnectors.forEach(suggested => {
+		suggested.normalizedLinks = suggested.links / maxLinks;
 	});
 
-	return heatMap;
+	suggestedConnectors.sort((a, b) => b.normalizedLinks - a.normalizedLinks);
+
+	return suggestedConnectors;
 }

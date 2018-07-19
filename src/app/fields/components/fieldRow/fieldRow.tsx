@@ -33,7 +33,7 @@ class FieldRow extends React.Component<Props, State> {
 
         // Url.addQueryParam('fields', field.path);
 
-        dispatch(createNewConnector(field));
+        dispatch(createNewConnector([field]));
         // dispatch(searchFieldsUpdate());
 
         // If we add a field for a datasource, we assume that a user wants to

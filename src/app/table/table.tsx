@@ -73,7 +73,7 @@ class Table extends React.Component<Props, State> {
         const { dispatch, availableFields } = this.props;
         const field = availableFields.find(search => search.path === path);
 
-        dispatch(createNewConnector(field));
+        dispatch(createNewConnector([field]));
     }
 
     getSelectedItems(selectedNodes: Node[], items: Item[]): Item[] {
