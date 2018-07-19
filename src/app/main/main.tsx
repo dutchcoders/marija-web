@@ -30,6 +30,8 @@ import { queryMiddleware } from '../search/helpers/queryMiddleware';
 import CreateCustomDatasource
 	from '../datasources/components/createCustomDatasource/createCustomDatasource';
 import { getHistory } from './helpers/getHistory';
+import ConnectorWizard
+	from '../fields/components/connectorWizard/connectorWizard';
 
 require('../../scss/app.scss');
 require('../../images/favicon.png');
@@ -96,6 +98,7 @@ class App extends React.Component<Props, State> {
                     <Router history={history}>
                         <div className="routerWrapper">
 							<Route path='/create-custom-datasource' component={CreateCustomDatasource} />
+							<Route path='/connector-wizard' component={ConnectorWizard} />
 							<Route path='*' component={RootView} />
                         </div>
                     </Router>

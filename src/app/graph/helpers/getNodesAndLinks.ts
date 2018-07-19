@@ -6,6 +6,7 @@ import { Connector, Rule } from '../interfaces/connector';
 import { getValueSets, ValueSet } from './getValueSets';
 import { Datasource } from '../../datasources/interfaces/datasource';
 import { getStringSimilarityLevenshtein } from './getStringSimilarityLevenshtein';
+import { getNumericHash } from './getNumericHash';
 
 const contents = [];
 
@@ -123,7 +124,7 @@ export default function getNodesAndLinks(
 			};
 		}
 
-		const hash = getHash(item.id);
+		const hash = getNumericHash(item.id);
 
     	const existing = itemNodes.find(node => node.id === hash);
 
@@ -244,7 +245,7 @@ export default function getNodesAndLinks(
 		}, []);
 
 		const name = names.join(', ');
-    	const hash = getHash(name);
+    	const hash = getNumericHash(name);
 
 		const node: Node = {
 			id: hash,
@@ -431,23 +432,6 @@ function matchValueSetsOr(a: ValueSet, b: ValueSet, connector: Connector): Value
 	});
 
 	return matches;
-}
-
-export function getHash(string) {
-	let hash = 0, i, chr;
-	string += '';
-	string = string.toLowerCase();
-
-	if (string.length === 0) {
-		return hash;
-	}
-
-	for (i = 0; i < string.length; i++) {
-		chr   = string.charCodeAt(i);
-		hash  = ((hash << 5) - hash) + chr;
-		hash |= 0; // Convert to 32bit integer
-	}
-	return hash;
 }
 
 function getItemRadius(node: Node, minCount: number, maxCount: number): number {

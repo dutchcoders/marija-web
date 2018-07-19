@@ -8,4 +8,5 @@ export interface UiState {
     workspaceId: string;
     panes: PaneCollection;
     lightboxImageUrl: string | null;
+    experimentalFeatures: boolean;
 }

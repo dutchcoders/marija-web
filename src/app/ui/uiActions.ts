@@ -2,7 +2,7 @@ import {
 	CLOSE_LIGHTBOX,
 	CLOSE_PANE, CREATE_WORKSPACE,
 	MOVE_PANE_TO_TOP, OPEN_LIGHTBOX,
-	OPEN_PANE, RECEIVE_WORKSPACE, REQUEST_WORKSPACE,
+	OPEN_PANE, RECEIVE_WORKSPACE, REQUEST_WORKSPACE, SET_EXPERIMENTAL_FEATURES,
 	SET_PANE_CONFIG, UPDATE_WORKSPACE, WORKSPACE_CREATED
 } from './uiConstants';
 import { webSocketSend } from '../connection/connectionActions';
@@ -155,5 +155,14 @@ export function receiveWorkspace(id: string, workspace: Workspace) {
 				workspace
 			}
 		});
+	};
+}
+
+export function setExperimentalFeatures(enabled: boolean) {
+	return {
+		type: SET_EXPERIMENTAL_FEATURES,
+		payload: {
+			enabled
+		}
 	};
 }

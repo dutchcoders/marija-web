@@ -1,7 +1,7 @@
 import { Link } from '../interfaces/link';
 import { Node } from '../interfaces/node';
 import { Via } from '../interfaces/via';
-import { getHash } from './getNodesAndLinks';
+import { getNumericHash } from './getNumericHash';
 
 function getConnectedNodes(node, nodes, links) {
     const connected = [];
@@ -92,7 +92,7 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
 
                     if (typeof existing === 'undefined') {
                         links.push({
-                            hash: getHash(step1Node.id + step3Node.id),
+                            hash: getNumericHash(step1Node.id + step3Node.id),
                             source: step1Node.id,
                             target: step3Node.id,
                             label: label,

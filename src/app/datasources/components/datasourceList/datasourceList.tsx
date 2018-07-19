@@ -13,14 +13,9 @@ interface Props {
 }
 
 interface State {
-
 }
 
 class DatasourceList extends React.Component<Props, State> {
-	createCustomDatasource() {
-		const { dispatch } = this.props;
-	}
-
 	render() {
 		const { datasources } = this.props;
 
@@ -33,7 +28,7 @@ class DatasourceList extends React.Component<Props, State> {
 				))}
 
 				<Link to={{ pathname: '/create-custom-datasource', search: Url.getQueryString() }}>
-					<button className={styles.create} onClick={this.createCustomDatasource.bind(this)}>Create CSV datasource</button>
+					<button className={styles.create}>Create CSV datasource</button>
 				</Link>
 			</div>
 		);

@@ -14,6 +14,7 @@ import Url from '../../../main/helpers/url';
 import CustomFieldList from '../customFieldList/customFieldList';
 import { Field } from '../../../fields/interfaces/field';
 import { createFieldsFromData } from '../../helpers/createFieldsFromData';
+import Modal from '../../../ui/components/modal/modal';
 
 interface Props {
 	dispatch: any;
@@ -200,100 +201,93 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 		): null;
 
 		return (
-			<div className={styles.overlay} onClick={this.close.bind(this)}>
-				<div className={styles.modal} onClick={this.stopPropagation.bind(this)}>
-					<header className={styles.header}>
-						<h1 className={styles.title}>Create a CSV datasource</h1>
-						<Icon name={'ion-ios-close '+ styles.close} onClick={this.close.bind(this)}/>
-					</header>
+			<Modal title="Create a CSV datasource">
 
-					{activeStep === 1 && (
-						<main className={styles.main}>
-							<h2 className={styles.stepTitle}>Step 1/3 &mdash; Choose a CSV file</h2>
+				{activeStep === 1 && (
+					<main className={styles.main}>
+						<h2 className={styles.stepTitle}>Step 1/3 &mdash; Choose a CSV file</h2>
 
-							<div className={styles.formItem}>
-								<input className={styles.hidden} type="file" ref={ref => this.fileSelector = ref} onChange={this.loadFile.bind(this)} />
-								<button className={styles.chooseFile} onClick={this.selectFile.bind(this)}>Select file</button><br />
+						<div className={styles.formItem}>
+							<input className={styles.hidden} type="file" ref={ref => this.fileSelector = ref} onChange={this.loadFile.bind(this)} />
+							<button className={styles.chooseFile} onClick={this.selectFile.bind(this)}>Select file</button><br />
 
-								{fileError && (
-									<p className={styles.error}>{fileError}</p>
+							{fileError && (
+								<p className={styles.error}>{fileError}</p>
+							)}
+						</div>
+
+						{loader}
+					</main>
+				)}
+
+				{activeStep === 2 && (
+					<main className={styles.main}>
+						<h2 className={styles.stepTitle}>Step 2/3 &mdash; Settings</h2>
+
+						<div className={styles.formItem}>
+							<label className={styles.label}>Choose a datasource name</label>
+							<input className={styles.input} value={name} onChange={this.onNameChange.bind(this)} />
+							{!isNameAvailable && (
+								<p className={styles.error}>This name is already used for another datasource. Choose a different name.</p>
+							)}
+						</div>
+
+						<div className={styles.formItem}>
+							<label className={styles.label}>Delimiter (with which symbol are the values separated?)</label>
+							<input className={styles.input} value={delimiter} onChange={this.onDelimiterChange.bind(this)} />
+						</div>
+
+						<div className={styles.formItem}>
+							<label className={styles.label}>File contents preview</label>
+							<textarea className={styles.input + ' ' + styles.fileContents} readOnly value={fileContents} />
+							{parseError && (
+								<p className={styles.error}>{parseError}</p>
+							)}
+						</div>
+
+						<div className={styles.footer}>
+							<button className={styles.prev} onClick={this.backToStep1.bind(this)}>Back</button>
+							<button className={styles.next} onClick={this.continueToStep3.bind(this)} disabled={!isNameAvailable}>Continue</button>
+						</div>
+
+						{loader}
+					</main>
+				)}
+
+				{activeStep === 3 && (
+					<main className={styles.main}>
+						<h2 className={styles.stepTitle}>Step 3/3 &mdash; Preview</h2>
+
+						<CustomFieldList fields={fields} onTypeChange={(field, type) => this.onFieldTypeChange(field, type)}/>
+
+						<p>Found {parsedItems.length} items &mdash; displaying the first {Math.min(parsedItems.length, 10)}</p>
+
+						<table className={styles.table}>
+							<thead className={styles.thead}>
+							<tr>
+								{Object.keys(parsedItems[0].fields).map(key =>
+									<td className={styles.td} key={key}>{key}</td>
 								)}
-							</div>
-
-							{loader}
-						</main>
-					)}
-
-					{activeStep === 2 && (
-						<main className={styles.main}>
-							<h2 className={styles.stepTitle}>Step 2/3 &mdash; Settings</h2>
-
-							<div className={styles.formItem}>
-								<label className={styles.label}>Choose a datasource name</label>
-								<input className={styles.input} value={name} onChange={this.onNameChange.bind(this)} />
-								{!isNameAvailable && (
-									<p className={styles.error}>This name is already used for another datasource. Choose a different name.</p>
-								)}
-							</div>
-
-							<div className={styles.formItem}>
-								<label className={styles.label}>Delimiter (with which symbol are the values separated?)</label>
-								<input className={styles.input} value={delimiter} onChange={this.onDelimiterChange.bind(this)} />
-							</div>
-
-							<div className={styles.formItem}>
-								<label className={styles.label}>File contents preview</label>
-								<textarea className={styles.input + ' ' + styles.fileContents} readOnly value={fileContents} />
-								{parseError && (
-									<p className={styles.error}>{parseError}</p>
-								)}
-							</div>
-
-							<div className={styles.footer}>
-								<button className={styles.prev} onClick={this.backToStep1.bind(this)}>Back</button>
-								<button className={styles.next} onClick={this.continueToStep3.bind(this)} disabled={!isNameAvailable}>Continue</button>
-							</div>
-
-							{loader}
-						</main>
-					)}
-
-					{activeStep === 3 && (
-						<main className={styles.main}>
-							<h2 className={styles.stepTitle}>Step 3/3 &mdash; Preview</h2>
-
-							<CustomFieldList fields={fields} onTypeChange={(field, type) => this.onFieldTypeChange(field, type)}/>
-
-							<p>Found {parsedItems.length} items &mdash; displaying the first {Math.min(parsedItems.length, 10)}</p>
-
-							<table className={styles.table}>
-								<thead className={styles.thead}>
-								<tr>
+							</tr>
+							</thead>
+							<tbody>
+							{parsedItems.slice().splice(0, 10).map(item =>
+								<tr key={item.id}>
 									{Object.keys(parsedItems[0].fields).map(key =>
-										<td className={styles.td} key={key}>{key}</td>
+										<td className={styles.td} key={key}>{item.fields[key]}</td>
 									)}
 								</tr>
-								</thead>
-								<tbody>
-								{parsedItems.slice().splice(0, 10).map(item =>
-									<tr key={item.id}>
-										{Object.keys(parsedItems[0].fields).map(key =>
-											<td className={styles.td} key={key}>{item.fields[key]}</td>
-										)}
-									</tr>
-								)}
-								</tbody>
-							</table>
+							)}
+							</tbody>
+						</table>
 
-							<div className={styles.footer}>
-								<button className={styles.prev} onClick={this.backToStep2.bind(this)}>Back</button>
-								<button className={styles.next} onClick={this.finish.bind(this)}>Create datasource {name}</button>
-							</div>
-						</main>
-					)}
-
-				</div>
-			</div>
+						<div className={styles.footer}>
+							<button className={styles.prev} onClick={this.backToStep2.bind(this)}>Back</button>
+							<button className={styles.next} onClick={this.finish.bind(this)}>Create datasource {name}</button>
+						</div>
+					</main>
+				)}
+			</Modal>
 		);
 	}
 }

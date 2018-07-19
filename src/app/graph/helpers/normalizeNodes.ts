@@ -1,6 +1,6 @@
 import { Node } from '../interfaces/node';
 import { Normalization } from '../interfaces/normalization';
-import { getHash } from './getNodesAndLinks';
+import { getNumericHash } from './getNumericHash';
 
 export default function normalizeNodes(
     nodes: Node[],
@@ -28,7 +28,7 @@ export default function normalizeNodes(
 
                 if (typeof parent === 'undefined') {
                     const newParent: Node = Object.assign({}, node, {
-                        id: getHash(normalization.replaceWith),
+                        id: getNumericHash(normalization.replaceWith),
                         name: normalization.replaceWith,
                         abbreviated: normalization.replaceWith,
                         normalizationId: normalization.id,

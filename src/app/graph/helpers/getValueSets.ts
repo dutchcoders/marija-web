@@ -25,6 +25,16 @@ export function getValueSets(values: Input, relevantFields: string[]): ValueSet[
 			value = [value];
 		}
 
+		if (value.length === 0) {
+			if (typeof keys[index + 1] !== 'undefined') {
+				recurse(prevValues, index + 1);
+			} else {
+				output.push(prevValues);
+			}
+
+			return;
+		}
+
 		value.forEach(val => {
 			const newValues = {
 				...prevValues

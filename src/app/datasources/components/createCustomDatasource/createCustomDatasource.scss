@@ -1,46 +1,5 @@
-@import "../../../../scss/mixins/shadow";
-
-.overlay {
-  position: absolute;
-  background: rgba(0, 0, 0, .5);
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  z-index: 99999999;
-}
-
-.modal {
-  width: 1000px;
-  margin: 20px 0 20px 50%;
-  transform: translateX(-50%);
-  @include shadow();
-}
-
-.header {
-  padding: 0 20px;
-  background-color: #5CA1E6;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.title {
-  font-size: 1.2em;
-  text-transform: uppercase;
-  margin: 0;
-  line-height: 50px;
-}
-
-.close {
-  font-size: 25px;
-  cursor: pointer;
-}
-
 .main {
   padding: 20px;
-  background-color: #455B73;
   position: relative;
 }
 

@@ -6,6 +6,8 @@ import { Connector } from '../../../graph/interfaces/connector';
 import { AppState } from '../../../main/interfaces/appState';
 import * as styles from './connectorList.scss';
 import ConnectorComponent from '../connectorComponent/connectorComponent';
+import { Link, withRouter } from 'react-router-dom';
+import Url from '../../../main/helpers/url';
 
 interface State {
 	isHelpOpen: boolean;
@@ -14,6 +16,7 @@ interface State {
 interface Props {
 	dispatch: Dispatch<any>;
 	connectors: Connector[];
+	experimentalFeatures: boolean;
 }
 
 class ConnectorList extends React.Component<Props, State> {
@@ -31,7 +34,7 @@ class ConnectorList extends React.Component<Props, State> {
 
 	render() {
 		const { isHelpOpen } = this.state;
-		const { connectors } = this.props;
+		const { connectors, experimentalFeatures } = this.props;
 
 		const hasConnectorsWithMultipleRules: boolean = typeof connectors.find(connector =>
 			connector.rules.length > 1
@@ -72,6 +75,12 @@ class ConnectorList extends React.Component<Props, State> {
 				) : null}
 
 				{connectors.length === 0 || isHelpOpen ? help : null}
+
+				{experimentalFeatures && (
+					<Link to={{ pathname: '/connector-wizard', search: Url.getQueryString() }}>
+						<button className={styles.connectorWizard}>Open connector wizard</button>
+					</Link>
+				)}
 			</div>
 		);
 	}
@@ -80,8 +89,9 @@ class ConnectorList extends React.Component<Props, State> {
 
 function select(state: AppState) {
 	return {
-		connectors: state.fields.connectors
+		connectors: state.fields.connectors,
+		experimentalFeatures: state.ui.experimentalFeatures
 	};
 }
 
-export default connect(select)(ConnectorList);
+export default withRouter(connect(select)(ConnectorList));

@@ -1,12 +1,12 @@
 import { uniqueId } from 'lodash';
 
 import {
-	getHash,
 	default as getNodesAndLinks
 } from './getNodesAndLinks';
 import {Item} from "../interfaces/item";
 import {Field} from "../../fields/interfaces/field";
 import { Connector } from '../interfaces/connector';
+import { getNumericHash } from './getNumericHash';
 
 const generateItem = (fields: any = undefined) => {
     if (typeof fields === 'undefined') {

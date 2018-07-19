@@ -3,6 +3,8 @@ import { AppState } from '../main/interfaces/appState';
 import { Field } from './interfaces/field';
 import { Connector } from '../graph/interfaces/connector';
 import { Datasource } from '../datasources/interfaces/datasource';
+import { Item } from '../graph/interfaces/item';
+import { getHeatMap, HeatMap } from './helpers/getHeatMap';
 
 export const getNonDateFields = createSelector(
 	(state: AppState) => state.fields.availableFields,
@@ -107,4 +109,10 @@ export const getSelectedDateFields = createSelector(
 			paths.indexOf(field.path) !== -1
 		);
 	}
+);
+
+export const selectHeatMap = createSelector(
+	(state: AppState) => state.graph.items,
+
+	(items: Item[]): HeatMap => getHeatMap(items)
 );

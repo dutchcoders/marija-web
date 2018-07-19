@@ -2,11 +2,11 @@ import {Node} from "../interfaces/node";
 import {uniqueId} from 'lodash';
 import normalizeNodes from "./normalizeNodes";
 import {Normalization} from "../interfaces/normalization";
-import { getHash } from './getNodesAndLinks';
+import { getNumericHash } from './getNumericHash';
 
 const generateNode = (name: string): Node => {
     return {
-        id: getHash(name),
+        id: getNumericHash(name),
         name: name
     } as Node
 };

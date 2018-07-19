@@ -56,7 +56,10 @@ import {Via} from './interfaces/via';
 import {GraphState} from "./interfaces/graphState";
 import { markPerformance } from '../main/helpers/performance';
 import { Item } from './interfaces/item';
-import { RECEIVE_WORKSPACE } from '../ui/uiConstants';
+import {
+	RECEIVE_WORKSPACE,
+	SET_EXPERIMENTAL_FEATURES
+} from '../ui/uiConstants';
 import { Workspace } from '../ui/interfaces/workspace';
 import { markHighlightedLinks } from './helpers/markHighlightedLinks';
 import { GraphWorkerOutput } from './helpers/graphWorkerClass';

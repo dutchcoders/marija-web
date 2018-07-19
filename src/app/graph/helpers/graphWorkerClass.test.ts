@@ -9,7 +9,7 @@ import {uniqueId} from 'lodash';
 import {Field} from "../../fields/interfaces/field";
 import {Search} from "../../search/interfaces/search";
 import {Link} from "../interfaces/link";
-import { getHash } from './getNodesAndLinks';
+import { getNumericHash } from './getNumericHash';
 import { DEFAULT_DISPLAY_NODES_PER_SEARCH } from '../graphConstants';
 
 
@@ -42,7 +42,7 @@ const getSearch = (query, liveDatasource = null, aroundNodeId = null) => {
 
 const getNode = (id, query, itemIds) => {
     return {
-        id: getHash(id),
+        id: getNumericHash(id),
         name: id,
         searchIds: [query],
         items: itemIds,
@@ -55,9 +55,9 @@ const getNode = (id, query, itemIds) => {
 
 const getLink = (source, target) => {
     return {
-        hash: getHash(source) + getHash(target),
-        source: getHash(source),
-        target: getHash(target),
+        hash: getNumericHash(source) + getNumericHash(target),
+        source: getNumericHash(source),
+        target: getNumericHash(target),
         normalizationIds: [],
         itemIds: []
     } as Link;
@@ -117,10 +117,10 @@ test('should correctly output nodes when there are multiple searchIds', (done) =
     const graphWorker = new GraphWorkerClass();
 
     graphWorker.output.addListener('output', (output: GraphWorkerOutput) => {
-        const node1 = output.nodes.find(node => node.id === getHash(1));
-        const node2 = output.nodes.find(node => node.id === getHash(2));
-        const node3 = output.nodes.find(node => node.id === getHash(3));
-        const node4 = output.nodes.find(node => node.id === getHash(4));
+        const node1 = output.nodes.find(node => node.id === getNumericHash(1));
+        const node2 = output.nodes.find(node => node.id === getNumericHash(2));
+        const node3 = output.nodes.find(node => node.id === getNumericHash(3));
+        const node4 = output.nodes.find(node => node.id === getNumericHash(4));
 
         expect(output.nodes.length).toBe(4);
         expect(node1.searchIds).toEqual(['query1']);

@@ -70,3 +70,14 @@ test('should skip fields that are not specified as relevant', () => {
 	expect(output.length).toBe(1);
 	expect(output[0].skip_me).toBeUndefined();
 });
+
+test('should work when there are empty arrays present', () => {
+	const input = {
+		first_name: 'thomas',
+		last_name: [],
+	};
+
+	const output = getValueSets(input, ['first_name', 'last_name']);
+
+	expect(output.length).toBe(1);
+});

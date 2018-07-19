@@ -22,6 +22,7 @@ import { FormEvent } from 'react';
 import DatasourceList from '../../../datasources/components/datasourceList/datasourceList';
 import ConnectorList from '../../../fields/components/connectorList/connectorList';
 import Version from '../version/version';
+import { setExperimentalFeatures } from '../../../ui/uiActions';
 
 interface State {
     normalization_error: string;
@@ -40,6 +41,7 @@ interface Props {
     fieldsFetching: boolean;
     filterBoringNodes: boolean;
     filterSecondaryQueries: boolean;
+    experimentalFeatures: boolean;
 }
 
 class Configuration extends React.Component<Props, State> {
@@ -371,8 +373,14 @@ class Configuration extends React.Component<Props, State> {
         dispatch(setFilterSecondaryQueries(event.currentTarget.checked));
     }
 
+    onExperimentalFeaturesChange(event: FormEvent<HTMLInputElement>) {
+        const { dispatch } = this.props;
+
+        dispatch(setExperimentalFeatures(event.currentTarget.checked));
+    }
+
     render() {
-        const { normalizations, filterBoringNodes, filterSecondaryQueries } = this.props;
+        const { normalizations, filterBoringNodes, filterSecondaryQueries, experimentalFeatures } = this.props;
 
         return (
             <div>
@@ -416,6 +424,12 @@ class Configuration extends React.Component<Props, State> {
                 </div>
 
 				<Version/>
+                <div className="form-group">
+                    <label className="graph-option">
+                        <input type="checkbox" onChange={this.onExperimentalFeaturesChange.bind(this)} defaultChecked={experimentalFeatures} />
+                        Enable experimental features
+                    </label>
+                </div>
             </div>
         );
     }
@@ -431,6 +445,7 @@ function select(state: AppState, ownProps) {
         fieldsFetching: state.fields.fieldsFetching,
         filterBoringNodes: state.graph.filterBoringNodes,
         filterSecondaryQueries: state.graph.filterSecondaryQueries,
+        experimentalFeatures: state.ui.experimentalFeatures
     };
 }
 

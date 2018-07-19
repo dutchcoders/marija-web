@@ -4,7 +4,7 @@ import {
 	CLOSE_LIGHTBOX,
 	CLOSE_PANE,
 	MOVE_PANE_TO_TOP, OPEN_LIGHTBOX,
-	OPEN_PANE, RECEIVE_WORKSPACE,
+	OPEN_PANE, RECEIVE_WORKSPACE, SET_EXPERIMENTAL_FEATURES,
 	SET_PANE_CONFIG, WORKSPACE_CREATED
 } from './uiConstants';
 import {UiState} from "./interfaces/uiState";
@@ -23,10 +23,11 @@ const defaultPane: PaneInterface = {
     alignBottom: false,
     minWidth: 200,
     minHeight: 100,
-    zIndex: 3
+    zIndex: 3,
 };
 
 export const defaultUiState: UiState = {
+    experimentalFeatures: false,
     workspaceId: null,
     panes: {
         configuration: {
@@ -160,6 +161,13 @@ export default function uiReducer(state: UiState = defaultUiState, action): UiSt
                 panes: workspace.panes
             };
         }
+
+		case SET_EXPERIMENTAL_FEATURES: {
+			return {
+				...state,
+				experimentalFeatures: action.payload.enabled
+			}
+		}
 
         default:
             return state;
