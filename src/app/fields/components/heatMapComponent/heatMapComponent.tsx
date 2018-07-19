@@ -31,9 +31,9 @@ class HeatMapComponent extends React.Component<Props> {
 						{heatMap[sourceField].map(target =>
 							<td
 								key={target.targetField}
-								style={{ backgroundColor: '#' + gradient.rgbAt(target.normalized).toHex()}}
+								style={{ backgroundColor: '#' + gradient.rgbAt(target.score).toHex()}}
 							>
-								{target.links}
+								{target.score}
 							</td>
 						)}
 					</tr>

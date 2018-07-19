@@ -4,7 +4,9 @@ import { getValueSets } from '../../graph/helpers/getValueSets';
 interface HeatMapItem {
 	links: number,
 	normalized: number,
-	targetField: string
+	targetField: string,
+	score: number;
+	uniqueConnectors: number;
 }
 
 export interface HeatMap {
@@ -81,7 +83,9 @@ export function getHeatMap(items: Item[]): HeatMap {
 			heatMap[sourceField].push({
 				targetField,
 				normalized: 0,
-				links: 0
+				links: 0,
+				uniqueConnectors: 0,
+				score: 0
 			});
 
 			const existing = fakeConnectors.find(connector =>
@@ -166,6 +170,7 @@ export function getHeatMap(items: Item[]): HeatMap {
 		const target = source.find(item => item.targetField === connector.fields[1]);
 
 		target.links = target.links + connector.itemIds.length;
+		target.uniqueConnectors ++;
 		maxLinks = Math.max(target.links, maxLinks);
 	});
 
@@ -179,10 +184,14 @@ export function getHeatMap(items: Item[]): HeatMap {
 		});
 	});
 
-	// Normalized values
+	// Normalized values and calculate score
 	Object.keys(heatMap).forEach(sourceField => {
 		heatMap[sourceField].forEach(target => {
 			target.normalized = target.links / maxLinks;
+
+			if (target.uniqueConnectors < .9 * items.length && target.uniqueConnectors > 1) {
+				target.score = target.normalized;
+			}
 		});
 	});
 
