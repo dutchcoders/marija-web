@@ -19,6 +19,7 @@ module.exports = merge(common, {
 				CLIENT_VERSION: JSON.stringify(gitInfo.raw),
 				LAST_COMMIT_DATE: JSON.stringify(lastCommitDate),
 				MOCK_SERVER: JSON.stringify(process.env.MOCK_SERVER),
+				MEASURE_PERFORMANCE: JSON.stringify(process.env.MEASURE_PERFORMANCE),
 			}
 		})
     ],

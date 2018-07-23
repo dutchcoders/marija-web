@@ -3,6 +3,10 @@ import { getValueSets } from '../../graph/helpers/getValueSets';
 import { isEqual } from 'lodash';
 import { Connector } from '../../graph/interfaces/connector';
 import { doesConnectorExist } from './doesConnectorExist';
+import {
+	markPerformance,
+	measurePerformance
+} from '../../main/helpers/performance';
 
 export interface SuggestedConnector {
 	fields: string[];
@@ -31,6 +35,8 @@ interface FieldStats {
 }
 
 export function getSuggestedConnectors(items: Item[], existingConnectors: Connector[]): SuggestedConnector[] {
+	markPerformance('suggestedStart');
+
 	const fieldStats: FieldStats = {};
 	const datasources: string[] = [];
 	const subsetLength = 100;
@@ -235,6 +241,9 @@ export function getSuggestedConnectors(items: Item[], existingConnectors: Connec
 	});
 
 	suggestedConnectors.sort((a, b) => b.normalizedLinks - a.normalizedLinks);
+
+	markPerformance('suggestedEnd');
+	measurePerformance('suggestedStart', 'suggestedEnd');
 
 	return suggestedConnectors;
 }
