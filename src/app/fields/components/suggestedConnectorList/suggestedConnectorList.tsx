@@ -31,7 +31,7 @@ class SuggestedConnectorList extends React.Component<Props> {
 	render() {
 		const { suggestedConnectors } = this.props;
 
-		return (
+		return suggestedConnectors.length > 0 ? (
 			<ul className={styles.list}>
 				{suggestedConnectors.map(suggested =>
 					<li className={styles.suggested} key={suggested.fields.join(',')}>
@@ -45,6 +45,8 @@ class SuggestedConnectorList extends React.Component<Props> {
 					</li>
 				)}
 			</ul>
+		) : (
+			<p className={styles.none}>No suggested connectors found.</p>
 		);
 	}
 }
