@@ -1,5 +1,4 @@
 import {
-	FIELD_NODES_HIGHLIGHT,
 	GRAPH_WORKER_OUTPUT,
 	NODE_UPDATE,
 	NODES_DELETE,
@@ -9,8 +8,11 @@ import {
 	NODES_TOOLTIP,
 	NORMALIZATION_ADD,
 	NORMALIZATION_DELETE,
+	REBUILD_GRAPH,
 	SELECT_FIELD_NODES,
 	SELECTION_CLEAR,
+	SET_AUTOMATICALLY_CREATE_CONNECTORS,
+	SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID,
 	SET_FILTER_BORING_NODES,
 	SET_FILTER_SECONDARY_QUERIES,
 	SET_IMPORTANT_NODE,
@@ -18,21 +20,15 @@ import {
 	SET_NOTE,
 	SET_TIMELINE_GROUPING,
 	TOGGLE_LABELS,
-	REBUILD_GRAPH,
 	VIA_ADD,
-	VIA_DELETE,
-	SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID,
-	SET_AUTOMATICALLY_CREATE_CONNECTORS
+	VIA_DELETE
 } from './graphConstants';
-import {
-	GraphWorkerOutput
-} from './helpers/graphWorkerClass';
+import { GraphWorkerOutput } from './helpers/graphWorkerClass';
 import { Via } from './interfaces/via';
 import { TimelineGrouping } from './interfaces/graphState';
 import { AppState } from '../main/interfaces/appState';
 import { getGraphWorkerPayload } from './helpers/getGraphWorkerPayload';
 import { Node } from './interfaces/node';
-import { SET_EXPERIMENTAL_FEATURES } from '../ui/uiConstants';
 
 export function deselectNodes(opts) {
     return {
@@ -43,17 +39,13 @@ export function deselectNodes(opts) {
 }
 
 export function deleteNodes(nodes: Node[]) {
-	return (dispatch, getState) => {
-		dispatch({
-			type: NODES_DELETE,
-			receivedAt: Date.now(),
-			payload: {
-				nodes
-			}
-		});
-
-		dispatch(rebuildGraph());
-	};
+	return dispatchAndRebuildGraph({
+		type: NODES_DELETE,
+		receivedAt: Date.now(),
+		payload: {
+			nodes
+		}
+	});
 }
 
 export function highlightNodes(nodes: Node[] | Array<Node[]>) {
@@ -126,15 +118,6 @@ export function toggleLabels(show: boolean) {
     }
 }
 
-export function selectFieldNodes(fieldPath: string) {
-    return {
-        type: SELECT_FIELD_NODES,
-        payload: {
-            fieldPath: fieldPath
-        }
-    }
-}
-
 export function viaAdd(via: Via) {
     return {
         type: VIA_ADD,
@@ -186,29 +169,21 @@ export function setTimelineGrouping(timelineGrouping: TimelineGrouping) {
 }
 
 export function setFilterBoringNodes(enabled: boolean) {
-	return (dispatch, getState) => {
-		dispatch({
-			type: SET_FILTER_BORING_NODES,
-			payload: {
-				enabled
-			}
-		});
-
-		dispatch(rebuildGraph());
-	};
+	return dispatchAndRebuildGraph({
+		type: SET_FILTER_BORING_NODES,
+		payload: {
+			enabled
+		}
+	});
 }
 
 export function setFilterSecondaryQueries(enabled: boolean) {
-	return (dispatch, getState) => {
-		dispatch({
-			type: SET_FILTER_SECONDARY_QUERIES,
-			payload: {
-				enabled
-			}
-		});
-
-		dispatch(rebuildGraph());
-	};
+	return dispatchAndRebuildGraph({
+		type: SET_FILTER_SECONDARY_QUERIES,
+		payload: {
+			enabled
+		}
+	})
 }
 
 export function rebuildGraph() {
@@ -256,10 +231,17 @@ export function setExpectedGraphWorkerOutputId(id: string) {
 }
 
 export function setAutomaticallyCreateConnectors(enabled: boolean) {
-	return {
+	return dispatchAndRebuildGraph({
 		type: SET_AUTOMATICALLY_CREATE_CONNECTORS,
 		payload: {
 			enabled
 		}
+	});
+}
+
+export function dispatchAndRebuildGraph(action) {
+	return (dispatch, getState) => {
+		dispatch(action);
+		dispatch(rebuildGraph());
 	};
 }

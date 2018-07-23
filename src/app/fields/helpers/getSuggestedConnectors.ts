@@ -1,6 +1,8 @@
 import { Item } from '../../graph/interfaces/item';
 import { getValueSets } from '../../graph/helpers/getValueSets';
 import { isEqual } from 'lodash';
+import { Connector } from '../../graph/interfaces/connector';
+import { doesConnectorExist } from './doesConnectorExist';
 
 interface HeatMapItem {
 	links: number,
@@ -39,7 +41,7 @@ interface FakeConnectorNode {
 	value: any;
 }
 
-export function getSuggestedConnectors(items: Item[]): SuggestedConnector[] {
+export function getSuggestedConnectors(items: Item[], existingConnectors: Connector[]): SuggestedConnector[] {
 	let fields: string[] = [];
 
 	items.forEach(item => {
@@ -92,6 +94,10 @@ export function getSuggestedConnectors(items: Item[]): SuggestedConnector[] {
 				fields.push(targetField);
 			}
 
+			if (doesConnectorExist(fields, existingConnectors)) {
+				return;
+			}
+
 			suggestedConnectors.push({
 				fields,
 				links: 0,
@@ -99,12 +105,12 @@ export function getSuggestedConnectors(items: Item[]): SuggestedConnector[] {
 				uniqueConnectors: 0
 			});
 
-			const existing = fakeConnectors.find(connector =>
+			const existingFakeConnector = fakeConnectors.find(connector =>
 				(connector.sourceField === sourceField && connector.targetField === targetField)
 				&& (connector.sourceField === targetField && connector.targetField ===  sourceField)
 			);
 
-			if (typeof existing === 'undefined') {
+			if (typeof existingFakeConnector === 'undefined') {
 				fakeConnectors.push({
 					sourceField,
 					targetField

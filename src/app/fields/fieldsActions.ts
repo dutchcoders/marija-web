@@ -9,14 +9,13 @@ import {
 	FIELDS_REQUEST,
 	MOVE_RULE_BETWEEN_CONNECTORS,
 	MOVE_RULE_TO_NEW_CONNECTOR,
-	SET_MATCHING_STRATEGY, UPDATE_CONNECTOR, UPDATE_RULE
+	SET_MATCHING_STRATEGY,
+	UPDATE_CONNECTOR,
+	UPDATE_RULE
 } from './fieldsConstants';
 import { Field } from './interfaces/field';
-import { rebuildGraph } from '../graph/graphActions';
-import {
-	MatchingStrategy
-} from '../graph/interfaces/connector';
-import { getConnectorRuleId } from './helpers/getConnectorRuleId';
+import { dispatchAndRebuildGraph, rebuildGraph } from '../graph/graphActions';
+import { MatchingStrategy } from '../graph/interfaces/connector';
 import { getConnectorName } from './helpers/getConnectorName';
 
 export function receiveFields(fields: Field[], datasource: string, defaultFields: Field[], defaultVia: Via[]) {
@@ -46,13 +45,6 @@ export function getFields(datasources: Datasource[]) {
             type: FIELDS_REQUEST,
             datasources: datasourceIds
         }));
-    };
-}
-
-function dispatchAndRebuildGraph(action) {
-    return (dispatch, getState) => {
-        dispatch(action);
-		dispatch(rebuildGraph());
     };
 }
 

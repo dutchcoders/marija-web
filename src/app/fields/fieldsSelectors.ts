@@ -8,7 +8,6 @@ import {
 	getSuggestedConnectors,
 	SuggestedConnector
 } from './helpers/getSuggestedConnectors';
-import { doesConnectorExist } from './helpers/doesConnectorExist';
 
 export const getNonDateFields = createSelector(
 	(state: AppState) => state.fields.availableFields,
@@ -119,6 +118,5 @@ export const selectSuggestedConnectors = createSelector(
 	(state: AppState) => state.graph.items,
 	(state: AppState) => state.fields.connectors,
 
-	(items: Item[], connectors): SuggestedConnector[] => getSuggestedConnectors(items)
-		.filter(suggested => !doesConnectorExist(suggested.fields, connectors))
+	(items: Item[], connectors): SuggestedConnector[] => getSuggestedConnectors(items, connectors)
 );

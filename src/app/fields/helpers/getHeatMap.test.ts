@@ -18,7 +18,7 @@ test('should compute with single field', () => {
 		getItem({ first_name: 'henk' }),
 	];
 
-	const suggested = getSuggestedConnectors(items);
+	const suggested = getSuggestedConnectors(items, []);
 
 	expect(suggested.length).toBe(1);
 	expect(suggested[0]).toEqual({

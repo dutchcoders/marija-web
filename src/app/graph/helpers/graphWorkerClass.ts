@@ -108,19 +108,13 @@ export default class GraphWorkerClass {
 			searches[searchIndex] = search;
 			search.items = search.items.concat(payload.items);
 
-			// For live datasources we automatically add all the fields that are present in the items
-			// if (isLive) {
-			// 	connectors = GraphWorkerClass.createConnectorsFromData(connectors, payload.items, search.liveDatasource);
-			// }
-
 			useItems = prevItemCache.concat(payload.items);
 		}
 
+		let connectors: Connector[] = payload.connectors;
 
-		let connectors: Connector[] = [];//
-
-		if (payload.automaticallyCreateConnectors) {
-			const suggested = getSuggestedConnectors(useItems);
+		if (payload.automaticallyCreateConnectors || isLive) {
+			const suggested = getSuggestedConnectors(useItems, connectors);
 			suggested.forEach(connector => {
 				const fields = connector.fields.map(field => ({
 					path: field,
@@ -130,8 +124,6 @@ export default class GraphWorkerClass {
 
 				connectors.push(createConnector(connectors, uniqueId(), fields))
 			});
-		} else {
-			connectors = payload.connectors;
 		}
 
         // update nodes and links
@@ -259,44 +251,5 @@ export default class GraphWorkerClass {
             nodes: filteredNodes,
             links: filteredLinks
         };
-    }
-
-    /**
-     * Automatically create connectors based on all the data that is present in the
-     * items.
-     *
-     * @param {Connector[]} connectors
-     * @param {Item[]} items
-     * @param {string} datasource
-     * @returns {Connector[]}
-     */
-    private static createConnectorsFromData(connectors: Connector[], items: Item[], datasource: string): Connector[] {
-        const usedFields: Field[] = [];
-
-        connectors.forEach(connector =>
-			connector.rules.forEach(rule =>
-				usedFields.push(rule.field)
-			)
-		);
-
-        items.forEach(item => {
-            forEach(item.fields, (value, key) => {
-            	const existing = usedFields.find(field => field.path === key);
-
-                if (existing) {
-                    // Field is already used in a connector
-                    return;
-                }
-
-                const field = createField(usedFields, key, 'string', datasource);
-                const name = getConnectorName(connectors);
-                const connector = createConnector(connectors, name, [field]);
-
-                usedFields.push(field);
-                connectors = connectors.concat([connector]);
-            });
-        });
-
-        return connectors;
     }
 }
