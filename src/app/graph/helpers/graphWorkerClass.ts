@@ -112,12 +112,15 @@ export default class GraphWorkerClass {
 		}
 
 		let connectors: Connector[] = payload.connectors;
-		const suggested = getSuggestedConnectors(useItems, fieldCache, connectors, payload.deletedConnectorFields);
+		let suggested: Connector[] = getSuggestedConnectors(useItems, fieldCache, connectors, payload.deletedConnectorFields);
 
 		const automaticallyCreateConnectors = payload.automaticallyCreateConnectors || isLive;
 
 		if (automaticallyCreateConnectors) {
-			connectors = connectors.concat(suggested);
+			const maxAutomaticConnectors = 10;
+			const toAdd = maxAutomaticConnectors - connectors.length;
+			connectors = connectors.concat(suggested.slice(0, toAdd - 1));
+			suggested = suggested.slice(toAdd);
 		}
 
         // update nodes and links
@@ -177,7 +180,7 @@ export default class GraphWorkerClass {
             connectors: connectors,
             searches: searches,
 			outputId: payload.outputId,
-			suggestedConnectors: automaticallyCreateConnectors ? [] : suggested
+			suggestedConnectors: suggested
         };
 
         prevNodeCache = nodes;

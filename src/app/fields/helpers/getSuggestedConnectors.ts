@@ -127,6 +127,12 @@ export function getSuggestedConnectors(items: Item[], fields: Field[], existingC
 
 	relevantFields.forEach(sourceField => {
 		relevantFields.forEach(targetField => {
+			if (sourceField !== targetField) {
+				// Todo: a user should have the option somewhere to also try cross-field combinations
+				// For now this is disabled because it's too slow
+				return;
+			}
+
 			const fieldPaths = [sourceField];
 
 			if (targetField !== sourceField) {
@@ -205,6 +211,11 @@ export function getSuggestedConnectors(items: Item[], fields: Field[], existingC
 
 					fakeConnectors.forEach(connector => {
 						const sourceValue = sourceValueSet[connector.sourceField];
+
+						if (typeof sourceValue === 'undefined') {
+							return;
+						}
+
 						const targetValue = targetValueSet[connector.targetField];
 
 						if (sourceValue === targetValue) {
