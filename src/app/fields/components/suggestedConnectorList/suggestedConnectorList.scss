@@ -1,35 +1,32 @@
-.list,
-.fieldList {
-  margin: 0;
+.connectors,
+.rules {
+  list-style: none;
   padding: 0;
+  margin: 0;
+}
+
+.connector {
+  background: #435266 !important;
+  border-radius: 3px;
+  padding: 10px 10px 5px;
+  margin-bottom: 10px;
+  display: flex;
+}
+
+.rules {
+  flex-grow: 1;
+}
+
+.rule {
+  padding: 5px 10px !important;
+  border-radius: 3px;
+  margin: 0 0 5px;
+  background: #3A4555 !important;
   list-style: none;
 }
 
-.suggested {
-  padding: 20px;
-  border-bottom: 1px solid #3A4555;
-}
-
-.field {
-  background: #3A4555;
-  border-radius: 3px;
-  display: inline-block;
-  margin: 0 10px 10px 0;
-  padding: 5px;
-}
-
-.description {
-  margin: 0 0 10px;
-}
-
 .create {
-  border-radius: 3px;
-  background: #6C9FE0;
-  border: none;
-  padding: 5px 10px;
+  margin-left: 10px;
+  font-size: 20px;
   cursor: pointer;
-}
-
-.none {
-  padding: 20px;
 }

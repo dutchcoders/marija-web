@@ -25,6 +25,7 @@ import { Datasource } from '../../datasources/interfaces/datasource';
 import { createConnector } from '../../fields/helpers/createConnector';
 import { getSuggestedConnectors } from '../../fields/helpers/getSuggestedConnectors';
 import { uniqueId } from 'lodash';
+import { Field } from '../../fields/interfaces/field';
 
 export interface GraphWorkerPayload {
     items: Item[];
@@ -45,6 +46,7 @@ export interface GraphWorkerPayload {
     datasources: Datasource[];
 	outputId: string;
 	automaticallyCreateConnectors: boolean;
+	fields: Field[];
 }
 
 export interface GraphWorkerOutput {
@@ -52,6 +54,7 @@ export interface GraphWorkerOutput {
     links: Link[];
     items: Item[];
     connectors: Connector[];
+    suggestedConnectors: Connector[];
     searches: Search[];
 	outputId: string;
 }
@@ -59,6 +62,7 @@ export interface GraphWorkerOutput {
 let prevNodeCache: Node[];
 let prevLinkCache: Link[];
 let prevItemCache: Item[];
+let fieldCache: Field[];
 
 export default class GraphWorkerClass {
     output: EventEmitter = new EventEmitter();
@@ -79,6 +83,9 @@ export default class GraphWorkerClass {
 			prevItemCache = payload.prevItems;
 		}
 
+		if (typeof payload.fields !== 'undefined') {
+			fieldCache = payload.fields;
+		}
 
 		let search: Search;
 		let searches: Search[] = payload.searches;
@@ -106,18 +113,12 @@ export default class GraphWorkerClass {
 		}
 
 		let connectors: Connector[] = payload.connectors;
+		const suggested = getSuggestedConnectors(useItems, fieldCache, connectors);
 
-		if (payload.automaticallyCreateConnectors || isLive) {
-			const suggested = getSuggestedConnectors(useItems, connectors);
-			suggested.forEach(connector => {
-				const fields = connector.fields.map(field => ({
-					path: field,
-					type: 'text',
-					datasourceId: ''
-				}));
+		const automaticallyCreateConnectors = payload.automaticallyCreateConnectors || isLive;
 
-				connectors.push(createConnector(connectors, uniqueId(), fields))
-			});
+		if (automaticallyCreateConnectors) {
+			connectors = connectors.concat(suggested);
 		}
 
         // update nodes and links
@@ -176,7 +177,8 @@ export default class GraphWorkerClass {
             items: items,
             connectors: connectors,
             searches: searches,
-			outputId: payload.outputId
+			outputId: payload.outputId,
+			suggestedConnectors: automaticallyCreateConnectors ? [] : suggested
         };
 
         prevNodeCache = nodes;

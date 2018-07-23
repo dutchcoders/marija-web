@@ -26,7 +26,8 @@ export const defaultFieldsState: FieldsState = {
     availableFields: [],
     fieldsFetching: false,
     defaultConfigs: {},
-    connectors: []
+    connectors: [],
+	suggestedConnectors: []
 };
 
 export default function fieldsReducer(state: FieldsState = defaultFieldsState, action) {
@@ -261,7 +262,8 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 
 			return {
 				...state,
-				connectors: output.connectors
+				connectors: output.connectors,
+				suggestedConnectors: output.suggestedConnectors
 			};
 		}
 

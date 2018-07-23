@@ -18,7 +18,6 @@ interface State {
 interface Props {
 	dispatch: Dispatch<any>;
 	connectors: Connector[];
-	experimentalFeatures: boolean;
 	automaticallyCreateConnectors: boolean;
 }
 
@@ -43,7 +42,7 @@ class ConnectorList extends React.Component<Props, State> {
 
 	render() {
 		const { isHelpOpen } = this.state;
-		const { connectors, experimentalFeatures, automaticallyCreateConnectors } = this.props;
+		const { connectors, automaticallyCreateConnectors } = this.props;
 
 		const hasConnectorsWithMultipleRules: boolean = typeof connectors.find(connector =>
 			connector.rules.length > 1
@@ -67,7 +66,7 @@ class ConnectorList extends React.Component<Props, State> {
 
 		return (
 			<div className={styles.connectors}>
-				<h2>Connectors</h2>
+				<h2>Active connectors</h2>
 
 				{connectors.map(connector => (
 					<ConnectorComponent connector={connector} key={connector.name} />
@@ -85,17 +84,10 @@ class ConnectorList extends React.Component<Props, State> {
 
 				{connectors.length === 0 || isHelpOpen ? help : null}
 
-				{experimentalFeatures && (
-					<div>
-						<Link to={{ pathname: '/connector-wizard', search: Url.getQueryString() }}>
-							<button className={styles.connectorWizard}>Suggest connectors</button>
-						</Link>
-						<label>
-							<input type="checkbox" onChange={this.setAutomaticallyCreateConnectors.bind(this)} checked={automaticallyCreateConnectors}/>
-							Automatically create connectors
-						</label>
-					</div>
-				)}
+				<label className={styles.automagic}>
+					<input type="checkbox" onChange={this.setAutomaticallyCreateConnectors.bind(this)} checked={automaticallyCreateConnectors}/>
+					Automatically create connectors
+				</label>
 			</div>
 		);
 	}
@@ -104,7 +96,6 @@ class ConnectorList extends React.Component<Props, State> {
 function select(state: AppState) {
 	return {
 		connectors: state.fields.connectors,
-		experimentalFeatures: state.ui.experimentalFeatures,
 		automaticallyCreateConnectors: state.graph.automaticallyCreateConnectors
 	};
 }

@@ -71,6 +71,7 @@ export function createWorkerMiddleware(worker) {
 							delete payload.prevItems;
 							delete payload.prevLinks;
 							delete payload.prevNodes;
+							delete payload.fields;
 						}
 					}
 

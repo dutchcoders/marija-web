@@ -22,6 +22,7 @@ export function getGraphWorkerPayload(state: AppState, items: Item[] = [], searc
 		datasources: state.datasources.datasources,
 		// Will be set in the middleware, right before sending it to the worker
 		outputId: null,
-		automaticallyCreateConnectors: state.graph.automaticallyCreateConnectors
+		automaticallyCreateConnectors: state.graph.automaticallyCreateConnectors,
+		fields: state.fields.availableFields
 	};
 }

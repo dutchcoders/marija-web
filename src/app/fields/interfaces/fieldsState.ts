@@ -7,4 +7,5 @@ export interface FieldsState {
     fieldsFetching: boolean;
     defaultConfigs: DefaultConfigs;
     connectors: Connector[];
+    suggestedConnectors: Connector[];
 }

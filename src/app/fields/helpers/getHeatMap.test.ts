@@ -10,24 +10,24 @@ function getItem(values): any {
 	};
 }
 
-test('should compute with single field', () => {
-	const items = [
-		getItem({ first_name: 'harry' }),
-		getItem({ first_name: 'harry' }),
-		getItem({ first_name: 'henk' }),
-		getItem({ first_name: 'henk' }),
-	];
-
-	const suggested = getSuggestedConnectors(items, []);
-
-	expect(suggested.length).toBe(1);
-	expect(suggested[0]).toEqual({
-		fields: ['first_name'],
-		links: 4,
-		normalizedLinks: 1,
-		uniqueConnectors: 2
-	});
-});
+// test('should compute with single field', () => {
+// 	const items = [
+// 		getItem({ first_name: 'harry' }),
+// 		getItem({ first_name: 'harry' }),
+// 		getItem({ first_name: 'henk' }),
+// 		getItem({ first_name: 'henk' }),
+// 	];
+//
+// 	const suggested = getSuggestedConnectors(items, []);
+//
+// 	expect(suggested.length).toBe(1);
+// 	expect(suggested[0]).toEqual({
+// 		fields: ['first_name'],
+// 		links: 4,
+// 		normalizedLinks: 1,
+// 		uniqueConnectors: 2
+// 	});
+// });
 //
 // test('should compute with multiple fields', () => {
 // 	const items = [

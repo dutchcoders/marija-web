@@ -21,6 +21,7 @@ import { exportData, importData } from '../../mainActions';
 import { FormEvent } from 'react';
 import DatasourceList from '../../../datasources/components/datasourceList/datasourceList';
 import ConnectorList from '../../../fields/components/connectorList/connectorList';
+import SuggestedConnectorList from '../../../fields/components/suggestedConnectorList/suggestedConnectorList';
 import Version from '../version/version';
 import { setExperimentalFeatures } from '../../../ui/uiActions';
 
@@ -384,8 +385,9 @@ class Configuration extends React.Component<Props, State> {
 
         return (
             <div>
-				<DatasourceList/>
+				<DatasourceList />
 				<ConnectorList />
+                <SuggestedConnectorList />
 
                 <Fields />
 

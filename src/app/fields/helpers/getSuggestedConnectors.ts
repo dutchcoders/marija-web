@@ -1,15 +1,17 @@
 import { Item } from '../../graph/interfaces/item';
 import { getValueSets } from '../../graph/helpers/getValueSets';
-import { isEqual } from 'lodash';
+import { isEqual, uniqueId } from 'lodash';
 import { Connector } from '../../graph/interfaces/connector';
 import { doesConnectorExist } from './doesConnectorExist';
 import {
 	markPerformance,
 	measurePerformance
 } from '../../main/helpers/performance';
+import { Field } from '../interfaces/field';
+import { createConnector } from './createConnector';
 
 export interface SuggestedConnector {
-	fields: string[];
+	fields: Field[];
 	links: number;
 	normalizedLinks: number;
 	uniqueConnectors: number;
@@ -34,7 +36,9 @@ interface FieldStats {
 	}
 }
 
-export function getSuggestedConnectors(items: Item[], existingConnectors: Connector[]): SuggestedConnector[] {
+export function getSuggestedConnectors(items: Item[], fields: Field[], existingConnectors: Connector[]): Connector[] {
+	existingConnectors = existingConnectors.concat([]);
+
 	markPerformance('suggestedStart');
 
 	const fieldStats: FieldStats = {};
@@ -90,7 +94,7 @@ export function getSuggestedConnectors(items: Item[], existingConnectors: Connec
 		).slice(0, itemsPerDatasource));
 	});
 
-	let fields: string[] = [];
+	let relevantFields: string[] = [];
 	Object.keys(fieldStats).forEach(field => {
 		const stats = fieldStats[field];
 
@@ -111,26 +115,28 @@ export function getSuggestedConnectors(items: Item[], existingConnectors: Connec
 			return;
 		}
 
-		fields.push(field);
+		relevantFields.push(field);
 	});
 
 	const fakeConnectors: FakeConnector[] = [];
 	let suggestedConnectors: SuggestedConnector[] = [];
 
-	fields.forEach(sourceField => {
-		fields.forEach(targetField => {
-			const fields = [sourceField];
+	relevantFields.forEach(sourceField => {
+		relevantFields.forEach(targetField => {
+			const fieldPaths = [sourceField];
 
 			if (targetField !== sourceField) {
-				fields.push(targetField);
+				fieldPaths.push(targetField);
 			}
 
-			if (doesConnectorExist(fields, existingConnectors)) {
+			if (doesConnectorExist(fieldPaths, existingConnectors)) {
 				return;
 			}
 
+			const connectorFields = fieldPaths.map(path => fields.find(field => field.path === path));
+
 			suggestedConnectors.push({
-				fields,
+				fields: connectorFields,
 				links: 0,
 				normalizedLinks: 0,
 				uniqueConnectors: 0
@@ -178,7 +184,7 @@ export function getSuggestedConnectors(items: Item[], existingConnectors: Connec
 	};
 
 	subset.forEach(sourceData => {
-		const sourceValueSets = getValueSets(sourceData.fields, fields);
+		const sourceValueSets = getValueSets(sourceData.fields, relevantFields);
 
 		sourceValueSets.forEach(sourceValueSet => {
 			subset.forEach(targetData => {
@@ -189,7 +195,7 @@ export function getSuggestedConnectors(items: Item[], existingConnectors: Connec
 				done[targetData.id + sourceData.id] = true;
 				done[sourceData.id + targetData.id] = true;
 
-				const targetValueSets = getValueSets(targetData.fields, fields);
+				const targetValueSets = getValueSets(targetData.fields, relevantFields);
 
 				targetValueSets.forEach(targetValueSet => {
 
@@ -216,10 +222,11 @@ export function getSuggestedConnectors(items: Item[], existingConnectors: Connec
 	fakeConnectorNodes.forEach(connector => {
 		const suggested = suggestedConnectors.find(search => {
 			if (search.fields.length === 1) {
-				return search.fields[0] === connector.fields[0] && search.fields[0] === connector.fields[1];
+				return search.fields[0].path === connector.fields[0] && search.fields[0].path === connector.fields[1];
 			}
 
-			return isEqual(search.fields.sort(), connector.fields.sort())
+			const searchFields = search.fields.map(field => field.path).sort();
+			return isEqual(searchFields, connector.fields.sort())
 		});
 
 		suggested.links = suggested.links + connector.itemIds.length;
@@ -245,5 +252,16 @@ export function getSuggestedConnectors(items: Item[], existingConnectors: Connec
 	markPerformance('suggestedEnd');
 	measurePerformance('suggestedStart', 'suggestedEnd');
 
-	return suggestedConnectors;
+	const newConnectors: Connector[] = [];
+
+	suggestedConnectors.forEach(suggested => {
+		const newConnector = createConnector(existingConnectors, uniqueId(), suggested.fields);
+
+		newConnectors.push(newConnector);
+
+		// We need to push it to the existing connector list, so that the icons and names wont be used twice
+		existingConnectors.push(newConnector);
+	});
+
+	return newConnectors;
 }

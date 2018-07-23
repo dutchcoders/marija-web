@@ -113,10 +113,3 @@ export const getSelectedDateFields = createSelector(
 		);
 	}
 );
-
-export const selectSuggestedConnectors = createSelector(
-	(state: AppState) => state.graph.items,
-	(state: AppState) => state.fields.connectors,
-
-	(items: Item[], connectors): SuggestedConnector[] => getSuggestedConnectors(items, connectors)
-);
