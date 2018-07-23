@@ -36,7 +36,7 @@ interface FieldStats {
 	}
 }
 
-export function getSuggestedConnectors(items: Item[], fields: Field[], existingConnectors: Connector[]): Connector[] {
+export function getSuggestedConnectors(items: Item[], fields: Field[], existingConnectors: Connector[], deletedConnectorFields: string[]): Connector[] {
 	existingConnectors = existingConnectors.concat([]);
 
 	markPerformance('suggestedStart');
@@ -51,6 +51,10 @@ export function getSuggestedConnectors(items: Item[], fields: Field[], existingC
 		}
 
 		Object.keys(item.fields).forEach(key => {
+			if (deletedConnectorFields.indexOf(key) !== -1) {
+				return;
+			}
+
 			let values = item.fields[key];
 
 			if (values === null || values === '' || typeof values === 'undefined') {

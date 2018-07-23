@@ -27,7 +27,8 @@ export const defaultFieldsState: FieldsState = {
     fieldsFetching: false,
     defaultConfigs: {},
     connectors: [],
-	suggestedConnectors: []
+	suggestedConnectors: [],
+	deletedConnectorFields: []
 };
 
 export default function fieldsReducer(state: FieldsState = defaultFieldsState, action) {
@@ -178,6 +179,7 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 		case DELETE_FROM_CONNECTOR: {
 			let connectors = state.connectors.concat([]);
 			const index = connectors.findIndex(matcher => matcher.name === action.payload.connectorName);
+			const fieldPath = connectors[index].rules.find(rule => rule.id === action.payload.ruleId).field.path;
 
 			connectors[index] = {
 				...connectors[index],
@@ -191,7 +193,8 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 
 			return {
 				...state,
-				connectors: connectors
+				connectors: connectors,
+				deletedConnectorFields: state.deletedConnectorFields.concat([fieldPath])
 			};
 		}
 

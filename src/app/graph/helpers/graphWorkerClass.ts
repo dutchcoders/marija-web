@@ -22,9 +22,7 @@ import {sortItems} from "./sortItems";
 import { REBUILD_GRAPH } from '../graphConstants';
 import { Connector } from '../interfaces/connector';
 import { Datasource } from '../../datasources/interfaces/datasource';
-import { createConnector } from '../../fields/helpers/createConnector';
 import { getSuggestedConnectors } from '../../fields/helpers/getSuggestedConnectors';
-import { uniqueId } from 'lodash';
 import { Field } from '../../fields/interfaces/field';
 
 export interface GraphWorkerPayload {
@@ -47,6 +45,7 @@ export interface GraphWorkerPayload {
 	outputId: string;
 	automaticallyCreateConnectors: boolean;
 	fields: Field[];
+	deletedConnectorFields: string[];
 }
 
 export interface GraphWorkerOutput {
@@ -113,7 +112,7 @@ export default class GraphWorkerClass {
 		}
 
 		let connectors: Connector[] = payload.connectors;
-		const suggested = getSuggestedConnectors(useItems, fieldCache, connectors);
+		const suggested = getSuggestedConnectors(useItems, fieldCache, connectors, payload.deletedConnectorFields);
 
 		const automaticallyCreateConnectors = payload.automaticallyCreateConnectors || isLive;
 
