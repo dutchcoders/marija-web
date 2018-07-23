@@ -4,30 +4,11 @@ import { isEqual } from 'lodash';
 import { Connector } from '../../graph/interfaces/connector';
 import { doesConnectorExist } from './doesConnectorExist';
 
-interface HeatMapItem {
-	links: number,
-	normalized: number,
-	targetField: string,
-	score: number;
-	uniqueConnectors: number;
-}
-
 export interface SuggestedConnector {
 	fields: string[];
 	links: number;
 	normalizedLinks: number;
 	uniqueConnectors: number;
-}
-
-export interface HeatMap {
-	[sourceField: string]: HeatMapItem[]
-}
-
-interface FastData {
-	id: any;
-	fields: {
-		[key: string]: any[]
-	}
 }
 
 interface FakeConnector {
@@ -41,46 +22,90 @@ interface FakeConnectorNode {
 	value: any;
 }
 
+interface FieldStats {
+	[field: string]: {
+		values: number;
+		uniqueValues: string[];
+		valueLengths: number[];
+	}
+}
+
 export function getSuggestedConnectors(items: Item[], existingConnectors: Connector[]): SuggestedConnector[] {
-	let fields: string[] = [];
+	const fieldStats: FieldStats = {};
+	const datasources: string[] = [];
+	const subsetLength = 100;
 
 	items.forEach(item => {
+		if (datasources.indexOf(item.datasourceId) === -1) {
+			datasources.push(item.datasourceId);
+		}
+
 		Object.keys(item.fields).forEach(key => {
-			if (fields.indexOf(key) === -1) {
-				fields.push(key);
-			}
-		});
-	});
-
-	// Convert items fields to numeric hashes for a performance boost
-	const data: FastData[] = items.map(item => {
-		const keys = Object.keys(item.fields);
-		const itemData = {};
-
-		keys.forEach(key => {
 			let values = item.fields[key];
+
+			if (values === null || values === '' || typeof values === 'undefined') {
+				return;
+			}
 
 			if (!Array.isArray(values)) {
 				values = [values];
 			}
 
-			itemData[key] = [];
+			if (typeof fieldStats[key] === 'undefined') {
+				fieldStats[key] = {
+					values: 0,
+					uniqueValues: [],
+					valueLengths: []
+				};
+			}
 
 			values.forEach(value => {
-				if (typeof value === 'undefined' || value === null || value === '') {
-					return;
+				fieldStats[key].values ++;
+
+				if (fieldStats[key].uniqueValues.indexOf(value) === -1) {
+					fieldStats[key].uniqueValues.push(value);
 				}
 
-				// itemData[key].push(getNumericHash(value));
-				itemData[key].push(value);
+				const string = '' + value;
+
+				fieldStats[key].valueLengths.push(string.length);
 			});
 		});
+	});
 
-		return {
-			// id: getNumericHash(item.id),
-			id: item.id,
-			fields: itemData
-		};
+	const itemsPerDatasource = subsetLength / datasources.length;
+	let subset: Item[] = [];
+
+	// Take some items from all active datasources
+	// We don't use all items for performance reasons
+	datasources.forEach(datasource => {
+		subset = subset.concat(items.filter(item =>
+			item.datasourceId === datasource
+		).slice(0, itemsPerDatasource));
+	});
+
+	let fields: string[] = [];
+	Object.keys(fieldStats).forEach(field => {
+		const stats = fieldStats[field];
+
+		if (stats.uniqueValues.length === stats.values) {
+			// All values are unique, this field is not useful
+			return;
+		}
+
+		if (stats.uniqueValues.length === 1) {
+			// All values are the same, this field is not useful
+			return;
+		}
+
+		const averageLength = stats.valueLengths.reduce((prev, current) => prev + current, 0) / stats.valueLengths.length;
+
+		if (averageLength > 100) {
+			// The values in this field are too long, it's most likely not useful and it would be CPU intensive to try
+			return;
+		}
+
+		fields.push(field);
 	});
 
 	const fakeConnectors: FakeConnector[] = [];
@@ -146,11 +171,11 @@ export function getSuggestedConnectors(items: Item[], existingConnectors: Connec
 		});
 	};
 
-	data.forEach(sourceData => {
+	subset.forEach(sourceData => {
 		const sourceValueSets = getValueSets(sourceData.fields, fields);
 
 		sourceValueSets.forEach(sourceValueSet => {
-			data.forEach(targetData => {
+			subset.forEach(targetData => {
 				if (targetData.id === sourceData.id || done[sourceData.id + targetData.id]) {
 					return;
 				}

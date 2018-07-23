@@ -5,10 +5,10 @@ const { gitDescribeSync } = require('git-describe');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const commonConfig = require('./webpack_common');
 const { execSync } = require('child_process');
-const lastCommitDate = execSync('git show -s --format=%ci ' + gitInfo.hash).toString();
 
 dotenv.config();
 const gitInfo = gitDescribeSync();
+const lastCommitDate = execSync('git show -s --format=%ci ' + gitInfo.hash).toString();
 const SRC_DIR = path.resolve(__dirname, 'src');
 
 module.exports = Object.assign(commonConfig, {
