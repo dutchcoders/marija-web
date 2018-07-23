@@ -102,6 +102,12 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 		});
 	}
 
+	onFileContentsChange(event: FormEvent<HTMLTextAreaElement>) {
+		this.setState({
+			fileContents: event.currentTarget.value
+		});
+	}
+
 	onDelimiterChange(event: FormEvent<HTMLInputElement>) {
 		this.setState({
 			delimiter: event.currentTarget.value
@@ -207,6 +213,10 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 					<main className={styles.main}>
 						<h2 className={styles.stepTitle}>Step 1/3 &mdash; Choose a CSV file</h2>
 
+						<p>
+							The first line of the CSV should contain the header information (the titles of the columns).
+						</p>
+
 						<div className={styles.formItem}>
 							<input className={styles.hidden} type="file" ref={ref => this.fileSelector = ref} onChange={this.loadFile.bind(this)} />
 							<button className={styles.chooseFile} onClick={this.selectFile.bind(this)}>Select file</button><br />
@@ -233,13 +243,15 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 						</div>
 
 						<div className={styles.formItem}>
-							<label className={styles.label}>Delimiter (with which symbol are the values separated?)</label>
-							<input className={styles.input} value={delimiter} onChange={this.onDelimiterChange.bind(this)} />
+							<label className={styles.label}>Delimiter</label>
+							<p className={styles.description}>The symbol that separates the values.</p>
+							<input className={styles.input + ' ' + styles.delimiter} value={delimiter} onChange={this.onDelimiterChange.bind(this)} />
 						</div>
 
 						<div className={styles.formItem}>
-							<label className={styles.label}>File contents preview</label>
-							<textarea className={styles.input + ' ' + styles.fileContents} readOnly value={fileContents} />
+							<label className={styles.label}>File contents</label>
+							<p className={styles.description}>The first line should contain the header information (the titles of the columns).</p>
+							<textarea className={styles.input + ' ' + styles.fileContents} value={fileContents} onChange={this.onFileContentsChange.bind(this)} />
 							{parseError && (
 								<p className={styles.error}>{parseError}</p>
 							)}
@@ -257,10 +269,14 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 				{activeStep === 3 && (
 					<main className={styles.main}>
 						<h2 className={styles.stepTitle}>Step 3/3 &mdash; Preview</h2>
+						<h3 className={styles.subTitle}>Found {fields.length} fields</h3>
 
 						<CustomFieldList fields={fields} onTypeChange={(field, type) => this.onFieldTypeChange(field, type)}/>
 
-						<p>Found {parsedItems.length} items &mdash; displaying the first {Math.min(parsedItems.length, 10)}</p>
+						<h3 className={styles.subTitle}>Found {parsedItems.length} items</h3>
+						{parsedItems.length > 10 && (
+							<p>Displaying the first 10.</p>
+						)}
 
 						<table className={styles.table}>
 							<thead className={styles.thead}>

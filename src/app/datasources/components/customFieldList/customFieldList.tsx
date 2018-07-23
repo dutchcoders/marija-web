@@ -27,7 +27,7 @@ class CustomFieldList extends React.Component<Props, State> {
 				<tr>
 					<td className={styles.td}>Field</td>
 					<td className={styles.td}>Type</td>
-					<td className={styles.td}>Values</td>
+					<td className={styles.td}>Unique values (displaying max. 10)</td>
 				</tr>
 				</thead>
 				<tbody>

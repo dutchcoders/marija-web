@@ -1,5 +1,5 @@
 .main {
-  padding: 20px;
+  padding: 0 20px 20px;
   position: relative;
 }
 
@@ -24,8 +24,11 @@
 }
 
 .stepTitle {
-  font-size: 1.2em;
-  margin: 0 0 20px;
+  font-size: 1.4em;
+  font-weight: 300;
+  margin: 0 -20px 20px;
+  padding: 20px;
+  border-bottom: 1px solid #3A4555;
 }
 
 .chooseFile {
@@ -64,7 +67,6 @@
   height: 250px;
   outline: none;
   font-family: monospace;
-  cursor: not-allowed;
   padding: 10px;
 }
 
@@ -116,5 +118,13 @@
 }
 
 .formItem {
-  margin-bottom: 15px;
+  margin-bottom: 30px;
+}
+
+.subTitle {
+  font-size: 1.4em;
+}
+
+.delimiter {
+  width: 30px;
 }
