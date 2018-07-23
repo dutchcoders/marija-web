@@ -8,11 +8,8 @@ import markLinksForDisplay from "./markLinksForDisplay";
 import normalizeLinks from "./normalizeLinks";
 import normalizeNodes from "./normalizeNodes";
 import filterBoringComponents from "./filterBoringComponents";
-import {SEARCH_RECEIVE, LIVE_RECEIVE} from "../../search/searchConstants";
-import {Field} from "../../fields/interfaces/field";
-import createField from "../../fields/helpers/createField";
+import {LIVE_RECEIVE} from "../../search/searchConstants";
 import {Search} from "../../search/interfaces/search";
-import {forEach} from 'lodash';
 import {Item} from "../interfaces/item";
 import {Node} from "../interfaces/node";
 import {Link} from "../interfaces/link";
@@ -26,10 +23,7 @@ import { REBUILD_GRAPH } from '../graphConstants';
 import { Connector } from '../interfaces/connector';
 import { Datasource } from '../../datasources/interfaces/datasource';
 import { createConnector } from '../../fields/helpers/createConnector';
-import { getConnectorName } from '../../fields/helpers/getConnectorName';
-import { getConnectorRuleId } from '../../fields/helpers/getConnectorRuleId';
 import { getSuggestedConnectors } from '../../fields/helpers/getSuggestedConnectors';
-import { createNewConnector } from '../../fields/fieldsActions';
 import { uniqueId } from 'lodash';
 
 export interface GraphWorkerPayload {
