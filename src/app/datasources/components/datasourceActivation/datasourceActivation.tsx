@@ -45,7 +45,11 @@ class DatasourceActivation extends React.Component<Props> {
 					{datasources.map(datasource =>
 						<li className={styles.item} key={datasource.id}>
 							<label className={styles.label} onClick={() => this.onChange(datasource)}>
-								<Icon name={styles.check + ' ' + (datasource.active ? 'ion-android-checkbox' : 'ion-android-checkbox-blank')} />
+								<Icon name={styles.check + ' ' + (
+									datasource.active ?
+										'ion-android-checkbox ' + styles.active :
+										'ion-android-checkbox-blank'
+								)} />
 								<span className={styles.name}>{datasource.name}</span>
 							</label>
 						</li>
