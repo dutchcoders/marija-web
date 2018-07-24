@@ -231,12 +231,18 @@ export function setExpectedGraphWorkerOutputId(id: string) {
 }
 
 export function setAutomaticallyCreateConnectors(enabled: boolean) {
-	return dispatchAndRebuildGraph({
-		type: SET_AUTOMATICALLY_CREATE_CONNECTORS,
-		payload: {
-			enabled
+	return (dispatch) => {
+		dispatch({
+			type: SET_AUTOMATICALLY_CREATE_CONNECTORS,
+			payload: {
+				enabled
+			}
+		});
+
+		if (enabled) {
+			dispatch(rebuildGraph());
 		}
-	});
+	};
 }
 
 export function dispatchAndRebuildGraph(action) {

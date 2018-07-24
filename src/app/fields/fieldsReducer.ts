@@ -17,7 +17,10 @@ import { ConnectorProps, RuleProps } from './fieldsActions';
 import { RECEIVE_WORKSPACE } from '../ui/uiConstants';
 import { Workspace } from '../ui/interfaces/workspace';
 import { createConnector } from './helpers/createConnector';
-import { GRAPH_WORKER_OUTPUT } from '../graph/graphConstants';
+import {
+	GRAPH_WORKER_OUTPUT,
+	SET_AUTOMATICALLY_CREATE_CONNECTORS
+} from '../graph/graphConstants';
 import { GraphWorkerOutput } from '../graph/helpers/graphWorkerClass';
 import { DELETE_CUSTOM_DATASOURCE } from '../datasources/datasourcesConstants';
 import { Datasource } from '../datasources/interfaces/datasource';
@@ -277,6 +280,18 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 				...state,
 				availableFields: state.availableFields.filter(field => field.datasourceId !== datasource.id)
 			};
+		}
+
+		case SET_AUTOMATICALLY_CREATE_CONNECTORS: {
+			if (action.payload.enabled) {
+				// Reset the deleted connectors when user explicitly says to automatically create connectors again
+				return {
+					...state,
+					deletedConnectorFields: []
+				};
+			}
+
+			return state;
 		}
 
         default:

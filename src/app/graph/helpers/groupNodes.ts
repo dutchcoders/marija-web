@@ -1,6 +1,5 @@
 import { Node } from '../interfaces/node';
 import { Link } from '../interfaces/link';
-import abbreviateNodeName from './abbreviateNodeName';
 
 export function groupNodes(nodes: Node[], links: Link[]): { nodes: Node[], links: Link[] } {
 	const items = nodes.filter(node => node.type === 'item');
