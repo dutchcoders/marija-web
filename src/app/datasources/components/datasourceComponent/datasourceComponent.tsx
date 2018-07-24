@@ -154,7 +154,7 @@ class DatasourceComponent extends React.Component<Props, State> {
 						<h4 className={styles.optionTitle}>Label</h4>
 						<FieldSelector
 							datasourceId={datasource.id}
-							types={['string', 'text']}
+							types={['string', 'text', 'number']}
 							selected={datasource.labelFieldPath}
 							onChange={this.onLabelChange.bind(this)}
 						/>

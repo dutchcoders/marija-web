@@ -102,7 +102,7 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
 			}
 
 			if (datasource.labelFieldPath === null) {
-				const field = fields.find(field => field.type === 'text' || field.type === 'string');
+				const field = fields.find(field => field.type === 'text' || field.type === 'string' || field.type === 'number');
 
 				if (field) {
 					datasource.labelFieldPath = field.path;
