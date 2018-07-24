@@ -9,3 +9,11 @@ export const getActiveNonLiveDatasources = createSelector(
 		datasource.active && datasource.type !== 'live'
 	)
 );
+
+export const getNonLiveDatasources = createSelector(
+	(state: AppState) => state.datasources.datasources,
+
+	(datasources: Datasource[]): Datasource[] => datasources.filter(datasource =>
+		datasource.type !== 'live'
+	)
+);

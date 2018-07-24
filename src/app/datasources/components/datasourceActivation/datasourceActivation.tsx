@@ -7,6 +7,7 @@ import {
 	datasourceActivated,
 	datasourceDeactivated
 } from '../../datasourcesActions';
+import { getNonLiveDatasources } from '../../datasourcesSelectors';
 const logo = require('../../../../images/logo.png');
 
 interface Props {
@@ -60,7 +61,7 @@ class DatasourceActivation extends React.Component<Props> {
 }
 
 const select = (state: AppState) => ({
-	datasources: state.datasources.datasources,
+	datasources: getNonLiveDatasources(state),
 	connected: state.connection.connected,
 });
 

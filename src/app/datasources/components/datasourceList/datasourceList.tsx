@@ -37,7 +37,7 @@ class DatasourceList extends React.Component<Props, State> {
 
 const select = (state: AppState, ownProps) => ({
 	...ownProps,
-	datasources: state.datasources.datasources.filter(datasource => datasource.type !== 'live')
+	datasources: state.datasources.datasources
 });
 
 export default withRouter(connect(select)(DatasourceList));
