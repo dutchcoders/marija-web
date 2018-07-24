@@ -325,7 +325,7 @@ class ContextMenu extends React.Component<Props, State> {
             ungroup = (
 				<li>
 					<button onClick={this.ungroup.bind(this)} className={styles.button}>
-						<Icon name={'ion-ios-trash ' + styles.icon} />
+						<Icon name={'ion-android-share-alt ' + styles.icon} />
 						<span className={styles.buttonText}>Ungroup</span>
 					</button>
 				</li>
