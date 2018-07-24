@@ -5,7 +5,8 @@ function getItemNode(id: number) {
 		id,
 		type: 'item',
 		items: [id],
-		count: 1
+		count: 1,
+		childData: {}
 	} as any
 }
 
@@ -44,5 +45,6 @@ test('should group item nodes if they have the same connectors', () => {
 
 	const result = groupNodes(nodes, links);
 
-	console.log(result);
+	expect(result.nodes.length).toBe(4);
+	expect(result.links.length).toBe(2);
 });
