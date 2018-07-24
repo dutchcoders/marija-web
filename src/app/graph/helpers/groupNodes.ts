@@ -1,5 +1,6 @@
 import { Node } from '../interfaces/node';
 import { Link } from '../interfaces/link';
+import abbreviateNodeName from './abbreviateNodeName';
 
 export function groupNodes(nodes: Node[], links: Link[]): { nodes: Node[], links: Link[] } {
 	const items = nodes.filter(node => node.type === 'item');
@@ -16,6 +17,11 @@ export function groupNodes(nodes: Node[], links: Link[]): { nodes: Node[], links
 
 		const groupedNode = nodeMap.get(itemIds[0]);
 		const newIdsToRemove = itemIds.slice(1);
+		const names: string[] = [];
+
+		if (typeof groupedNode.name !== 'undefined' && groupedNode.name !== '') {
+			names.push(groupedNode.name);
+		}
 
 		newIdsToRemove.forEach(id => {
 			const node = nodeMap.get(id);
@@ -23,6 +29,10 @@ export function groupNodes(nodes: Node[], links: Link[]): { nodes: Node[], links
 			groupedNode.count ++;
 			groupedNode.r = 15 + groupedNode.count * 5;
 			groupedNode.items = groupedNode.items.concat(node.items);
+
+			if (typeof node.name !== 'undefined' && node.name !== '' && names.indexOf(node.name) === -1) {
+				names.push(node.name);
+			}
 
 			Object.keys(node.childData).forEach(key => {
 				if (!groupedNode.childData[key]) {
@@ -36,6 +46,9 @@ export function groupNodes(nodes: Node[], links: Link[]): { nodes: Node[], links
 				});
 			});
 		});
+
+		groupedNode.name = names.join(', ');
+		groupedNode.abbreviated = groupedNode.name.substring(0, 40) + (groupedNode.name.length > 40 ? '...' : '');
 
 		idsToRemove = idsToRemove.concat(newIdsToRemove);
 	});
