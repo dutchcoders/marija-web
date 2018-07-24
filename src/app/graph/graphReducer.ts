@@ -87,7 +87,7 @@ export const defaultGraphState: GraphState = {
 	notes: [],
 	graphWorkerLoading: false,
 	expectedGraphWorkerOutputId: '',
-	automaticallyCreateConnectors: false
+	automaticallyCreateConnectors: true
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {

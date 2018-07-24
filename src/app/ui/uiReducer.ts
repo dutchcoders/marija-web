@@ -32,7 +32,7 @@ export const defaultUiState: UiState = {
     panes: {
         configuration: {
             ...defaultPane,
-            open: true,
+            open: false,
             width: 400,
             fullHeight: true,
             minWidth: 300

@@ -36,18 +36,6 @@ class DatasourceComponent extends React.Component<Props, State> {
 		iconSelectorOpen: false
 	};
 
-	toggleActive(event: MouseEvent) {
-		event.stopPropagation();
-
-		const { datasource, dispatch } = this.props;
-
-		if (datasource.active) {
-			dispatch(datasourceDeactivated(datasource));
-		} else {
-			dispatch(datasourceActivated(datasource));
-		}
-	}
-
 	toggleExpanded() {
 		const { expanded } = this.state;
 
@@ -131,17 +119,9 @@ class DatasourceComponent extends React.Component<Props, State> {
 				<header className={styles.header} onClick={this.toggleExpanded.bind(this)}>
 					<div className={styles.icon} onClick={this.toggleIconSelector.bind(this)}>{datasource.icon}</div>
 					<MagicWand nodes={nodes} cssClass={styles.magicWand} />
-
-					<Tooltip
-						overlay="Search in this datasource"
-						placement="bottom"
-						mouseLeaveDelay={0}
-						arrowContent={<div className="rc-tooltip-arrow-inner" />}>
-						<h3 className={styles.name} onClick={this.toggleActive.bind(this)}>
-							<input className={styles.active} type="checkbox" checked={datasource.active} readOnly={true} />
-							{datasource.name}
-						</h3>
-					</Tooltip>
+					<h3 className={styles.name}>
+						{datasource.name}
+					</h3>
 					<Icon name={styles.toggle + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')} />
 				</header>
 

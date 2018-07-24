@@ -1,0 +1,35 @@
+.bar {
+  display: flex;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.logo {
+  height: 40px;
+  margin: 5px 10px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  border-left: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.label {
+  padding: 5px;
+  line-height: 20px;
+  font-weight: 300;
+  border-radius: 3px;
+  cursor: pointer;
+  margin: 0 !important;
+}
+
+.label:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.checkbox {
+  margin-right: 3px !important;
+}

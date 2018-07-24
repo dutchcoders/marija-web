@@ -6,6 +6,7 @@ import { AppState } from '../../main/interfaces/appState';
 import { searchRequest } from '../searchActions';
 import SearchBox from './searchBox';
 import { getSelectedFields } from '../../fields/fieldsSelectors';
+import DatasourceActivation from '../../datasources/components/datasourceActivation/datasourceActivation';
 
 interface Props {
     connected: boolean;
@@ -31,6 +32,7 @@ class Header extends React.Component<Props, State> {
 
         return (
             <header className="header">
+                <DatasourceActivation/>
                 <SearchBox
                     onSubmit={q => this.onSearchSubmit(q)}
                     connected={connected}

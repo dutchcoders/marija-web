@@ -166,9 +166,6 @@ class SearchBox extends React.Component<Props, State> {
 
         return (
             <nav id="searchbox" className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation" ref="header">
-                <div className="logoContainer">
-                    <img className={`logo ${connected ? 'connected' : 'not-connected'}`} src={logo} title={connected ? "Marija is connected to the backendservice" : "No connection to Marija backend available" } />
-                </div>
                 <div className={styles.queriesContainer}>
                     <div className={styles.formWrapper}>
                         <form onSubmit={this.handleSubmit.bind(this)} className={styles.form + ' ' + styles.formCollapsed} ref={form => this.searchForm = form}>
