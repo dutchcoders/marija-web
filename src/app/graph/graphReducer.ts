@@ -76,7 +76,7 @@ export const defaultGraphState: GraphState = {
     links: [], // relations between nodes
     deletedNodeIds: [],
     via: [],
-    showLabels: false,
+    showLabels: true,
     isMapActive: false,
     timelineGrouping: 'day',
     graphWorkerCacheIsValid: false,
