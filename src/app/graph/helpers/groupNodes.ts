@@ -14,6 +14,7 @@ export function groupNodes(nodes: Node[], links: Link[], skipNodeIds: number[]):
 			return;
 		}
 
+		// The user might have selected some nodes not to be grouped
 		for (let i = 0; i < skipNodeIds.length; i ++) {
 			if (itemIds.indexOf(skipNodeIds[i]) !== -1) {
 				return;
