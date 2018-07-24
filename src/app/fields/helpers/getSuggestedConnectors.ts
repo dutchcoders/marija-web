@@ -130,7 +130,7 @@ export function getSuggestedConnectors(items: Item[], fields: Field[], existingC
 			if (sourceField !== targetField) {
 				// Todo: a user should have the option somewhere to also try cross-field combinations
 				// For now this is disabled because it's too slow
-				return;
+				// return;
 			}
 
 			const fieldPaths = [sourceField];
