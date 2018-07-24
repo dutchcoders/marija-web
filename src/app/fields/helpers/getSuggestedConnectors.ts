@@ -145,7 +145,11 @@ export function getSuggestedConnectors(items: Item[], fields: Field[], existingC
 
 			const connectorFields = fieldPaths
 				.map(path => fields.find(field => field.path === path))
-				.filter(field => typeof field !== 'undefined');
+				.filter(field =>
+					typeof field !== 'undefined'
+					&& field.type !== 'image'
+					&& field.type !== 'date'
+				);
 
 			if (connectorFields.length === 0) {
 				// Did not find the field from the data in the field config, skip it.
