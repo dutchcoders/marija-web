@@ -181,7 +181,7 @@ class SearchBox extends React.Component<Props, State> {
 							/>
 							<Icon name="ion-ios-search" className={'ion-ios-search ' + styles.searchIcon} />
 							{noDatasourcesError && (
-								<span className={styles.noDatasourcesMessage}>First select a datasource in the config</span>
+								<span className={styles.noDatasourcesMessage}>Activate at least one datasource above</span>
 							)}
                         </form>
                     </div>

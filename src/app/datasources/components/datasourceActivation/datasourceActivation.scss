@@ -14,7 +14,6 @@
   padding: 10px;
   display: flex;
   flex-wrap: wrap;
-  border-left: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .label {
@@ -32,4 +31,13 @@
 
 .checkbox {
   margin-right: 3px !important;
+}
+
+.title {
+  font-size: 1em;
+  font-weight: 500;
+  border-left: 1px solid rgba(0, 0, 0, 0.2);
+  line-height: 50px;
+  margin: 0;
+  padding-left: 10px;
 }
