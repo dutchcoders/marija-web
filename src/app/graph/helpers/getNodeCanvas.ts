@@ -60,6 +60,13 @@ export function getNodeCanvas(node: Node, sizeMultiplier: number, selected: bool
 	ctx.textAlign = 'center';
 	ctx.fillText(node.icon, radius - 1 + margin, radius + margin + (fontSize / 3));
 
+	if (node.count > 1) {
+		const countFontSize = fontSize * .7;
+		ctx.textAlign = 'right';
+		ctx.font = countFontSize + 'px Roboto, Helvetica, Arial';
+		ctx.fillText(node.count + '', radius * 1.8, radius * .2 + countFontSize);
+	}
+
 	if (selected) {
 		ctx.lineWidth = lineWidth;
 		ctx.strokeStyle = '#fac04b';

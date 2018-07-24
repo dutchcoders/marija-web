@@ -173,7 +173,6 @@ class Graph extends React.PureComponent<Props, State> {
 
 			nodeInMap.x = data[i + 1];
 			nodeInMap.y = data[i + 2];
-			nodeInMap.r = data[i + 3];
 		}
 
 		const propertiesPerLink: number = 5;
@@ -311,6 +310,7 @@ class Graph extends React.PureComponent<Props, State> {
 
         return node.icon
             + node.r
+			+ node.count
 			+ node.type
             + color;
     }
@@ -1009,7 +1009,8 @@ class Graph extends React.PureComponent<Props, State> {
 				id: node.id,
 				count: node.count,
 				fx: fx,
-				fy: fy
+				fy: fy,
+				r: node.r
 			};
         });
 

@@ -177,7 +177,7 @@ export default function getNodesAndLinks(
 			important: false,
 			isGeoLocation: isGeoLocation,
 			isImage: false,
-			childData: item.fields,
+			childData: valueSetToArrayValues(item.fields),
 			connector: null,
 			type: 'item',
 			datasourceId: item.datasourceId,
@@ -323,6 +323,7 @@ export default function getNodesAndLinks(
 					targetValueSets.forEach(targetValueSet => {
 
     					const matches = matchValueSets(sourceValueSet, targetValueSet, connector);
+
 
 						matches.forEach(match => {
 							const connectorNodes = createConnectorNode(match, connector, [sourceItem, targetItem]);
@@ -494,7 +495,17 @@ function valueSetToArrayValues(valueSet: ValueSet) {
 	const newObject = {};
 
 	keys.forEach(key => {
-		newObject[key] = [valueSet[key]];
+		let value = valueSet[key];
+
+		if (value === null || value === '') {
+			return;
+		}
+
+		if (Array.isArray(value)) {
+			newObject[key] = value;
+		} else {
+			newObject[key] = [value];
+		}
 	});
 
 	return newObject;

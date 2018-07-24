@@ -24,6 +24,7 @@ import { Connector } from '../interfaces/connector';
 import { Datasource } from '../../datasources/interfaces/datasource';
 import { getSuggestedConnectors } from '../../fields/helpers/getSuggestedConnectors';
 import { Field } from '../../fields/interfaces/field';
+import { groupNodes } from './groupNodes';
 
 export interface GraphWorkerPayload {
     items: Item[];
@@ -152,6 +153,10 @@ export default class GraphWorkerClass {
 				result.links = secondaryFilterResult.links;
             }
         }
+
+        const grouped = groupNodes(result.nodes, result.links);
+        result.nodes = grouped.nodes;
+        result.links = grouped.links;
 
         result.nodes = markNodesForDisplay(result.nodes, payload.searches || []);
         result.links = markLinksForDisplay(result.nodes, result.links);

@@ -94,7 +94,9 @@ onmessage = function(event) {
 			.force("link", forceLink)
 			.force("charge", forceManyBody)
 			// .force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
-			.force('collide', d3.forceCollide((node: any) => node.r))
+			.force('collide', d3.forceCollide((node: any) => {
+				return node.r
+			}))
 			// .force("vertical", d3.forceY().strength(0.018))
 			// .force("horizontal", d3.forceX().strength(0.006))
 			.on("tick", () => {
@@ -136,11 +138,15 @@ onmessage = function(event) {
     } else if (data.type === 'update') {
         let { nodes, links } = data;
 
-        const sizeRange = [15, 30];
+        const sizeRange = [15, 100];
 
         let forceScale = function (node) {
             var scale = d3.scaleLog().domain(sizeRange).range(sizeRange.slice().reverse());
-            return node.r + scale(node.r);
+            const result = node.r + scale(node.r);
+
+            console.log(node.r, result);
+
+            return 1000;
         };
 
         var countExtent = d3.extent(nodes, (n: any) => {
@@ -174,14 +180,14 @@ onmessage = function(event) {
             var n = workerNodeMap.get(node.id);
             if (n) {
                 n = assign(n, node);
-                n = assign(n, {force: forceScale(n), r: radiusScale(n.count)});
+                // n = assign(n, {force: forceScale(n)});
 
                 newNodes = true;
                 continue;
             }
 
             let node2 = clone(node);
-            node2 = assign(node2, {force: forceScale(node2), r: radiusScale(node2.count)});
+            // node2 = assign(node2, {force: forceScale(node2)});
 
             workerNodes.push(node2);
             workerNodeMap.set(node2.id, node2);
