@@ -214,6 +214,7 @@ export default function getNodesAndLinks(
 	};
 
     const createConnectorNode = (match: ArrayValueSet, connector: Connector, items: Item[]): Node[] => {
+    	// Check if a connector node already exists that matches this value set
     	const existing: Node[] = connectorNodes.filter(node => {
     		const valueSets = getValueSets(node.childData, relevantFields);
 
@@ -233,6 +234,8 @@ export default function getNodesAndLinks(
 		});
 
     	if (existing.length > 0) {
+    		// If there is an existing connector that matches this value set,
+			// add the data of the new items to it
     		existing.forEach(node => {
 				addDataToConnectorNode(node, match, items);
 			});

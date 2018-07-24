@@ -143,7 +143,14 @@ export function getSuggestedConnectors(items: Item[], fields: Field[], existingC
 				return;
 			}
 
-			const connectorFields = fieldPaths.map(path => fields.find(field => field.path === path));
+			const connectorFields = fieldPaths
+				.map(path => fields.find(field => field.path === path))
+				.filter(field => typeof field !== 'undefined');
+
+			if (connectorFields.length === 0) {
+				// Did not find the field from the data in the field config, skip it.
+				return;
+			}
 
 			suggestedConnectors.push({
 				fields: connectorFields,
