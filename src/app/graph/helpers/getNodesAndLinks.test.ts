@@ -976,3 +976,45 @@ test('real world case - one valueset can have multiple connectors', () => {
 		}
 	}
 });
+
+test('node templates 10', () => {
+	const previousNodes = [];
+	const previousLinks = [];
+
+	const items = [
+		{
+			id: '1',
+			fields: {
+				first_name: 'Thomas',
+				last_name: 'Kuipers',
+			},
+			datasourceId: '1',
+		},
+		{
+			id: '2',
+			fields: {
+				first_name: 'Harry',
+				last_name: 'Kuipers'
+			},
+			datasourceId: '1'
+		}
+	];
+
+	const fields = [
+		generateNodeTemplate('family', ['last_name'])
+	];
+
+	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields as any, ...defaultArguments);
+
+	/**
+	 * Expect:
+	 * Thomas
+	 * |
+	 * Kuipers
+	 * |
+	 * Harry
+	 *
+	 */
+	expect(nodes.length).toBe(3);
+	expect(links.length).toBe(2);
+});

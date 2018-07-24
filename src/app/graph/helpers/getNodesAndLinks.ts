@@ -191,7 +191,7 @@ export default function getNodesAndLinks(
     	return node;
 	};
 
-    const addDataToConnectorNode = (node: Node, match: ValueSet, items: Item[]) => {
+    const addDataToConnectorNode = (node: Node, match: ArrayValueSet, items: Item[]) => {
     	items.forEach(item => {
     		if (node.items.indexOf(item.id) === -1) {
     			node.items.push(item.id);
@@ -202,24 +202,30 @@ export default function getNodesAndLinks(
 
     	keys.forEach(key => {
     		if (node.childData[key]) {
-    			if (node.childData[key].indexOf(match[key]) === -1) {
-					node.childData[key].push(match[key]);
-				}
+    			match[key].forEach(matchValue => {
+					if (node.childData[key].indexOf(matchValue) === -1) {
+						node.childData[key].push(matchValue);
+					}
+				})
 			} else {
-    			node.childData[key] = [match[key]];
+    			node.childData[key] = match[key];
 			}
 		});
 	};
 
-    const createConnectorNode = (match: ValueSet, connector: Connector, items: Item[]): Node[] => {
+    const createConnectorNode = (match: ArrayValueSet, connector: Connector, items: Item[]): Node[] => {
     	const existing: Node[] = connectorNodes.filter(node => {
     		const valueSets = getValueSets(node.childData, relevantFields);
 
     		for (let i = 0; i < valueSets.length; i ++) {
-    			const matches = matchValueSets(match, valueSets[i], connector);
+    			const targetValueSets = getValueSets(match, Object.keys(match));
 
-    			if (matches.length > 0) {
-    				return true;
+    			for (let j = 0; j < targetValueSets.length; j ++) {
+					const matches = matchValueSets(targetValueSets[j], valueSets[i], connector);
+
+					if (matches.length > 0) {
+						return true;
+					}
 				}
 			}
 
@@ -241,7 +247,7 @@ export default function getNodesAndLinks(
 				return prev;
 			}
 
-			return prev.concat([value]);
+			return prev.concat([value.join(', ')]);
 		}, []);
 
 		const name = names.join(', ');
@@ -267,7 +273,7 @@ export default function getNodesAndLinks(
 			important: false,
 			isGeoLocation: false,
 			isImage: false,
-			childData: valueSetToArrayValues(match),
+			childData: match,
 			connector: connector.name,
 			type: 'connector',
 			itemCount: items[0].count
@@ -277,6 +283,8 @@ export default function getNodesAndLinks(
 
 		return [node];
 	};
+
+    const done = new Map<string, true>();
 
     items.forEach(sourceItem => {
     	const sourceNode: Node = createItemNode(sourceItem);
@@ -288,14 +296,20 @@ export default function getNodesAndLinks(
 
 		const sourceValueSets = getValueSets(sourceItem.fields, relevantFields);
 
-    	sourceValueSets.forEach(sourceValueSet => {
-    		items.forEach(targetItem => {
-    			// Item should not link to itself
-    			if (targetItem.id === sourceItem.id) {
-    				return;
-				}
+		items.forEach(targetItem => {
+			// Item should not link to itself
+			if (targetItem.id === sourceItem.id || done.has(sourceItem.id + targetItem.id)) {
+				return;
+			}
 
-    			const targetValueSets = getValueSets(targetItem.fields, relevantFields);
+			done.set(sourceItem.id + targetItem.id, true);
+			done.set(targetItem.id + sourceItem.id, true);
+
+			const targetNode: Node = createItemNode(targetItem);
+			const targetValueSets = getValueSets(targetItem.fields, relevantFields);
+
+
+    		sourceValueSets.forEach(sourceValueSet => {
 
     			targetValueSets.forEach(targetValueSet => {
 
@@ -307,6 +321,7 @@ export default function getNodesAndLinks(
 
 							connectorNodes.forEach(connectorNode => {
 								createLink(sourceNode, connectorNode, sourceItem, connector.color);
+								createLink(targetNode, connectorNode, targetItem, connector.color);
 							});
 						});
     				});
@@ -346,7 +361,11 @@ export default function getNodesAndLinks(
     };
 }
 
-function matchValueSets(a: ValueSet, b: ValueSet, connector: Connector): ValueSet[] {
+interface ArrayValueSet {
+	[key: string]: string[];
+}
+
+function matchValueSets(a: ValueSet, b: ValueSet, connector: Connector): ArrayValueSet[] {
 	if (connector.strategy === 'AND') {
 		const match = matchValueSetsAnd(a, b, connector);
 
@@ -360,7 +379,7 @@ function matchValueSets(a: ValueSet, b: ValueSet, connector: Connector): ValueSe
 	}
 }
 
-function matchValueSetsAnd(a: ValueSet, b: ValueSet, connector: Connector): ValueSet | false {
+function matchValueSetsAnd(a: ValueSet, b: ValueSet, connector: Connector): ArrayValueSet | false {
 	const match: any = {};
 
 	for (let i = 0; i < connector.rules.length; i ++) {
@@ -383,13 +402,17 @@ function matchValueSetsAnd(a: ValueSet, b: ValueSet, connector: Connector): Valu
 			}
 		}
 
-		match[field] = a[field];
+		match[field] = [a[field]];
+
+		if (a[field] !== b[field]) {
+			match[field].push(b[field]);
+		}
 	}
 
 	return match;
 }
 
-function matchValueSetsOr(a: ValueSet, b: ValueSet, connector: Connector): ValueSet[] {
+function matchValueSetsOr(a: ValueSet, b: ValueSet, connector: Connector): ArrayValueSet[] {
 	const matches: any = [];
 
 	connector.rules.forEach(sourceRule => {
@@ -424,9 +447,15 @@ function matchValueSetsOr(a: ValueSet, b: ValueSet, connector: Connector): Value
 			}
 
 			if (match) {
-				matches.push({
-					[sourceField]: a[sourceField]
-				});
+				const matchObject = {
+					[sourceField]: [a[sourceField]]
+				};
+
+				if (a[sourceField] !== b[targetField]) {
+					matchObject[sourceField].push(b[targetField]);
+				}
+
+				matches.push(matchObject);
 			}
 		});
 	});
@@ -452,7 +481,7 @@ function getItemRadius(node: Node, minCount: number, maxCount: number): number {
 	);
 }
 
-function valueSetToArrayValues(valueSet) {
+function valueSetToArrayValues(valueSet: ValueSet) {
 	const keys = Object.keys(valueSet);
 	const newObject = {};
 
