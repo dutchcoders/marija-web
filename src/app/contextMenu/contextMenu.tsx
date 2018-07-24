@@ -4,7 +4,7 @@ import { connect, Dispatch } from 'react-redux';
 
 import { Datasource } from '../datasources/interfaces/datasource';
 import {
-	deleteNodes,
+	deleteNodes, dontGroupNode,
 	nodesSelect,
 	nodeUpdate,
 	setImportantNode, setNote
@@ -91,6 +91,15 @@ class ContextMenu extends React.Component<Props, State> {
         dispatch(deleteNodes([node]));
 
         this.close();
+    }
+
+    ungroup() {
+		const { dispatch, nodeId } = this.props;
+
+		const node = this.getNode(nodeId);
+
+		dispatch(dontGroupNode(node));
+		this.close();
     }
 
     searchAround() {
@@ -311,11 +320,24 @@ class ContextMenu extends React.Component<Props, State> {
             );
         }
 
+        let ungroup = null;
+        if (node.count > 1) {
+            ungroup = (
+				<li>
+					<button onClick={this.ungroup.bind(this)} className={styles.button}>
+						<Icon name={'ion-ios-trash ' + styles.icon} />
+						<span className={styles.buttonText}>Ungroup</span>
+					</button>
+				</li>
+            )
+        }
+
         return (
             <div className={styles.contextMenu} ref={ref => this.contextMenu = ref}>
                 <div className={styles.main}>
                     <h1 className={styles.title}>{node.name}</h1>
                     <ul>
+                        {ungroup}
 						{image}
 						<li>
 							<button onClick={this.searchAround.bind(this)} className={styles.button}>

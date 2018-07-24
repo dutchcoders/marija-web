@@ -32,4 +32,5 @@ export interface GraphState {
 	graphWorkerLoading: boolean;
 	expectedGraphWorkerOutputId: string;
 	automaticallyCreateConnectors: boolean;
+	noGroupingNodeIds: number[];
 }

@@ -15,7 +15,7 @@ import {
 } from '../search/searchConstants';
 import {TABLE_SORT} from '../table/tableConstants';
 import {
-	DEFAULT_DISPLAY_NODES_PER_SEARCH,
+	DEFAULT_DISPLAY_NODES_PER_SEARCH, DONT_GROUP_NODE,
 	FIELD_NODES_HIGHLIGHT,
 	GRAPH_WORKER_OUTPUT,
 	NODE_UPDATE,
@@ -87,7 +87,8 @@ export const defaultGraphState: GraphState = {
 	notes: [],
 	graphWorkerLoading: false,
 	expectedGraphWorkerOutputId: '',
-	automaticallyCreateConnectors: true
+	automaticallyCreateConnectors: true,
+	noGroupingNodeIds: []
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -706,6 +707,13 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			return {
 				...state,
 				automaticallyCreateConnectors: action.payload.enabled
+			};
+		}
+
+		case DONT_GROUP_NODE: {
+			return {
+				...state,
+				noGroupingNodeIds: state.noGroupingNodeIds.concat([action.payload.node.id])
 			};
 		}
 

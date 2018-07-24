@@ -1,7 +1,7 @@
 import { Node } from '../interfaces/node';
 import { Link } from '../interfaces/link';
 
-export function groupNodes(nodes: Node[], links: Link[]): { nodes: Node[], links: Link[] } {
+export function groupNodes(nodes: Node[], links: Link[], skipNodeIds: number[]): { nodes: Node[], links: Link[] } {
 	const items = nodes.filter(node => node.type === 'item');
 	const nodeMap = new Map<number, Node>();
 	items.forEach(item => nodeMap.set(item.id, item));
@@ -12,6 +12,12 @@ export function groupNodes(nodes: Node[], links: Link[]): { nodes: Node[], links
 	neighbours.forEach((itemIds: number[], key: string) => {
 		if (key === '' || itemIds.length < 2) {
 			return;
+		}
+
+		for (let i = 0; i < skipNodeIds.length; i ++) {
+			if (itemIds.indexOf(skipNodeIds[i]) !== -1) {
+				return;
+			}
 		}
 
 		const groupedNode = nodeMap.get(itemIds[0]);

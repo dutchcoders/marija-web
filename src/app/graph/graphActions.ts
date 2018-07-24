@@ -1,4 +1,5 @@
 import {
+	DONT_GROUP_NODE,
 	GRAPH_WORKER_OUTPUT,
 	NODE_UPDATE,
 	NODES_DELETE,
@@ -250,4 +251,13 @@ export function dispatchAndRebuildGraph(action) {
 		dispatch(action);
 		dispatch(rebuildGraph());
 	};
+}
+
+export function dontGroupNode(node: Node) {
+	return dispatchAndRebuildGraph({
+		type: DONT_GROUP_NODE,
+		payload: {
+			node
+		}
+	});
 }

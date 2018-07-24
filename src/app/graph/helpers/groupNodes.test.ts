@@ -43,7 +43,7 @@ test('should group item nodes if they have the same connectors', () => {
 		getLink(6, 7),
 	];
 
-	const result = groupNodes(nodes, links);
+	const result = groupNodes(nodes, links, []);
 
 	expect(result.nodes.length).toBe(4);
 	expect(result.links.length).toBe(2);
