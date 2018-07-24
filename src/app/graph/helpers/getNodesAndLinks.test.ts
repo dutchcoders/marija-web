@@ -993,7 +993,7 @@ test('node templates 10', () => {
 		{
 			id: '2',
 			fields: {
-				first_name: 'Harry',
+				first_name: ['Harry', 'barry'],
 				last_name: 'Kuipers'
 			},
 			datasourceId: '1'
@@ -1001,7 +1001,8 @@ test('node templates 10', () => {
 	];
 
 	const fields = [
-		generateNodeTemplate('family', ['last_name'])
+		generateNodeTemplate('family', ['last_name']),
+		generateNodeTemplate('2', ['first_name']),
 	];
 
 	const { nodes, links } = getNodesAndLinks(previousNodes, previousLinks, items as any, fields as any, ...defaultArguments);

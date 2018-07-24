@@ -294,26 +294,31 @@ export default function getNodesAndLinks(
     		return;
 		}
 
-		const sourceValueSets = getValueSets(sourceItem.fields, relevantFields);
-
 		items.forEach(targetItem => {
 			// Item should not link to itself
 			if (targetItem.id === sourceItem.id || done.has(sourceItem.id + targetItem.id)) {
 				return;
 			}
 
+			// Make sure we don't compare the same items again, but then in the opposite direction
 			done.set(sourceItem.id + targetItem.id, true);
 			done.set(targetItem.id + sourceItem.id, true);
 
 			const targetNode: Node = createItemNode(targetItem);
-			const targetValueSets = getValueSets(targetItem.fields, relevantFields);
 
+			if (targetNode === null) {
+				// Maybe it was deleted by the user
+				return;
+			}
 
-    		sourceValueSets.forEach(sourceValueSet => {
+			connectors.forEach(connector => {
+				const newRelevantFields = connector.rules.map(rule => rule.field.path);
+				const sourceValueSets = getValueSets(sourceItem.fields, newRelevantFields);
+				const targetValueSets = getValueSets(targetItem.fields, newRelevantFields);
 
-    			targetValueSets.forEach(targetValueSet => {
+				sourceValueSets.forEach(sourceValueSet => {
+					targetValueSets.forEach(targetValueSet => {
 
-    				connectors.forEach(connector => {
     					const matches = matchValueSets(sourceValueSet, targetValueSet, connector);
 
 						matches.forEach(match => {
