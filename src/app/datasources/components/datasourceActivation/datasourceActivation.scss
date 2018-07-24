@@ -18,11 +18,11 @@
 
 .label {
   padding: 5px;
-  line-height: 20px;
   font-weight: 300;
   border-radius: 3px;
   cursor: pointer;
   margin: 0 !important;
+  display: flex;
 }
 
 .label:hover {
@@ -40,4 +40,14 @@
   line-height: 50px;
   margin: 0;
   padding-left: 10px;
+}
+
+.check {
+  font-size: 16px;
+  line-height: 20px !important;
+  margin-right: 3px;
+}
+
+.name {
+  line-height: 20px;
 }

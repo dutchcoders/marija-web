@@ -8,6 +8,7 @@ import {
 	datasourceDeactivated
 } from '../../datasourcesActions';
 import { getNonLiveDatasources } from '../../datasourcesSelectors';
+import Icon from '../../../ui/components/icon';
 const logo = require('../../../../images/logo.png');
 
 interface Props {
@@ -43,14 +44,9 @@ class DatasourceActivation extends React.Component<Props> {
 				<ul className={styles.list}>
 					{datasources.map(datasource =>
 						<li className={styles.item} key={datasource.id}>
-							<label className={styles.label}>
-								<input
-									type="checkbox"
-									className={styles.checkbox}
-									checked={datasource.active}
-									onChange={() => this.onChange(datasource)}
-								/>
-								{datasource.name}
+							<label className={styles.label} onClick={() => this.onChange(datasource)}>
+								<Icon name={styles.check + ' ' + (datasource.active ? 'ion-android-checkbox' : 'ion-android-checkbox-blank')} />
+								<span className={styles.name}>{datasource.name}</span>
 							</label>
 						</li>
 					)}
