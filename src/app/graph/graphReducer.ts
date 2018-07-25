@@ -10,7 +10,7 @@ import {
 	DEACTIVATE_LIVE_DATASOURCE, ITEMS_NEED_CONFIRMATION,
 	SEARCH_DELETE,
 	SEARCH_EDIT,
-	SEARCH_FIELDS_UPDATE,
+	SEARCH_FIELDS_UPDATE, SEARCH_RECEIVE,
 	SEARCH_REQUEST
 } from '../search/searchConstants';
 import {TABLE_SORT} from '../table/tableConstants';
@@ -381,6 +381,20 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             return Object.assign({}, state, updates);
         }
+
+		case SEARCH_RECEIVE: {
+			const items: Item[] = action.payload.items;
+
+			if (!items || items.length === 0) {
+				return state;
+			}
+
+			return {
+				...state,
+				items: state.items.concat(items)
+			};
+		}
+
         case REQUEST_COMPLETED: {
             const index = state.searches.findIndex(search => search.requestId === action.requestId);
 
