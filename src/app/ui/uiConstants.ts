@@ -39,7 +39,6 @@ export const queryColors = [
 	'#5c6bc0',
 	'#7e57c2',
 	'#e91e63',
-	'#f44336',
 	'#ff9800',
 	'#ff5722',
 ];

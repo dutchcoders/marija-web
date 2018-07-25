@@ -262,10 +262,21 @@ i.settings {
         }
     }
 
+    .queryWithError {
+        background: #f44336 !important;
+
+        .queryInner {
+            background: #f44336 !important;
+        }
+    }
+
     .searchError {
         background: #f44336;
-        right: 0;
+        max-width: 200px;
+        word-wrap: break-word;
         box-sizing: border-box;
+        display: none;
+        z-index: 1;
 
         .closeSearchError {
             background: white;
@@ -277,6 +288,10 @@ i.settings {
             display: inline-block;
             margin-right: 10px;
         }
+    }
+
+    &:hover .searchError {
+        display: block;
     }
 }
 

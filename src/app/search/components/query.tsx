@@ -194,7 +194,7 @@ class Query extends React.Component<Props, State> {
 
         let actions = [];
 
-        if (!search.liveDatasource) {
+        if (!search.liveDatasource && !search.error) {
             actions.push(
                 <Tooltip
                     key="datasources"
@@ -209,7 +209,7 @@ class Query extends React.Component<Props, State> {
             );
         }
 
-        if (!search.completed && !search.paused && !search.liveDatasource) {
+        if (!search.completed && !search.paused && !search.liveDatasource && !search.error) {
             actions.push(
                 <Tooltip
                     key="pause"
@@ -225,7 +225,7 @@ class Query extends React.Component<Props, State> {
             );
         }
 
-        if (!search.completed && search.paused && !search.liveDatasource) {
+        if (!search.completed && search.paused && !search.liveDatasource && !search.error) {
             actions.push(
                 <Tooltip
                     key="resume"
@@ -241,7 +241,7 @@ class Query extends React.Component<Props, State> {
             );
         }
 
-        if (!search.liveDatasource || !search.paused || nodes > 0) {
+        if ((!search.liveDatasource || !search.paused || nodes > 0) && !search.error) {
             actions.push(
                 <Tooltip
                     key="less"
@@ -323,7 +323,7 @@ class Query extends React.Component<Props, State> {
             );
         }
 
-        if (search.liveDatasource && search.paused) {
+        if (search.liveDatasource && search.paused && !search.error) {
             actions.push([
                 <Tooltip
                     key="activate"
@@ -339,7 +339,7 @@ class Query extends React.Component<Props, State> {
             ]);
         }
 
-        if (search.liveDatasource && !search.paused) {
+        if (search.liveDatasource && !search.paused && !search.error) {
             actions.push([
                 <Tooltip
                     key="deactivate"
@@ -357,13 +357,13 @@ class Query extends React.Component<Props, State> {
 
         let animation = null;
 
-        if (loading) {
+        if (loading && !search.error) {
             animation = <div className="queryAnimation" />;
         }
 
         return (
         	<div className="queryWrapper">
-				<div key={search.searchId} style={{backgroundColor: search.color}} className="query">
+				<div key={search.searchId} style={{backgroundColor: search.color}} className={'query' +  (search.error ? ' queryWithError' : '')}>
 					{animation}
 					<div className="queryInner" style={{backgroundColor: search.color}}>
 						{search.q}&nbsp;
@@ -394,7 +394,6 @@ class Query extends React.Component<Props, State> {
 				{search.error && (
 					<div className="searchError">
 						<p>{search.error}</p>
-						<button onClick={this.closeError.bind(this)} className="closeSearchError">Close message</button>
 					</div>
 				)}
 			</div>
