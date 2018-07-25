@@ -5,8 +5,6 @@ import { connect } from 'react-redux';
 import { ValueInfo } from '../../helpers/getValueInfo';
 import {
 	searchValueInfo,
-	selectItemFields,
-	selectValueInfo
 } from '../../graphSelectors';
 import ValueTableRow from '../valueTableRow/valueTableRow';
 import * as styles from './valuetable.scss';
@@ -14,6 +12,7 @@ import * as styles from './valuetable.scss';
 interface Props {
 	valueInfoList: ValueInfo[];
 	field: string;
+	search: string;
 }
 
 class ValueTable extends React.Component<Props> {
@@ -41,7 +40,7 @@ class ValueTable extends React.Component<Props> {
 }
 
 const select = (state: AppState, ownProps) => ({
-	valueInfoList: searchValueInfo(state, ownProps.field),
+	valueInfoList: searchValueInfo(state, ownProps.field, ownProps.search),
 });
 
 export default connect(select)(ValueTable);

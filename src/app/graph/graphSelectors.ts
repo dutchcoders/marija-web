@@ -211,14 +211,14 @@ const createArrayLengthSelector = createSelectorCreator(
 	(a: any, b: any) => a.length === b.length
 );
 
-export const selectValueInfo = createArrayLengthSelector(
+const selectValueInfo = createArrayLengthSelector(
 	(state: AppState) => state.graph.items,
 	(state: AppState) => state.graph.nodes,
 
 	(items, nodes) => getValueInfo(items, nodes)
 );
 
-export const searchValueInfo = createSelector(
+const selectValueInfoByField = createSelector(
 	(state: AppState, field: string) => selectValueInfo(state),
 	(state: AppState, field: string) => field,
 
@@ -231,6 +231,14 @@ export const searchValueInfo = createSelector(
 			return info.fields.indexOf(field) !== -1
 		});
 	}
+);
+
+export const searchValueInfo = createSelector(
+	(state: AppState, field: string, search: string) => selectValueInfoByField(state, field),
+	(state: AppState, field: string, search: string) => search,
+
+	(valueInfo, search) =>
+		valueInfo.filter(info => info.value.toLowerCase().includes(search.toLowerCase()))
 );
 
 export const selectItemFields = createSelector(

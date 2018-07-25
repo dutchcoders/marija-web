@@ -5,6 +5,7 @@ import { selectItemFields } from '../../graphSelectors';
 import ValueTable from '../valueTable/valueTable';
 import * as styles from './valueTableContainer.scss';
 import { FormEvent } from 'react';
+import Icon from '../../../ui/components/icon';
 
 interface Props {
 	fields: string[]
@@ -12,11 +13,13 @@ interface Props {
 
 interface State {
 	field: string;
+	search: string;
 }
 
 class ValueTableContainer extends React.Component<Props, State> {
 	state: State = {
-		field: ''
+		field: '',
+		search: ''
 	};
 
 	onFieldChange(event: FormEvent<HTMLSelectElement>) {
@@ -25,9 +28,15 @@ class ValueTableContainer extends React.Component<Props, State> {
 		});
 	}
 
+	onSearchChange(event: FormEvent<HTMLInputElement>) {
+		this.setState({
+			search: event.currentTarget.value
+		});
+	}
+
 	render() {
 		const { fields } = this.props;
-		const { field } = this.state;
+		const { field, search } = this.state;
 
 		return (
 			<div className={styles.container}>
@@ -42,9 +51,19 @@ class ValueTableContainer extends React.Component<Props, State> {
 							)}
 						</select>
 					</div>
+
+					<div className={styles.filter}>
+						<input
+							value={search}
+							onChange={this.onSearchChange.bind(this)}
+							className={styles.searchInput}
+							placeholder="Type to filter"
+						/>
+						<Icon name={'ion-ios-search ' + styles.searchIcon} />
+					</div>
 				</div>
 
-				<ValueTable field={field} />
+				<ValueTable field={field} search={search} />
 			</div>
 		)
 	}
