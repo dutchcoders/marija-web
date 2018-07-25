@@ -141,7 +141,7 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 		} catch (e) {
 			this.setState({
 				isLoading: false,
-				parseError: 'Failed to parse the file. You can try changing the delimiter, but most likely you will need to select a different file in step 1.'
+				parseError: 'Failed to parse the file. ' + e.message
 			});
 
 			return;
