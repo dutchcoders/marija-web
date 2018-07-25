@@ -26,6 +26,7 @@ export function groupNodes(nodes: Node[], links: Link[], skipNodeIds: number[]):
 
 	neighbours.forEach((itemIds: number[], key: string) => {
 		if (key === '' || itemIds.length < 2) {
+			// Groups with less than 2 item nodes do not need to be grouped. Duh
 			return;
 		}
 
@@ -46,6 +47,11 @@ export function groupNodes(nodes: Node[], links: Link[], skipNodeIds: number[]):
 
 		newIdsToRemove.forEach(id => {
 			const node = nodeMap.get(id);
+
+			if (groupedNode.items.indexOf(node.items[0]) !== -1) {
+				// This item id was already added to the group
+				return;
+			}
 
 			groupedNode.count ++;
 			groupedNode.r = 15 + groupedNode.count * 5;
@@ -86,6 +92,13 @@ export function groupNodes(nodes: Node[], links: Link[], skipNodeIds: number[]):
 	};
 }
 
+/**
+ * Returns multiple arrays of node ids that have exactly the same connectors.
+ *
+ * @param {Node[]} items
+ * @param {Link[]} links
+ * @returns {Map<string, number[]>}
+ */
 function getNeighbourItems(items: Node[], links: Link[]) {
 	const linkMap = new Map<number, number[]>();
 
