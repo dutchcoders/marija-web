@@ -1,8 +1,23 @@
 import { Node } from '../interfaces/node';
 import { Link } from '../interfaces/link';
 
+/**
+ * When some item nodes have exactly the same connector nodes, it makes sense to display them as a single large node.
+ * This makes the graph a lot smaller and more easy to understand.
+ *
+ * @param {Node[]} nodes
+ * @param {Link[]} links
+ * @param {number[]} skipNodeIds Nodes with ids in this array will never be grouped. Probably because the user click 'ungroup'.
+ * @returns {{nodes: Node[]; links: Link[]}}
+ */
 export function groupNodes(nodes: Node[], links: Link[], skipNodeIds: number[]): { nodes: Node[], links: Link[] } {
-	const items = nodes.filter(node => node.type === 'item');
+	// Don't group image items or geo location items
+	const items = nodes.filter(node =>
+		node.type === 'item'
+		&& !node.image
+		&& !node.isGeoLocation
+	);
+
 	const nodeMap = new Map<number, Node>();
 	items.forEach(item => nodeMap.set(item.id, item));
 

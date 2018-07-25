@@ -39,7 +39,7 @@ class DatasourceActivation extends React.Component<Props> {
 					title={connected ? "Marija is connected to the backendservice" : "No connection to Marija backend available" }
 				/>
 
-				<h2 className={styles.title}>Datasources:</h2>
+				<h2 className={styles.title}>Search in:</h2>
 
 				<ul className={styles.list}>
 					{datasources.map(datasource =>

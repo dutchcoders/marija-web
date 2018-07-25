@@ -255,6 +255,10 @@ export function getSuggestedConnectors(items: Item[], fields: Field[], existingC
 			return isEqual(searchFields, connector.fields.sort())
 		});
 
+		if (!suggested) {
+			throw new Error('Could not find suggested for ' + JSON.stringify(connector));
+		}
+
 		suggested.links = suggested.links + connector.itemIds.length;
 		suggested.uniqueConnectors ++;
 		maxLinks = Math.max(suggested.links, maxLinks);
