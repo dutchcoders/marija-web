@@ -217,3 +217,36 @@ export const selectValueInfo = createArrayLengthSelector(
 
 	(items, nodes) => getValueInfo(items, nodes)
 );
+
+export const searchValueInfo = createSelector(
+	(state: AppState, field: string) => selectValueInfo(state),
+	(state: AppState, field: string) => field,
+
+	(valueInfo, field) => {
+		if (!field) {
+			return valueInfo
+		}
+
+		return valueInfo.filter(info => {
+			return info.fields.indexOf(field) !== -1
+		});
+	}
+);
+
+export const selectItemFields = createSelector(
+	(state: AppState) => state.graph.items,
+
+	(items): string[] => {
+		const fields: string[] = [];
+
+		items.forEach(item => {
+			Object.keys(item.fields).forEach(field => {
+				if (fields.indexOf(field) === -1) {
+					fields.push(field);
+				}
+			});
+		});
+
+		return fields;
+	}
+);

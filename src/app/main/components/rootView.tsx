@@ -8,7 +8,6 @@ import Filter from '../../graph/components/filter';
 import Navigation from '../../ui/components/navigation/navigation';
 import Nodes from '../../graph/components/nodes/nodes';
 import Timeline from '../../graph/components/timeline';
-import ValueTable from '../../graph/components/valueTable/valueTable';
 import Graph from '../../graph/graph';
 import Header from '../../search/components/header';
 import Stats from '../../stats/stats';
@@ -20,6 +19,8 @@ import Configuration from './configuration/configuration';
 import AdjacencyMatrix from "../../graph/components/adjacencyMatrix/adjacencyMatrix";
 import LightboxOutlet from '../../ui/components/lightboxOutlet/lightboxOutlet';
 import MapLegend from '../../graph/components/mapLegend/mapLegend';
+import ValueTableContainer
+	from '../../graph/components/valueTableContainer/valueTableContainer';
 
 class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();
@@ -152,7 +153,7 @@ class RootView extends React.Component<any, any> {
                         config={panes.valueTable}
                         dispatch={dispatch}
                         container={this.main}>
-                        <ValueTable />
+                        <ValueTableContainer />
                     </Pane>
                 </div>
             );

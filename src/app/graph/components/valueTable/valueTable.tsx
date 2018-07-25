@@ -3,19 +3,22 @@ import { AppState } from '../../../main/interfaces/appState';
 import { Item } from '../../interfaces/item';
 import { connect } from 'react-redux';
 import { ValueInfo } from '../../helpers/getValueInfo';
-import { selectValueInfo } from '../../graphSelectors';
+import {
+	searchValueInfo,
+	selectItemFields,
+	selectValueInfo
+} from '../../graphSelectors';
 import ValueTableRow from '../valueTableRow/valueTableRow';
 import * as styles from './valuetable.scss';
 
 interface Props {
 	valueInfoList: ValueInfo[];
+	field: string;
 }
 
 class ValueTable extends React.Component<Props> {
 	render() {
 		const { valueInfoList } = this.props;
-
-		console.log(valueInfoList);
 
 		return (
 			<table className={styles.table}>
@@ -37,8 +40,8 @@ class ValueTable extends React.Component<Props> {
 	}
 }
 
-const select = (state: AppState) => ({
-	valueInfoList: selectValueInfo(state)
+const select = (state: AppState, ownProps) => ({
+	valueInfoList: searchValueInfo(state, ownProps.field),
 });
 
 export default connect(select)(ValueTable);
