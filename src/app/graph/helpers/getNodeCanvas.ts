@@ -20,6 +20,26 @@ function getSearchColor(searchId: string, searches: Search[]) {
 	}
 }
 
+function numberToSuperscript(number: number): string {
+	const dictionary = {
+		'0': '⁰',
+		'1': '¹',
+		'2': '²',
+		'3': '³',
+		'4': '⁴',
+		'5': '⁵',
+		'6': '⁶',
+		'7': '⁷',
+		'8': '⁸',
+		'9': '⁹',
+	};
+
+	const characters = (number + '').split('');
+	const superscripts = characters.map(char => dictionary[char]);
+
+	return superscripts.join('');
+}
+
 export function getNodeCanvas(node: Node, sizeMultiplier: number, selected: boolean, searches: Search[], connectors: Connector[]): HTMLCanvasElement {
 	const radius = node.r * sizeMultiplier;
 	const canvas = document.createElement('canvas');
@@ -55,17 +75,16 @@ export function getNodeCanvas(node: Node, sizeMultiplier: number, selected: bool
 		});
 	}
 
+	let text = node.icon;
+
+	if (node.count > 1) {
+		text += numberToSuperscript(node.count);
+	}
+
 	ctx.fillStyle = '#ffffff';
 	ctx.font = fontSize + 'px Ionicons, Roboto, Helvetica, Arial';
 	ctx.textAlign = 'center';
-	ctx.fillText(node.icon, radius - 1 + margin, radius + margin + (fontSize / 3));
-
-	if (node.count > 1) {
-		const countFontSize = fontSize * .7;
-		ctx.textAlign = 'right';
-		ctx.font = countFontSize + 'px Roboto, Helvetica, Arial';
-		ctx.fillText(node.count + '', radius * 1.8, radius * .2 + countFontSize);
-	}
+	ctx.fillText(text, radius - 1 + margin, radius + margin + (fontSize / 3));
 
 	if (selected) {
 		ctx.lineWidth = lineWidth;
