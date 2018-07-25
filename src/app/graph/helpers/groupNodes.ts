@@ -54,7 +54,7 @@ export function groupNodes(nodes: Node[], links: Link[], skipNodeIds: number[]):
 			}
 
 			groupedNode.count ++;
-			groupedNode.r = 15 + groupedNode.count * 5;
+			groupedNode.r = 15 + Math.log(groupedNode.count) * 15;
 			groupedNode.items = groupedNode.items.concat(node.items);
 
 			if (typeof node.name !== 'undefined' && node.name !== '' && names.indexOf(node.name) === -1) {
