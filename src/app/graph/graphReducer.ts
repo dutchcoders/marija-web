@@ -325,7 +325,6 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 color: color,
                 total: 0,
                 displayNodes: action.displayNodes,
-                items: [],
 				itemsToConfirm: [],
                 requestId: action.requestId,
                 completed: false,
@@ -376,7 +375,6 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 nodes: payload.nodes,
                 links: payload.links,
                 items: payload.items,
-                searches: payload.searches,
 				graphWorkerHasValidNodes: true,
 				graphWorkerLoading: false
             };
@@ -474,7 +472,6 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 color: getQueryColor(state.searches),
                 total: 0,
                 displayNodes: DEFAULT_DISPLAY_NODES_PER_SEARCH,
-                items: [],
 				itemsToConfirm: [],
                 requestId: uniqueId(),
                 completed: false,

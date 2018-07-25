@@ -56,7 +56,6 @@ export interface GraphWorkerOutput {
     items: Item[];
     connectors: Connector[];
     suggestedConnectors: Connector[];
-    searches: Search[];
 	outputId: string;
 }
 
@@ -89,7 +88,6 @@ export default class GraphWorkerClass {
 		}
 
 		let search: Search;
-		let searches: Search[] = payload.searches;
 		let useItems: Item[];
 
 		if (action.type === REBUILD_GRAPH) {
@@ -99,17 +97,10 @@ export default class GraphWorkerClass {
 			useItems = prevItemCache;
 
 		} else {
-			const searchIndex: number = payload.searches.findIndex(loop =>
+			search = payload.searches.find(loop =>
 				loop.searchId === payload.searchId
 				&& !loop.paused
 			);
-
-			searches = payload.searches.concat([]);
-			search = Object.assign({}, searches[searchIndex]);
-
-			searches[searchIndex] = search;
-			search.items = search.items.concat(payload.items);
-
 			useItems = prevItemCache.concat(payload.items);
 		}
 
@@ -184,7 +175,6 @@ export default class GraphWorkerClass {
             links: links,
             items: items,
             connectors: connectors,
-            searches: searches,
 			outputId: payload.outputId,
 			suggestedConnectors: suggested
         };

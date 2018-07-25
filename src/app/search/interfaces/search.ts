@@ -5,7 +5,6 @@ export interface Search {
     color: string;
     completed: boolean;
     displayNodes: number;
-    items: Item[];
     itemsToConfirm: Item[];
     q: string;
     requestId: string;
