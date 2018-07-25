@@ -19,12 +19,11 @@ import { Workspace } from '../ui/interfaces/workspace';
 import { createConnector } from './helpers/createConnector';
 import {
 	GRAPH_WORKER_OUTPUT,
-	SET_AUTOMATICALLY_CREATE_CONNECTORS
+	SET_AUTOMATICALLY_CREATE_CONNECTORS, SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID
 } from '../graph/graphConstants';
 import { GraphWorkerOutput } from '../graph/helpers/graphWorkerClass';
 import { DELETE_CUSTOM_DATASOURCE } from '../datasources/datasourcesConstants';
 import { Datasource } from '../datasources/interfaces/datasource';
-import { GraphState } from '../graph/interfaces/graphState';
 
 export const defaultFieldsState: FieldsState = {
     availableFields: [],
@@ -32,10 +31,11 @@ export const defaultFieldsState: FieldsState = {
     defaultConfigs: {},
     connectors: [],
 	suggestedConnectors: [],
-	deletedConnectorFields: []
+	deletedConnectorFields: [],
+	expectedGraphWorkerOutputId: null
 };
 
-export default function fieldsReducer(state: FieldsState = defaultFieldsState, action) {
+export default function fieldsReducer(state: FieldsState = defaultFieldsState, action): FieldsState {
     switch (action.type) {
         case FIELDS_RECEIVE: {
             if (action.payload.fields === null) {
@@ -267,6 +267,11 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 		case GRAPH_WORKER_OUTPUT: {
 			const output: GraphWorkerOutput = action.payload;
 
+			if (output.outputId !== state.expectedGraphWorkerOutputId) {
+				// Graph is outdated, soon the next update will follow so we can skip this one
+				return state;
+			}
+
 			const newState: FieldsState = {
 				...state,
 				connectors: output.connectors
@@ -298,6 +303,13 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 			}
 
 			return state;
+		}
+
+		case SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID: {
+			return {
+				...state,
+				expectedGraphWorkerOutputId: action.payload.id
+			};
 		}
 
         default:
