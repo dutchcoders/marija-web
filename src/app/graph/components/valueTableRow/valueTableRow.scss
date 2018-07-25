@@ -1,0 +1,11 @@
+.td {
+  padding: 5px 10px;
+}
+
+.number {
+  text-align: right;
+}
+
+.tr:nth-child(odd) {
+  background: rgba(0, 0, 0, .1);
+}

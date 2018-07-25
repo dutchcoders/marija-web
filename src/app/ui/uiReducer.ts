@@ -74,7 +74,13 @@ export const defaultUiState: UiState = {
             ...defaultPane,
             width: 500,
             height: 500,
-        }
+        },
+		valueTable: {
+			...defaultPane,
+			width: 500,
+			fullHeight: true,
+			alignRight: true
+		}
     },
 	lightboxImageUrl: null
 };

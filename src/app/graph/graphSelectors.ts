@@ -1,4 +1,8 @@
-import { createSelector } from 'reselect';
+import {
+	createSelector,
+	createSelectorCreator,
+	defaultMemoize
+} from 'reselect';
 import { Node } from "./interfaces/node";
 import { Link } from "./interfaces/link";
 import { AppState } from "../main/interfaces/appState";
@@ -10,6 +14,8 @@ import { groupBy } from 'lodash';
 import fieldLocator from '../fields/helpers/fieldLocator';
 import { Field } from '../fields/interfaces/field';
 import { getSelectedDateFields } from '../fields/fieldsSelectors';
+import App from '../main/main';
+import { getValueInfo } from './helpers/getValueInfo';
 
 export const getNodesForDisplay = createSelector(
     (state: AppState) => state.graph.nodes,
@@ -198,4 +204,16 @@ export const getItemNodeByItemId = createSelector(
 		nodes.find(node =>
 			node.type === 'item' && node.items.indexOf(itemId) !== -1
 		)
+);
+
+const createArrayLengthSelector = createSelectorCreator(
+	defaultMemoize,
+	(a: any, b: any) => a.length === b.length
+);
+
+export const selectValueInfo = createArrayLengthSelector(
+	(state: AppState) => state.graph.items,
+	(state: AppState) => state.graph.nodes,
+
+	(items, nodes) => getValueInfo(items, nodes)
 );

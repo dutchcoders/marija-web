@@ -8,6 +8,7 @@ import Filter from '../../graph/components/filter';
 import Navigation from '../../ui/components/navigation/navigation';
 import Nodes from '../../graph/components/nodes/nodes';
 import Timeline from '../../graph/components/timeline';
+import ValueTable from '../../graph/components/valueTable/valueTable';
 import Graph from '../../graph/graph';
 import Header from '../../search/components/header';
 import Stats from '../../stats/stats';
@@ -143,6 +144,15 @@ class RootView extends React.Component<any, any> {
                         dispatch={dispatch}
                         container={this.main}>
                         <AdjacencyMatrix />
+                    </Pane>
+
+                    <Pane
+                        name="Unique values"
+                        handle="valueTable"
+                        config={panes.valueTable}
+                        dispatch={dispatch}
+                        container={this.main}>
+                        <ValueTable />
                     </Pane>
                 </div>
             );

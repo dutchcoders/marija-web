@@ -97,6 +97,12 @@ class Navigation extends React.Component<any, any> {
                         this.isActive('table')
                     )}
                     {this.getButton(
+                        'ion-ios-grid-view',
+                        'Unique values',
+                        () => this.togglePane('valueTable'),
+                        this.isActive('valueTable')
+                    )}
+                    {this.getButton(
                         'ion-ios-clock',
                         'Timeline',
                         () => this.togglePane('timeline'),

@@ -56,7 +56,7 @@ export function closeLightbox() {
     };
 }
 
-const workspaceVersion: number = 3;
+const workspaceVersion: number = 4;
 
 function getWorkspace(state: AppState): Workspace {
 	// Only save the fields of custom datasources, we get the other fields from the server
