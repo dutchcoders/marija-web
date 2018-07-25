@@ -40,7 +40,7 @@ export function getValueInfo(items: Item[], nodes: Node[]): ValueInfo[] {
 						fields: [key],
 						occurences: 1,
 						nodes: getNodesByValue(value, nodes)
-					})
+					});
 				}
 			});
 		});
