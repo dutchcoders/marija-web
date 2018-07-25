@@ -48,6 +48,7 @@ export interface GraphWorkerPayload {
 	fields: Field[];
 	deletedConnectorFields: string[];
 	noGroupingNodeIds: number[];
+	suggestedConnectors: Connector[];
 }
 
 export interface GraphWorkerOutput {
@@ -89,23 +90,23 @@ export default class GraphWorkerClass {
 
 		let search: Search;
 		let useItems: Item[];
+		let suggested: Connector[];
+		let connectors: Connector[] = payload.connectors;
 
 		if (action.type === REBUILD_GRAPH) {
 			// When we're only triggering the graph worker, we don't have any new items,
 			// and we also don't have a relevant search. We just want to regenerate the
 			// nodes and links because some config changed, like the fields.
 			useItems = prevItemCache;
-
+			suggested = payload.suggestedConnectors;
 		} else {
 			search = payload.searches.find(loop =>
 				loop.searchId === payload.searchId
 				&& !loop.paused
 			);
 			useItems = prevItemCache.concat(payload.items);
+			suggested = getSuggestedConnectors(useItems, fieldCache, connectors, payload.deletedConnectorFields);
 		}
-
-		let connectors: Connector[] = payload.connectors;
-		let suggested: Connector[] = getSuggestedConnectors(useItems, fieldCache, connectors, payload.deletedConnectorFields);
 
 		const automaticallyCreateConnectors = payload.automaticallyCreateConnectors || isLive;
 

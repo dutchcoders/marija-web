@@ -24,6 +24,7 @@ import {
 import { GraphWorkerOutput } from '../graph/helpers/graphWorkerClass';
 import { DELETE_CUSTOM_DATASOURCE } from '../datasources/datasourcesConstants';
 import { Datasource } from '../datasources/interfaces/datasource';
+import { GraphState } from '../graph/interfaces/graphState';
 
 export const defaultFieldsState: FieldsState = {
     availableFields: [],
@@ -266,11 +267,16 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 		case GRAPH_WORKER_OUTPUT: {
 			const output: GraphWorkerOutput = action.payload;
 
-			return {
+			const newState: FieldsState = {
 				...state,
-				connectors: output.connectors,
-				suggestedConnectors: output.suggestedConnectors
+				connectors: output.connectors
 			};
+
+			if (output.suggestedConnectors) {
+				newState.suggestedConnectors = output.suggestedConnectors;
+			}
+
+			return newState;
 		}
 
 		case DELETE_CUSTOM_DATASOURCE: {
