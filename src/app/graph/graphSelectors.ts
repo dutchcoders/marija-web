@@ -237,8 +237,13 @@ export const searchValueInfo = createSelector(
 	(state: AppState, field: string, search: string) => selectValueInfoByField(state, field),
 	(state: AppState, field: string, search: string) => search,
 
-	(valueInfo, search) =>
-		valueInfo.filter(info => info.value.toLowerCase().includes(search.toLowerCase()))
+	(valueInfo, search) => {
+		if (!search) {
+			return valueInfo;
+		}
+
+		return valueInfo.filter(info => info.value.toLowerCase().includes(search.toLowerCase()));
+	}
 );
 
 export const selectItemFields = createSelector(
