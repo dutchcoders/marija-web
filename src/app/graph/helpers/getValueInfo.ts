@@ -24,6 +24,8 @@ export function getValueInfo(items: Item[], nodes: Node[]): ValueInfo[] {
 					return;
 				}
 
+				value = value + '';
+
 				let info = list.find(info => info.value === value);
 
 				if (info) {
