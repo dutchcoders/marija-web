@@ -36,6 +36,7 @@ export interface GraphWorkerPayload {
 	deletedConnectorFields: string[];
 	noGroupingNodeIds: number[];
 	suggestedConnectors: Connector[];
+	groupNodes: boolean;
 }
 
 export interface GraphWorkerOutput {
@@ -134,9 +135,11 @@ export default class GraphWorkerClass {
             }
         }
 
-        const grouped = groupNodes(result.nodes, result.links, payload.noGroupingNodeIds);
-        result.nodes = grouped.nodes;
-        result.links = grouped.links;
+        if (payload.groupNodes) {
+			const grouped = groupNodes(result.nodes, result.links, payload.noGroupingNodeIds);
+			result.nodes = grouped.nodes;
+			result.links = grouped.links;
+		}
 
         result.nodes = markNodesForDisplay(result.nodes, payload.searches || []);
         result.links = markLinksForDisplay(result.nodes, result.links);

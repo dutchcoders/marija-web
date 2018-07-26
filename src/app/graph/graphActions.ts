@@ -15,7 +15,7 @@ import {
 	SET_AUTOMATICALLY_CREATE_CONNECTORS,
 	SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID,
 	SET_FILTER_BORING_NODES,
-	SET_FILTER_SECONDARY_QUERIES,
+	SET_FILTER_SECONDARY_QUERIES, SET_GROUP_NODES,
 	SET_IMPORTANT_NODE,
 	SET_MAP_ACTIVE,
 	SET_NOTE,
@@ -229,6 +229,15 @@ export function setExpectedGraphWorkerOutputId(id: string) {
 			id
 		}
 	};
+}
+
+export function setGroupNodes(enabled: boolean) {
+	return dispatchAndRebuildGraph({
+		type: SET_GROUP_NODES,
+		payload: {
+			enabled
+		}
+	});
 }
 
 export function setAutomaticallyCreateConnectors(enabled: boolean) {

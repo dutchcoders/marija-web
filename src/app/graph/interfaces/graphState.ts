@@ -33,4 +33,5 @@ export interface GraphState {
 	expectedGraphWorkerOutputId: string;
 	automaticallyCreateConnectors: boolean;
 	noGroupingNodeIds: number[];
+	groupNodes: boolean;
 }

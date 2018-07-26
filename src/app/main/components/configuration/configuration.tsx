@@ -8,7 +8,7 @@ import Fields from '../../../fields/fields';
 import {
 	normalizationAdd,
 	normalizationDelete,
-	setFilterBoringNodes, setFilterSecondaryQueries,
+	setFilterBoringNodes, setFilterSecondaryQueries, setGroupNodes,
 	viaAdd,
 	viaDelete
 } from '../../../graph/graphActions';
@@ -43,6 +43,7 @@ interface Props {
     filterBoringNodes: boolean;
     filterSecondaryQueries: boolean;
     experimentalFeatures: boolean;
+    groupNodes: boolean;
 }
 
 class Configuration extends React.Component<Props, State> {
@@ -374,6 +375,12 @@ class Configuration extends React.Component<Props, State> {
         dispatch(setFilterSecondaryQueries(event.currentTarget.checked));
     }
 
+    onGroupNodesChange(event: FormEvent<HTMLInputElement>) {
+        const { dispatch } = this.props;
+
+        dispatch(setGroupNodes(event.currentTarget.checked));
+    }
+
     onExperimentalFeaturesChange(event: FormEvent<HTMLInputElement>) {
         const { dispatch } = this.props;
 
@@ -381,7 +388,7 @@ class Configuration extends React.Component<Props, State> {
     }
 
     render() {
-        const { normalizations, filterBoringNodes, filterSecondaryQueries, experimentalFeatures } = this.props;
+        const { normalizations, filterBoringNodes, filterSecondaryQueries, experimentalFeatures, groupNodes } = this.props;
 
         return (
             <div>
@@ -412,6 +419,10 @@ class Configuration extends React.Component<Props, State> {
 					<label className="graph-option">
 						<input type="checkbox" onChange={this.onFilterSecondaryQueriesChange.bind(this)} defaultChecked={filterSecondaryQueries} />
 						Only display nodes that are connected to nodes from <strong>the first query</strong>.
+					</label>
+					<label className="graph-option">
+						<input type="checkbox" onChange={this.onGroupNodesChange.bind(this)} defaultChecked={groupNodes} />
+						Group similar nodes into a bigger node. Nodes that have exactly the same connections will be grouped.
 					</label>
                 </div>
 
@@ -447,7 +458,8 @@ function select(state: AppState, ownProps) {
         fieldsFetching: state.fields.fieldsFetching,
         filterBoringNodes: state.graph.filterBoringNodes,
         filterSecondaryQueries: state.graph.filterSecondaryQueries,
-        experimentalFeatures: state.ui.experimentalFeatures
+        experimentalFeatures: state.ui.experimentalFeatures,
+        groupNodes: state.graph.groupNodes
     };
 }
 

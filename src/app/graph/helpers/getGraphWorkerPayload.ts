@@ -21,6 +21,7 @@ export function getGraphWorkerPayload(state: AppState, items: Item[] = [], searc
 		fields: state.fields.availableFields,
 		deletedConnectorFields: state.fields.deletedConnectorFields,
 		noGroupingNodeIds: state.graph.noGroupingNodeIds,
-		suggestedConnectors: state.fields.suggestedConnectors
+		suggestedConnectors: state.fields.suggestedConnectors,
+		groupNodes: state.graph.groupNodes
 	};
 }
