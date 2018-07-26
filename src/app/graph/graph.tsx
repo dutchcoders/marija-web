@@ -159,7 +159,7 @@ class Graph extends React.PureComponent<Props, State> {
 	 */
 	onWorkerTick(data: Float64Array) {
 		const numNodes: number = data[0];
-    	const propertiesPerNode: number = 4;
+    	const propertiesPerNode: number = 3;
     	const nodesStopAt: number = numNodes * propertiesPerNode;
 
     	for (let i = 1; i <= nodesStopAt; i += propertiesPerNode) {

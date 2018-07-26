@@ -17,7 +17,6 @@ function getTickMessage() {
 		message.push(node.id);
 		message.push(node.x);
 		message.push(node.y);
-		message.push(node.r);
 	});
 
 	workerLinks.forEach(link => {
