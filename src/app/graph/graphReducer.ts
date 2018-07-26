@@ -387,7 +387,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			if (!newItems || newItems.length === 0) {
 				return state;
 			}
-			
+
 			const items = state.items.concat(newItems);
 
 			return {

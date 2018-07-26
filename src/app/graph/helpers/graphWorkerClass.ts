@@ -2,19 +2,14 @@ import removeDeadLinks from './removeDeadLinks';
 import filterComponentsByQueries from './filterComponentsBySearchIds';
 import getConnectedComponents from './getConnectedComponents';
 import markNodesForDisplay from './markNodesForDisplay';
-import applyVia from './applyVia';
 import getNodesAndLinks from "./getNodesAndLinks";
 import markLinksForDisplay from "./markLinksForDisplay";
-import normalizeLinks from "./normalizeLinks";
-import normalizeNodes from "./normalizeNodes";
 import filterBoringComponents from "./filterBoringComponents";
 import {LIVE_RECEIVE} from "../../search/searchConstants";
 import {Search} from "../../search/interfaces/search";
 import {Item} from "../interfaces/item";
 import {Node} from "../interfaces/node";
 import {Link} from "../interfaces/link";
-import {Normalization} from "../interfaces/normalization";
-import {Via} from "../interfaces/via";
 import {EventEmitter} from "fbemitter";
 import { REBUILD_GRAPH } from '../graphConstants';
 import { Connector } from '../interfaces/connector';
@@ -29,10 +24,8 @@ export interface GraphWorkerPayload {
     prevNodes?: Node[];
     prevLinks?: Link[];
     prevItems?: Item[];
-    normalizations: Normalization[];
     searches: Search[];
     deletedNodeIds: number[];
-    via: Via[];
     filterBoringNodes: boolean;
     filterSecondaryQueries: boolean;
     connectors: Connector[];
@@ -148,28 +141,20 @@ export default class GraphWorkerClass {
         result.nodes = markNodesForDisplay(result.nodes, payload.searches || []);
         result.links = markLinksForDisplay(result.nodes, result.links);
 
-        const normalizedNodes = normalizeNodes(result.nodes, payload.normalizations);
-        const normalizedLinks = normalizeLinks(normalizedNodes, result.links, payload.normalizations);
-
-        result.nodes = normalizedNodes;
-        result.links = removeDeadLinks(result.nodes, normalizedLinks);
-
-        let { nodes, links } = applyVia(result.nodes, result.links, payload.via);
-
         // Sort on line thickness for performance improvement
         // The renderer is faster when it doesnt need to switch line styles so often
         // links.sort((a, b) => a.color - b.color);
 
         const output: GraphWorkerOutput = {
-            nodes: nodes,
-            links: links,
+            nodes: result.nodes,
+            links: result.links,
             connectors: connectors,
 			outputId: payload.outputId,
 			suggestedConnectors: suggested
         };
 
-        prevNodeCache = nodes;
-        prevLinkCache = links;
+        prevNodeCache = result.nodes;
+        prevLinkCache = result.links;
 
         this.output.emit('output', output);
     }
