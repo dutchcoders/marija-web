@@ -9,4 +9,7 @@ export interface UiState {
     panes: PaneCollection;
     lightboxImageUrl: string | null;
     experimentalFeatures: boolean;
+    reducerError: any;
+    reducerErrorState: any;
+    reducerErrorLastAction: any;
 }

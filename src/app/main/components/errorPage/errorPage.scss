@@ -1,0 +1,26 @@
+.container {
+  width: 600px;
+  margin: 40px auto;
+}
+
+.title {
+  font-size: 3em;
+}
+
+.subtitle {
+  font-size: 1.4em;
+}
+
+.debugTitle {
+  font-size: 1em;
+}
+
+.debugInfo {
+  color: black;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  height: 400px;
+  font-family: monospace;
+  border: none;
+}

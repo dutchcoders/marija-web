@@ -692,6 +692,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 		}
 
 		case SET_FILTER_NODES_BY: {
+			window['wat']();
+
 			return {
 				...state,
 				filterNodesBy: action.payload.query

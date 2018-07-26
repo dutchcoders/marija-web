@@ -9,7 +9,7 @@ const { execSync } = require('child_process');
 const lastCommitDate = execSync('git show -s --format=%ci ' + gitInfo.hash).toString();
 
 module.exports = merge(common, {
-    devtool: 'eval-cheap-module-source-map',
+    devtool: 'cheap-module-source-map',
     target: 'web',
     plugins: [
 		new webpack.DefinePlugin({

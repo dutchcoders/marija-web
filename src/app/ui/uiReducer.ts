@@ -5,7 +5,7 @@ import {
 	CLOSE_PANE,
 	MOVE_PANE_TO_TOP, OPEN_LIGHTBOX,
 	OPEN_PANE, RECEIVE_WORKSPACE, SET_EXPERIMENTAL_FEATURES,
-	SET_PANE_CONFIG, WORKSPACE_CREATED
+	SET_PANE_CONFIG, SET_REDUCER_ERROR, WORKSPACE_CREATED
 } from './uiConstants';
 import {UiState} from "./interfaces/uiState";
 import {PaneInterface} from "./interfaces/paneInterface";
@@ -82,7 +82,10 @@ export const defaultUiState: UiState = {
 			alignRight: true
 		}
     },
-	lightboxImageUrl: null
+	lightboxImageUrl: null,
+	reducerError: null,
+    reducerErrorState: null,
+    reducerErrorLastAction: null
 };
 
 export default function uiReducer(state: UiState = defaultUiState, action): UiState {
@@ -174,6 +177,15 @@ export default function uiReducer(state: UiState = defaultUiState, action): UiSt
 				...state,
 				experimentalFeatures: action.payload.enabled
 			}
+		}
+
+		case SET_REDUCER_ERROR: {
+			return {
+				...state,
+				reducerError: action.payload.reducerError,
+				reducerErrorState: action.payload.reducerErrorState,
+				reducerErrorLastAction: action.payload.reducerErrorLastAction
+			};
 		}
 
         default:

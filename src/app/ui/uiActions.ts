@@ -3,7 +3,7 @@ import {
 	CLOSE_PANE, CREATE_WORKSPACE,
 	MOVE_PANE_TO_TOP, OPEN_LIGHTBOX,
 	OPEN_PANE, RECEIVE_WORKSPACE, REQUEST_WORKSPACE, SET_EXPERIMENTAL_FEATURES,
-	SET_PANE_CONFIG, UPDATE_WORKSPACE, WORKSPACE_CREATED
+	SET_PANE_CONFIG, SET_REDUCER_ERROR, UPDATE_WORKSPACE, WORKSPACE_CREATED
 } from './uiConstants';
 import { webSocketSend } from '../connection/connectionActions';
 import { AppState } from '../main/interfaces/appState';
@@ -166,4 +166,15 @@ export function setExperimentalFeatures(enabled: boolean) {
 			enabled
 		}
 	};
+}
+
+export function setReducerError(reducerError, reducerErrorState, reducerErrorLastAction) {
+	return {
+		type: SET_REDUCER_ERROR,
+		payload: {
+			reducerError,
+			reducerErrorState,
+			reducerErrorLastAction,
+		}
+	}
 }

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { AppState } from '../../../main/interfaces/appState';
-import { Item } from '../../interfaces/item';
 import { connect } from 'react-redux';
 import { ValueInfo } from '../../helpers/getValueInfo';
 import {

@@ -47,6 +47,7 @@
     "recharts": "^1.0.0-beta.10",
     "reconnecting-websocket": "^3.0.2",
     "redux": "^3.3.1",
+    "redux-catch": "^1.3.1",
     "redux-thunk": "^2.2.0",
     "redux-worker-middleware": "^1.0.0",
     "reselect": "^3.0.1",

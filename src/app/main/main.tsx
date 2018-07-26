@@ -30,6 +30,9 @@ import { queryMiddleware } from '../search/helpers/queryMiddleware';
 import CreateCustomDatasource
 	from '../datasources/components/createCustomDatasource/createCustomDatasource';
 import { getHistory } from './helpers/getHistory';
+import ErrorPage from './components/errorPage/errorPage';
+import { errorMiddleware } from './helpers/errorMiddleware';
+import ErrorBoundary, { ErrorDetails } from './components/errorBoundary/errorBoundary';
 
 require('../../scss/app.scss');
 require('../../images/favicon.png');
@@ -59,7 +62,8 @@ function configureStore() {
 				workspaceMiddleware,
 				queryMiddleware,
 				thunk,
-				graphWorkerMiddleware
+				graphWorkerMiddleware,
+				errorMiddleware()
 			)
         )
     );
@@ -73,9 +77,14 @@ interface Props {
 }
 
 interface State {
+	errorDetails: ErrorDetails
 }
 
 class App extends React.Component<Props, State> {
+	state: State = {
+		errorDetails: null
+	};
+
     componentWillMount() {
         const { backendUri } = this.props;
 
@@ -89,16 +98,32 @@ class App extends React.Component<Props, State> {
 		}
     }
 
+    onError(errorDetails: ErrorDetails) {
+    	this.setState({
+			errorDetails
+		});
+	}
+
     render() {
+    	const { errorDetails } = this.state;
+
+    	if (errorDetails) {
+    		return (
+    			<ErrorPage errorDetails={errorDetails} />
+			);
+		}
+
         return (
             <div className="applicationWrapper">
                 <Provider store={store}>
-                    <Router history={history}>
-                        <div className="routerWrapper">
-							<Route path='/create-custom-datasource' component={CreateCustomDatasource} />
-							<Route path='*' component={RootView} />
-                        </div>
-                    </Router>
+					<ErrorBoundary onError={this.onError.bind(this)}>
+						<Router history={history}>
+							<div className="routerWrapper">
+								<Route path='/create-custom-datasource' component={CreateCustomDatasource} />
+								<Route path='*' component={RootView} />
+							</div>
+						</Router>
+					</ErrorBoundary>
                 </Provider>
             </div>
         );
