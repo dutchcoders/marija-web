@@ -28,6 +28,8 @@ class FilterResults extends React.Component<Props> {
 	render() {
 		const { nodes } = this.props;
 
+		const selected = nodes.filter(node => node.selected).length;
+
 		return (
 			<div className={styles.container}>
 				<ul className={styles.results}>
@@ -37,7 +39,7 @@ class FilterResults extends React.Component<Props> {
 				</ul>
 				<div className={styles.actions}>
 					<p className={styles.count}>
-						{nodes.length} Nodes found.
+						{nodes.length} Nodes found. Selected {selected}.
 					</p>
 					<button
 						className={styles.button}
