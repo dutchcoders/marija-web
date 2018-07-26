@@ -16,7 +16,7 @@
     margin: 0 5px;
     @include shadow();
 
-    li {
+    > li {
       list-style: none;
 
       &.active {

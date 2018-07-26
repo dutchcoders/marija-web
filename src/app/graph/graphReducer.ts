@@ -29,7 +29,7 @@ import {
 	SET_AUTOMATICALLY_CREATE_CONNECTORS,
 	SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID,
 	SET_FIELD_PARENT,
-	SET_FILTER_BORING_NODES,
+	SET_FILTER_BORING_NODES, SET_FILTER_NODES_BY,
 	SET_FILTER_SECONDARY_QUERIES, SET_GROUP_NODES,
 	SET_IMPORTANT_NODE,
 	SET_IS_DRAGGING_SUB_FIELDS,
@@ -87,7 +87,8 @@ export const defaultGraphState: GraphState = {
 	expectedGraphWorkerOutputId: '',
 	automaticallyCreateConnectors: true,
 	noGroupingNodeIds: [],
-	groupNodes: true
+	groupNodes: true,
+	filterNodesBy: ''
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -722,6 +723,13 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			return {
 				...state,
 				noGroupingNodeIds: state.noGroupingNodeIds.concat([action.payload.node.id])
+			};
+		}
+
+		case SET_FILTER_NODES_BY: {
+			return {
+				...state,
+				filterNodesBy: action.payload.query
 			};
 		}
 

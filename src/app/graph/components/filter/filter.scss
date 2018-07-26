@@ -1,0 +1,54 @@
+@import '../../../../scss/mixins/shadow';
+
+.filter {
+  margin: 0 5px;
+  position: relative;
+}
+
+.header {
+  width: 180px;
+  background: #4D657E;
+  @include shadow();
+  border-radius: 4px;
+  padding: 5px 0 5px 5px;
+  display: flex;
+}
+
+.inputWrapper {
+  position: relative;
+}
+
+.input {
+  border: none;
+  padding: 0 25px 0 7px;
+  height: 30px;
+  font-size: 14px;
+  color: white;
+  box-sizing: border-box;
+  background: #425166;
+  border-radius: 3px;
+  box-shadow: inset 2px 2px 5px 0px rgba(0, 0, 0, 0.3);
+  outline: none;
+  width: 100%;
+
+  &::placeholder {
+    color: white;
+  }
+}
+
+.searchIcon {
+  position: absolute;
+  top: 6px;
+  right: 9px;
+  font-size: 18px;
+}
+
+.toggle {
+  width: 30px !important;
+  line-height: 30px !important;
+  flex-shrink: 0;
+  flex-grow: 0;
+  font-size: 18px;
+  text-align: center;
+  cursor: pointer;
+}

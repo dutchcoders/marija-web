@@ -24,11 +24,20 @@ class NodeIcon extends React.Component<Props, State> {
 	};
 
 	componentWillMount() {
-		this.prepareIcon();
+		this.prepareIcon(this.props);
 	}
 
-	prepareIcon() {
-		const { node, searches, connectors } = this.props;
+	componentWillReceiveProps(nextProps: Props) {
+		const { node } = this.props;
+
+		// Update the icon if the node got selected or deselected
+		if (node.selected !== nextProps.node.selected) {
+			this.prepareIcon(nextProps);
+		}
+	}
+
+	prepareIcon(props: Props) {
+		const { node, searches, connectors } = props;
 
 		if (node.image) {
 			getNodeImageCanvas(node, 1, false)
@@ -36,7 +45,7 @@ class NodeIcon extends React.Component<Props, State> {
 					icon: canvas.toDataURL()
 				}));
 		} else {
-			const canvas = getNodeCanvas(node, 1, false, searches, connectors);
+			const canvas = getNodeCanvas(node, 1, node.selected, searches, connectors);
 
 			this.setState({
 				icon: canvas.toDataURL()

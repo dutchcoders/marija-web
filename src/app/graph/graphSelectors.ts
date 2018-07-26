@@ -263,3 +263,32 @@ export const selectItemFields = createSelector(
 		return fields;
 	}
 );
+
+export const selectFilteredNodes = createSelector(
+	(state: AppState) => state.graph.nodes,
+	(state: AppState) => state.graph.filterNodesBy,
+
+	(nodes, filterNodesBy): Node[] => {
+		if (!filterNodesBy) {
+			return nodes;
+		}
+
+		const query = filterNodesBy.toLowerCase();
+
+		return nodes.filter(node => {
+			const fields = Object.keys(node.childData);
+
+			for (let i = 0; i < fields.length; i ++) {
+				const values = node.childData[fields[i]];
+
+				for (let j = 0; j < values.length; j ++) {
+					if (values[j].toLowerCase().includes(query)) {
+						return true;
+					}
+				}
+			}
+
+			return false;
+		});
+	}
+);

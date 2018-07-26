@@ -34,4 +34,5 @@ export interface GraphState {
 	automaticallyCreateConnectors: boolean;
 	noGroupingNodeIds: number[];
 	groupNodes: boolean;
+	filterNodesBy: string;
 }

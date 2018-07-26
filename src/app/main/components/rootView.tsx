@@ -1,10 +1,8 @@
 import { EventEmitter } from 'fbemitter';
 import * as React from 'react';
 import { connect } from 'react-redux';
-
 import ContextMenu from '../../contextMenu/contextMenu';
 import ChordDiagram from '../../graph/components/chordDiagram/chordDiagram';
-import Filter from '../../graph/components/filter';
 import Navigation from '../../ui/components/navigation/navigation';
 import Nodes from '../../graph/components/nodes/nodes';
 import Timeline from '../../graph/components/timeline';
@@ -118,15 +116,6 @@ class RootView extends React.Component<any, any> {
                             height="200"
                             className="timeline"
                         />
-                    </Pane>
-
-                    <Pane
-                        name="Filter"
-                        handle="filter"
-                        config={panes.filter}
-                        dispatch={dispatch}
-                        container={this.main}>
-                        <Filter />
                     </Pane>
 
                     <Pane

@@ -6,7 +6,7 @@ import { AppState } from '../../../main/interfaces/appState';
 import Icon from '../icon';
 import { closePane, openPane } from '../../uiActions';
 import { setMapActive, toggleLabels } from '../../../graph/graphActions';
-import Filter from '../../../graph/components/filter';
+import Filter from '../../../graph/components/filter/filter';
 import * as styles from './navigation.scss';
 import { isMapAvailable } from '../../../graph/graphSelectors';
 

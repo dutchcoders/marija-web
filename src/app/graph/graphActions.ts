@@ -14,7 +14,7 @@ import {
 	SELECTION_CLEAR,
 	SET_AUTOMATICALLY_CREATE_CONNECTORS,
 	SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID,
-	SET_FILTER_BORING_NODES,
+	SET_FILTER_BORING_NODES, SET_FILTER_NODES_BY,
 	SET_FILTER_SECONDARY_QUERIES, SET_GROUP_NODES,
 	SET_IMPORTANT_NODE,
 	SET_MAP_ACTIVE,
@@ -269,4 +269,13 @@ export function dontGroupNode(node: Node) {
 			node
 		}
 	});
+}
+
+export function setFilterNodesBy(query: string) {
+	return {
+		type: SET_FILTER_NODES_BY,
+		payload: {
+			query
+		}
+	};
 }
