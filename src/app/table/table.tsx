@@ -20,6 +20,7 @@ import * as styles from './table.scss';
 import { FormEvent } from 'react';
 import { getSelectedFields } from '../fields/fieldsSelectors';
 import { createNewConnector } from '../fields/fieldsActions';
+import { selectSortedItems } from './tableSelectors';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -315,7 +316,7 @@ function select(state: AppState) {
     return {
         selectedNodes: getSelectedNodes(state),
         normalizations: state.graph.normalizations,
-        items: state.graph.items,
+        items: selectSortedItems(state),
         searches: state.graph.searches,
         fields: getSelectedFields(state),
         columns: state.table.columns,

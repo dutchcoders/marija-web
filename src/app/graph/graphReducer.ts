@@ -1,6 +1,5 @@
 import {concat, isEqual, uniqueId, without} from 'lodash';
 import { ERROR, REQUEST_COMPLETED } from '../connection/connectionConstants';
-import {sortItems} from './helpers/sortItems';
 import darkenColor from '../search/helpers/darkenColor';
 import getQueryColor from '../search/helpers/getQueryColor';
 import {Search} from '../search/interfaces/search';
@@ -13,7 +12,6 @@ import {
 	SEARCH_FIELDS_UPDATE, SEARCH_RECEIVE,
 	SEARCH_REQUEST
 } from '../search/searchConstants';
-import {TABLE_SORT} from '../table/tableConstants';
 import {
 	DEFAULT_DISPLAY_NODES_PER_SEARCH, DONT_GROUP_NODE,
 	FIELD_NODES_HIGHLIGHT,
@@ -458,16 +456,6 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 				...state,
 				nodes
 			};
-        }
-
-        case TABLE_SORT: {
-            const items = sortItems(state.items, action.payload.column, action.payload.type);
-
-            return {
-                ...state,
-                items: items,
-				graphWorkerCacheIsValid: false
-            };
         }
 
         /**

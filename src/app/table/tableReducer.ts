@@ -36,8 +36,6 @@ export default function tableReducer(state: TableState = defaultTableState, acti
         }
 
         case TABLE_SORT: {
-            // Actual sorting is done in the graphReducer, here we just save the state
-
             return {
                 ...state,
                 sortColumn: action.payload.column,
