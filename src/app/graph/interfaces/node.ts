@@ -34,18 +34,6 @@ export interface Node {
     display: boolean;
 
     /**
-     * When the node was created due to a normalization, we store which one it
-     * was. This is helpful if we want to delete the normalization later.
-     */
-    normalizationId: string | null;
-
-    /**
-     * Whether this node is the parent of some other nodes that are normalized.
-     * The id of this node would be the 'replaceWith' value of the normalization.
-     */
-    isNormalizationParent: boolean;
-
-    /**
      * Whether user marked this node as important.
      */
     important?: boolean;
@@ -66,7 +54,6 @@ export interface Node {
 	y?: number;
 	fx?: number;
 	fy?: number;
-	batch?: number;
 
 	connector?: string;
 	datasourceId?: string;

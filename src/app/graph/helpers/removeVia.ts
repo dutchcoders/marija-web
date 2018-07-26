@@ -9,8 +9,6 @@ const getLink = (source: number, target: number): Link => {
         label: null,
         viaId: null,
         display: true,
-        normalizationIds: [],
-        isNormalizationParent: false,
         total: 1,
         current: 1,
         color: '',

@@ -23,18 +23,6 @@ export interface Link {
     display: boolean;
 
     /**
-     * When the link was created due to a normalization, we store which one it
-     * was. This is helpful if we want to delete the normalization later.
-     */
-    normalizationIds: string[];
-
-    /**
-     * Whether this link is the parent of some other links that are normalized.
-     * The id of this link would be the 'replaceWith' value of the normalization.
-     */
-    isNormalizationParent: boolean;
-
-    /**
      * When the link is created because of a 'via configuration' (meaning it
      * has a via), we also need to store the id of the via configuration. This
      * is useful if we later delete the via config, because we can then rebuild

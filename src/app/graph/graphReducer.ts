@@ -41,14 +41,10 @@ import {
 	VIA_DELETE
 } from './graphConstants';
 import applyVia from './helpers/applyVia';
-import denormalizeLinks from './helpers/denormalizeLinks';
-import denormalizeNodes from './helpers/denormalizeNodes';
 import {deselectNodes} from './helpers/deselectNodes';
 import markHighlightedNodes from './helpers/markHighlightedNodes';
 import markLinksForDisplay from './helpers/markLinksForDisplay';
 import markNodesForDisplay from './helpers/markNodesForDisplay';
-import normalizeLinks from './helpers/normalizeLinks';
-import normalizeNodes from './helpers/normalizeNodes';
 import removeNodesAndLinks from './helpers/removeNodesAndLinks';
 import removeVia from './helpers/removeVia';
 import {selectNodes} from './helpers/selectNodes';
@@ -129,37 +125,6 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 links: links,
 				graphWorkerCacheIsValid: false
             });
-        }
-        case NORMALIZATION_ADD: {
-            const normalization: Normalization = {
-                id: uniqueId(),
-                regex: action.normalization.regex,
-                replaceWith: action.normalization.replaceWith
-            };
-
-            const normalizations = state.normalizations.concat([normalization]);
-            const nodes = normalizeNodes(state.nodes, normalizations);
-            const links = normalizeLinks(nodes, state.links, normalizations);
-
-            return {
-                ...state,
-                normalizations: normalizations,
-                nodes: nodes,
-                links: links,
-				graphWorkerCacheIsValid: false
-            };
-        }
-        case NORMALIZATION_DELETE: {
-            const nodes = denormalizeNodes(state.nodes, action.normalization);
-            const links = denormalizeLinks(state.links, action.normalization);
-
-            return {
-                ...state,
-                normalizations: without(state.normalizations, action.normalization),
-                nodes: nodes,
-                links: links,
-                graphWorkerCacheIsValid: false
-            };
         }
         case VIA_ADD: {
             const newVia: Via = {

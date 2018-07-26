@@ -7,7 +7,6 @@ export function deselectNodes(nodesToSelect: Node[], allNodes: Node[]): Node[] {
         const index = nodes.findIndex(search =>
             search.id === node.id
             && search.display
-            && (search.normalizationId === null || search.isNormalizationParent)
         );
 
         if (nodes[index].selected) {

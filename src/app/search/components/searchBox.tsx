@@ -8,6 +8,7 @@ import { Search } from '../interfaces/search';
 import Query from './query';
 import * as styles from './searchBox.scss';
 import { getActiveNonLiveDatasources } from '../../datasources/datasourcesSelectors';
+import { getNodesForDisplay } from '../../graph/graphSelectors';
 const logo = require('../../../images/logo.png');
 
 interface Props {
@@ -199,7 +200,7 @@ const select = (state: AppState, ownProps) => {
         ...ownProps,
         searches: state.graph.searches,
         datasources: getActiveNonLiveDatasources(state),
-        nodes: state.graph.nodes.filter(node => node.isNormalizationParent || node.normalizationId === null),
+        nodes: getNodesForDisplay(state),
     };
 };
 

@@ -7,7 +7,6 @@ export function selectNodes(nodesToSelect: Node[], allNodes: Node[]): Node[] {
         const index = nodes.findIndex(searchNode =>
             searchNode.id === node.id
             && searchNode.display
-            && (searchNode.normalizationId === null || searchNode.isNormalizationParent)
         );
 
         if (index === -1) {

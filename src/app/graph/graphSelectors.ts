@@ -14,14 +14,12 @@ import { groupBy } from 'lodash';
 import fieldLocator from '../fields/helpers/fieldLocator';
 import { Field } from '../fields/interfaces/field';
 import { getSelectedDateFields } from '../fields/fieldsSelectors';
-import App from '../main/main';
 import { getValueInfo } from './helpers/getValueInfo';
 
 export const getNodesForDisplay = createSelector(
     (state: AppState) => state.graph.nodes,
     (nodes: Node[]) => nodes.filter(node =>
 		node.display
-		&& (!node.normalizationId || node.isNormalizationParent)
 	)
 );
 
@@ -29,7 +27,6 @@ export const getLinksForDisplay = createSelector(
     (state: AppState) => state.graph.links,
     (links: Link[]) => links.filter(link =>
 		link.display
-		&& (!link.normalizationIds.length || link.isNormalizationParent)
 	)
 );
 

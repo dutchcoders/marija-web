@@ -98,8 +98,6 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
                             label: label,
                             viaId: viaItem.id,
                             display: true,
-                            normalizationIds: [],
-                            isNormalizationParent: false,
                             total: 1,
                             current: 1,
                             color: '',
@@ -131,10 +129,7 @@ export default function applyVia(nodes: Node[], links: Link[], via: Via[]) {
         const key = link.source + link.target;
         let current = counter[key] ? counter[key] : 0;
 
-        // Don't count links that won't be rendered
-        if (link.isNormalizationParent || !link.normalizationIds.length) {
-            current += 1;
-        }
+        current += 1;
 
         counter[key] = current;
 
