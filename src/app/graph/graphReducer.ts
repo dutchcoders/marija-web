@@ -374,7 +374,6 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             const updates: any = {
                 nodes: payload.nodes,
                 links: payload.links,
-                items: payload.items,
 				graphWorkerHasValidNodes: true,
 				graphWorkerLoading: false
             };
@@ -383,15 +382,17 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
         }
 
 		case SEARCH_RECEIVE: {
-			const items: Item[] = action.payload.items;
+			const newItems: Item[] = action.payload.items;
 
-			if (!items || items.length === 0) {
+			if (!newItems || newItems.length === 0) {
 				return state;
 			}
+			
+			const items = state.items.concat(newItems);
 
 			return {
 				...state,
-				items: state.items.concat(items)
+				items
 			};
 		}
 

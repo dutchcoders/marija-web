@@ -16,9 +16,6 @@ import {Link} from "../interfaces/link";
 import {Normalization} from "../interfaces/normalization";
 import {Via} from "../interfaces/via";
 import {EventEmitter} from "fbemitter";
-import {Column} from "../../table/interfaces/column";
-import {SortType} from "../../table/interfaces/sortType";
-import {sortItems} from "./sortItems";
 import { REBUILD_GRAPH } from '../graphConstants';
 import { Connector } from '../interfaces/connector';
 import { Datasource } from '../../datasources/interfaces/datasource';
@@ -36,9 +33,6 @@ export interface GraphWorkerPayload {
     searches: Search[];
     deletedNodeIds: number[];
     via: Via[];
-    receivedAt: number;
-    sortColumn: Column;
-    sortType: SortType;
     filterBoringNodes: boolean;
     filterSecondaryQueries: boolean;
     connectors: Connector[];
@@ -54,7 +48,6 @@ export interface GraphWorkerPayload {
 export interface GraphWorkerOutput {
     nodes: Node[];
     links: Link[];
-    items: Item[];
     connectors: Connector[];
     suggestedConnectors: Connector[];
 	outputId: string;
@@ -105,6 +98,7 @@ export default class GraphWorkerClass {
 				&& !loop.paused
 			);
 			useItems = prevItemCache.concat(payload.items);
+			prevItemCache = useItems;
 			suggested = getSuggestedConnectors(useItems, fieldCache, connectors, payload.deletedConnectorFields);
 		}
 
@@ -162,19 +156,13 @@ export default class GraphWorkerClass {
 
         let { nodes, links } = applyVia(result.nodes, result.links, payload.via);
 
-        let items = prevItemCache.concat(payload.items);
-        if (payload.sortColumn) {
-            items = sortItems(items, payload.sortColumn, payload.sortType);
-        }
-
         // Sort on line thickness for performance improvement
         // The renderer is faster when it doesnt need to switch line styles so often
-        links.sort((a, b) => a.itemIds.length - b.itemIds.length);
+        // links.sort((a, b) => a.color - b.color);
 
         const output: GraphWorkerOutput = {
             nodes: nodes,
             links: links,
-            items: items,
             connectors: connectors,
 			outputId: payload.outputId,
 			suggestedConnectors: suggested
@@ -182,7 +170,6 @@ export default class GraphWorkerClass {
 
         prevNodeCache = nodes;
         prevLinkCache = links;
-        prevItemCache = items;
 
         this.output.emit('output', output);
     }
