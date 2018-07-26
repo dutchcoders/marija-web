@@ -53,7 +53,7 @@ export function groupNodes(nodes: Node[], links: Link[], skipNodeIds: number[]):
 				return;
 			}
 
-			groupedNode.count ++;
+			groupedNode.count += node.count;
 			groupedNode.r = 15 + Math.log(groupedNode.count) * 15;
 			groupedNode.items = groupedNode.items.concat(node.items);
 

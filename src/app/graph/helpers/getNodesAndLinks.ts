@@ -8,8 +8,6 @@ import { Datasource } from '../../datasources/interfaces/datasource';
 import { getStringSimilarityLevenshtein } from './getStringSimilarityLevenshtein';
 import { getNumericHash } from './getNumericHash';
 
-const contents = [];
-
 export default function getNodesAndLinks(
     previousNodes: Node[],
     previousLinks: Link[],
@@ -33,22 +31,6 @@ export default function getNodesAndLinks(
 			relevantFields.push(rule.field.path)
 		)
 	);
-
-	// Proof that items with the same fields sometimes have a different ID
-	// items.forEach(item => {
-	// 	const stringified = JSON.stringify(item.fields);
-	//
-	// 	const content = contents.find(content => content.stringified === stringified);
-	//
-	// 	if (content && content.item.id !== item.id) {
-	// 		console.error('Original', content.item, ' New', item);
-	// 	} else {
-	// 		contents.push({
-	// 			item,
-	// 			stringified
-	// 		});
-	// 	}
-	// });
 
     const createLink = (source: Node, target: Node, item: Item, color: string) => {
 		if (source.id === target.id) {
@@ -178,7 +160,6 @@ export default function getNodesAndLinks(
 			type: 'item',
 			datasourceId: item.datasourceId,
 			image: image,
-			itemCount: item.count,
 			geoLocation: location
 		};
 
@@ -273,7 +254,6 @@ export default function getNodesAndLinks(
 			childData: match,
 			connector: connector.name,
 			type: 'connector',
-			itemCount: items[0].count
 		};
 
 		connectorNodes.push(node);
@@ -333,16 +313,8 @@ export default function getNodesAndLinks(
 		});
 	});
 
-    const minCount: number = itemNodes.reduce((prev: number, current: Node) => {
-    	return Math.min(prev, current.itemCount);
-	}, 999999);
-
-	const maxCount: number = itemNodes.reduce((prev: number, current: Node) => {
-		return Math.max(prev, current.itemCount);
-	}, 1);
-
 	setConnectorRadius(connectorNodes);
-	itemNodes.forEach(node => node.r = getItemRadius(node, minCount, maxCount));
+	itemNodes.forEach(node => node.r = getItemRadius(node));
 
     const nodes = itemNodes.concat(connectorNodes);
 
@@ -466,22 +438,12 @@ function matchValueSetsOr(a: ValueSet, b: ValueSet, connector: Connector): Array
 	return matches;
 }
 
-function getItemRadius(node: Node, minCount: number, maxCount: number): number {
-	if (node.type === 'connector') {
-		return 15;
-	}
-
-	let minRadius = 15;
-	const maxRadius = 40;
-
+function getItemRadius(node: Node): number {
 	if (node.isImage) {
-		minRadius = 30;
+		return 30;
 	}
 
-	return Math.min(
-		maxRadius,
-		minRadius + (node.itemCount - minCount) / Math.max(1, (maxCount - minCount)) * (maxRadius - minRadius)
-	);
+	return 15;
 }
 
 function valueSetToArrayValues(valueSet: ValueSet) {

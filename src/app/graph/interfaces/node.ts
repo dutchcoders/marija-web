@@ -59,7 +59,6 @@ export interface Node {
 	datasourceId?: string;
 
 	type: 'connector' | 'item';
-	itemCount?: number;
 	geoLocation?: GeoLocation;
 }
 
