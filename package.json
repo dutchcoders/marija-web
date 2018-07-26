@@ -30,6 +30,7 @@
     "pixi-multistyle-text": "^0.6.0",
     "pixi.js": "^4.6.2",
     "query-string": "^5.0.1",
+    "raven-js": "^3.26.4",
     "rc-tooltip": "^3.7.0",
     "react": "^16.2.0",
     "react-color": "^2.3.3",
