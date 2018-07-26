@@ -265,7 +265,7 @@ export const selectItemFields = createSelector(
 );
 
 export const selectFilteredNodes = createSelector(
-	(state: AppState) => state.graph.nodes,
+	(state: AppState) => getNodesForDisplay(state),
 	(state: AppState) => state.graph.filterNodesBy,
 
 	(nodes, filterNodesBy): Node[] => {
