@@ -105,7 +105,11 @@ class Pane extends React.Component<any, any> {
     }, 300);
 
     componentDidMount() {
-        window.addEventListener('resize', () => this.onWindowResize());
+        window.addEventListener('resize', this.onWindowResize);
+    }
+
+    componentWillUnmount() {
+		window.removeEventListener('resize', this.onWindowResize);
     }
 
     componentDidUpdate(prevProps) {

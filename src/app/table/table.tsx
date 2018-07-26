@@ -259,7 +259,7 @@ class Table extends React.Component<Props, State> {
             {type: "text/csv;charset=utf-8"}
         );
 
-        const now = new Date();
+		const now = new Date();
         const dateString = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
         const filename = 'marija-export-table-' + dateString + '.csv';
 
