@@ -1,9 +1,24 @@
 .table {
   margin: 20px -15px;
   width: calc(100% + 30px);
+  table-layout: fixed;
 }
 
 .columnTitle {
   padding: 5px 10px;
   font-weight: 500;
 }
+
+.occurences {
+  text-align: right;
+  width: 90px;
+}
+
+.nodes {
+  width: 100px;
+}
+
+.fields {
+  width: 100px;
+}
+

@@ -23,9 +23,9 @@ class ValueTable extends React.Component<Props> {
 				<thead>
 				<tr>
 					<td className={styles.columnTitle}>Value</td>
-					<td className={styles.columnTitle}>Occurences</td>
-					<td className={styles.columnTitle}>Fields</td>
-					<td className={styles.columnTitle}>Nodes</td>
+					<td className={styles.columnTitle + ' ' + styles.occurences}>Occurences</td>
+					<td className={styles.columnTitle + ' ' + styles.fields}>Fields</td>
+					<td className={styles.columnTitle + ' ' + styles.nodes}>Nodes</td>
 				</tr>
 				</thead>
 				<tbody>
