@@ -17,6 +17,7 @@ interface State {
 }
 
 class Filter extends React.Component<Props, State> {
+	input: HTMLInputElement;
 	state: State = {
 		opened: false
 	};
@@ -46,6 +47,7 @@ class Filter extends React.Component<Props, State> {
 			});
 
 			dispatch(setFilterNodesBy(''));
+			this.input.blur();
 		}
 	}
 
@@ -63,6 +65,7 @@ class Filter extends React.Component<Props, State> {
 							onChange={ this.onFilterChange.bind(this) }
 							placeholder="Type to filter"
 							className={styles.input}
+							ref={ref => this.input = ref}
 							onKeyDown={this.onKeyDown.bind(this)}
 						/>
 						<Icon name={styles.searchIcon + ' ion-ios-search'} />
