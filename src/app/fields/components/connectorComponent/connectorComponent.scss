@@ -69,6 +69,7 @@
 
 .strategy {
   margin: 0 0 5px 5px;
+  position: relative;
 
   label {
     font-weight: 300;
@@ -91,4 +92,12 @@
 
 .magicWand {
   background: #3A4555;
+}
+
+.delete {
+  font-size: 20px;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 0;
 }

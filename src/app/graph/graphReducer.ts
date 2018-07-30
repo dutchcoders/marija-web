@@ -61,7 +61,10 @@ import {
 import { Workspace } from '../ui/interfaces/workspace';
 import { markHighlightedLinks } from './helpers/markHighlightedLinks';
 import { GraphWorkerOutput } from './helpers/graphWorkerClass';
-import { DELETE_FROM_CONNECTOR } from '../fields/fieldsConstants';
+import {
+	DELETE_CONNECTOR,
+	DELETE_FROM_CONNECTOR
+} from '../fields/fieldsConstants';
 
 export const defaultGraphState: GraphState = {
     normalizations: [],
@@ -678,7 +681,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			};
 		}
 
-		case DELETE_FROM_CONNECTOR: {
+		case DELETE_FROM_CONNECTOR:
+		case DELETE_CONNECTOR: {
 			return {
 				...state,
 				automaticallyCreateConnectors: false

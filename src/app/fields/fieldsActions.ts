@@ -3,7 +3,7 @@ import { Datasource } from '../datasources/interfaces/datasource';
 import { Via } from '../graph/interfaces/via';
 import { AppState } from '../main/interfaces/appState';
 import {
-	CREATE_NEW_CONNECTOR,
+	CREATE_NEW_CONNECTOR, DELETE_CONNECTOR,
 	DELETE_FROM_CONNECTOR,
 	FIELDS_RECEIVE,
 	FIELDS_REQUEST,
@@ -102,6 +102,15 @@ export function deleteFromConnector(connectorName: string, ruleId: string) {
 		payload: {
 			connectorName,
 			ruleId
+		}
+	});
+}
+
+export function deleteConnector(connectorName: string) {
+	return dispatchAndRebuildGraph({
+		type: DELETE_CONNECTOR,
+		payload: {
+			connectorName
 		}
 	});
 }

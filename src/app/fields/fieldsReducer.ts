@@ -1,5 +1,5 @@
 import {
-	CREATE_NEW_CONNECTOR, DELETE_FROM_CONNECTOR,
+	CREATE_NEW_CONNECTOR, DELETE_CONNECTOR, DELETE_FROM_CONNECTOR,
 	FIELDS_RECEIVE,
 	FIELDS_REQUEST,
 	MOVE_RULE_BETWEEN_CONNECTORS,
@@ -199,6 +199,18 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 				...state,
 				connectors: connectors,
 				deletedConnectorFields: state.deletedConnectorFields.concat([fieldPath])
+			};
+		}
+
+		case DELETE_CONNECTOR: {
+			const connector = state.connectors.find(matcher => matcher.name === action.payload.connectorName);
+			const fieldPaths = connector.rules.map(rule => rule.field.path);
+			const connectors = state.connectors.filter(matcher => matcher.name !== connector.name);
+
+			return {
+				...state,
+				connectors: connectors,
+				deletedConnectorFields: state.deletedConnectorFields.concat(fieldPaths)
 			};
 		}
 

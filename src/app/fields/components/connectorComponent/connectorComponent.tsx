@@ -9,6 +9,7 @@ import { AppState } from '../../../main/interfaces/appState';
 import * as styles from './connectorComponent.scss';
 import { FormEvent } from 'react';
 import {
+	deleteConnector,
 	moveRuleBetweenConnectors,
 	moveRuleToNewConnector, setMatchingStrategy, updateConnector
 } from '../../fieldsActions';
@@ -18,6 +19,7 @@ import { Node } from '../../../graph/interfaces/node';
 import ColorPicker from '../../../ui/components/colorPicker/colorPicker';
 import IconSelector from '../iconSelector/iconSelector';
 import MagicWand from '../../../graph/components/magicWand/magicWand';
+import Icon from '../../../ui/components/icon';
 
 interface State {
 	isHoveringOnDropArea: boolean;
@@ -124,6 +126,12 @@ class ConnectorComponent extends React.Component<Props, State> {
 		});
 	}
 
+	deleteConnector() {
+		const { dispatch, connector } = this.props;
+
+		dispatch(deleteConnector(connector.name));
+	}
+
 	render() {
 		const { connector, nodes } = this.props;
 		const { isHoveringOnDropArea, iconSelectorOpen } = this.state;
@@ -153,6 +161,7 @@ class ConnectorComponent extends React.Component<Props, State> {
 								<input type="radio" name="strategy" checked={connector.strategy === 'AND'} value="AND" onChange={this.onStrategyChange.bind(this)}/>
 								<span>Match all</span>
 							</label>
+							<Icon name={styles.delete + ' ion-ios-close'} onClick={this.deleteConnector.bind(this)}/>
 						</form>
 					)}
 
