@@ -117,7 +117,11 @@ class Table extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        const { exportEvents } = this.props;
+        const { exportEvents, selectedNodes, items } = this.props;
+
+		this.setState({
+            items: this.getSelectedItems(selectedNodes, items)
+		});
 
         exportEvents.addListener('export', this.exportCsv.bind(this));
     }
