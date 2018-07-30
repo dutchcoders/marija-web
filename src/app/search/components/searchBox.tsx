@@ -66,7 +66,7 @@ class SearchBox extends React.Component<Props, State> {
     }
 
     collapseForm(e) {
-        if (!this.searchForm.contains(e.target)) {
+        if (this.searchForm && !this.searchForm.contains(e.target)) {
             // User clicked outside the search form, close it
             this.queryInput.blur();
             this.resetInputHeight();
