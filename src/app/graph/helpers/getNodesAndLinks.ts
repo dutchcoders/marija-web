@@ -262,7 +262,6 @@ export default function getNodesAndLinks(
 	};
 
     const done = new Map<string, true>();
-    let matching = 0;
 
     const getValueSetKey = (item: Item, fields: string[]): string => {
 		return item.id + '-' + fields.join(',');
@@ -312,7 +311,6 @@ export default function getNodesAndLinks(
 				sourceValueSets.forEach(sourceValueSet => {
 					targetValueSets.forEach(targetValueSet => {
 
-						matching ++;
     					const matches = matchValueSets(sourceValueSet, targetValueSet, connector);
 
 
@@ -372,10 +370,6 @@ function matchValueSets(a: ValueSet, b: ValueSet, connector: Connector): ArrayVa
 			}
 		}
 	}
-
-	// if (connector.rules.length === 1 && connector.sim) {
-	//
-	// }
 
 	if (connector.strategy === 'AND') {
 		const match = matchValueSetsAnd(a, b, connector);
