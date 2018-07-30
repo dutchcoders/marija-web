@@ -35,11 +35,6 @@ export const getSelectedNodes = createSelector(
     (nodes: Node[]) => nodes.filter(node => node.selected)
 );
 
-export const getHighlightedNodes = createSelector(
-    (state: AppState) => state.graph.nodes,
-    (nodes: Node[]) => nodes.filter(node => node.highlightLevel !== null)
-);
-
 export const isMapAvailable = createSelector(
     (state: AppState) => state.graph.nodes,
     (nodes: Node[]): boolean => typeof nodes.find(node => node.isGeoLocation) !== 'undefined'
@@ -287,5 +282,27 @@ export const selectFilteredNodes = createSelector(
 
 			return false;
 		});
+	}
+);
+
+export const selectNodesWithFilterHighlight = createSelector(
+	(state: AppState) => getNodesForDisplay(state),
+	(state: AppState) => selectFilteredNodes(state),
+
+	(nodes, filteredNodes): Node[] => {
+		if (filteredNodes.length === nodes.length) {
+			return nodes;
+		}
+
+		const highlight = new Map<number, true>();
+
+		filteredNodes.forEach(node => highlight.set(node.id, true));
+
+		nodes = nodes.map(node => ({
+			...node,
+			highlightLevel: highlight.has(node.id) ? 1 : null
+		}));
+
+		return nodes;
 	}
 );

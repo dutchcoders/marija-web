@@ -16,9 +16,8 @@ import {
     showContextMenu
 } from "../contextMenu/contextMenuActions";
 import {
-	getHighlightedNodes,
 	getLinksForDisplay,
-	getNodesForDisplay, getSelectedNodes
+	getSelectedNodes, selectNodesWithFilterHighlight
 } from "./graphSelectors";
 import {setFps} from "../stats/statsActions";
 import {getArrowPosition} from "./helpers/getArrowPosition";
@@ -47,7 +46,6 @@ interface Props {
     nodesForDisplay: Node[];
     linksForDisplay: Link[];
     selectedNodes: Node[];
-    highlightedNodes: Node[];
     zoomEvents: any;
     centerEvents: any;
 	resetPositionEvents: any;
@@ -129,6 +127,7 @@ class Graph extends React.PureComponent<Props, State> {
     nodeMap = new Map<number, Node>();
     linkMap = new Map<number, Link>();
     lockRendering: boolean = false;
+    isHighlighting: boolean = false;
 
     postWorkerMessage(message) {
     	this.worker.postMessage(JSON.stringify(message));
@@ -501,8 +500,7 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     renderNode(node: Node) {
-    	const { highlightedNodes, isMapActive } = this.props;
-		const isHighlighting: boolean = highlightedNodes.length > 0;
+    	const { isMapActive } = this.props;
 
 		if (typeof node.x === 'undefined') {
 			return;
@@ -536,7 +534,7 @@ class Graph extends React.PureComponent<Props, State> {
 			renderedNode.scale = new PIXI.Point(scale, scale);
 		}
 
-		if (!isHighlighting) {
+		if (!this.isHighlighting) {
 			renderedNode.alpha = 1;
 		} else {
 			let alpha: number;
@@ -606,9 +604,7 @@ class Graph extends React.PureComponent<Props, State> {
 
 	// The renderer is faster when it doesnt need to switch line styles so often
     linkStyleManager(link: Link, index: number) {
-    	const { linksForDisplay, isMapActive, highlightedNodes } = this.props;
-
-		const isHighlighting: boolean = highlightedNodes.length > 0;
+    	const { linksForDisplay, isMapActive } = this.props;
 
     	if (!isMapActive) {
 			const prevLink = linksForDisplay[index - 1];
@@ -619,7 +615,7 @@ class Graph extends React.PureComponent<Props, State> {
 
 				let alpha: number = .7;
 
-				if (isHighlighting && !link.highlighted) {
+				if (this.isHighlighting && !link.highlighted) {
 					alpha = .1;
 				}
 
@@ -925,7 +921,10 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
     componentWillReceiveProps(nextProps: Props) {
-        const { searches, nodesForDisplay, linksForDisplay, showLabels, highlightedNodes, isMapActive, connectors } = this.props;
+        const { searches, nodesForDisplay, linksForDisplay, showLabels, isMapActive, connectors } = this.props;
+
+        this.isHighlighting = typeof nextProps.nodesForDisplay.find(node =>
+			node.highlightLevel !== null) !== 'undefined';
 
         if (nextProps.isMapActive && !isMapActive) {
         	this.initMap();
@@ -1265,9 +1264,7 @@ class Graph extends React.PureComponent<Props, State> {
     }
 
     renderNodeLabels() {
-        const { showLabels, isMapActive, highlightedNodes } = this.props;
-
-        const isHighlighting: boolean = highlightedNodes.length > 0;
+        const { showLabels, isMapActive } = this.props;
 
         this.renderedNodeLabels.removeChildren();
 
@@ -1289,7 +1286,7 @@ class Graph extends React.PureComponent<Props, State> {
         		return;
 			}
 
-			if (isHighlighting && node.highlightLevel !== 1) {
+			if (this.isHighlighting && node.highlightLevel !== 1) {
         		return;
 			}
 
@@ -2061,10 +2058,9 @@ class Graph extends React.PureComponent<Props, State> {
 const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
-        nodesForDisplay: getNodesForDisplay(state),
+        nodesForDisplay: selectNodesWithFilterHighlight(state),
         linksForDisplay: getLinksForDisplay(state),
 		selectedNodes: getSelectedNodes(state),
-        highlightedNodes: getHighlightedNodes(state),
         searches: state.graph.searches,
         showLabels: state.graph.showLabels,
 		isMapActive: state.graph.isMapActive,
