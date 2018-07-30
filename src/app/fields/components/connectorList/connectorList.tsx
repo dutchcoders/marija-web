@@ -10,6 +10,7 @@ import { Link, withRouter } from 'react-router-dom';
 import Url from '../../../main/helpers/url';
 import { FormEvent } from 'react';
 import { setAutomaticallyCreateConnectors } from '../../../graph/graphActions';
+import { MAX_AUTOMATIC_CONNECTORS } from '../../../graph/graphConstants';
 
 interface State {
 	isHelpOpen: boolean;
@@ -86,7 +87,7 @@ class ConnectorList extends React.Component<Props, State> {
 
 				<label className={styles.automagic}>
 					<input type="checkbox" onChange={this.setAutomaticallyCreateConnectors.bind(this)} checked={automaticallyCreateConnectors}/>
-					Automatically create connectors
+					Automatically create connectors (max {MAX_AUTOMATIC_CONNECTORS})
 				</label>
 			</div>
 		);

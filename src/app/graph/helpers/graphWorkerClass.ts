@@ -11,7 +11,7 @@ import {Item} from "../interfaces/item";
 import {Node} from "../interfaces/node";
 import {Link} from "../interfaces/link";
 import {EventEmitter} from "fbemitter";
-import { REBUILD_GRAPH } from '../graphConstants';
+import { MAX_AUTOMATIC_CONNECTORS, REBUILD_GRAPH } from '../graphConstants';
 import { Connector } from '../interfaces/connector';
 import { Datasource } from '../../datasources/interfaces/datasource';
 import { getSuggestedConnectors } from '../../fields/helpers/getSuggestedConnectors';
@@ -99,9 +99,8 @@ export default class GraphWorkerClass {
 		const automaticallyCreateConnectors = payload.automaticallyCreateConnectors || isLive;
 
 		if (automaticallyCreateConnectors) {
-			const maxAutomaticConnectors = 10;
-			const toAdd = maxAutomaticConnectors - connectors.length;
-			connectors = connectors.concat(suggested.slice(0, toAdd - 1));
+			const toAdd = MAX_AUTOMATIC_CONNECTORS - connectors.length;
+			connectors = connectors.concat(suggested.slice(0, toAdd));
 			suggested = suggested.slice(toAdd);
 		}
 
