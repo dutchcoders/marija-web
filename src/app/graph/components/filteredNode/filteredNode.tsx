@@ -28,7 +28,7 @@ class FilteredNode extends React.Component<Props> {
 		return (
 			<li className={styles.node} onClick={this.select.bind(this)}>
 				<NodeIcon node={node}/>
-				{node.name}
+				<span className={styles.name}>{node.name}</span>
 			</li>
 		);
 	}
