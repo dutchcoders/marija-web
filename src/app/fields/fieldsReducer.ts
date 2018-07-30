@@ -3,7 +3,7 @@ import {
 	FIELDS_RECEIVE,
 	FIELDS_REQUEST,
 	MOVE_RULE_BETWEEN_CONNECTORS,
-	MOVE_RULE_TO_NEW_CONNECTOR,
+	MOVE_RULE_TO_NEW_CONNECTOR, SET_FIELD_COUNT_IN_GRAPH_WORKER,
 	SET_MATCHING_STRATEGY, UPDATE_CONNECTOR, UPDATE_RULE
 } from './fieldsConstants';
 import sortFields from './helpers/sortFields';
@@ -32,7 +32,8 @@ export const defaultFieldsState: FieldsState = {
     connectors: [],
 	suggestedConnectors: [],
 	deletedConnectorFields: [],
-	expectedGraphWorkerOutputId: null
+	expectedGraphWorkerOutputId: null,
+	fieldCountInGraphWorker: 0
 };
 
 export default function fieldsReducer(state: FieldsState = defaultFieldsState, action): FieldsState {
@@ -321,6 +322,13 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 			return {
 				...state,
 				expectedGraphWorkerOutputId: action.payload.id
+			};
+		}
+
+		case SET_FIELD_COUNT_IN_GRAPH_WORKER: {
+			return {
+				...state,
+				fieldCountInGraphWorker: action.payload.count
 			};
 		}
 

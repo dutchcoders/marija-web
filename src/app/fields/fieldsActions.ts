@@ -8,7 +8,7 @@ import {
 	FIELDS_RECEIVE,
 	FIELDS_REQUEST,
 	MOVE_RULE_BETWEEN_CONNECTORS,
-	MOVE_RULE_TO_NEW_CONNECTOR,
+	MOVE_RULE_TO_NEW_CONNECTOR, SET_FIELD_COUNT_IN_GRAPH_WORKER,
 	SET_MATCHING_STRATEGY,
 	UPDATE_CONNECTOR,
 	UPDATE_RULE
@@ -142,4 +142,13 @@ export function updateRule(ruleId: string, props: RuleProps) {
 			props
 		}
 	})
+}
+
+export function setFieldCountInGraphWorker(count: number) {
+	return {
+		type: SET_FIELD_COUNT_IN_GRAPH_WORKER,
+		payload: {
+			count
+		}
+	};
 }

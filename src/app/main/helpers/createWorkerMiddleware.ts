@@ -5,6 +5,7 @@ import { AppState } from '../interfaces/appState';
 import { REBUILD_GRAPH } from '../../graph/graphConstants';
 import { setExpectedGraphWorkerOutputId } from '../../graph/graphActions';
 import { uniqueId } from 'lodash';
+import { setFieldCountInGraphWorker } from '../../fields/fieldsActions';
 
 export function createWorkerMiddleware(worker) {
 	/*
@@ -47,6 +48,7 @@ export function createWorkerMiddleware(worker) {
 					}
 
 					const payload: GraphWorkerPayload = action.payload;
+					const state: AppState = getState();
 
 					if (action.type !== REBUILD_GRAPH) {
 						if (!payload.items) {
@@ -62,8 +64,6 @@ export function createWorkerMiddleware(worker) {
 							// received items for a query we were not searching for
 							return;
 						}
-
-						const state: AppState = getState();
 
 						// Dont send data to the graph worker that it already has available, to save on CPU
 						// Posting messages to workers can be very heavy
@@ -82,6 +82,13 @@ export function createWorkerMiddleware(worker) {
 					dispatch(setExpectedGraphWorkerOutputId(outputId));
 
 					payload.outputId = outputId;
+
+					// Field cache in graph worker
+					if (state.fields.fieldCountInGraphWorker === payload.fields.length) {
+						delete payload.fields;
+					} else {
+						dispatch(setFieldCountInGraphWorker(payload.fields.length));
+					}
 
 					worker.postMessage(action);
 

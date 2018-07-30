@@ -11,4 +11,5 @@ export interface FieldsState {
     // These fields won't be automatically used again in connectors
     deletedConnectorFields: string[];
 	expectedGraphWorkerOutputId: string;
+	fieldCountInGraphWorker: number;
 }
