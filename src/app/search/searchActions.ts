@@ -31,7 +31,7 @@ import {
 	DEFAULT_DISPLAY_NODES_PER_SEARCH
 } from '../graph/graphConstants';
 
-export function searchRequest(query: string) {
+export function searchRequest(query: string, dateFilter: string = null) {
     return (dispatch, getState) => {
         const state: AppState = getState();
         const fields = getSelectedFields(state);
@@ -67,7 +67,8 @@ export function searchRequest(query: string) {
 				datasources: serverSide.map(datasource => datasource.id),
 				fields: fieldPaths,
 				query: query,
-				'request-id': requestId
+				'request-id': requestId,
+				minDate: dateFilter
 			}));
 		}
     };

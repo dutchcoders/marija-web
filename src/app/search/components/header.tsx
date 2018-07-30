@@ -19,10 +19,10 @@ interface State {
 }
 
 class Header extends React.Component<Props, State> {
-    onSearchSubmit(q) {
+    onSearchSubmit(q, dateFilter) {
         const { dispatch } = this.props;
 
-        dispatch(searchRequest(q));
+        dispatch(searchRequest(q, dateFilter));
     }
 
     render() {
@@ -34,7 +34,7 @@ class Header extends React.Component<Props, State> {
             <header className="header">
                 <DatasourceActivation/>
                 <SearchBox
-                    onSubmit={q => this.onSearchSubmit(q)}
+                    onSubmit={(q, dateFilter) => this.onSearchSubmit(q, dateFilter)}
                     connected={connected}
                     enabled={fields.length > 0 && datasources.length > 0}
                 />

@@ -73,3 +73,30 @@
   position: absolute;
   left: 10px;
 }
+
+.datesTitle {
+  margin: 0 0 5px;
+  font-size: 1em;
+  font-weight: 300;
+}
+
+.dateRadio {
+  margin-right: 3px !important;
+}
+
+.dateLabel {
+  font-weight: 300;
+  margin-right: 10px;
+}
+
+.dates {
+  margin-bottom: 10px;
+}
+
+.toggleExpand {
+  position: absolute;
+  right: 45px;
+  top: 14px;
+  font-size: 20px;
+  cursor: pointer;
+}

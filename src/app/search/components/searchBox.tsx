@@ -9,7 +9,8 @@ import Query from './query';
 import * as styles from './searchBox.scss';
 import { getActiveNonLiveDatasources } from '../../datasources/datasourcesSelectors';
 import { getNodesForDisplay } from '../../graph/graphSelectors';
-const logo = require('../../../images/logo.png');
+import { FormEvent } from 'react';
+import * as moment from 'moment';
 
 interface Props {
     onSubmit: Function;
@@ -19,19 +20,24 @@ interface Props {
     searches: Search[];
     nodes: Node[];
     datasources: Datasource[];
+    experimentalFeatures: boolean;
 }
 
 interface State {
     query: string;
     searchAroundOpen: boolean;
 	noDatasourcesError: boolean;
+	formExpanded: boolean;
+	dateFilter: string;
 }
 
 class SearchBox extends React.Component<Props, State> {
     state: State = {
         query: '',
         searchAroundOpen: false,
-        noDatasourcesError: false
+        noDatasourcesError: false,
+		formExpanded: false,
+		dateFilter: ''
     };
     searchForm: HTMLFormElement;
     queryInput: HTMLTextAreaElement;
@@ -78,7 +84,7 @@ class SearchBox extends React.Component<Props, State> {
     handleSubmit(e) {
         e.preventDefault();
 
-        const { query } = this.state;
+        const { query, dateFilter } = this.state;
         const { datasources } = this.props;
 
         const trimmed = query.trim();
@@ -87,9 +93,23 @@ class SearchBox extends React.Component<Props, State> {
             return;
         }
 
+        let date: string = null;
+
+        switch (dateFilter) {
+			case '1month':
+				date = moment().subtract(1, 'month').toISOString();
+				break;
+			case '1week':
+				date = moment().subtract(1, 'week').toISOString();
+				break;
+			case '1day':
+				date = moment().subtract(1, 'day').toISOString();
+				break;
+		}
+
         this.setState({query: ''});
 		this.adjustInputHeight();
-        this.props.onSubmit(trimmed);
+        this.props.onSubmit(trimmed, date);
     }
 
     handleQueryChange(event) {
@@ -122,9 +142,21 @@ class SearchBox extends React.Component<Props, State> {
 		this.setNoDatasourcesError(nextProps.datasources);
 	}
 
+	toggleFormExpanded() {
+    	this.setState({
+			formExpanded: !this.state.formExpanded
+		});
+	}
+
+	handleDateFilterChange(event: FormEvent<HTMLInputElement>) {
+    	this.setState({
+			dateFilter: event.currentTarget.value
+		});
+	}
+
     render() {
-        const { connected, searches, nodes } = this.props;
-        const { query, searchAroundOpen, noDatasourcesError } = this.state;
+        const { connected, searches, nodes, experimentalFeatures } = this.props;
+        const { query, searchAroundOpen, noDatasourcesError, formExpanded, dateFilter } = this.state;
 
         const userQueries = searches
             .filter(search => search.aroundNodeId === null)
@@ -165,11 +197,13 @@ class SearchBox extends React.Component<Props, State> {
             );
         }
 
+        const formClass = styles.form + (formExpanded ? '' : ' ' + styles.formCollapsed);
+
         return (
             <nav id="searchbox" className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation" ref="header">
                 <div className={styles.queriesContainer}>
                     <div className={styles.formWrapper}>
-                        <form onSubmit={this.handleSubmit.bind(this)} className={styles.form + ' ' + styles.formCollapsed} ref={form => this.searchForm = form}>
+                        <form onSubmit={this.handleSubmit.bind(this)} className={formClass} ref={form => this.searchForm = form}>
 							<textarea
 								ref={ref => this.queryInput = ref}
 								className={styles.queryInput + (noDatasourcesError ? ' ' + styles.noDatasources : '')}
@@ -180,6 +214,34 @@ class SearchBox extends React.Component<Props, State> {
 								onKeyDown={this.handleQueryKeyDown.bind(this)}
 								onFocus={this.onInputFocus.bind(this)}
 							/>
+
+							{experimentalFeatures &&
+								<Icon name={'ion-ios-clock ' + styles.toggleExpand}
+								  onClick={this.toggleFormExpanded.bind(this)}/>
+							}
+
+							{formExpanded && (
+								<div className={styles.dates}>
+									<h3 className={styles.datesTitle}>Maximum age</h3>
+									<label className={styles.dateLabel}>
+										<input type="radio" name="maxAge" value="" className={styles.dateRadio} checked={dateFilter === ''} onChange={this.handleDateFilterChange.bind(this)}/>
+										<span>All</span>
+									</label>
+									<label className={styles.dateLabel}>
+										<input type="radio" name="maxAge" value="1month" className={styles.dateRadio} checked={dateFilter === '1month'} onChange={this.handleDateFilterChange.bind(this)}/>
+										<span>1 Month</span>
+									</label>
+									<label className={styles.dateLabel}>
+										<input type="radio" name="maxAge" value="1week" className={styles.dateRadio} checked={dateFilter === '1week'} onChange={this.handleDateFilterChange.bind(this)}/>
+										<span>1 Week</span>
+									</label>
+									<label className={styles.dateLabel}>
+										<input type="radio" name="maxAge" value="1day" className={styles.dateRadio} checked={dateFilter === '1day'} onChange={this.handleDateFilterChange.bind(this)}/>
+										<span>1 Day</span>
+									</label>
+								</div>
+							)}
+
 							<Icon name="ion-ios-search" className={'ion-ios-search ' + styles.searchIcon} />
 							{noDatasourcesError && (
 								<span className={styles.noDatasourcesMessage}>Activate at least one datasource above</span>
@@ -201,6 +263,7 @@ const select = (state: AppState, ownProps) => {
         searches: state.graph.searches,
         datasources: getActiveNonLiveDatasources(state),
         nodes: getNodesForDisplay(state),
+		experimentalFeatures: state.ui.experimentalFeatures
     };
 };
 
