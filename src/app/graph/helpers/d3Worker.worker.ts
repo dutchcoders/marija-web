@@ -59,8 +59,6 @@ onmessage = function(event) {
                 n1.fy = n2.fy;
             }
         }
-        
-        // simulation.alpha(0);
     } else if (data.type === 'init') {
     	workerLinks = [];
     	workerNodes = [];
@@ -68,45 +66,30 @@ onmessage = function(event) {
     	workerNodeMap.clear();
 
 		const forceLink = d3.forceLink()
-			.distance((link: any) => {
-				if (!link.label) {
-					return 80;
-				}
-
-				let label = link.label;
-
-				if (Array.isArray(label)) {
-					label = label.join('');
-				}
-
-				return label.length * 10 + 30;
-			})
+			.distance(80)
 			.id((d: any) => d.id);
 
-		const forceManyBody = d3.forceManyBody()
-			.strength(-100)
-			.distanceMax(500)
-			.distanceMin(50);
+		const longDistance = d3.forceManyBody()
+			.strength((node: any) => node.r * -15 * (workerLinks.length / workerNodes.length))
+			.distanceMin(50)
+			.distanceMax(400);
+
+		const shortDistance = d3.forceManyBody()
+			.strength((node: any) => 10)
+			.distanceMin(0)
+			.distanceMax(50);
 
 		simulation = d3.forceSimulation()
 			.stop()
+			.velocityDecay(.75)
 			.force("link", forceLink)
-			.force("charge", forceManyBody)
-			// .force("center", d3.forceCenter(clientWidth / 2, clientHeight / 2))
+			.force("longDistance", longDistance)
+			.force("shortDistance", shortDistance)
 			.force('collide', d3.forceCollide((node: any) => {
 				return node.r
 			}))
-			// .force("vertical", d3.forceY().strength(0.018))
-			// .force("horizontal", d3.forceX().strength(0.006))
 			.on("tick", () => {
 				postMessage(getTickMessage());
-				//
-				//
-				// postMessage({
-				// 	type: "tick",
-				// 	nodes: workerNodes,
-				// 	links: workerLinks
-				// });
 			})
 			.on("end", () => {
 				postMessage({
@@ -137,22 +120,6 @@ onmessage = function(event) {
     } else if (data.type === 'update') {
         let { nodes, links } = data;
 
-        const sizeRange = [15, 100];
-
-        let forceScale = function (node) {
-            var scale = d3.scaleLog().domain(sizeRange).range(sizeRange.slice().reverse());
-            const result = node.r + scale(node.r);
-
-            console.log(node.r, result);
-
-            return 1000;
-        };
-
-        var countExtent = d3.extent(nodes, (n: any) => {
-            return n.count;
-        }),
-            radiusScale = d3.scalePow().exponent(2).domain(countExtent as any).range(sizeRange);
-
         var newNodes = false;
 
         let removed = 0;
@@ -179,14 +146,12 @@ onmessage = function(event) {
             var n = workerNodeMap.get(node.id);
             if (n) {
                 n = assign(n, node);
-                // n = assign(n, {force: forceScale(n)});
 
                 newNodes = true;
                 continue;
             }
 
             let node2 = clone(node);
-            // node2 = assign(node2, {force: forceScale(node2)});
 
             workerNodes.push(node2);
             workerNodeMap.set(node2.id, node2);
@@ -232,47 +197,11 @@ onmessage = function(event) {
         simulation
             .nodes(workerNodes);
 
-        const connectivity = links.length / nodes.length;
-
-        // Links are longer in graphs with a high connectivity
-        const baseLength = connectivity * 30;
-
-        // Nodes are further apart in graphs with a high connectivity
-        const baseStrength = -100;
-        const dynamicStrength = connectivity * -60;
-
-        const forceManyBody = d3.forceManyBody()
-            .strength(baseStrength + dynamicStrength)
-            .distanceMax(500)
-            .distanceMin(50);
-
-        simulation.force('charge', forceManyBody);
-
-        const forceLink = d3.forceLink()
-            .distance((link: any) => {
-                if (!link.label) {
-                    return 80 + baseLength;
-                }
-
-                let label = link.label;
-
-                if (Array.isArray(label)) {
-                    label = label.join('');
-                }
-
-                return label.length * 10 + 60 + baseLength;
-            })
-            .id((d: any) => d.id);
-
-        simulation.force("link", forceLink);
-
         simulation.force('link')
             .links(workerLinks);
 
         simulation
             .alpha(0.5)
-            // .alphaDecay(.0428)
-            // .velocityDecay(.2)
             .restart();
     } else if (data.type === 'updateNodeProperties') {
         const { nodes } = data;
