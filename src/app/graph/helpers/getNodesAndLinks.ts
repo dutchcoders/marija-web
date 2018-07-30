@@ -193,7 +193,8 @@ export default function getNodesAndLinks(
     const createConnectorNode = (match: ArrayValueSet, connector: Connector, items: Item[]): Node[] => {
     	// Check if a connector node already exists that matches this value set
     	const existing: Node[] = connectorNodes.filter(node => {
-    		const valueSets = getValueSets(node.childData, relevantFields);
+			const fields = connector.rules.map(rule => rule.field.path);
+    		const valueSets = getValueSets(node.childData, fields);
 
     		for (let i = 0; i < valueSets.length; i ++) {
     			const targetValueSets = getValueSets(match, Object.keys(match));
