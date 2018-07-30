@@ -35,6 +35,20 @@ class Filter extends React.Component<Props, State> {
 		})
 	}
 
+	onKeyDown(event: KeyboardEvent) {
+		const { dispatch } = this.props;
+
+		if (event.keyCode === 27) {
+			// Escape key
+
+			this.setState({
+				opened: false
+			});
+
+			dispatch(setFilterNodesBy(''));
+		}
+	}
+
 	render() {
 		const { filterNodesBy } = this.props;
 		const { opened } = this.state;
@@ -49,6 +63,7 @@ class Filter extends React.Component<Props, State> {
 							onChange={ this.onFilterChange.bind(this) }
 							placeholder="Type to filter"
 							className={styles.input}
+							onKeyDown={this.onKeyDown.bind(this)}
 						/>
 						<Icon name={styles.searchIcon + ' ion-ios-search'} />
 					</div>
