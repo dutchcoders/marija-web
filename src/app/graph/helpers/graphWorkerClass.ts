@@ -93,7 +93,14 @@ export default class GraphWorkerClass {
 			);
 			useItems = prevItemCache.concat(payload.items);
 			prevItemCache = useItems;
+
+			const startSuggesting = performance.now();
+
 			suggested = getSuggestedConnectors(useItems, fieldCache, connectors, payload.deletedConnectorFields);
+
+			const suggestingTime = performance.now() - startSuggesting;
+
+			console.log('getSuggestedConnectors took ' + suggestingTime + 'ms');
 		}
 
 		const automaticallyCreateConnectors = payload.automaticallyCreateConnectors || isLive;
@@ -103,6 +110,8 @@ export default class GraphWorkerClass {
 			connectors = connectors.concat(suggested.slice(0, toAdd));
 			suggested = suggested.slice(toAdd);
 		}
+
+		const startGetNodesAndLinks = performance.now();
 
         // update nodes and links
         const result = getNodesAndLinks(
@@ -114,6 +123,9 @@ export default class GraphWorkerClass {
             payload.deletedNodeIds,
 			payload.datasources
         );
+
+        const getNodesAndLinksTime = performance.now() - startGetNodesAndLinks;
+        console.log('getNodesAndLinks took ' + getNodesAndLinksTime + 'ms (' + connectors.length + ' connectors, ' + useItems.length + ' items)');
 
         // For live searches we display everything, we don't filter boring components etc.
         if (!isLive) {

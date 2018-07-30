@@ -262,6 +262,22 @@ export default function getNodesAndLinks(
 	};
 
     const done = new Map<string, true>();
+    let matching = 0;
+
+    const getValueSetKey = (item: Item, fields: string[]): string => {
+		return item.id + '-' + fields.join(',');
+	};
+
+    // Prepare all the value sets, so we don't need to do it inside the loop
+    const valueSets = new Map<string, ValueSet[]>();
+    items.forEach(item => {
+    	connectors.forEach(connector => {
+    		const fields = connector.rules.map(rule => rule.field.path);
+			const key = getValueSetKey(item, fields);
+
+			valueSets.set(key, getValueSets(item.fields, fields));
+		});
+	});
 
     items.forEach(sourceItem => {
     	const sourceNode: Node = createItemNode(sourceItem);
@@ -289,13 +305,14 @@ export default function getNodesAndLinks(
 			}
 
 			connectors.forEach(connector => {
-				const newRelevantFields = connector.rules.map(rule => rule.field.path);
-				const sourceValueSets = getValueSets(sourceItem.fields, newRelevantFields);
-				const targetValueSets = getValueSets(targetItem.fields, newRelevantFields);
+				const fields = connector.rules.map(rule => rule.field.path);
+				const sourceValueSets = valueSets.get(getValueSetKey(sourceItem, fields));
+				const targetValueSets = valueSets.get(getValueSetKey(targetItem, fields));
 
 				sourceValueSets.forEach(sourceValueSet => {
 					targetValueSets.forEach(targetValueSet => {
 
+						matching ++;
     					const matches = matchValueSets(sourceValueSet, targetValueSet, connector);
 
 
@@ -341,6 +358,25 @@ interface ArrayValueSet {
 }
 
 function matchValueSets(a: ValueSet, b: ValueSet, connector: Connector): ArrayValueSet[] {
+	if (connector.rules.length === 1) {
+		const rule = connector.rules[0];
+		const field = rule.field.path;
+
+		if (typeof rule.similarity === 'undefined' || rule.similarity === 100) {
+			if (a[field] === b[field]) {
+				return [{
+					[field]: [a[field]]
+				}];
+			} else {
+				return [];
+			}
+		}
+	}
+
+	// if (connector.rules.length === 1 && connector.sim) {
+	//
+	// }
+
 	if (connector.strategy === 'AND') {
 		const match = matchValueSetsAnd(a, b, connector);
 
@@ -415,7 +451,7 @@ function matchValueSetsOr(a: ValueSet, b: ValueSet, connector: Connector): Array
 
 			let match: boolean;
 
-			if (typeof similarity !== 'undefined') {
+			if (typeof similarity !== 'undefined' && similarity < 100) {
 				match = getStringSimilarityLevenshtein(a[sourceField], b[targetField]) >= similarity;
 			} else {
 				match = a[sourceField] === b[targetField];
