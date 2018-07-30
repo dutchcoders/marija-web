@@ -31,6 +31,12 @@ import {
 	DEFAULT_DISPLAY_NODES_PER_SEARCH
 } from '../graph/graphConstants';
 
+interface AdvancedQuery {
+	field: string;
+	operator: '>=';
+	value: string;
+}
+
 export function searchRequest(query: string, dateFilter: string = null) {
     return (dispatch, getState) => {
         const state: AppState = getState();
@@ -62,13 +68,27 @@ export function searchRequest(query: string, dateFilter: string = null) {
 		const serverSide = datasources.filter(datasource => !datasource.isCustom);
 
 		if (serverSide.length > 0) {
+			const advancedQuery: AdvancedQuery[] = [];
+
+			if (dateFilter !== null) {
+				serverSide.forEach(datasource => {
+					if (datasource.dateFieldPath) {
+						advancedQuery.push({
+							field: datasource.dateFieldPath,
+							value: dateFilter,
+							operator: '>='
+						});
+					}
+				})
+			}
+
 			dispatch(webSocketSend({
 				type: SEARCH_REQUEST,
 				datasources: serverSide.map(datasource => datasource.id),
 				fields: fieldPaths,
 				query: query,
 				'request-id': requestId,
-				minDate: dateFilter
+				advancedQuery: advancedQuery
 			}));
 		}
     };
