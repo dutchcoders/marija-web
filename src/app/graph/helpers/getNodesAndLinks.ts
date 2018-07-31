@@ -62,6 +62,9 @@ export default function getNodesAndLinks(
 	};
 
     const createItemNode = (item: Item): Node => {
+		const hash = getNumericHash(item.id);
+		const existing = itemNodes.get(hash);
+
     	const datasource = datasources.find(datasource => datasource.id === item.datasourceId);
 		let name: string = '';
 
@@ -92,9 +95,6 @@ export default function getNodesAndLinks(
 				lng: parseFloat(parts[1]),
 			};
 		}
-
-		const hash = getNumericHash(item.id);
-    	const existing = itemNodes.get(hash);
 
     	if (existing) {
     		if (name !== existing.name) {
@@ -180,13 +180,13 @@ export default function getNodesAndLinks(
 
     const createConnectorNode = (match: ArrayValueSet, connector: Connector, items: Item[]): Node[] => {
     	// Check if a connector node already exists that matches this value set
+		const targetValueSets = getValueSets(match, Object.keys(match));
+		const fields = connector.rules.map(rule => rule.field.path);
+
     	const existing: Node[] = connectorNodes.filter(node => {
-			const fields = connector.rules.map(rule => rule.field.path);
     		const valueSets = getValueSets(node.childData, fields);
 
     		for (let i = 0; i < valueSets.length; i ++) {
-    			const targetValueSets = getValueSets(match, Object.keys(match));
-
     			for (let j = 0; j < targetValueSets.length; j ++) {
 					const matches = matchValueSets(targetValueSets[j], valueSets[i], connector);
 
@@ -231,7 +231,7 @@ export default function getNodesAndLinks(
 			abbreviated: abbreviateNodeName(name, items[0].searchId, 40),
 			description: '',
 			icon: connector.icon,
-			fields: connector.rules.map(rule => rule.field.path),
+			fields: fields,
 			hash: hash,
 			display: true,
 			selected: false,
