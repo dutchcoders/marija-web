@@ -115,8 +115,6 @@ class Query extends React.Component<Props, State> {
             return;
         }
 
-        console.log(nodesInQuery, selectedNodes);
-
         // If the nodes in this query are exactly the same as the current selection, we deselect instead
         if (isEqual(nodesInQuery, selectedNodes)) {
             dispatch(deselectNodes(nodesInQuery));
