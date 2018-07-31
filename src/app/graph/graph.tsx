@@ -1093,15 +1093,24 @@ class Graph extends React.PureComponent<Props, State> {
         , []);
 
 		let description = '';
+		const originalFields = Object.keys(node.childData);
+		const maxFields = 10;
+		let fields: string[];
 
-		Object.keys(node.childData).forEach(key => {
-			const value = node.childData[key];
+		if (originalFields.length > maxFields) {
+			fields = originalFields.slice(0, maxFields);
+		} else {
+			fields = originalFields;
+		}
+
+		fields.forEach(field => {
+			const value = node.childData[field];
 
 			if (!value) {
 				return;
 			}
 
-			description += '<bold>' + key + ': </bold>';
+			description += '<bold>' + field + ': </bold>';
 			let string: string;
 
 			if (Array.isArray(value)) {
@@ -1111,11 +1120,20 @@ class Graph extends React.PureComponent<Props, State> {
 			}
 
 			if (typeof string === 'string') {
-				string = string.substring(0, 200);
+				if (string.length > 50) {
+					string = string.substring(0, 50);
+					string += '...';
+				}
+
+				string = string.replace(/\n|\r/g, ' ');
 			}
 
 			description += string + "\n";
 		});
+
+		if (originalFields.length > maxFields) {
+			description += "<bold>Plus " + (originalFields.length - maxFields) + " more fields</bold>\n";
+		}
 
 		description += '<bold>Queries: </bold>' + queries.join(', ') + "\n"
 			+ '<bold>Datasources: </bold>' + datasources.join(', ');
