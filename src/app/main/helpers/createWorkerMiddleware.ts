@@ -38,8 +38,9 @@ export function createWorkerMiddleware(worker) {
 						return;
 					}
 
-					worker.terminate();
-					worker = new GraphWorker();
+					// This breaks the cache, obviously
+					// worker.terminate();
+					// worker = new GraphWorker();
 
 					worker.onmessage = function (_ref2) {
 						var resultAction = _ref2.data;

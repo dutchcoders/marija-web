@@ -70,7 +70,7 @@ onmessage = function(event) {
 			.id((d: any) => d.id);
 
 		const longDistance = d3.forceManyBody()
-			.strength((node: any) => node.r * -15 * (workerLinks.length / workerNodes.length))
+			.strength((node: any) => node.r * -15 * Math.max(1, Math.pow(workerLinks.length / workerNodes.length, 1.4)))
 			.distanceMin(50)
 			.distanceMax(400);
 
