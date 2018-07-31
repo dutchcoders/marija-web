@@ -200,7 +200,7 @@ class SearchBox extends React.Component<Props, State> {
         const formClass = styles.form + (formExpanded ? '' : ' ' + styles.formCollapsed);
 
         return (
-            <nav id="searchbox" className="[ navbar ][ navbar-bootsnipp animate ] row" role="navigation" ref="header">
+            <nav id="searchbox" role="navigation" ref="header">
                 <div className={styles.queriesContainer}>
                     <div className={styles.formWrapper}>
                         <form onSubmit={this.handleSubmit.bind(this)} className={formClass} ref={form => this.searchForm = form}>
