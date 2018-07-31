@@ -10,7 +10,7 @@ import {
 import { Field } from '../interfaces/field';
 import { createConnector } from './createConnector';
 
-export interface SuggestedConnector {
+interface SuggestedConnector {
 	fields: Field[];
 	links: number;
 	normalizedLinks: number;
@@ -127,12 +127,6 @@ export function getSuggestedConnectors(items: Item[], fields: Field[], existingC
 
 	relevantFields.forEach(sourceField => {
 		relevantFields.forEach(targetField => {
-			if (sourceField !== targetField) {
-				// Todo: a user should have the option somewhere to also try cross-field combinations
-				// For now this is disabled because it's too slow
-				// return;
-			}
-
 			const fieldPaths = [sourceField];
 
 			if (targetField !== sourceField) {

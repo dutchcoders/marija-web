@@ -3,11 +3,6 @@ import { AppState } from '../main/interfaces/appState';
 import { Field } from './interfaces/field';
 import { Connector } from '../graph/interfaces/connector';
 import { Datasource } from '../datasources/interfaces/datasource';
-import { Item } from '../graph/interfaces/item';
-import {
-	getSuggestedConnectors,
-	SuggestedConnector
-} from './helpers/getSuggestedConnectors';
 
 export const getNonDateFields = createSelector(
 	(state: AppState) => state.fields.availableFields,
