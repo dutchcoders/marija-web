@@ -13,7 +13,7 @@ import {
 	activateLiveDatasource,
 	confirmItems,
 	deactivateLiveDatasource,
-	deleteSearch,
+	deleteSearch, dismissItemsToConfirm,
 	editSearch,
 	pauseSearch,
 	resumeSearch
@@ -35,6 +35,12 @@ class Query extends React.Component<Props, State> {
     state: State = {
 		isColorPickerOpen: false
     };
+
+    dismissItemsToConfirm() {
+		const { dispatch, search } = this.props;
+
+		dispatch(dismissItemsToConfirm(search));
+    }
 
     handleDelete() {
         const { dispatch, search } = this.props;
@@ -384,10 +390,10 @@ class Query extends React.Component<Props, State> {
                 {search.itemsToConfirm.length > 0 && (
                     <div className="confirmItems">
 						<p className="confirmMessage">
-                        	{search.itemsToConfirm.length} search results found. Would you like to continue?
+                        	{search.itemsToConfirm.length} new search results found. Would you like to continue?
 						</p>
 						<button onClick={this.confirmItems.bind(this)} className="confirmContinue">Continue</button>
-						<button onClick={this.handleDelete.bind(this)} className="confirmCancel">Delete query</button>
+						<button onClick={this.dismissItemsToConfirm.bind(this)} className="confirmCancel">Dismiss results</button>
                     </div>
                 )}
 

@@ -13,7 +13,7 @@ import {
 	ACTIVATE_LIVE_DATASOURCE,
 	ADD_LIVE_DATASOURCE_SEARCH,
 	CONFIRM_ITEMS,
-	DEACTIVATE_LIVE_DATASOURCE,
+	DEACTIVATE_LIVE_DATASOURCE, DISMISS_ITEMS_TO_CONFIRM,
 	ITEMS_NEED_CONFIRMATION,
 	ITEMS_NEED_CONFIRMATION_THRESHOLD,
 	LIVE_RECEIVE,
@@ -338,4 +338,13 @@ export function showAllItemsOfCustomDatasource(datasource: Datasource) {
 		dispatch(searchReceive(datasource.items, requestId));
 		dispatch(requestCompleted(requestId));
 	}
+}
+
+export function dismissItemsToConfirm(search: Search) {
+	return {
+		type: DISMISS_ITEMS_TO_CONFIRM,
+		payload: {
+			search
+		}
+	};
 }

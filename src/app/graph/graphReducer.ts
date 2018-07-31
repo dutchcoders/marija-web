@@ -5,11 +5,15 @@ import getQueryColor from '../search/helpers/getQueryColor';
 import {Search} from '../search/interfaces/search';
 import {
 	ACTIVATE_LIVE_DATASOURCE,
-	ADD_LIVE_DATASOURCE_SEARCH, CONFIRM_ITEMS,
-	DEACTIVATE_LIVE_DATASOURCE, ITEMS_NEED_CONFIRMATION,
+	ADD_LIVE_DATASOURCE_SEARCH,
+	CONFIRM_ITEMS,
+	DEACTIVATE_LIVE_DATASOURCE,
+	DISMISS_ITEMS_TO_CONFIRM,
+	ITEMS_NEED_CONFIRMATION,
 	SEARCH_DELETE,
 	SEARCH_EDIT,
-	SEARCH_FIELDS_UPDATE, SEARCH_RECEIVE,
+	SEARCH_FIELDS_UPDATE,
+	SEARCH_RECEIVE,
 	SEARCH_REQUEST
 } from '../search/searchConstants';
 import {
@@ -632,7 +636,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			};
 		}
 
-		case CONFIRM_ITEMS: {
+		case CONFIRM_ITEMS:
+		case DISMISS_ITEMS_TO_CONFIRM: {
 			const search: Search = action.payload.search;
 			const searches: Search[] = state.searches.concat([]);
 			const index = searches.findIndex(loop => loop.searchId === search.searchId);
