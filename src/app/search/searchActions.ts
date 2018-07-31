@@ -25,7 +25,6 @@ import {
 } from './searchConstants';
 import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 import { getSelectedFields } from '../fields/fieldsSelectors';
-import { getItemByNode } from '../graph/helpers/getItemByNode';
 import Url from '../main/helpers/url';
 import {
 	DEFAULT_DISPLAY_NODES_PER_SEARCH
@@ -102,26 +101,16 @@ export function searchAround(node: Node) {
 			.filter(datasource => datasource.active && datasource.type !== 'live')
 			.map(datasource => datasource.id);
 
-        let query: string;
+        const queryParts: string[] = [];
+        const fields = Object.keys(node.childData);
 
-        const fields = getSelectedFields(state)
-			.filter(field => datasourceIds.indexOf(field.datasourceId) !== -1)
-			.map(field => field.path);
+        fields.forEach(field => {
+        	node.childData[field].forEach(value => {
+        		queryParts.push(value);
+			});
+		});
 
-        if (node.type === 'item') {
-        	const item = getItemByNode(node, state.graph.items);
-			const fieldPaths = Object.keys(item.fields);
-			query = fieldPaths.reduce((query: string, fieldPath: string) => {
-			    if (!item.fields[fieldPath]) {
-			        return query;
-                }
-
-				return query + ' "' + item.fields[fieldPath] + '"';
-			}, '');
-		} else {
-        	query = '"' + node.name + '"';
-		}
-
+        const query = '"' + queryParts.join('" "') + '"';
 		const requestId = uniqueId();
 
 		dispatch(webSocketSend({
