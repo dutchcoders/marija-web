@@ -6,6 +6,7 @@ import { REBUILD_GRAPH } from '../../graph/graphConstants';
 import { setExpectedGraphWorkerOutputId } from '../../graph/graphActions';
 import { uniqueId } from 'lodash';
 import { setFieldCountInGraphWorker } from '../../fields/fieldsActions';
+const GraphWorker = require('../../graph/helpers/graphWorker.worker');
 
 export function createWorkerMiddleware(worker) {
 	/*
@@ -25,16 +26,6 @@ export function createWorkerMiddleware(worker) {
 		var dispatch = _ref.dispatch;
 		const getState = _ref.getState;
 
-		/*
-		  when the worker posts a message back, dispatch the action with its payload
-		  so that it will go through the entire middleware chain
-		*/
-		worker.onmessage = function (_ref2) {
-			var resultAction = _ref2.data;
-			// eslint-disable-line no-param-reassign
-			dispatch(resultAction);
-		};
-
 		return function (next) {
 			if (!next) {
 				throw new Error('Worker middleware received no `next` action. Check your chain of middlewares.');
@@ -46,6 +37,15 @@ export function createWorkerMiddleware(worker) {
 						// These is the only action types we currently support in this worker
 						return;
 					}
+
+					worker.terminate();
+					worker = new GraphWorker();
+
+					worker.onmessage = function (_ref2) {
+						var resultAction = _ref2.data;
+						// eslint-disable-line no-param-reassign
+						dispatch(resultAction);
+					};
 
 					const payload: GraphWorkerPayload = action.payload;
 					const state: AppState = getState();
