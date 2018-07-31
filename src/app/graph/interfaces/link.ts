@@ -10,12 +10,6 @@ export interface Link {
     label?: string;
 
     /**
-     * We need to keep track of which items we've used for this link, because
-     * we use it to determine the thickness of the link.
-     */
-    itemIds: string[];
-
-    /**
      * Per search a user can choose the amount of nodes that he wants to be
      * displayed. When the amount of available nodes exceeds this chosen amount,
      * this can cause the link to be hidden.

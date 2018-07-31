@@ -15,6 +15,11 @@ export function getValueSets(values: Input, relevantFields: string[]): ValueSet[
 		return [];
 	}
 
+	// Usually it's just 1 key, this is much faster
+	if (keys.length === 1) {
+		return getValueSetsFast(values, keys[0]);
+	}
+
 	const output = [];
 
 	const recurse = (prevValues, index) => {
@@ -53,6 +58,25 @@ export function getValueSets(values: Input, relevantFields: string[]): ValueSet[
 	};
 
 	recurse({}, 0);
+
+	return output;
+}
+
+function getValueSetsFast(values: Input, field: string): ValueSet[] {
+	const output = [];
+	let value = values[field];
+
+	if (!Array.isArray(value)) {
+		value = [value];
+	}
+
+	value.forEach(val => {
+		if (val !== null && val !== '') {
+			output.push({
+				[field]: val
+			})
+		}
+	});
 
 	return output;
 }

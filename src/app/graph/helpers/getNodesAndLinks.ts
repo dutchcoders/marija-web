@@ -20,17 +20,17 @@ export default function getNodesAndLinks(
     nodes: Node[],
     links: Link[]
 } {
-    const links: Link[] = previousLinks.concat([]);
-	const itemNodes: Node[] = previousNodes.filter(node => node.type === 'item');
+    const links = new Map<number, Link>();
+    previousLinks.forEach(link => links.set(link.hash, link));
+
+    const itemNodes = new Map<number, Node>();
+	previousNodes.forEach(node => {
+		if (node.type === 'item') {
+			itemNodes.set(node.id, node);
+		}
+	});
+
 	const connectorNodes: Node[] = previousNodes.filter(node => node.type === 'connector');
-
-	const relevantFields: string[] = [];
-
-	connectors.forEach(connector =>
-		connector.rules.forEach(rule =>
-			relevantFields.push(rule.field.path)
-		)
-	);
 
     const createLink = (source: Node, target: Node, item: Item, color: string) => {
 		if (source.id === target.id) {
@@ -39,24 +39,14 @@ export default function getNodesAndLinks(
 		}
 
 		const hash = source.id + target.id;
+    	const existing = links.get(hash);
 
-    	const existing = links.findIndex(link => link.hash === hash);
-
-    	if (existing !== -1) {
-    		const newLink = {
-				...links[existing]
-			};
-
-    		if (newLink.itemIds.indexOf(item.id) === -1) {
-    			newLink.itemIds = newLink.itemIds.concat([item.id]);
-			}
-
-			links[existing] = newLink;
-
+    	if (existing) {
+    		// Link already exists
     		return;
 		}
 
-		links.push({
+		links.set(hash, {
 			hash: hash,
 			source: source.id,
 			target: target.id,
@@ -66,7 +56,6 @@ export default function getNodesAndLinks(
 			display: true,
 			viaId: null,
 			replacedNode: null,
-			itemIds: [item.id],
 			directional: false,
 			highlighted: false
 		});
@@ -105,10 +94,9 @@ export default function getNodesAndLinks(
 		}
 
 		const hash = getNumericHash(item.id);
+    	const existing = itemNodes.get(hash);
 
-    	const existing = itemNodes.find(node => node.id === hash);
-
-    	if (typeof existing !== 'undefined') {
+    	if (existing) {
     		if (name !== existing.name) {
     			return {
 					...existing,
@@ -163,7 +151,7 @@ export default function getNodesAndLinks(
 			geoLocation: location
 		};
 
-    	itemNodes.push(node);
+    	itemNodes.set(hash, node);
 
     	return node;
 	};
@@ -316,9 +304,9 @@ export default function getNodesAndLinks(
 
 
 						matches.forEach(match => {
-							const connectorNodes = createConnectorNode(match, connector, [sourceItem, targetItem]);
+							const newConnectorNodes = createConnectorNode(match, connector, [sourceItem, targetItem]);
 
-							connectorNodes.forEach(connectorNode => {
+							newConnectorNodes.forEach(connectorNode => {
 								createLink(sourceNode, connectorNode, sourceItem, connector.color);
 								createLink(targetNode, connectorNode, targetItem, connector.color);
 							});
@@ -332,7 +320,7 @@ export default function getNodesAndLinks(
 	setConnectorRadius(connectorNodes);
 	itemNodes.forEach(node => node.r = getItemRadius(node));
 
-    const nodes = itemNodes.concat(connectorNodes);
+    const nodes = Array.from(itemNodes.values()).concat(connectorNodes);
 
 	// console.log('items:', itemNodes.map(node => [node.items.join(','), node.childData]));
 	// console.log('connectors:', connectorNodes.map(node => node.childData));
@@ -348,7 +336,7 @@ export default function getNodesAndLinks(
 
 	return {
         nodes: nodes,
-        links: links
+        links: Array.from(links.values())
     };
 }
 

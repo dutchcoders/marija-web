@@ -42,17 +42,17 @@ class AdjacencyMatrix extends React.Component<Props, State> {
 
         const linkCount = {};
         links.forEach(link => {
-            if (linkCount[link.source]) {
-                linkCount[link.source] += link.itemIds.length
-            } else {
-                linkCount[link.source] = link.itemIds.length;
-            }
-
-            if (linkCount[link.target]) {
-                linkCount[link.target] += link.itemIds.length
-            } else {
-                linkCount[link.target] = link.itemIds.length;
-            }
+            // if (linkCount[link.source]) {
+            //     linkCount[link.source] += link.itemIds.length
+            // } else {
+            //     linkCount[link.source] = link.itemIds.length;
+            // }
+            //
+            // if (linkCount[link.target]) {
+            //     linkCount[link.target] += link.itemIds.length
+            // } else {
+            //     linkCount[link.target] = link.itemIds.length;
+            // }
         });
 
         nodes = nodes.concat([]);
@@ -192,8 +192,7 @@ class AdjacencyMatrix extends React.Component<Props, State> {
         const louvainLinks: any = links.map(link => {
             return {
                 source: link.source,
-                target: link.target,
-                weight: link.itemIds.length
+                target: link.target
             }
         });
 

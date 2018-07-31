@@ -619,7 +619,7 @@ class Graph extends React.PureComponent<Props, State> {
 					alpha = .1;
 				}
 
-				let thickness = Math.max(1, Math.min(link.itemIds.length, 15));
+				let thickness = 1;
 				const color = parseInt(link.color.replace('#', ''), 16);
 				this.renderedLinks.lineStyle(thickness, color, alpha);
 			}

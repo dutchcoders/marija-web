@@ -163,7 +163,7 @@ class ChordDiagram extends React.Component<Props, State> {
             || (search.target === source && search.source === target)
         );
 
-        return link.itemIds.length;
+        return 1;
     }
 
     componentDidMount() {
