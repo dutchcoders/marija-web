@@ -76,6 +76,9 @@ class SearchBox extends React.Component<Props, State> {
             // User clicked outside the search form, close it
             this.queryInput.blur();
             this.resetInputHeight();
+            this.setState({
+				formExpanded: false
+			});
 
             window.removeEventListener('click', this.clickHandlerRef);
         }
@@ -107,7 +110,10 @@ class SearchBox extends React.Component<Props, State> {
 				break;
 		}
 
-        this.setState({query: ''});
+        this.setState({
+			query: '',
+			formExpanded: false
+        });
 		this.adjustInputHeight();
         this.props.onSubmit(trimmed, date);
     }

@@ -35,7 +35,7 @@ class SuggestedConnectorList extends React.Component<Props> {
 
 		sortable.sort((a, b) => b[1] - a[1]);
 		const maxValues = 5;
-		
+
 		sortable = sortable.slice(0, maxValues);
 
 		return sortable.map(item => item[0] + ' (' + item[1] + ')');
