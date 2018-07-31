@@ -19,6 +19,7 @@ import {
 	resumeSearch
 } from '../searchActions';
 import ColorPicker from '../../ui/components/colorPicker/colorPicker';
+import { getSelectedNodes } from '../../graph/graphSelectors';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -113,6 +114,8 @@ class Query extends React.Component<Props, State> {
         if (nodesInQuery.length === 0) {
             return;
         }
+
+        console.log(nodesInQuery, selectedNodes);
 
         // If the nodes in this query are exactly the same as the current selection, we deselect instead
         if (isEqual(nodesInQuery, selectedNodes)) {
@@ -407,8 +410,9 @@ class Query extends React.Component<Props, State> {
     }
 }
 
-const select = (state, ownProps) => {
-    return ownProps;
-};
+const select = (state, ownProps) => ({
+	...ownProps,
+	selectedNodes: getSelectedNodes(state)
+});
 
 export default connect(select)(Query);
