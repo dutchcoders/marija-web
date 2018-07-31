@@ -206,8 +206,9 @@ const createArrayLengthSelector = createSelectorCreator(
 const selectValueInfo = createArrayLengthSelector(
 	(state: AppState) => state.graph.items,
 	(state: AppState) => state.graph.nodes,
+	(state: AppState) => state.fields.availableFields,
 
-	(items, nodes) => getValueInfo(items, nodes)
+	(items, nodes, fields) => getValueInfo(items, nodes, fields)
 );
 
 const selectValueInfoByField = createSelector(
