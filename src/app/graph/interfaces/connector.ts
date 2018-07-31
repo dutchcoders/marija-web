@@ -8,6 +8,9 @@ export interface Connector {
 	strategy: MatchingStrategy;
 	icon: string;
 	color: string;
+	suggestionPotential?: {
+		[value: string]: number
+	}
 }
 
 export interface Rule {

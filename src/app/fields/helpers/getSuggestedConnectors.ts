@@ -15,6 +15,9 @@ interface SuggestedConnector {
 	links: number;
 	normalizedLinks: number;
 	uniqueConnectors: number;
+	valueCounter: {
+		[value: string]: number
+	}
 }
 
 interface FakeConnector {
@@ -154,7 +157,8 @@ export function getSuggestedConnectors(items: Item[], fields: Field[], existingC
 				fields: connectorFields,
 				links: 0,
 				normalizedLinks: 0,
-				uniqueConnectors: 0
+				uniqueConnectors: 0,
+				valueCounter: {}
 			});
 
 			const existingFakeConnector = fakeConnectors.find(connector =>
@@ -255,6 +259,7 @@ export function getSuggestedConnectors(items: Item[], fields: Field[], existingC
 
 		suggested.links = suggested.links + connector.itemIds.length;
 		suggested.uniqueConnectors ++;
+		suggested.valueCounter[connector.value] = connector.itemIds.length;
 		maxLinks = Math.max(suggested.links, maxLinks);
 	});
 
@@ -280,6 +285,8 @@ export function getSuggestedConnectors(items: Item[], fields: Field[], existingC
 
 	suggestedConnectors.forEach(suggested => {
 		const newConnector = createConnector(existingConnectors, uniqueId(), suggested.fields);
+
+		newConnector.suggestionPotential = suggested.valueCounter;
 
 		newConnectors.push(newConnector);
 

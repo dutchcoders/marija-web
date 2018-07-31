@@ -19,6 +19,28 @@ class SuggestedConnectorList extends React.Component<Props> {
 		dispatch(createNewConnector(fields));
 	}
 
+	getTotalLinks(suggested: Connector) {
+		return Object.keys(suggested.suggestionPotential).reduce((prev, current) =>
+			prev + suggested.suggestionPotential[current],
+			0
+		);
+	}
+
+	getExampleValues(suggested: Connector) {
+		let sortable = [];
+
+		Object.keys(suggested.suggestionPotential).forEach(value => {
+			sortable.push([value, suggested.suggestionPotential[value]]);
+		});
+
+		sortable.sort((a, b) => b[1] - a[1]);
+		const maxValues = 5;
+		
+		sortable = sortable.slice(0, maxValues);
+
+		return sortable.map(item => item[0] + ' (' + item[1] + ')');
+	}
+
 	render() {
 		const { suggestedConnectors } = this.props;
 
@@ -32,35 +54,23 @@ class SuggestedConnectorList extends React.Component<Props> {
 				<ul className={styles.connectors}>
 					{suggestedConnectors.map(suggested =>
 						<li className={styles.connector} key={suggested.name}>
-							<ul className={styles.rules}>
-								{suggested.rules.map(rule =>
-									<li className={styles.rule} key={rule.id}>{rule.field.path}</li>
-								)}
-							</ul>
-							<Icon name={'ion-ios-plus ' + styles.create} onClick={() => this.create(suggested)} />
+							<div className={styles.header}>
+								<ul className={styles.rules}>
+									{suggested.rules.map(rule =>
+										<li className={styles.rule} key={rule.id}>{rule.field.path}</li>
+									)}
+								</ul>
+								<Icon name={'ion-ios-plus ' + styles.create} onClick={() => this.create(suggested)} />
+							</div>
+							<div className={styles.info}>
+								Create {Object.keys(suggested.suggestionPotential).length} connector nodes, connecting {this.getTotalLinks(suggested)} items.<br />
+								Example values: {this.getExampleValues(suggested).join(', ')}
+							</div>
 						</li>
 					)}
 				</ul>
 			</div>
 		);
-
-		// return suggestedConnectors.length > 0 ? (
-		// 	<ul className={styles.list}>
-		// 		{suggestedConnectors.map(suggested =>
-		// 			<li className={styles.suggested} key={suggested.fields.join(',')}>
-		// 				<ul className={styles.fieldList}>
-		// 					{suggested.fields.map(field =>
-		// 						<li className={styles.field} key={field}>{field}</li>
-		// 					)}
-		// 				</ul>
-		// 				<p className={styles.description}>Would create {suggested.uniqueConnectors} unique connector nodes and {suggested.links} new connections.</p>
-		// 				<button className={styles.create} onClick={() => this.create(suggested)}>Create</button>
-		// 			</li>
-		// 		)}
-		// 	</ul>
-		// ) : (
-		// 	<p className={styles.none}>No suggested connectors found.</p>
-		// );
 	}
 }
 
