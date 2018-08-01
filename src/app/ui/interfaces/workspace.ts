@@ -12,4 +12,5 @@ export interface Workspace {
 	connectors: Connector[];
 	availableFields: Field[];
 	experimentalFeatures: boolean;
+	queryHistory: string[];
 }

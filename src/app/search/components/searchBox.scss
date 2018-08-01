@@ -99,3 +99,26 @@
   font-size: 20px;
   cursor: pointer;
 }
+
+.autoComplete {
+  margin: -10px 0 0 0;
+  padding: 0;
+  list-style: none;
+  background: #425166;
+  border-radius: 3px;
+}
+
+.autoCompleteQuery {
+  padding: 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.3);
+  cursor: pointer;
+}
+
+.autoCompleteQuery:last-child {
+  border-bottom: none;
+}
+
+.autoCompleteQuery:hover,
+.autoCompleteQueryActive {
+  background: rgba(255, 255, 255, .1);
+}

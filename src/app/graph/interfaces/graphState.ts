@@ -35,4 +35,5 @@ export interface GraphState {
 	noGroupingNodeIds: number[];
 	groupNodes: boolean;
 	filterNodesBy: string;
+	queryHistory: string[];
 }

@@ -93,7 +93,8 @@ export const defaultGraphState: GraphState = {
 	automaticallyCreateConnectors: true,
 	noGroupingNodeIds: [],
 	groupNodes: true,
-	filterNodesBy: ''
+	filterNodesBy: '',
+	queryHistory: []
 };
 
 export default function graphReducer(state: GraphState = defaultGraphState, action): GraphState {
@@ -327,9 +328,17 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             searches.push(search);
 
+            let queryHistory = state.queryHistory;
+
+            if (queryHistory.indexOf(search.q) === -1) {
+            	queryHistory = queryHistory.concat([]);
+            	queryHistory.push(search.q);
+			}
+
             return {
                 ...state,
-                searches: searches
+                searches,
+				queryHistory
             };
         }
         case SEARCH_FIELDS_UPDATE: {
@@ -635,7 +644,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			return {
 				...state,
 				filterSecondaryQueries: workspace.filterSecondaryQueries,
-				filterBoringNodes: workspace.filterBoringNodes
+				filterBoringNodes: workspace.filterBoringNodes,
+				queryHistory: workspace.queryHistory
 			};
 		}
 

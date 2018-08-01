@@ -22,6 +22,7 @@ interface Props {
     nodes: Node[];
     datasources: Datasource[];
     experimentalFeatures: boolean;
+    queryHistory: string[];
 }
 
 interface State {
@@ -30,6 +31,8 @@ interface State {
 	noDatasourcesError: boolean;
 	formExpanded: boolean;
 	dateFilter: string;
+	autoComplete: string[];
+	activeAutoCompleteIndex: number;
 }
 
 class SearchBox extends React.Component<Props, State> {
@@ -38,7 +41,9 @@ class SearchBox extends React.Component<Props, State> {
         searchAroundOpen: false,
         noDatasourcesError: false,
 		formExpanded: false,
-		dateFilter: ''
+		dateFilter: '',
+		autoComplete: [],
+		activeAutoCompleteIndex: 0
     };
     searchForm: HTMLFormElement;
     queryInput: HTMLTextAreaElement;
@@ -106,20 +111,58 @@ class SearchBox extends React.Component<Props, State> {
     }
 
     handleQueryChange(event) {
-    	const { datasources } = this.props;
+    	const { datasources, queryHistory } = this.props;
+
+    	const value = event.target.value;
+
+    	let autoComplete = [];
+
+    	if (value) {
+    		autoComplete = queryHistory.filter(query =>
+				query.toLowerCase().includes(value.toLowerCase())
+			);
+		}
 
 		this.setState({
-			query: event.target.value,
-			noDatasourcesError: !!event.target.value && datasources.length === 0
+			query: value,
+			noDatasourcesError: !!value && datasources.length === 0,
+			autoComplete
 		});
 
 		this.adjustInputHeight();
     }
 
     handleQueryKeyDown(event) {
+    	const { autoComplete, activeAutoCompleteIndex } = this.state;
+
+    	// Enter
 		if (event.keyCode === 13 && !event.shiftKey) {
 			this.handleSubmit(event);
 			return;
+		}
+
+		if (!autoComplete.length) {
+			return;
+		}
+
+		// Down
+		if (event.keyCode === 40) {
+			let newIndex: number;
+
+			if (autoComplete.length === activeAutoCompleteIndex) {
+				newIndex = 1;
+			} else {
+				newIndex = activeAutoCompleteIndex + 1;
+			}
+
+			this.setState({
+				activeAutoCompleteIndex: newIndex,
+				query: autoComplete[newIndex - 1]
+			});
+		} else {
+			this.setState({
+				activeAutoCompleteIndex: 0
+			});
 		}
     }
 
@@ -147,9 +190,21 @@ class SearchBox extends React.Component<Props, State> {
 		});
 	}
 
+	onClickAutoComplete(query: string) {
+    	this.setState({
+			autoComplete: [],
+			query: query,
+			activeAutoCompleteIndex: 0
+		}, () => {
+    		requestAnimationFrame(() => {
+				this.queryInput.focus()
+			});
+		});
+	}
+
     render() {
         const { connected, searches, nodes, experimentalFeatures } = this.props;
-        const { query, searchAroundOpen, noDatasourcesError, formExpanded, dateFilter } = this.state;
+        const { query, searchAroundOpen, noDatasourcesError, formExpanded, dateFilter, autoComplete, activeAutoCompleteIndex } = this.state;
 
         const userQueries = searches
             .filter(search => search.aroundNodeId === null)
@@ -208,6 +263,19 @@ class SearchBox extends React.Component<Props, State> {
 								onFocus={this.onInputFocus.bind(this)}
 							/>
 
+							{autoComplete.length > 0 && (
+								<ul className={styles.autoComplete}>
+									{autoComplete.map((query, index) =>
+										<li
+											key={query}
+											className={styles.autoCompleteQuery + (activeAutoCompleteIndex - 1 === index ? ' ' + styles.autoCompleteQueryActive : '')}
+											onClick={() => this.onClickAutoComplete(query)}>
+											{query}
+										</li>
+									)}
+								</ul>
+							)}
+
 							{experimentalFeatures &&
 								<Icon name={'ion-ios-clock ' + styles.toggleExpand}
 								  onClick={this.toggleFormExpanded.bind(this)}/>
@@ -240,7 +308,8 @@ const select = (state: AppState, ownProps) => {
         searches: state.graph.searches,
         datasources: getActiveNonLiveDatasources(state),
         nodes: getNodesForDisplay(state),
-		experimentalFeatures: state.ui.experimentalFeatures
+		experimentalFeatures: state.ui.experimentalFeatures,
+		queryHistory: state.graph.queryHistory
     };
 };
 

@@ -19,6 +19,7 @@ import {
 	SET_FILTER_SECONDARY_QUERIES
 } from '../../graph/graphConstants';
 import { SET_EXPERIMENTAL_FEATURES, SET_PANE_CONFIG } from '../uiConstants';
+import { SEARCH_REQUEST } from '../../search/searchConstants';
 
 let debouncer;
 
@@ -40,7 +41,8 @@ export const workspaceMiddleware: Middleware = ({dispatch}) => next => action =>
 		CREATE_CUSTOM_DATASOURCE,
 		DELETE_CUSTOM_DATASOURCE,
 		SET_EXPERIMENTAL_FEATURES,
-		SET_AUTOMATICALLY_CREATE_CONNECTORS
+		SET_AUTOMATICALLY_CREATE_CONNECTORS,
+		SEARCH_REQUEST
 	];
 
 	if (updateForActions.indexOf(action.type) !== -1) {

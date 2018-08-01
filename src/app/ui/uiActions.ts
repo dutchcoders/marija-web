@@ -75,7 +75,8 @@ function getWorkspace(state: AppState): Workspace {
 		filterSecondaryQueries: state.graph.filterSecondaryQueries,
 		connectors: state.fields.connectors,
 		availableFields: customFields,
-		experimentalFeatures: state.ui.experimentalFeatures
+		experimentalFeatures: state.ui.experimentalFeatures,
+		queryHistory: state.graph.queryHistory
 	};
 }
 
