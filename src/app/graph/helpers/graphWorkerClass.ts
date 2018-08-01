@@ -77,7 +77,6 @@ export default class GraphWorkerClass {
 
 		let search: Search;
 		let useItems: Item[];
-		let suggested: Connector[];
 		let connectors: Connector[] = payload.connectors;
 
 		if (action.type === REBUILD_GRAPH) {
@@ -85,7 +84,6 @@ export default class GraphWorkerClass {
 			// and we also don't have a relevant search. We just want to regenerate the
 			// nodes and links because some config changed, like the fields.
 			useItems = prevItemCache;
-			suggested = payload.suggestedConnectors;
 		} else {
 			search = payload.searches.find(loop =>
 				loop.searchId === payload.searchId
@@ -93,22 +91,22 @@ export default class GraphWorkerClass {
 			);
 			useItems = prevItemCache.concat(payload.items);
 			prevItemCache = useItems;
-
-			const startSuggesting = performance.now();
-
-			suggested = getSuggestedConnectors(useItems, fieldCache, connectors, payload.deletedConnectorFields);
-
-			const suggestingTime = performance.now() - startSuggesting;
-
-			console.log('getSuggestedConnectors took ' + suggestingTime + 'ms');
 		}
+
+		const startSuggesting = performance.now();
+		let suggested: Connector[] = getSuggestedConnectors(useItems, fieldCache, connectors, payload.deletedConnectorFields);
+		const suggestingTime = performance.now() - startSuggesting;
+		console.log('getSuggestedConnectors took ' + suggestingTime + 'ms');
 
 		const automaticallyCreateConnectors = payload.automaticallyCreateConnectors || isLive;
 
 		if (automaticallyCreateConnectors) {
 			const toAdd = MAX_AUTOMATIC_CONNECTORS - connectors.length;
-			connectors = connectors.concat(suggested.slice(0, toAdd));
-			suggested = suggested.slice(toAdd);
+
+			if (toAdd > 0) {
+				connectors = connectors.concat(suggested.slice(0, toAdd));
+				suggested = suggested.slice(toAdd);
+			}
 		}
 
 		const startGetNodesAndLinks = performance.now();
