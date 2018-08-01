@@ -328,12 +328,13 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 
             searches.push(search);
 
-            let queryHistory = state.queryHistory;
+            // Add as the first element
+            let queryHistory = [search.q].concat(state.queryHistory);
 
-            if (queryHistory.indexOf(search.q) === -1) {
-            	queryHistory = queryHistory.concat([]);
-            	queryHistory.push(search.q);
-			}
+            // Delete older occurences of the query
+            queryHistory = queryHistory.filter((query, index) =>
+				query !== search.q || index === 0
+			);
 
             return {
                 ...state,

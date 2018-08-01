@@ -8,6 +8,16 @@
   margin: 5px 10px;
 }
 
+.notConnected {
+  animation: pulse 2s infinite ease-in-out;;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.2; }
+  50% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+
 .list {
   list-style: none;
   margin: 0;

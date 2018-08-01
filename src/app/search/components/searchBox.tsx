@@ -58,8 +58,17 @@ class SearchBox extends React.Component<Props, State> {
     }
 
     onInputFocus() {
+    	const { queryHistory } = this.props;
+    	const { query } = this.state;
+
         this.clickHandlerRef = this.collapseForm.bind(this);
         this.adjustInputHeight();
+
+        if (!query) {
+			this.setState({
+				autoComplete: queryHistory.slice(0, 5)
+			});
+		}
 
         window.addEventListener('click', this.clickHandlerRef)
     }
@@ -83,7 +92,8 @@ class SearchBox extends React.Component<Props, State> {
             this.queryInput.blur();
             this.resetInputHeight();
             this.setState({
-				formExpanded: false
+				formExpanded: false,
+				autoComplete: []
 			});
 
             window.removeEventListener('click', this.clickHandlerRef);
@@ -104,7 +114,8 @@ class SearchBox extends React.Component<Props, State> {
 
         this.setState({
 			query: '',
-			formExpanded: false
+			formExpanded: false,
+			autoComplete: []
         });
 		this.adjustInputHeight();
         this.props.onSubmit(trimmed, dateFilter);
@@ -120,7 +131,9 @@ class SearchBox extends React.Component<Props, State> {
     	if (value) {
     		autoComplete = queryHistory.filter(query =>
 				query.toLowerCase().includes(value.toLowerCase())
-			);
+			).slice(0, 10);
+		} else {
+    		autoComplete = queryHistory.slice(0, 5);
 		}
 
 		this.setState({
