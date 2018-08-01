@@ -162,7 +162,7 @@ class RuleComponent extends React.Component<Props, State> {
 								<input
 									type="range"
 									onChange={this.onDistanceChange.bind(this)}
-									min={1}
+									min={0}
 									max={100}
 									defaultValue={typeof unsavedDistance === 'number' ? unsavedDistance.toString() : '100'}
 								/>
