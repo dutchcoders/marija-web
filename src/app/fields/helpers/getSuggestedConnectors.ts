@@ -125,6 +125,11 @@ export function getSuggestedConnectors(items: Item[], fields: Field[], existingC
 		relevantFields.push(field);
 	});
 
+	const maxFields = 20;
+	if (relevantFields.length > maxFields) {
+		relevantFields = relevantFields.slice(0, maxFields);
+	}
+
 	const fakeConnectors: FakeConnector[] = [];
 	let suggestedConnectors: SuggestedConnector[] = [];
 
