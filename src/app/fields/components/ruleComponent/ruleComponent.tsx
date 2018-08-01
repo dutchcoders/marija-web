@@ -158,7 +158,7 @@ class RuleComponent extends React.Component<Props, State> {
 
 						{isLocationType && (
 							<div className={styles.setting}>
-								<label className={styles.label}>Maximum distance: {unsavedDistance}km</label>
+								<label className={styles.label}>Maximum distance: {unsavedDistance} km</label>
 								<input
 									type="range"
 									onChange={this.onDistanceChange.bind(this)}
