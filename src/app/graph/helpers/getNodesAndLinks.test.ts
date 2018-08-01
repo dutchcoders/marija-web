@@ -1019,3 +1019,41 @@ test('node templates 10', () => {
 	expect(nodes.length).toBe(3);
 	expect(links.length).toBe(2);
 });
+
+test('should match with OR connector when 1 of the fields is undefined', () => {
+	const items = [
+		{
+			id: '1',
+			fields: {
+				first_name: 'Thomas',
+				last_name: 'Kuipers',
+			},
+			datasourceId: '1',
+		},
+		{
+			id: '2',
+			fields: {
+				last_name: 'Kuipers'
+			},
+			datasourceId: '1'
+		}
+	];
+
+	const fields = [
+		generateNodeTemplate('names', ['last_name', 'first_name']),
+	];
+
+	const { nodes, links } = getNodesAndLinks([], [], items as any, fields as any, ...defaultArguments);
+
+	/**
+	 * Expect:
+	 * 1
+	 * |
+	 * Kuipers
+	 * |
+	 * 2
+	 *
+	 */
+	expect(nodes.length).toBe(3);
+	expect(links.length).toBe(2);
+});
