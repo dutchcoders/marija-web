@@ -7,6 +7,7 @@ import { getValueSets, ValueSet } from './getValueSets';
 import { Datasource } from '../../datasources/interfaces/datasource';
 import { getStringSimilarityLevenshtein } from './getStringSimilarityLevenshtein';
 import { getNumericHash } from './getNumericHash';
+import { getHaversineDistance } from './getHaversinceDistance';
 
 export default function getNodesAndLinks(
     previousNodes: Node[],
@@ -349,7 +350,7 @@ function matchValueSets(a: ValueSet, b: ValueSet, connector: Connector): ArrayVa
 		const rule = connector.rules[0];
 		const field = rule.field.path;
 
-		if (typeof rule.similarity === 'undefined' || rule.similarity === 100) {
+		if ((typeof rule.similarity === 'undefined' || rule.similarity === 100) && (typeof rule.distance === 'undefined' || rule.distance === 0)) {
 			if (a[field] === b[field]) {
 				return [{
 					[field]: [a[field]]
@@ -390,10 +391,14 @@ function matchValueSetsAnd(a: ValueSet, b: ValueSet, connector: Connector): Arra
 			if (getStringSimilarityLevenshtein(a[field], b[field]) < rule.similarity) {
 				return false;
 			}
-		} else {
-			if (a[field] !== b[field]) {
+		} else if (typeof rule.distance === 'number' && rule.distance > 0) {
+			const distance = getHaversineDistance(a[field], b[field]);
+
+			if (distance > rule.distance) {
 				return false;
 			}
+		} else if (a[field] !== b[field]) {
+			return false;
 		}
 
 		match[field] = [a[field]];
@@ -432,10 +437,17 @@ function matchValueSetsOr(a: ValueSet, b: ValueSet, connector: Connector): Array
 				}
 			}
 
+			let distance: number;
+			if (typeof sourceRule.distance === 'number' && sourceRule.distance && typeof targetRule.distance === 'number' && targetRule.distance) {
+				distance = Math.min(sourceRule.distance, targetRule.distance);
+			}
+
 			let match: boolean;
 
 			if (typeof similarity !== 'undefined' && similarity < 100) {
 				match = getStringSimilarityLevenshtein(a[sourceField], b[targetField]) >= similarity;
+			} else if (typeof distance !== 'undefined' && distance > 0) {
+				match = getHaversineDistance(a[sourceField], b[targetField]) <= distance;
 			} else {
 				match = a[sourceField] === b[targetField];
 			}

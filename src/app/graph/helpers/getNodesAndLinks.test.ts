@@ -1057,3 +1057,45 @@ test('should match with OR connector when 1 of the fields is undefined', () => {
 	expect(nodes.length).toBe(3);
 	expect(links.length).toBe(2);
 });
+
+test('should work with distances', () => {
+	// 51,5 and 51,4 should be 70km apart
+	const items = [
+		{
+			id: '1',
+			fields: {
+				location: '51,5',
+			},
+			datasourceId: '1'
+		},
+		{
+			id: '2',
+			fields: {
+				location: '51,4',
+			},
+			datasourceId: '1'
+		}
+	];
+
+	const connectors: Connector[] = [
+		{
+			name: '1',
+			strategy: 'AND',
+			icon: 'x',
+			color: '',
+			rules: [{
+				id: '1',
+				field: {
+					path: 'location',
+					type: 'location',
+					datasourceId: '1'
+				},
+				distance: 80
+			}]
+		}
+	];
+
+	const { nodes, links } = getNodesAndLinks([], [], items as any, connectors, ...defaultArguments);
+
+	expect(nodes.length).toBe(3);
+});

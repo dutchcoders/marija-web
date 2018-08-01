@@ -17,4 +17,5 @@ export interface Rule {
 	id: string;
 	field: Field;
 	similarity?: number;
+	distance?: number;
 }

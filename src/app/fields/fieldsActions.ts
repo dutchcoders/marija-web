@@ -132,6 +132,7 @@ export function updateConnector(connectorName: string, props: ConnectorProps) {
 
 export interface RuleProps {
 	similarity?: number;
+	distance?: number
 }
 
 export function updateRule(ruleId: string, props: RuleProps) {
