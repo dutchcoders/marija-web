@@ -69,6 +69,7 @@ import {
 	DELETE_CONNECTOR,
 	DELETE_FROM_CONNECTOR
 } from '../fields/fieldsConstants';
+import removeDeadLinks from './helpers/removeDeadLinks';
 
 export const defaultGraphState: GraphState = {
     normalizations: [],
@@ -347,12 +348,24 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
         		return state;
 			}
 
-        	payload.nodes.forEach(node => {
+			// The search might have been deleted while the worker was busy
+			const activeItemIds = new Map<string, true>();
+        	state.items.forEach(item => activeItemIds.set(item.id, true));
+
+        	let nodes = payload.nodes.map(node => ({
+				...node,
+				items: node.items.filter(itemId => activeItemIds.has(itemId))
+			}));
+
+        	nodes = nodes.filter(node => node.items.length > 0);
+        	const links = removeDeadLinks(nodes, payload.links);
+
+        	nodes.forEach(node => {
         		node.important = state.importantNodeIds.indexOf(node.id) !== -1
 			});
 
         	state.notes.forEach(note => {
-        		const node = payload.nodes.find(node => node.id === note.nodeId);
+        		const node = nodes.find(node => node.id === note.nodeId);
 
         		if (node) {
         			node.description = note.note;
@@ -360,8 +373,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			});
 
             const updates: any = {
-                nodes: payload.nodes,
-                links: payload.links,
+                nodes,
+                links,
 				graphWorkerHasValidNodes: true,
 				graphWorkerLoading: false
             };
