@@ -14,4 +14,13 @@ export interface Search {
     datasources: string[];
     searchId: string;
     error: string;
+    advancedQuery?: AdvancedQuery[];
+}
+
+export interface AdvancedQuery {
+    id: string;
+	field: string;
+	operator: '>=';
+	value: string;
+	selectedValue?: string;
 }

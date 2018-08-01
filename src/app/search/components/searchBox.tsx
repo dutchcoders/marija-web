@@ -11,6 +11,7 @@ import { getActiveNonLiveDatasources } from '../../datasources/datasourcesSelect
 import { getNodesForDisplay } from '../../graph/graphSelectors';
 import { FormEvent } from 'react';
 import * as moment from 'moment';
+import DateFilter from './dateFilter/dateFilter';
 
 interface Props {
     onSubmit: Function;
@@ -96,26 +97,12 @@ class SearchBox extends React.Component<Props, State> {
             return;
         }
 
-        let date: string = null;
-
-        switch (dateFilter) {
-			case '1month':
-				date = moment().subtract(1, 'month').toISOString();
-				break;
-			case '1week':
-				date = moment().subtract(1, 'week').toISOString();
-				break;
-			case '1day':
-				date = moment().subtract(1, 'day').toISOString();
-				break;
-		}
-
         this.setState({
 			query: '',
 			formExpanded: false
         });
 		this.adjustInputHeight();
-        this.props.onSubmit(trimmed, date);
+        this.props.onSubmit(trimmed, dateFilter);
     }
 
     handleQueryChange(event) {
@@ -154,9 +141,9 @@ class SearchBox extends React.Component<Props, State> {
 		});
 	}
 
-	handleDateFilterChange(event: FormEvent<HTMLInputElement>) {
+	handleDateFilterChange(date: string) {
     	this.setState({
-			dateFilter: event.currentTarget.value
+			dateFilter: date
 		});
 	}
 
@@ -228,23 +215,7 @@ class SearchBox extends React.Component<Props, State> {
 
 							{formExpanded && (
 								<div className={styles.dates}>
-									<h3 className={styles.datesTitle}>Maximum age</h3>
-									<label className={styles.dateLabel}>
-										<input type="radio" name="maxAge" value="" className={styles.dateRadio} checked={dateFilter === ''} onChange={this.handleDateFilterChange.bind(this)}/>
-										<span>All</span>
-									</label>
-									<label className={styles.dateLabel}>
-										<input type="radio" name="maxAge" value="1month" className={styles.dateRadio} checked={dateFilter === '1month'} onChange={this.handleDateFilterChange.bind(this)}/>
-										<span>1 Month</span>
-									</label>
-									<label className={styles.dateLabel}>
-										<input type="radio" name="maxAge" value="1week" className={styles.dateRadio} checked={dateFilter === '1week'} onChange={this.handleDateFilterChange.bind(this)}/>
-										<span>1 Week</span>
-									</label>
-									<label className={styles.dateLabel}>
-										<input type="radio" name="maxAge" value="1day" className={styles.dateRadio} checked={dateFilter === '1day'} onChange={this.handleDateFilterChange.bind(this)}/>
-										<span>1 Day</span>
-									</label>
+									<DateFilter date={dateFilter} onChange={this.handleDateFilterChange.bind(this)}/>
 								</div>
 							)}
 

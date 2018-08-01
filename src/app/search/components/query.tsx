@@ -13,13 +13,14 @@ import {
 	activateLiveDatasource,
 	confirmItems,
 	deactivateLiveDatasource,
-	deleteSearch, dismissItemsToConfirm,
+	deleteSearch, dismissItemsToConfirm, editDateFilter,
 	editSearch,
 	pauseSearch,
 	resumeSearch
 } from '../searchActions';
 import ColorPicker from '../../ui/components/colorPicker/colorPicker';
 import { getSelectedNodes } from '../../graph/graphSelectors';
+import DateFilter from './dateFilter/dateFilter';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -177,6 +178,12 @@ class Query extends React.Component<Props, State> {
 		const { search, dispatch } = this.props;
 
 		dispatch(error(null, search.requestId));
+	}
+
+	handleDateFilterChange(date: string) {
+    	const { search, dispatch } = this.props;
+
+    	dispatch(editDateFilter(search, date));
 	}
 
     render() {
@@ -383,7 +390,10 @@ class Query extends React.Component<Props, State> {
 				</div>
 
 				{isColorPickerOpen && (
-					<div className="colorPickerWrapper">
+					<div className="editQuery">
+						{search.advancedQuery.length > 0 && (
+							<DateFilter date={search.advancedQuery[0].selectedValue} onChange={this.handleDateFilterChange.bind(this)}/>
+						)}
 						<ColorPicker selected={search.color} onChange={this.onColorChange.bind(this)}/>
 					</div>
 				)}

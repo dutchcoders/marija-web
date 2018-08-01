@@ -17,7 +17,7 @@ import {
 	SEARCH_REQUEST
 } from '../search/searchConstants';
 import {
-	DEFAULT_DISPLAY_NODES_PER_SEARCH, DONT_GROUP_NODE,
+	DEFAULT_DISPLAY_NODES_PER_SEARCH, DELETE_SEARCH_NODES, DONT_GROUP_NODE,
 	FIELD_NODES_HIGHLIGHT,
 	GRAPH_WORKER_OUTPUT,
 	NODE_UPDATE,
@@ -115,6 +115,17 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 				deletedNodeIds
 			};
         }
+
+		case DELETE_SEARCH_NODES: {
+			const {nodes, links} = removeNodesAndLinks(state.nodes, state.links, action.payload.searchId);
+
+			return {
+				...state,
+				nodes,
+				links
+			};
+		}
+
         case SEARCH_DELETE: {
             const toDelete: Search = action.payload.search;
             const searches = state.searches.filter((search: Search) =>
@@ -306,8 +317,12 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 paused: false,
                 datasources: datasources,
                 searchId: uniqueId(),
-				error: null
+				error: null,
             };
+
+            if (action.advancedQuery) {
+            	search.advancedQuery = action.advancedQuery;
+			}
 
             searches.push(search);
 

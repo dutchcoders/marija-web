@@ -8,7 +8,7 @@ import { Datasource } from '../datasources/interfaces/datasource';
 import { Node } from '../graph/interfaces/node';
 import { Item } from '../graph/interfaces/item';
 import { AppState } from '../main/interfaces/appState';
-import { Search } from './interfaces/search';
+import { AdvancedQuery, Search } from './interfaces/search';
 import {
 	ACTIVATE_LIVE_DATASOURCE,
 	ADD_LIVE_DATASOURCE_SEARCH,
@@ -29,11 +29,18 @@ import Url from '../main/helpers/url';
 import {
 	DEFAULT_DISPLAY_NODES_PER_SEARCH
 } from '../graph/graphConstants';
+import * as moment from 'moment';
+import { deleteNodes, deleteSearchNodes } from '../graph/graphActions';
 
-interface AdvancedQuery {
-	field: string;
-	operator: '>=';
-	value: string;
+function getMomentForDateFilter(selectedValue: string): string {
+	switch (selectedValue) {
+		case '1month':
+			return moment().subtract(1, 'month').toISOString();
+		case '1week':
+			return moment().subtract(1, 'week').toISOString();
+		case '1day':
+			return moment().subtract(1, 'day').toISOString();
+	}
 }
 
 export function searchRequest(query: string, dateFilter: string = null) {
@@ -48,6 +55,22 @@ export function searchRequest(query: string, dateFilter: string = null) {
 
 		Url.addQuery(query);
 
+		const advancedQuery: AdvancedQuery[] = [];
+
+		if (dateFilter !== null) {
+			datasources.forEach(datasource => {
+				if (datasource.dateFieldPath) {
+					advancedQuery.push({
+						id: uniqueId(),
+						field: datasource.dateFieldPath,
+						value: getMomentForDateFilter(dateFilter),
+						selectedValue: dateFilter,
+						operator: '>='
+					});
+				}
+			})
+		}
+
 		dispatch({
 			type: SEARCH_REQUEST,
 			receivedAt: Date.now(),
@@ -55,7 +78,8 @@ export function searchRequest(query: string, dateFilter: string = null) {
 			aroundNodeId: null,
 			displayNodes: DEFAULT_DISPLAY_NODES_PER_SEARCH,
 			datasourceIds: datasources.map(datasource => datasource.id),
-			requestId: requestId
+			requestId: requestId,
+			advancedQuery: advancedQuery
 		});
 
 		const clientSide = datasources.filter(datasource => datasource.isCustom);
@@ -67,20 +91,6 @@ export function searchRequest(query: string, dateFilter: string = null) {
 		const serverSide = datasources.filter(datasource => !datasource.isCustom);
 
 		if (serverSide.length > 0) {
-			const advancedQuery: AdvancedQuery[] = [];
-
-			if (dateFilter !== null) {
-				serverSide.forEach(datasource => {
-					if (datasource.dateFieldPath) {
-						advancedQuery.push({
-							field: datasource.dateFieldPath,
-							value: dateFilter,
-							operator: '>='
-						});
-					}
-				})
-			}
-
 			dispatch(webSocketSend({
 				type: SEARCH_REQUEST,
 				datasources: serverSide.map(datasource => datasource.id),
@@ -91,6 +101,44 @@ export function searchRequest(query: string, dateFilter: string = null) {
 			}));
 		}
     };
+}
+
+export function editDateFilter(search: Search, selectedValue: string) {
+	return (dispatch, getState) => {
+		dispatch(deleteSearchNodes(search.searchId));
+
+		const requestId = uniqueId();
+
+		const newSearch: Search = {
+			...search,
+			requestId,
+		};
+
+		if (selectedValue === '') {
+			newSearch.advancedQuery = [];
+		} else {
+			newSearch.advancedQuery = [{
+				...search.advancedQuery[0],
+				selectedValue,
+				value: getMomentForDateFilter(selectedValue)
+			}];
+		}
+
+		dispatch(editSearch(search.searchId, newSearch));
+
+		const state: AppState = getState();
+		const fields = getSelectedFields(state);
+		const fieldPaths: string[] = fields.map(field => field.path);
+
+		dispatch(webSocketSend({
+			type: SEARCH_REQUEST,
+			datasources: newSearch.datasources,
+			fields: fieldPaths,
+			query: newSearch.q,
+			'request-id': requestId,
+			advancedQuery: newSearch.advancedQuery
+		}));
+	};
 }
 
 export function searchAround(node: Node) {

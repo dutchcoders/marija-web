@@ -1,4 +1,5 @@
 import {
+	DELETE_SEARCH_NODES,
 	DONT_GROUP_NODE,
 	GRAPH_WORKER_OUTPUT,
 	NODE_UPDATE,
@@ -278,4 +279,13 @@ export function setFilterNodesBy(query: string) {
 			query
 		}
 	};
+}
+
+export function deleteSearchNodes(searchId: string) {
+	return dispatchAndRebuildGraph({
+		type: DELETE_SEARCH_NODES,
+		payload: {
+			searchId
+		}
+	});
 }
