@@ -17,7 +17,7 @@ import {
 	SEARCH_REQUEST
 } from '../search/searchConstants';
 import {
-	DEFAULT_DISPLAY_NODES_PER_SEARCH, DELETE_SEARCH_NODES, DONT_GROUP_NODE,
+	DEFAULT_DISPLAY_ITEMS_PER_SEARCH, DELETE_SEARCH_NODES, DONT_GROUP_NODE,
 	FIELD_NODES_HIGHLIGHT,
 	GRAPH_WORKER_OUTPUT,
 	NODE_UPDATE,
@@ -26,8 +26,6 @@ import {
 	NODES_HIGHLIGHT,
 	NODES_SELECT,
 	NODES_TOOLTIP,
-	NORMALIZATION_ADD,
-	NORMALIZATION_DELETE,
 	SELECT_FIELD_NODES,
 	SELECTION_CLEAR,
 	SET_AUTOMATICALLY_CREATE_CONNECTORS,
@@ -47,13 +45,10 @@ import {
 import applyVia from './helpers/applyVia';
 import {deselectNodes} from './helpers/deselectNodes';
 import markHighlightedNodes from './helpers/markHighlightedNodes';
-import markLinksForDisplay from './helpers/markLinksForDisplay';
-import markNodesForDisplay from './helpers/markNodesForDisplay';
 import removeNodesAndLinks from './helpers/removeNodesAndLinks';
 import removeVia from './helpers/removeVia';
 import {selectNodes} from './helpers/selectNodes';
 import {Node} from './interfaces/node';
-import {Normalization} from './interfaces/normalization';
 import {Via} from './interfaces/via';
 import {GraphState} from "./interfaces/graphState";
 import { markPerformance } from '../main/helpers/performance';
@@ -70,9 +65,9 @@ import {
 	DELETE_FROM_CONNECTOR
 } from '../fields/fieldsConstants';
 import removeDeadLinks from './helpers/removeDeadLinks';
+import { markItemsForDisplay } from './helpers/markItemsForDisplay';
 
 export const defaultGraphState: GraphState = {
-    normalizations: [],
     items: [],
     searches: [],
     nodes: [], // all nodes
@@ -310,7 +305,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 q: action.query,
                 color: color,
                 total: 0,
-                displayNodes: action.displayNodes,
+                displayItems: action.displayItems,
 				itemsToConfirm: [],
                 requestId: action.requestId,
                 completed: false,
@@ -438,9 +433,8 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 searches: searches
             };
 
-            if (search.displayNodes !== newSearch.displayNodes) {
-                updates.nodes = markNodesForDisplay(state.nodes, searches);
-                updates.links = markLinksForDisplay(updates.nodes, state.links);
+            if (search.displayItems !== newSearch.displayItems) {
+                updates.items = markItemsForDisplay(state.items, searches);
             }
 
             return Object.assign({}, state, updates);
@@ -487,7 +481,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
                 q: action.payload.datasource.name,
                 color: getQueryColor(state.searches),
                 total: 0,
-                displayNodes: DEFAULT_DISPLAY_NODES_PER_SEARCH,
+                displayItems: DEFAULT_DISPLAY_ITEMS_PER_SEARCH,
 				itemsToConfirm: [],
                 requestId: uniqueId(),
                 completed: false,

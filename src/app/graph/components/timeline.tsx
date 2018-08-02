@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {connect, Dispatch} from 'react-redux';
 import Dimensions from 'react-dimensions';
-import {Normalization} from "../interfaces/normalization";
 import {Field} from "../../fields/interfaces/field";
 import {Item} from "../interfaces/item";
 import {Node} from "../interfaces/node";
@@ -14,7 +13,7 @@ import {
 import {BarChart, XAxis, YAxis, Bar, Tooltip} from 'recharts';
 import {Search} from "../../search/interfaces/search";
 import {
-	getNodesForDisplay, getTimelineGroups,
+	getTimelineGroups,
 	TimelineGroups
 } from "../graphSelectors";
 import {AppState} from "../../main/interfaces/appState";
@@ -26,7 +25,6 @@ import { getSelectedDateFields } from '../../fields/fieldsSelectors';
 
 interface Props {
 	onPaneEvent?: EventEmitter;
-    normalizations: Normalization[];
     availableFields: Field[];
     dateFields: Field[];
     items: Item[];
@@ -350,8 +348,7 @@ const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
         availableFields: state.fields.availableFields,
-        nodes: getNodesForDisplay(state),
-        normalizations: state.graph.normalizations,
+        nodes: state.graph.nodes,
         items: state.graph.items,
         searches: state.graph.searches,
 		timelineGrouping: state.graph.timelineGrouping,

@@ -6,8 +6,6 @@ import { deselectNodes, nodesSelect, showTooltip } from '../../graphActions';
 import Icon from '../../../ui/components/icon';
 import * as styles from './selectedNode.scss';
 import {
-	getLinksForDisplay,
-	getNodesForDisplay,
 	getSelectedNodes
 } from '../../graphSelectors';
 import NodeIcon from '../nodeIcon/nodeIcon';
@@ -205,8 +203,8 @@ const select = (state: AppState, ownProps) => ({
 	...ownProps,
 	searches: state.graph.searches,
 	selectedNodes: getSelectedNodes(state),
-	nodesForDisplay: getNodesForDisplay(state),
-	linksForDisplay: getLinksForDisplay(state)
+	nodesForDisplay: state.graph.nodes,
+	linksForDisplay: state.graph.links
 });
 
 export default connect(select)(SelectedNode);

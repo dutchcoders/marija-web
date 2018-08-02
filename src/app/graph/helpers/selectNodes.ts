@@ -6,7 +6,6 @@ export function selectNodes(nodesToSelect: Node[], allNodes: Node[]): Node[] {
     nodesToSelect.forEach(node => {
         const index = nodes.findIndex(searchNode =>
             searchNode.id === node.id
-            && searchNode.display
         );
 
         if (index === -1) {

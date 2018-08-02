@@ -16,7 +16,6 @@ import getDirectlyRelatedNodes from '../../helpers/getDirectlyRelatedNodes';
 import getRelatedNodes from '../../helpers/getRelatedNodes';
 import { Link } from '../../interfaces/link';
 import { Node } from '../../interfaces/node';
-import { Normalization } from '../../interfaces/normalization';
 import { getSelectedNodes } from '../../graphSelectors';
 import SelectedNode from  '../selectedNode/selectedNode';
 
@@ -26,7 +25,6 @@ interface Props {
     nodes: Node[];
     selectedNodes: Node[];
     links: Link[];
-    normalizations: Normalization[];
     datasources: Datasource[];
 	onResetPosition: (nodes: Node[]) => void
 }
@@ -205,7 +203,6 @@ function select(state: AppState) {
         selectedNodes: getSelectedNodes(state),
         links: state.graph.links,
         searches: state.graph.searches,
-        normalizations: state.graph.normalizations,
         datasources: state.datasources.datasources
     };
 }

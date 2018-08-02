@@ -11,7 +11,7 @@ test('' , () => {});
 // import {Search} from "../../search/interfaces/search";
 // import {Link} from "../interfaces/link";
 // import { getNumericHash } from './getNumericHash';
-// import { DEFAULT_DISPLAY_NODES_PER_SEARCH } from '../graphConstants';
+// import { DEFAULT_DISPLAY_ITEMS_PER_SEARCH } from '../graphConstants';
 //
 //
 // const getItem = (data, query = 'query', id = uniqueId()) => {
@@ -31,7 +31,7 @@ test('' , () => {});
 //
 // const getSearch = (query, liveDatasource = null, aroundNodeId = null) => {
 //     return {
-//         displayNodes: DEFAULT_DISPLAY_NODES_PER_SEARCH,
+//         displayNodes: DEFAULT_DISPLAY_ITEMS_PER_SEARCH,
 //         aroundNodeId: aroundNodeId,
 //         q: query,
 //         liveDatasource: liveDatasource,

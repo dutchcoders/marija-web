@@ -4,7 +4,6 @@ export interface Search {
     aroundNodeId: null|number;
     color: string;
     completed: boolean;
-    displayNodes: number;
     itemsToConfirm: Item[];
     q: string;
     requestId: string;
@@ -15,6 +14,7 @@ export interface Search {
     searchId: string;
     error: string;
     advancedQuery?: AdvancedQuery[];
+    displayItems: number;
 }
 
 export interface AdvancedQuery {

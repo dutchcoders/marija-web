@@ -8,9 +8,6 @@ import { Search } from '../interfaces/search';
 import Query from './query';
 import * as styles from './searchBox.scss';
 import { getActiveNonLiveDatasources } from '../../datasources/datasourcesSelectors';
-import { getNodesForDisplay } from '../../graph/graphSelectors';
-import { FormEvent } from 'react';
-import * as moment from 'moment';
 import DateFilter from './dateFilter/dateFilter';
 
 interface Props {
@@ -320,7 +317,7 @@ const select = (state: AppState, ownProps) => {
         ...ownProps,
         searches: state.graph.searches,
         datasources: getActiveNonLiveDatasources(state),
-        nodes: getNodesForDisplay(state),
+        nodes: state.graph.nodes,
 		experimentalFeatures: state.ui.experimentalFeatures,
 		queryHistory: state.graph.queryHistory
     };

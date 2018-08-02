@@ -1,4 +1,3 @@
-import {Normalization} from "./normalization";
 import {Item} from "./item";
 import {Search} from "../../search/interfaces/search";
 import {Node} from "./node";
@@ -13,7 +12,6 @@ export interface Note {
 }
 
 export interface GraphState {
-    normalizations: Normalization[];
     items: Item[];
     searches: Search[];
     nodes: Node[];

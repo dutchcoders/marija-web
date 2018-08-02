@@ -6,16 +6,12 @@ import { connect, Dispatch } from 'react-redux';
 import { Datasource } from '../../../datasources/interfaces/datasource';
 import Fields from '../../../fields/fields';
 import {
-	normalizationAdd,
-	normalizationDelete,
 	setFilterBoringNodes, setFilterSecondaryQueries, setGroupNodes,
 	viaAdd,
 	viaDelete
 } from '../../../graph/graphActions';
-import { Normalization } from '../../../graph/interfaces/normalization';
 import { Via } from '../../../graph/interfaces/via';
 import Icon from '../../../ui/components/icon';
-import Url from '../../helpers/url';
 import { AppState } from '../../interfaces/appState';
 import { exportData, importData } from '../../mainActions';
 import { FormEvent } from 'react';
@@ -36,7 +32,6 @@ interface State {
 interface Props {
     dispatch: Dispatch<any>;
     fields: any;
-    normalizations: Normalization[];
     via: Via[];
     datasources: Datasource[];
     fieldsFetching: boolean;
@@ -55,31 +50,6 @@ class Configuration extends React.Component<Props, State> {
         selectedTo: '',
         viaError: null,
     };
-
-    handleAddNormalization(e) {
-        e.preventDefault();
-
-        const { regex, replaceWith  } = this.refs;
-        const { dispatch } = this.props;
-
-        if (regex.value === '') {
-            return;
-        }
-
-        try {
-            new RegExp(regex.value, "i");
-        } catch (e) {
-            this.setState({'normalization_error': e.message});
-            return;
-        }
-
-        this.setState({'normalization_error': null});
-
-        dispatch(normalizationAdd({
-            regex: regex.value,
-            replaceWith: replaceWith.value
-        }));
-    }
 
     /**
      * Check if the via isn't also one of the endpoints, that wouldnt work.
@@ -168,59 +138,6 @@ class Configuration extends React.Component<Props, State> {
 
         // Url.removeVia(viaData);
         dispatch(viaDelete(viaData));
-    }
-
-    handleDeleteNormalization(normalization) {
-        const { dispatch } = this.props;
-        dispatch(normalizationDelete(normalization));
-    }
-
-    renderNormalizations(normalizations: Normalization[]) {
-        const { normalization_error } = this.state;
-        const regexMaxDisplayLength = 100;
-
-        const options = map(normalizations, (normalization) => {
-            return (
-                <li key={normalization.replaceWith}>
-                    <span>
-                       Regex '<b>{normalization.regex.substring(0, regexMaxDisplayLength)}</b>' will be replaced with value '<b>{normalization.replaceWith}</b>'.
-                    </span>
-                    <Icon onClick={() => this.handleDeleteNormalization(normalization)} name="ion-ios-trash-outline"/>
-                </li>
-            );
-        });
-
-        let no_normalizations = null;
-
-        if (normalizations.length == 0) {
-            no_normalizations = <div className='text-warning'>No normalizations configured.</div>;
-        }
-
-        return (
-            <div>
-                <ul>{ options }</ul>
-                { no_normalizations }
-                <form onSubmit={this.handleAddNormalization.bind(this)}>
-                    <div className="row">
-                        <span className='text-danger'>{ normalization_error }</span>
-                    </div>
-                    <div className="row">
-                        <div className="col-xs-10">
-                            <input className="form-control" type="text" ref="regex" placeholder="regex"/>
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-xs-10">
-                            <input className="form-control" type="text" ref="replaceWith" placeholder="replace value"/>
-                        </div>
-                        <div className="col-xs-2">
-                            <Icon onClick={this.handleAddNormalization.bind(this)}
-                                  name="ion-ios-plus add"/>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        );
     }
 
     handleFromChange(event) {
@@ -388,7 +305,7 @@ class Configuration extends React.Component<Props, State> {
     }
 
     render() {
-        const { normalizations, filterBoringNodes, filterSecondaryQueries, experimentalFeatures, groupNodes } = this.props;
+        const { filterBoringNodes, filterSecondaryQueries, experimentalFeatures, groupNodes } = this.props;
 
         return (
             <div>
@@ -452,7 +369,6 @@ class Configuration extends React.Component<Props, State> {
 function select(state: AppState, ownProps) {
     return {
 		...ownProps,
-        normalizations: state.graph.normalizations,
         via: state.graph.via,
         datasources: state.datasources.datasources,
         fieldsFetching: state.fields.fieldsFetching,

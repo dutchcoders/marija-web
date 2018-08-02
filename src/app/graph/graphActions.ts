@@ -8,8 +8,6 @@ import {
 	NODES_HIGHLIGHT,
 	NODES_SELECT,
 	NODES_TOOLTIP,
-	NORMALIZATION_ADD,
-	NORMALIZATION_DELETE,
 	REBUILD_GRAPH,
 	SELECT_FIELD_NODES,
 	SELECTION_CLEAR,
@@ -133,22 +131,6 @@ export function viaDelete(via) {
         type: VIA_DELETE,
         receivedAt: Date.now(),
         via: via
-    };
-}
-
-export function normalizationAdd(normalization) {
-    return {
-        type: NORMALIZATION_ADD,
-        receivedAt: Date.now(),
-        normalization: normalization
-    };
-}
-
-export function normalizationDelete(normalization) {
-    return {
-        type: NORMALIZATION_DELETE,
-        receivedAt: Date.now(),
-        normalization: normalization
     };
 }
 

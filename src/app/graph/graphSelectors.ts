@@ -16,20 +16,6 @@ import { Field } from '../fields/interfaces/field';
 import { getSelectedDateFields } from '../fields/fieldsSelectors';
 import { getValueInfo } from './helpers/getValueInfo';
 
-export const getNodesForDisplay = createSelector(
-    (state: AppState) => state.graph.nodes,
-    (nodes: Node[]) => nodes.filter(node =>
-		node.display
-	)
-);
-
-export const getLinksForDisplay = createSelector(
-    (state: AppState) => state.graph.links,
-    (links: Link[]) => links.filter(link =>
-		link.display
-	)
-);
-
 export const getSelectedNodes = createSelector(
     (state: AppState) => state.graph.nodes,
     (nodes: Node[]) => nodes.filter(node => node.selected)
@@ -67,7 +53,7 @@ const getDate = (node: Node, items: Item[], dateFields: Field[]): Moment | undef
 
 export const getTimelineGroups = createSelector(
     (state: AppState) => state.graph.timelineGrouping,
-    (state: AppState) => getNodesForDisplay(state),
+    (state: AppState) => state.graph.nodes,
     (state: AppState) => state.graph.items,
 	(state: AppState) => getSelectedDateFields(state),
 
@@ -169,7 +155,7 @@ export interface GroupedNodes {
 }
 
 export const getNodesGroupedByConnector = createSelector(
-	(state: AppState) => getNodesForDisplay(state),
+	(state: AppState) => state.graph.nodes,
 
 	(nodes: Node[]) => {
 		let connectorNodes = nodes.filter(node => node.type === 'connector');
@@ -179,7 +165,7 @@ export const getNodesGroupedByConnector = createSelector(
 );
 
 export const getNodesGroupedByDatasource = createSelector(
-	(state: AppState) => getNodesForDisplay(state),
+	(state: AppState) => state.graph.nodes,
 
 	(nodes: Node[]) => {
 		let connectorNodes = nodes.filter(node => node.type === 'item');
@@ -258,7 +244,7 @@ export const selectItemFields = createSelector(
 );
 
 export const selectFilteredNodes = createSelector(
-	(state: AppState) => getNodesForDisplay(state),
+	(state: AppState) => state.graph.nodes,
 	(state: AppState) => state.graph.filterNodesBy,
 
 	(nodes, filterNodesBy): Node[] => {
@@ -287,7 +273,7 @@ export const selectFilteredNodes = createSelector(
 );
 
 export const selectNodesWithFilterHighlight = createSelector(
-	(state: AppState) => getNodesForDisplay(state),
+	(state: AppState) => state.graph.nodes,
 	(state: AppState) => selectFilteredNodes(state),
 
 	(nodes, filteredNodes): Node[] => {
@@ -306,4 +292,14 @@ export const selectNodesWithFilterHighlight = createSelector(
 
 		return nodes;
 	}
+);
+
+export const selectItemsBySearchId = createSelector(
+	(state: AppState, searchId: string) => state.graph.items,
+	(state: AppState, searchId: string) => searchId,
+
+	(items, searchId): Item[] =>
+		items.filter(item =>
+			item.searchId === searchId
+		)
 );

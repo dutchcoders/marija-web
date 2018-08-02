@@ -27,13 +27,6 @@ export interface Node {
     highlightLevel: number | null;
 
     /**
-     * Per search a user can choose the amount of nodes that he wants to be
-     * displayed. When the amount of available nodes exceeds this chosen amount,
-     * this can cause the node to be hidden.
-     */
-    display: boolean;
-
-    /**
      * Whether user marked this node as important.
      */
     important?: boolean;

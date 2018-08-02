@@ -40,6 +40,7 @@ interface FieldStats {
 }
 
 export function getSuggestedConnectors(items: Item[], fields: Field[], existingConnectors: Connector[], deletedConnectorFields: string[]): Connector[] {
+	items = items.filter(item => item.display);
 	existingConnectors = existingConnectors.concat([]);
 
 	markPerformance('suggestedStart');

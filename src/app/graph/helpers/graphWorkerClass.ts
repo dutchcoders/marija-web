@@ -1,9 +1,7 @@
 import removeDeadLinks from './removeDeadLinks';
 import filterComponentsByQueries from './filterComponentsBySearchIds';
 import getConnectedComponents from './getConnectedComponents';
-import markNodesForDisplay from './markNodesForDisplay';
 import getNodesAndLinks from "./getNodesAndLinks";
-import markLinksForDisplay from "./markLinksForDisplay";
 import filterBoringComponents from "./filterBoringComponents";
 import {LIVE_RECEIVE} from "../../search/searchConstants";
 import {Search} from "../../search/interfaces/search";
@@ -149,9 +147,6 @@ export default class GraphWorkerClass {
 			result.nodes = grouped.nodes;
 			result.links = grouped.links;
 		}
-
-        result.nodes = markNodesForDisplay(result.nodes, payload.searches || []);
-        result.links = markLinksForDisplay(result.nodes, result.links);
 
         // Sort on line thickness for performance improvement
         // The renderer is faster when it doesnt need to switch line styles so often

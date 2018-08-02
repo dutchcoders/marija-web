@@ -27,10 +27,15 @@ import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 import { getSelectedFields } from '../fields/fieldsSelectors';
 import Url from '../main/helpers/url';
 import {
-	DEFAULT_DISPLAY_NODES_PER_SEARCH
+	DEFAULT_DISPLAY_ITEMS_PER_SEARCH
 } from '../graph/graphConstants';
 import * as moment from 'moment';
-import { deleteNodes, deleteSearchNodes } from '../graph/graphActions';
+import {
+	deleteNodes,
+	deleteSearchNodes,
+	rebuildGraph
+} from '../graph/graphActions';
+import { markItemsForDisplay } from '../graph/helpers/markItemsForDisplay';
 
 function getMomentForDateFilter(selectedValue: string): string {
 	switch (selectedValue) {
@@ -76,7 +81,7 @@ export function searchRequest(query: string, dateFilter: string = null) {
 			receivedAt: Date.now(),
 			query: query,
 			aroundNodeId: null,
-			displayNodes: DEFAULT_DISPLAY_NODES_PER_SEARCH,
+			displayItems: DEFAULT_DISPLAY_ITEMS_PER_SEARCH,
 			datasourceIds: datasources.map(datasource => datasource.id),
 			requestId: requestId,
 			advancedQuery: advancedQuery
@@ -174,7 +179,7 @@ export function searchAround(node: Node) {
 			receivedAt: Date.now(),
 			query: query,
 			aroundNodeId: node.id,
-			displayNodes: DEFAULT_DISPLAY_NODES_PER_SEARCH,
+			displayItems: DEFAULT_DISPLAY_ITEMS_PER_SEARCH,
 			datasourceIds: datasourceIds,
 			requestId: requestId
 		});
@@ -197,6 +202,11 @@ export function searchReceive(items: Item[], requestId: string, hasConfirmed: bo
 		items.forEach(item => {
 			item.searchId = search.searchId;
 		});
+
+        const allMarkedItems = markItemsForDisplay(state.graph.items.concat(items), [search]);
+        const ids = new Map<string, true>();
+        items.forEach(item => ids.set(item.id, true));
+        items = allMarkedItems.filter(item => ids.has(item.id));
 
         if (!hasConfirmed && items.length > ITEMS_NEED_CONFIRMATION_THRESHOLD) {
         	dispatch({
@@ -268,12 +278,18 @@ export function deleteSearch(search: Search) {
 }
 
 export function editSearch(searchId: string, opts) {
-    return {
-        type: SEARCH_EDIT,
-        receivedAt: Date.now(),
-        searchId: searchId,
-        opts: opts
-    };
+	return (dispatch) => {
+		dispatch({
+			type: SEARCH_EDIT,
+			receivedAt: Date.now(),
+			searchId: searchId,
+			opts: opts
+		});
+
+		if (typeof opts.displayItems !== 'undefined') {
+			dispatch(rebuildGraph());
+		}
+	};
 }
 
 export function pauseSearch(search: Search) {
@@ -378,7 +394,7 @@ export function showAllItemsOfCustomDatasource(datasource: Datasource) {
 			receivedAt: Date.now(),
 			query: 'Show all',
 			aroundNodeId: null,
-			displayNodes: DEFAULT_DISPLAY_NODES_PER_SEARCH,
+			displayItems: DEFAULT_DISPLAY_ITEMS_PER_SEARCH,
 			datasourceIds: [datasource.id],
 			requestId: requestId
 		});

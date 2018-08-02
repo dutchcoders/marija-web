@@ -6,7 +6,6 @@ import { connect, Dispatch } from 'react-redux';
 import { Field } from '../fields/interfaces/field';
 import { getSelectedNodes } from '../graph/graphSelectors';
 import { Node } from '../graph/interfaces/node';
-import { Normalization } from '../graph/interfaces/normalization';
 import { Item } from '../graph/interfaces/item';
 import { AppState } from '../main/interfaces/appState';
 import { Search } from '../search/interfaces/search';
@@ -30,7 +29,6 @@ interface Props {
     columns: Column[];
     sortColumn: Column;
     sortType: SortType;
-    normalizations: Normalization[];
     searches: Search[];
     availableFields: Field[];
     exportEvents: EventEmitter;
@@ -319,7 +317,6 @@ class Table extends React.Component<Props, State> {
 function select(state: AppState) {
     return {
         selectedNodes: getSelectedNodes(state),
-        normalizations: state.graph.normalizations,
         items: selectSortedItems(state),
         searches: state.graph.searches,
         fields: getSelectedFields(state),

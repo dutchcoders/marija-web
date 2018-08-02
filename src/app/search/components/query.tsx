@@ -19,14 +19,19 @@ import {
 	resumeSearch
 } from '../searchActions';
 import ColorPicker from '../../ui/components/colorPicker/colorPicker';
-import { getSelectedNodes } from '../../graph/graphSelectors';
+import {
+	getSelectedNodes,
+	selectItemsBySearchId
+} from '../../graph/graphSelectors';
 import DateFilter from './dateFilter/dateFilter';
+import { Item } from '../../graph/interfaces/item';
 
 interface Props {
     dispatch: Dispatch<any>;
     search: Search;
     nodes: Node[];
     selectedNodes: Node[];
+    items: Item[];
 }
 
 interface State {
@@ -65,25 +70,25 @@ class Query extends React.Component<Props, State> {
 
     handleDisplayMore() {
         const { dispatch, search } = this.props;
-        const nodes = this.countNodes();
-        const newNumber = search.displayNodes + 100;
+        const nodes = this.countItems();
+        const newNumber = search.displayItems + 100;
 
         if (newNumber > Math.ceil(nodes / 100) * 100) {
             return;
         }
 
         dispatch(editSearch(search.searchId, {
-            displayNodes: newNumber
+            displayItems: newNumber
         }));
     }
 
     handleDisplayLess() {
         const { dispatch, search } = this.props;
-        const displayNodes = this.countDisplayNodes();
-        let newNumber = search.displayNodes - 100;
+        const displayItems = this.countDisplayItems();
+        let newNumber = search.displayItems - 100;
 
-        if (displayNodes < newNumber) {
-            newNumber = Math.floor(displayNodes/ 100) * 100;
+        if (displayItems <= newNumber) {
+            newNumber = Math.floor(displayItems/ 100) * 100 - 100;
         }
 
         if (newNumber < 0) {
@@ -91,20 +96,20 @@ class Query extends React.Component<Props, State> {
         }
 
         dispatch(editSearch(search.searchId, {
-            displayNodes: newNumber
+            displayItems: newNumber
         }));
     }
 
-    countNodes() {
-        const { nodes, search } = this.props;
+    countItems() {
+        const { items } = this.props;
 
-        return nodes.filter(node => node.searchIds.indexOf(search.searchId) !== -1).length;
+        return items.length;
     }
 
-    countDisplayNodes() {
-        const { nodes, search } = this.props;
+    countDisplayItems() {
+        const { items } = this.props;
 
-        return nodes.filter(node => node.display && node.searchIds.indexOf(search.searchId) !== -1).length;
+        return items.filter(item => item.display).length;
     }
 
     selectNodes() {
@@ -190,10 +195,10 @@ class Query extends React.Component<Props, State> {
         const { search } = this.props;
         const { isColorPickerOpen } = this.state;
 
-        const displayNodes: number = this.countDisplayNodes();
-        const nodes: number = this.countNodes();
-        const lessClass = 'ion ion-ios-minus ' + (displayNodes <= 0 ? 'disabled' : '');
-        const moreClass = 'ion ion-ios-plus ' + (displayNodes === nodes ? 'disabled' : '');
+        const displayItems: number = this.countDisplayItems();
+        const items: number = this.countItems();
+        const lessClass = 'ion ion-ios-minus ' + (displayItems <= 0 ? 'disabled' : '');
+        const moreClass = 'ion ion-ios-plus ' + (displayItems === items ? 'disabled' : '');
         const loading: boolean = !search.completed && !search.paused;
 
         let count = null;
@@ -201,7 +206,7 @@ class Query extends React.Component<Props, State> {
         if (!search.liveDatasource || !search.paused) {
             count = (
                 <span className="count">
-                    {displayNodes}/{nodes}
+                    {displayItems}/{items}
                 </span>
             );
         }
@@ -255,7 +260,7 @@ class Query extends React.Component<Props, State> {
             );
         }
 
-        if ((!search.liveDatasource || !search.paused || nodes > 0) && !search.error) {
+        if ((!search.liveDatasource || !search.paused || items > 0) && !search.error) {
             actions.push(
                 <Tooltip
                     key="less"
@@ -323,7 +328,7 @@ class Query extends React.Component<Props, State> {
             );
         }
 
-        if (search.liveDatasource && nodes > 0) {
+        if (search.liveDatasource && items > 0) {
             actions.push(
                 <Tooltip
                     key="delete"
@@ -420,7 +425,8 @@ class Query extends React.Component<Props, State> {
 
 const select = (state, ownProps) => ({
 	...ownProps,
-	selectedNodes: getSelectedNodes(state)
+	selectedNodes: getSelectedNodes(state),
+	items: selectItemsBySearchId(state, ownProps.search.searchId)
 });
 
 export default connect(select)(Query);

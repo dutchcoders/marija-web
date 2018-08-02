@@ -16,7 +16,6 @@ import {
     showContextMenu
 } from "../contextMenu/contextMenuActions";
 import {
-	getLinksForDisplay,
 	getSelectedNodes, selectNodesWithFilterHighlight
 } from "./graphSelectors";
 import {setFps} from "../stats/statsActions";
@@ -43,8 +42,8 @@ interface TextureMap {
 
 interface Props {
     searches: Search[];
-    nodesForDisplay: Node[];
-    linksForDisplay: Link[];
+    nodes: Node[];
+    links: Link[];
     selectedNodes: Node[];
     zoomEvents: any;
     centerEvents: any;
@@ -244,7 +243,7 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
 	zoom() {
-		const { nodesForDisplay } = this.props;
+		const { nodes } = this.props;
 
 		const newK = this.transform.k;
 		this.tmpNodeSizeMultiplier = newK;
@@ -253,7 +252,7 @@ class Graph extends React.PureComponent<Props, State> {
 		clearTimeout(this.textureZoomDebouncer);
 
 		this.textureZoomDebouncer = setTimeout(() => {
-			this.preProcessTextures(nodesForDisplay, newK, this.props.searches, this.props.connectors, this.props.isMapActive)
+			this.preProcessTextures(nodes, newK, this.props.searches, this.props.connectors, this.props.isMapActive)
 				.then(() => {
 					this.tmpNodeSizeMultiplier = undefined;
 					this.nodeSizeMultiplier = newK;
@@ -604,10 +603,10 @@ class Graph extends React.PureComponent<Props, State> {
 
 	// The renderer is faster when it doesnt need to switch line styles so often
     linkStyleManager(link: Link, index: number) {
-    	const { linksForDisplay, isMapActive } = this.props;
+    	const { links, isMapActive } = this.props;
 
     	if (!isMapActive) {
-			const prevLink = linksForDisplay[index - 1];
+			const prevLink = links[index - 1];
 
 			if (!prevLink
 				|| (prevLink && link.color !== prevLink.color)
@@ -921,9 +920,9 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
     componentWillReceiveProps(nextProps: Props) {
-        const { searches, nodesForDisplay, linksForDisplay, showLabels, isMapActive, connectors } = this.props;
+        const { searches, nodes, links, showLabels, isMapActive, connectors } = this.props;
 
-        this.isHighlighting = typeof nextProps.nodesForDisplay.find(node =>
+        this.isHighlighting = typeof nextProps.nodes.find(node =>
 			node.highlightLevel !== null) !== 'undefined';
 
         if (nextProps.isMapActive && !isMapActive) {
@@ -935,39 +934,39 @@ class Graph extends React.PureComponent<Props, State> {
 			this.postWorkerMessage({
 				type: 'init'
 			});
-        	this.resetFixedNodePositions(nextProps.nodesForDisplay);
+        	this.resetFixedNodePositions(nextProps.nodes);
 		}
 
 		if (nextProps.isMapActive !== isMapActive) {
 			this.setWorkerAreaForces(nextProps.isMapActive);
 		}
 
-        if (nextProps.nodesForDisplay.filter(node => node.displayTooltip) !== this.getTooltipNodes()) {
+        if (nextProps.nodes.filter(node => node.displayTooltip) !== this.getTooltipNodes()) {
             this.renderedSince.lastTooltip = false;
         }
 
-		if (nextProps.nodesForDisplay !== nodesForDisplay
-			|| nextProps.linksForDisplay !== linksForDisplay
+		if (nextProps.nodes !== nodes
+			|| nextProps.links !== links
 			|| nextProps.searches !== searches
 			|| nextProps.connectors !== connectors
 			|| nextProps.isMapActive !== isMapActive) {
 
         	const sizeMultiplier = this.tmpNodeSizeMultiplier || this.nodeSizeMultiplier;
 
-			this.preProcessTextures(nextProps.nodesForDisplay, sizeMultiplier, nextProps.searches, nextProps.connectors, nextProps.isMapActive)
+			this.preProcessTextures(nextProps.nodes, sizeMultiplier, nextProps.searches, nextProps.connectors, nextProps.isMapActive)
 				.then(() => {
 					if (typeof this.tmpNodeSizeMultiplier !== 'undefined') {
 						this.nodeSizeMultiplier = this.tmpNodeSizeMultiplier;
 						this.tmpNodeSizeMultiplier = undefined;
 					}
 
-					this.updateNodeMap(nextProps.nodesForDisplay);
-					this.updateLinkMap(nextProps.linksForDisplay);
+					this.updateNodeMap(nextProps.nodes);
+					this.updateLinkMap(nextProps.links);
 
-					if (nextProps.nodesForDisplay.length !== nodesForDisplay.length || nextProps.isMapActive !== isMapActive) {
+					if (nextProps.nodes.length !== nodes.length || nextProps.isMapActive !== isMapActive) {
 						this.postNodesAndLinksToWorker(
-							nextProps.nodesForDisplay,
-							nextProps.linksForDisplay,
+							nextProps.nodes,
+							nextProps.links,
 							nextProps.isMapActive
 						);
 					} else {
@@ -982,10 +981,10 @@ class Graph extends React.PureComponent<Props, State> {
         }
     }
 
-    postNodesAndLinksToWorker(nodesForDisplay: Node[], linksForDisplay: Link[], isMapActive: boolean) {
+    postNodesAndLinksToWorker(nodes: Node[], links: Link[], isMapActive: boolean) {
     	const maxLabelLength = 20;
 
-        const nodesToPost = nodesForDisplay.map(node => {
+        const nodesToPost = nodes.map(node => {
             let label = node.abbreviated;
 
             if (label.length > maxLabelLength) {
@@ -1013,7 +1012,7 @@ class Graph extends React.PureComponent<Props, State> {
 			};
         });
 
-        const linksToPost = linksForDisplay.map(link => {
+        const linksToPost = links.map(link => {
             return {
             	hash: link.hash,
                 source: link.source,
@@ -1022,7 +1021,7 @@ class Graph extends React.PureComponent<Props, State> {
         });
 
         if (isMapActive) {
-			const markers = nodesForDisplay.filter(node => node.isGeoLocation);
+			const markers = nodes.filter(node => node.isGeoLocation);
 			this.fitMapToMarkers(markers);
 		}
 
@@ -1623,10 +1622,10 @@ class Graph extends React.PureComponent<Props, State> {
 	}
 
     centerView() {
-		const { nodesForDisplay, isMapActive } = this.props;
+		const { nodes, isMapActive } = this.props;
 
 		if (isMapActive) {
-			this.fitMapToMarkers(nodesForDisplay.filter(node => node.isGeoLocation));
+			this.fitMapToMarkers(nodes.filter(node => node.isGeoLocation));
 			return;
 		}
 
@@ -1775,10 +1774,10 @@ class Graph extends React.PureComponent<Props, State> {
 
 		if (node && (!isMapActive || !node.isGeoLocation)) {
 			this.mainDragSubject = node;
-			const { nodesForDisplay, linksForDisplay, selectedNodes } = this.props;
+			const { nodes, links, selectedNodes } = this.props;
 
 			if (event.altKey) {
-				this.dragSubjects = getDirectlyRelatedNodes([node], nodesForDisplay, linksForDisplay);
+				this.dragSubjects = getDirectlyRelatedNodes([node], nodes, links);
 			} else if (node.selected) {
 				this.dragSubjects = selectedNodes;
 			}
@@ -1794,7 +1793,7 @@ class Graph extends React.PureComponent<Props, State> {
     onMouseMove(event: MouseEvent) {
 		event.preventDefault();
 
-    	const { dispatch, nodesForDisplay, linksForDisplay, isContextMenuActive } = this.props;
+    	const { dispatch, nodes, links, isContextMenuActive } = this.props;
 
 		if (isContextMenuActive) {
 			this.mainDragSubject = null;
@@ -1865,7 +1864,7 @@ class Graph extends React.PureComponent<Props, State> {
             let related = [];
 
             if (tooltip) {
-                related = getDirectlyRelatedNodes([tooltip], nodesForDisplay, linksForDisplay);
+                related = getDirectlyRelatedNodes([tooltip], nodes, links);
             }
 
             dispatch(highlightNodes(related));
@@ -2076,8 +2075,8 @@ class Graph extends React.PureComponent<Props, State> {
 const select = (state: AppState, ownProps) => {
     return {
         ...ownProps,
-        nodesForDisplay: selectNodesWithFilterHighlight(state),
-        linksForDisplay: getLinksForDisplay(state),
+        nodes: selectNodesWithFilterHighlight(state),
+        links: state.graph.links,
 		selectedNodes: getSelectedNodes(state),
         searches: state.graph.searches,
         showLabels: state.graph.showLabels,

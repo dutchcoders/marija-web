@@ -2,7 +2,6 @@ import { EventEmitter } from 'fbemitter';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import ContextMenu from '../../contextMenu/contextMenu';
-import ChordDiagram from '../../graph/components/chordDiagram/chordDiagram';
 import Navigation from '../../ui/components/navigation/navigation';
 import Nodes from '../../graph/components/nodes/nodes';
 import Timeline from '../../graph/components/timeline';
@@ -14,7 +13,6 @@ import Notifications from '../../connection/components/notifications/notificatio
 import Pane from '../../ui/components/pane';
 import { AppState } from '../interfaces/appState';
 import Configuration from './configuration/configuration';
-import AdjacencyMatrix from "../../graph/components/adjacencyMatrix/adjacencyMatrix";
 import LightboxOutlet from '../../ui/components/lightboxOutlet/lightboxOutlet';
 import MapLegend from '../../graph/components/mapLegend/mapLegend';
 import ValueTableContainer
@@ -116,24 +114,6 @@ class RootView extends React.Component<any, any> {
                             height="200"
                             className="timeline"
                         />
-                    </Pane>
-
-                    <Pane
-                        name="Chord diagram"
-                        handle="chordDiagram"
-                        config={panes.chordDiagram}
-                        dispatch={dispatch}
-                        container={this.main}>
-                        <ChordDiagram />
-                    </Pane>
-
-                    <Pane
-                        name="Adjacency matrix"
-                        handle="adjacencyMatrix"
-                        config={panes.adjacencyMatrix}
-                        dispatch={dispatch}
-                        container={this.main}>
-                        <AdjacencyMatrix />
                     </Pane>
 
                     <Pane

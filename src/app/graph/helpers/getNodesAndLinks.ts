@@ -21,6 +21,8 @@ export default function getNodesAndLinks(
     nodes: Node[],
     links: Link[]
 } {
+	items = items.filter(item => item.display);
+
     const links = new Map<number, Link>();
     previousLinks.forEach(link => links.set(link.hash, link));
 
@@ -137,7 +139,6 @@ export default function getNodesAndLinks(
 			icon: datasource ? datasource.icon : '',
 			fields: [],
 			hash: hash,
-			display: true,
 			selected: false,
 			highlightLevel: null,
 			displayTooltip: false,
@@ -234,7 +235,6 @@ export default function getNodesAndLinks(
 			icon: connector.icon,
 			fields: fields,
 			hash: hash,
-			display: true,
 			selected: false,
 			highlightLevel: null,
 			displayTooltip: false,
