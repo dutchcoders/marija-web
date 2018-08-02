@@ -9,6 +9,7 @@ import {
 } from '../../main/helpers/performance';
 import { Field } from '../interfaces/field';
 import { createConnector } from './createConnector';
+import { getFieldStats } from './getFieldStats';
 
 interface SuggestedConnector {
 	fields: Field[];
@@ -45,52 +46,15 @@ export function getSuggestedConnectors(items: Item[], fields: Field[], existingC
 
 	markPerformance('suggestedStart');
 
-	const fieldStats: FieldStats = {};
 	const datasources: string[] = [];
-	const subsetLength = 100;
 
 	items.forEach(item => {
 		if (datasources.indexOf(item.datasourceId) === -1) {
 			datasources.push(item.datasourceId);
 		}
-
-		Object.keys(item.fields).forEach(key => {
-			if (deletedConnectorFields.indexOf(key) !== -1) {
-				return;
-			}
-
-			let values = item.fields[key];
-
-			if (values === null || values === '' || typeof values === 'undefined') {
-				return;
-			}
-
-			if (!Array.isArray(values)) {
-				values = [values];
-			}
-
-			if (typeof fieldStats[key] === 'undefined') {
-				fieldStats[key] = {
-					values: 0,
-					uniqueValues: [],
-					valueLengths: []
-				};
-			}
-
-			values.forEach(value => {
-				fieldStats[key].values ++;
-
-				if (fieldStats[key].uniqueValues.indexOf(value) === -1) {
-					fieldStats[key].uniqueValues.push(value);
-				}
-
-				const string = '' + value;
-
-				fieldStats[key].valueLengths.push(string.length);
-			});
-		});
 	});
 
+	const subsetLength = 100;
 	const itemsPerDatasource = subsetLength / datasources.length;
 	let subset: Item[] = [];
 
@@ -102,6 +66,7 @@ export function getSuggestedConnectors(items: Item[], fields: Field[], existingC
 		).slice(0, itemsPerDatasource));
 	});
 
+	const fieldStats = getFieldStats(fields, items);
 	let relevantFields: string[] = [];
 	Object.keys(fieldStats).forEach(field => {
 		const stats = fieldStats[field];

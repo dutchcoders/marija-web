@@ -1,13 +1,15 @@
 import * as React from 'react';
 import { Field } from '../../interfaces/field';
 import { AppState } from '../../../main/interfaces/appState';
-import { selectFieldList } from '../../fieldsSelectors';
+import { selectFieldList, selectFieldStats } from '../../fieldsSelectors';
 import { connect } from 'react-redux';
 import FieldRow from '../fieldRow/fieldRow';
 import * as styles from './fieldList.scss';
+import { FieldStatList } from '../../helpers/getFieldStats';
 
 interface Props {
 	fields: Field[];
+	fieldStatList: FieldStatList;
 	query: string;
 	types: string[];
 	datasourceId: string;
@@ -31,7 +33,7 @@ class FieldList extends React.Component<Props, State> {
 	}
 
 	render() {
-		const { fields } = this.props;
+		const { fields, fieldStatList } = this.props;
 		const { maxFields } = this.state;
 
 		let numMore = null;
@@ -76,9 +78,9 @@ class FieldList extends React.Component<Props, State> {
 				<table key={1} className={styles.fieldTable}>
 					<thead>
 					<tr>
-						<td className={styles.fieldHead}>Type</td>
 						<td className={styles.fieldHead}>Field</td>
-						<td className={styles.fieldHead}>Datasource</td>
+						<td className={styles.fieldHead}>Unique/total</td>
+						<td />
 						<td />
 					</tr>
 					</thead>
@@ -86,6 +88,7 @@ class FieldList extends React.Component<Props, State> {
 					{firstX.map((item, i) =>
 						<FieldRow
 							key={'available_fields_' + item.path + i}
+							fieldStats={fieldStatList[item.path]}
 							field={item}
 						/>
 					)}
@@ -104,7 +107,8 @@ class FieldList extends React.Component<Props, State> {
 
 const select = (state: AppState, ownProps) => ({
 	...ownProps,
-	fields: selectFieldList(state, ownProps.query, ownProps.types, ownProps.datasourceId)
+	fields: selectFieldList(state, ownProps.query, ownProps.types, ownProps.datasourceId),
+	fieldStatList: selectFieldStats(state)
 });
 
 export default connect(select)(FieldList);

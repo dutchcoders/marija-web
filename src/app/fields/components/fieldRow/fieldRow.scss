@@ -3,7 +3,7 @@
 }
 
 .td {
-  padding: 0 5px 1px 0;
+  padding: 0 5px 1px 5px;
 }
 
 .icon {
@@ -59,4 +59,34 @@
 
 .hovering {
   background: rgba(255, 255, 255, .3);
+}
+
+.mainExpanded .td,
+.mainExpanded .buttonTd {
+  background: #435266;
+  paddin-top: 5px;
+}
+
+.mainExpanded .td:first-child {
+  border-top-left-radius: 3px;
+}
+
+.mainExpanded .buttonTd:last-child {
+  border-top-right-radius: 3px;
+}
+
+.extraExpanded .td {
+  background: #435266;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  padding: 10px 5px;
+}
+
+.label {
+  font-size: 1em;
+  margin: 10px 0 0 0;
+}
+
+.value {
+  margin: 0;
 }

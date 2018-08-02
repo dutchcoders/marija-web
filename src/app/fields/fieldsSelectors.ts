@@ -3,6 +3,7 @@ import { AppState } from '../main/interfaces/appState';
 import { Field } from './interfaces/field';
 import { Connector } from '../graph/interfaces/connector';
 import { Datasource } from '../datasources/interfaces/datasource';
+import { getFieldStats } from './helpers/getFieldStats';
 
 export const getNonDateFields = createSelector(
 	(state: AppState) => state.fields.availableFields,
@@ -216,4 +217,11 @@ export const selectFieldList = createSelector(
 
 		return fields;
 	}
+);
+
+export const selectFieldStats = createSelector(
+	(state: AppState) => state.fields.availableFields,
+	(state: AppState) => state.graph.items,
+
+	(fields, items) => getFieldStats(fields, items)
 );

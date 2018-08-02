@@ -10,22 +10,26 @@ import FieldType from '../fieldType';
 import * as styles from './fieldRow.scss';
 import { MAX_FIELDS } from '../../../graph/graphConstants';
 import { AppState } from '../../../main/interfaces/appState';
+import { FieldStats } from '../../helpers/getFieldStats';
 
 interface Props {
     field: Field;
     dispatch: Dispatch<any>;
     maxFieldsReached: boolean;
+    fieldStats: FieldStats;
 }
 
 interface State {
     iconSelectorOpened: boolean;
     hoveringOnDropArea: boolean;
+    expanded: boolean;
 }
 
 class FieldRow extends React.Component<Props, State> {
     state: State = {
         iconSelectorOpened: false,
-		hoveringOnDropArea: false
+		hoveringOnDropArea: false,
+		expanded: false
     };
 
     add() {
@@ -42,8 +46,15 @@ class FieldRow extends React.Component<Props, State> {
         // dispatch(datasourceActivated(field.datasourceId));
     }
 
+    toggleExpanded() {
+    	this.setState({
+			expanded: !this.state.expanded
+		});
+	}
+
     render() {
-        const { field, maxFieldsReached } = this.props;
+        const { field, maxFieldsReached, fieldStats } = this.props;
+        const { expanded } = this.state;
 
         let addButton = null;
 
@@ -69,16 +80,42 @@ class FieldRow extends React.Component<Props, State> {
 			);
 		}
 
-        return (
-			<tr className={styles.tr}
+		const rows = [
+			<tr className={styles.tr + (expanded ? ' ' + styles.mainExpanded : '')}
 				key="main">
 
-				<td className={styles.td}><FieldType type={field.type} /></td>
 				<td className={styles.td}>{field.path}</td>
-				<td className={styles.td}>{field.datasourceId}</td>
+				<td className={styles.td}>{fieldStats.uniqueValues.length}/{fieldStats.values}</td>
+				<td className={styles.td}>
+					<Icon
+						onClick={this.toggleExpanded.bind(this)}
+						name={styles.add + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')}
+					/>
+				</td>
 				{addButton}
 			</tr>
-		);
+		];
+
+		if (expanded) {
+			rows.push(
+				<tr className={styles.tr + (expanded ? ' ' + styles.extraExpanded : '')} key="extra">
+					<td className={styles.td} colSpan={99}>
+						<h3 className={styles.label}>Datasource</h3>
+						<p className={styles.value}>{field.datasourceId}</p>
+
+						<h3 className={styles.label}>Type</h3>
+						<p className={styles.value}>{field.type}</p>
+
+						<h3 className={styles.label}>Values</h3>
+						{fieldStats.uniqueValues.map(value =>
+							<p key={value} className={styles.value}>{value}</p>
+						)}
+					</td>
+				</tr>
+			);
+		}
+
+		return rows;
     }
 }
 
