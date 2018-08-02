@@ -118,12 +118,12 @@ const selectFieldsInData = createSelector(
 
 		items.forEach(item => {
 			Object.keys(item.fields).forEach(field => {
-				active.set(field, true);
+				active.set(item.datasourceId + '-' + field, true);
 			});
 		});
 
 		return fields.filter(field =>
-			active.has(field.path)
+			active.has(field.datasourceId + '-' + field.path)
 		);
 	}
 );
