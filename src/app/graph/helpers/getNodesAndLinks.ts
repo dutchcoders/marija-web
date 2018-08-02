@@ -299,20 +299,23 @@ export default function getNodesAndLinks(
 				const targetValueSets = valueSets.get(getValueSetKey(targetItem, fields));
 
 				sourceValueSets.forEach(sourceValueSet => {
-					targetValueSets.forEach(targetValueSet => {
+					const newConnectorNodes = createConnectorNode(valueSetToArrayValues(sourceValueSet), connector, [sourceItem, targetItem]);
 
-    					const matches = matchValueSets(sourceValueSet, targetValueSet, connector);
+					newConnectorNodes.forEach(connectorNode => {
+						createLink(sourceNode, connectorNode, sourceItem, connector.color);
 
 
-						matches.forEach(match => {
-							const newConnectorNodes = createConnectorNode(match, connector, [sourceItem, targetItem]);
+						targetValueSets.forEach(targetValueSet => {
 
-							newConnectorNodes.forEach(connectorNode => {
-								createLink(sourceNode, connectorNode, sourceItem, connector.color);
+							const matches = matchValueSets(sourceValueSet, targetValueSet, connector);
+
+
+							matches.forEach(match => {
+
 								createLink(targetNode, connectorNode, targetItem, connector.color);
 							});
 						});
-    				});
+					});
 				});
 			});
 		});
