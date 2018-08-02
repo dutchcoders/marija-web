@@ -8,6 +8,7 @@ import Expandable from './expandable/expandable';
 import { connect } from 'react-redux';
 import { AppState } from '../../main/interfaces/appState';
 import Lightbox from '../../ui/components/lightbox/lightbox';
+import { getRenderableFieldValue } from '../../graph/helpers/getRenderableFieldValue';
 
 class RecordDetail extends React.Component<any, any> {
     constructor(props) {
@@ -63,68 +64,6 @@ class RecordDetail extends React.Component<any, any> {
         });
     }
 
-    isUrl(value: string): boolean {
-        return /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*$)/.test(value);
-    }
-
-    renderFieldValue(value: any, fieldPath: string) {
-    	if (this.isImage(fieldPath)) {
-    		return <Lightbox imageUrl={value} />
-		} else if (typeof value === 'number') {
-            return value;
-        }
-        else if (typeof value === 'string') {
-            if (value.length > 200) {
-                return <Expandable content={value} maxLength={200} />
-            } else if (this.isUrl(value)) {
-                return <a href={value} target="_blank">{value}</a>
-            } else {
-                return value;
-            }
-        } else if (typeof value === 'boolean') {
-            return value ? 'yes' : 'no';
-        } else if (Array.isArray(value)) {
-            if (value.length === 1) {
-                return this.renderFieldValue(value[0], fieldPath);
-            } else {
-                return (
-                    <ul>
-                        {value.map((element, i) =>
-                            <li key={i}>{this.renderFieldValue(element, fieldPath)}</li>
-                        )}
-                    </ul>
-                );
-            }
-        } else if (isObject(value)) {
-            const elements = [];
-
-            for (let key in value) {
-                if (!value.hasOwnProperty(key)) {
-                    continue;
-                }
-
-                elements.push(
-                    <div>
-                        <strong>{key}: </strong>
-                        {this.renderFieldValue(value[key], fieldPath)}
-                    </div>
-                );
-            }
-
-            if (elements.length === 1) {
-                return elements[0];
-            }
-
-            return (
-                <ul>
-                    {elements.map((element, i) => <li key={i}>{element}</li>)}
-                </ul>
-            );
-        } else {
-            return JSON.stringify(value);
-        }
-    }
-
     renderDetails(columns) {
         const { record, activeFields, filter } = this.props;
         const allFields = this.extractAllFields(record.fields, false);
@@ -168,7 +107,7 @@ class RecordDetail extends React.Component<any, any> {
                             </Tooltip>
                         </div>
                     </td>
-                    <td colSpan={3} className="fieldValue">{this.renderFieldValue(field_value, value)}</td>
+                    <td colSpan={3} className="fieldValue">{getRenderableFieldValue(field_value)}</td>
                 </tr>
             );
         });
@@ -183,17 +122,6 @@ class RecordDetail extends React.Component<any, any> {
             </td>
         );
     }
-
-    isImage(fieldPath: string): boolean {
-    	const { availableFields } = this.props;
-    	const field = availableFields.find(field => field.path === fieldPath);
-
-    	if (!field) {
-    	    return false;
-        }
-
-    	return field.type === 'image';
-	}
 
     render() {
         const { record, columns, node, expanded, className, filter } = this.props;

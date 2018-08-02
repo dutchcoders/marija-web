@@ -11,6 +11,7 @@ import { getItemNodeByItemId } from '../../graph/graphSelectors';
 import { connect } from 'react-redux';
 import NodeIcon from '../../graph/components/nodeIcon/nodeIcon';
 import { showTooltip } from '../../graph/graphActions';
+import { getRenderableFieldValue } from '../../graph/helpers/getRenderableFieldValue';
 
 interface Props {
     toggleExpand: Function;
@@ -53,7 +54,7 @@ class Record extends React.Component<Props, State> {
 
             return (
                 <td key={ 'column_' + record.id + value }>
-                    <span className={'length-limiter'}>{val}</span>
+                    <span className={'length-limiter fieldValue'}>{getRenderableFieldValue(val)}</span>
                 </td>
             );
         });
