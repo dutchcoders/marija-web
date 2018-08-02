@@ -7,7 +7,7 @@ import Icon from '../../../ui/components/icon';
 
 interface Props {
 	nodes: Node[];
-	cssClass: string;
+	cssClass?: string;
 	dispatch: any;
 }
 

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { ValueInfo } from '../../helpers/getValueInfo';
 import * as styles from './valueTableRow.scss';
-import { nodesSelect } from '../../graphActions';
 import { connect } from 'react-redux';
+import MagicWand from '../magicWand/magicWand';
 
 interface Props {
 	valueInfo: ValueInfo;
@@ -10,12 +10,6 @@ interface Props {
 }
 
 class ValueTableRow extends React.Component<Props> {
-	selectNodes() {
-		const { valueInfo, dispatch } = this.props;
-
-		dispatch(nodesSelect(valueInfo.nodes));
-	}
-
 	render() {
 		const { valueInfo } = this.props;
 
@@ -25,7 +19,7 @@ class ValueTableRow extends React.Component<Props> {
 				<td className={styles.td + ' ' + styles.number}>{valueInfo.occurences}</td>
 				<td className={styles.td}>{valueInfo.fields.join(', ')}</td>
 				<td className={styles.td}>
-					<button onClick={this.selectNodes.bind(this)} className={styles.select}>Select {valueInfo.nodes.length}</button>
+					<MagicWand nodes={valueInfo.nodes} cssClass={styles.magicWand}/>
 				</td>
 			</tr>
 		);
