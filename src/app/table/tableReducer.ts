@@ -5,6 +5,8 @@ import {
 } from './tableConstants';
 import {TableState} from "./interfaces/tableState";
 import { DATASOURCE_ACTIVATED } from '../datasources/datasourcesConstants';
+import { RECEIVE_WORKSPACE } from '../ui/uiConstants';
+import { Workspace } from '../ui/interfaces/workspace';
 
 export const defaultTableState: TableState = {
     columns: [],
@@ -68,6 +70,17 @@ export default function tableReducer(state: TableState = defaultTableState, acti
 		        ...state,
 		        columns: columns
 		    };
+		}
+
+		case RECEIVE_WORKSPACE: {
+			const workspace: Workspace = action.payload.workspace;
+
+			return {
+				...state,
+				columns: workspace.columns,
+				sortColumn: workspace.sortColumn,
+				sortType: workspace.sortType
+			}
 		}
 
         default:

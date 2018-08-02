@@ -20,6 +20,10 @@ import {
 } from '../../graph/graphConstants';
 import { SET_EXPERIMENTAL_FEATURES, SET_PANE_CONFIG } from '../uiConstants';
 import { SEARCH_REQUEST } from '../../search/searchConstants';
+import {
+	TABLE_COLUMN_ADD,
+	TABLE_COLUMN_REMOVE, TABLE_SORT
+} from '../../table/tableConstants';
 
 let debouncer;
 
@@ -42,7 +46,10 @@ export const workspaceMiddleware: Middleware = ({dispatch}) => next => action =>
 		DELETE_CUSTOM_DATASOURCE,
 		SET_EXPERIMENTAL_FEATURES,
 		SET_AUTOMATICALLY_CREATE_CONNECTORS,
-		SEARCH_REQUEST
+		SEARCH_REQUEST,
+		TABLE_COLUMN_ADD,
+		TABLE_COLUMN_REMOVE,
+		TABLE_SORT
 	];
 
 	if (updateForActions.indexOf(action.type) !== -1) {

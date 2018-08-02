@@ -13,4 +13,7 @@ export interface Workspace {
 	availableFields: Field[];
 	experimentalFeatures: boolean;
 	queryHistory: string[];
+	columns: string[],
+	sortColumn: string,
+	sortType: 'asc' | 'desc'
 }
