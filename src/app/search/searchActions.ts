@@ -405,10 +405,14 @@ export function showAllItemsOfCustomDatasource(datasource: Datasource) {
 }
 
 export function dismissItemsToConfirm(search: Search) {
-	return {
-		type: DISMISS_ITEMS_TO_CONFIRM,
-		payload: {
-			search
-		}
+	return (dispatch) => {
+		dispatch({
+			type: DISMISS_ITEMS_TO_CONFIRM,
+			payload: {
+				search
+			}
+		});
+
+		cancelRequest(search.requestId);
 	};
 }

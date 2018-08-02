@@ -48,7 +48,7 @@ export function webSocketConnect(backendUri: string) {
 export function cancelRequest(requestId) {
     return webSocketSend({
         type: CANCEL_REQUEST,
-        requestId: requestId
+        'request-id': requestId
     });
 }
 
