@@ -17,6 +17,7 @@ import LightboxOutlet from '../../ui/components/lightboxOutlet/lightboxOutlet';
 import MapLegend from '../../graph/components/mapLegend/mapLegend';
 import ValueTableContainer
 	from '../../graph/components/valueTableContainer/valueTableContainer';
+import { injectIntl, InjectedIntl, FormattedMessage } from 'react-intl';
 
 class RootView extends React.Component<any, any> {
     zoomEvents = new EventEmitter();
@@ -40,7 +41,7 @@ class RootView extends React.Component<any, any> {
     }
 
     render() {
-        const { panes, dispatch, nodes} = this.props;
+        const { panes, dispatch, nodes, intl } = this.props;
         const { mounted } = this.state;
 
         let mainContent = null;
@@ -69,7 +70,7 @@ class RootView extends React.Component<any, any> {
                     <ContextMenu />
 
                     <Pane
-                        name="Configuration"
+                        name={intl.formatMessage({ id: 'configuration' })}
                         handle="configuration"
                         config={panes.configuration}
                         dispatch={dispatch}
@@ -78,7 +79,7 @@ class RootView extends React.Component<any, any> {
                     </Pane>
 
                     <Pane
-                        name="Selected nodes"
+						name={intl.formatMessage({ id: 'selected_nodes' })}
                         description={selectedNodes + '/' + nodes.length}
 						alignHeaderRight={true}
                         handle="nodes"
@@ -91,7 +92,7 @@ class RootView extends React.Component<any, any> {
                     </Pane>
 
                     <Pane
-                        name="Table"
+						name={intl.formatMessage({ id: 'table' })}
                         description={'data for ' + selectedNodes + ' nodes'}
 						alignHeaderRight={true}
                         buttonText="Export as CSV"
@@ -104,7 +105,7 @@ class RootView extends React.Component<any, any> {
                     </Pane>
 
                     <Pane
-                        name="Timeline"
+						name={intl.formatMessage({ id: 'timeline' })}
                         handle="timeline"
                         config={panes.timeline}
                         dispatch={dispatch}
@@ -117,7 +118,7 @@ class RootView extends React.Component<any, any> {
                     </Pane>
 
                     <Pane
-                        name="Unique values"
+						name={intl.formatMessage({ id: 'unique_values' })}
                         handle="valueTable"
                         config={panes.valueTable}
                         dispatch={dispatch}
@@ -151,4 +152,4 @@ const select = (state: AppState, ownProps) => {
         panes: state.ui.panes
     };
 };
-export default connect(select)(RootView);
+export default injectIntl(connect(select)(RootView));

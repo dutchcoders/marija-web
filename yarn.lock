@@ -327,6 +327,10 @@
     "@types/node" "*"
     "@types/react" "*"
 
+"@types/react-intl@^2.3.8":
+  version "2.3.8"
+  resolved "https://registry.yarnpkg.com/@types/react-intl/-/react-intl-2.3.8.tgz#de56b21b67e39df24bc0fc7e67b437976b666919"
+
 "@types/react-redux@^5.0.15":
   version "5.0.15"
   resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-5.0.15.tgz#420af2c702ac7aab321cf45bb7d3cb2503dd24d5"

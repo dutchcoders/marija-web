@@ -7,6 +7,7 @@ import { searchRequest } from '../searchActions';
 import SearchBox from './searchBox';
 import { getSelectedFields } from '../../fields/fieldsSelectors';
 import DatasourceActivation from '../../datasources/components/datasourceActivation/datasourceActivation';
+import { getActiveNonLiveDatasources } from '../../datasources/datasourcesSelectors';
 
 interface Props {
     connected: boolean;
@@ -49,7 +50,7 @@ function select(state: AppState, ownProps) {
         ...ownProps,
         connected: state.connection.connected,
         fields: getSelectedFields(state),
-        datasources: state.datasources.datasources.filter(datasource => datasource.active)
+        datasources: getActiveNonLiveDatasources(state)
     };
 }
 

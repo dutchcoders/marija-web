@@ -7,7 +7,7 @@ import { AppState } from '../../../main/interfaces/appState';
 import * as styles from './connectorList.scss';
 import ConnectorComponent from '../connectorComponent/connectorComponent';
 import { Link, withRouter } from 'react-router-dom';
-import Url from '../../../main/helpers/url';
+import { FormattedMessage, FormattedHTMLMessage } from 'react-intl';
 import { FormEvent } from 'react';
 import { setAutomaticallyCreateConnectors } from '../../../graph/graphActions';
 import { MAX_AUTOMATIC_CONNECTORS } from '../../../graph/graphConstants';
@@ -51,23 +51,13 @@ class ConnectorList extends React.Component<Props, State> {
 
 		const help = (
 			<div className={styles.help}>
-				<p>Select a field below to create a new connector. Connectors are used to link data together.</p>
-				<p>
-					<strong>Example: </strong>
-					Let's say you have two people in your datasource: John Smith and William Smith. Their last name is
-					the same, but their first names are different.
-				</p>
-				<p>
-					If you create a connector for the field <em>last_name</em>, a square connector node will be drawn
-					between the two round people nodes. The <em>last_name</em> square node <strong>Smith</strong> will connect
-					the round nodes <strong>John Smith</strong> and <strong>William Smith</strong>.
-				</p>
+				<FormattedHTMLMessage id="connectors_explanation"/>
 			</div>
 		);
 
 		return (
 			<div className={styles.connectors}>
-				<h2>Active connectors</h2>
+				<h2><FormattedMessage id="active_connectors"/></h2>
 
 				{connectors.map(connector => (
 					<ConnectorComponent connector={connector} key={connector.name} />
@@ -87,7 +77,7 @@ class ConnectorList extends React.Component<Props, State> {
 
 				<label className={styles.automagic}>
 					<input type="checkbox" onChange={this.setAutomaticallyCreateConnectors.bind(this)} checked={automaticallyCreateConnectors}/>
-					Automatically create connectors (max {MAX_AUTOMATIC_CONNECTORS})
+					<FormattedMessage id="automatically_create_connectors" values={{max: MAX_AUTOMATIC_CONNECTORS}}/>
 				</label>
 			</div>
 		);

@@ -4,6 +4,8 @@ export interface PaneCollection {
 	[name: string]: PaneInterface
 }
 
+export type Language = 'en' | 'nl';
+
 export interface UiState {
     workspaceId: string;
     panes: PaneCollection;
@@ -12,4 +14,5 @@ export interface UiState {
     reducerError: any;
     reducerErrorState: any;
     reducerErrorLastAction: any;
+    lang: Language
 }

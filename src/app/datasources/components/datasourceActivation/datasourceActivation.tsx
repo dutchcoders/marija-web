@@ -10,6 +10,7 @@ import {
 import { getNonLiveDatasources } from '../../datasourcesSelectors';
 import Icon from '../../../ui/components/icon';
 const logo = require('../../../../images/logo.png');
+import { FormattedMessage } from 'react-intl';
 
 interface Props {
 	datasources: Datasource[];
@@ -39,7 +40,7 @@ class DatasourceActivation extends React.Component<Props> {
 					title={connected ? "Marija is connected to the backendservice" : "No connection to Marija backend available" }
 				/>
 
-				<h2 className={styles.title}>Search in:</h2>
+				<h2 className={styles.title}><FormattedMessage id="search_in" /></h2>
 
 				<ul className={styles.list}>
 					{datasources.map(datasource =>

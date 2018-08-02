@@ -15,6 +15,7 @@ import {
 } from './fieldsSelectors';
 import FieldList from './components/fieldList/fieldList';
 import { selectDatasourcesInData } from '../datasources/datasourcesSelectors';
+import { FormattedMessage } from 'react-intl';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -151,7 +152,7 @@ class Fields extends React.Component<Props, State> {
         return (
             <div>
 				<h2>
-					Fields
+					<FormattedMessage id="fields"/>
                     <Loader show={fieldsFetching} />
                 </h2>
 

@@ -19,7 +19,9 @@ import DatasourceList from '../../../datasources/components/datasourceList/datas
 import ConnectorList from '../../../fields/components/connectorList/connectorList';
 import SuggestedConnectorList from '../../../fields/components/suggestedConnectorList/suggestedConnectorList';
 import Version from '../version/version';
-import { setExperimentalFeatures } from '../../../ui/uiActions';
+import { setExperimentalFeatures, setLang } from '../../../ui/uiActions';
+import { Language } from '../../../ui/interfaces/uiState';
+import { injectIntl, InjectedIntl, FormattedMessage } from 'react-intl';
 
 interface State {
     normalization_error: string;
@@ -39,6 +41,7 @@ interface Props {
     filterSecondaryQueries: boolean;
     experimentalFeatures: boolean;
     groupNodes: boolean;
+    lang: Language;
 }
 
 class Configuration extends React.Component<Props, State> {
@@ -304,8 +307,14 @@ class Configuration extends React.Component<Props, State> {
         dispatch(setExperimentalFeatures(event.currentTarget.checked));
     }
 
+    onLangChange(event: FormEvent<HTMLInputElement>) {
+    	const { dispatch } = this.props;
+
+    	dispatch(setLang(event.currentTarget.value as Language));
+	}
+
     render() {
-        const { filterBoringNodes, filterSecondaryQueries, experimentalFeatures, groupNodes } = this.props;
+        const { filterBoringNodes, filterSecondaryQueries, experimentalFeatures, groupNodes, lang } = this.props;
 
         return (
             <div>
@@ -319,37 +328,53 @@ class Configuration extends React.Component<Props, State> {
                     {/*{ this.renderVia() }*/}
                 {/*</div>*/}
 
-				<h2>Options</h2>
+				<h2><FormattedMessage id="options"/></h2>
                 <div className="form-group">
                     <label className="graph-option">
                         <input type="checkbox" onChange={this.onFilterBoringNodesChange.bind(this)} defaultChecked={filterBoringNodes} />
-						Only display nodes that have at least one connection.
+						<FormattedMessage id="only_display_nodes_minimum_one_connection" />
                     </label>
 					<label className="graph-option">
 						<input type="checkbox" onChange={this.onFilterSecondaryQueriesChange.bind(this)} defaultChecked={filterSecondaryQueries} />
-						Only display nodes that are connected to nodes from <strong>the first query</strong>.
+						<FormattedMessage id="only_display_nodes_related_first_query" />
 					</label>
 					<label className="graph-option">
 						<input type="checkbox" onChange={this.onGroupNodesChange.bind(this)} defaultChecked={groupNodes} />
-						Group similar nodes into a bigger node. Nodes that have exactly the same connections will be grouped.
+						<FormattedMessage id="group_similar_nodes" />
 					</label>
                 </div>
 
+				{experimentalFeatures && (
+					<div>
+						<h2><FormattedMessage id="language"/></h2>
+						<div className="form-group">
+							<label className="graph-option">
+								<input type="radio" name="lang" onChange={this.onLangChange.bind(this)} defaultChecked={lang === 'en'} value={'en'} />
+								English
+							</label>
+							<label className="graph-option">
+								<input type="radio" name="lang" onChange={this.onLangChange.bind(this)} defaultChecked={lang === 'nl'} value={'nl'} />
+								Nederlands
+							</label>
+						</div>
+					</div>
+				)}
+
                 <div className="form-group">
-                    <button className="btn btn-primary" onClick={this.exportJson.bind(this)}>Export</button>
+                    <button className="btn btn-primary" onClick={this.exportJson.bind(this)}><FormattedMessage id="export"/></button>
                     <input type="file" ref="importFile" className="importFile" onChange={this.importJson.bind(this)} />
-                    <button className="btn btn-primary" onClick={this.chooseImportFile.bind(this)}>Import</button>
+                    <button className="btn btn-primary" onClick={this.chooseImportFile.bind(this)}><FormattedMessage id="import"/></button>
                 </div>
 
                 <div className="form-group">
-                    <button className="btn btn-primary" onClick={this.resetConfig.bind(this)}>Reset config</button>
+                    <button className="btn btn-primary" onClick={this.resetConfig.bind(this)}><FormattedMessage id="reset_config"/></button>
                 </div>
 
 				<Version/>
                 <div className="form-group">
                     <label className="graph-option">
                         <input type="checkbox" onChange={this.onExperimentalFeaturesChange.bind(this)} defaultChecked={experimentalFeatures} />
-                        Enable experimental features
+                        <FormattedMessage id="enable_experimental_features"/>
                     </label>
                 </div>
             </div>
@@ -367,7 +392,8 @@ function select(state: AppState, ownProps) {
         filterBoringNodes: state.graph.filterBoringNodes,
         filterSecondaryQueries: state.graph.filterSecondaryQueries,
         experimentalFeatures: state.ui.experimentalFeatures,
-        groupNodes: state.graph.groupNodes
+        groupNodes: state.graph.groupNodes,
+		lang: state.ui.lang
     };
 }
 

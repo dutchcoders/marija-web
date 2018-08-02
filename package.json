@@ -68,6 +68,7 @@
     "@types/pixi.js": "^4.7.1",
     "@types/react": "^16.0.38",
     "@types/react-dom": "^16.0.4",
+    "@types/react-intl": "^2.3.8",
     "@types/react-redux": "^5.0.15",
     "@types/react-select": "^1.2.8",
     "@types/redux": "^3.6.0",

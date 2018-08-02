@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import * as styles from './datasourceList.scss';
 import { Link, withRouter } from 'react-router-dom';
 import Url from '../../../main/helpers/url';
+import { FormattedMessage } from 'react-intl';
 
 interface Props {
 	datasources: Datasource[];
@@ -21,14 +22,14 @@ class DatasourceList extends React.Component<Props, State> {
 
 		return (
 			<div className={styles.list}>
-				<h2>Datasources</h2>
+				<h2><FormattedMessage id="datasources"/></h2>
 
 				{datasources.map(datasource => (
 					<DatasourceComponent datasource={datasource} key={datasource.id} />
 				))}
 
 				<Link to={{ pathname: '/create-custom-datasource', search: Url.getQueryString() }}>
-					<button className={styles.create}>Create CSV datasource</button>
+					<button className={styles.create}><FormattedMessage id="create_csv_datasource"/></button>
 				</Link>
 			</div>
 		);

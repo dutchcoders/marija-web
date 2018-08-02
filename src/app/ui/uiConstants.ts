@@ -11,6 +11,7 @@ export const WORKSPACE_CREATED = 'WORKSPACE_CREATED';
 export const UPDATE_WORKSPACE = 'UPDATE_WORKSPACE';
 export const SET_EXPERIMENTAL_FEATURES = 'SET_EXPERIMENTAL_FEATURES';
 export const SET_REDUCER_ERROR = 'SET_REDUCER_ERROR';
+export const SET_LANG = 'SET_LANG';
 
 export const colors = [
 	'#f44336',

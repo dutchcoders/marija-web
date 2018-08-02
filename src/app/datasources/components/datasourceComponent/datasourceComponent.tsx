@@ -18,6 +18,7 @@ import { Node } from '../../../graph/interfaces/node';
 import MagicWand from '../../../graph/components/magicWand/magicWand';
 import Tooltip from 'rc-tooltip';
 import { showAllItemsOfCustomDatasource } from '../../../search/searchActions';
+import { FormattedMessage } from 'react-intl';
 
 interface Props {
 	datasource: Datasource;
@@ -131,46 +132,46 @@ class DatasourceComponent extends React.Component<Props, State> {
 
 				{expanded && (
 					<main className={styles.main}>
-						<h4 className={styles.optionTitle}>Label</h4>
+						<h4 className={styles.optionTitle}><FormattedMessage id="label"/></h4>
 						<FieldSelector
 							datasourceId={datasource.id}
 							types={['string', 'text', 'number']}
 							selected={datasource.labelFieldPath}
 							onChange={this.onLabelChange.bind(this)}
 						/>
-						<p className={styles.help}>Select a field that will be displayed as the nodes' label on the graph.</p>
+						<p className={styles.help}><FormattedMessage id="field_label_description"/></p>
 
-						<h4 className={styles.optionTitle}>Image</h4>
+						<h4 className={styles.optionTitle}><FormattedMessage id="image"/></h4>
 						<FieldSelector
 							datasourceId={datasource.id}
 							types={['image']}
 							selected={datasource.imageFieldPath}
 							onChange={this.onImageChange.bind(this)}
 						/>
-						<p className={styles.help}>Select a field with image urls to render nodes as images.</p>
+						<p className={styles.help}><FormattedMessage id="field_image_description"/></p>
 
-						<h4 className={styles.optionTitle}>Geo location</h4>
+						<h4 className={styles.optionTitle}><FormattedMessage id="geo_location"/></h4>
 						<FieldSelector
 							datasourceId={datasource.id}
 							types={['location']}
 							selected={datasource.locationFieldPath}
 							onChange={this.onLocationChange.bind(this)}
 						/>
-						<p className={styles.help}>Select a field with geo location (in the format: <strong>52.1, 4.2</strong>) to display nodes on the map.</p>
+						<p className={styles.help}><FormattedMessage id="field_geo_location_description"/></p>
 
-						<h4 className={styles.optionTitle}>Date</h4>
+						<h4 className={styles.optionTitle}><FormattedMessage id="date"/></h4>
 						<FieldSelector
 							datasourceId={datasource.id}
 							types={['date']}
 							selected={datasource.dateFieldPath}
 							onChange={this.onDateChange.bind(this)}
 						/>
-						<p className={styles.help}>Select a field with dates/times to display nodes on the timeline.</p>
+						<p className={styles.help}><FormattedMessage id="field_date_description"/></p>
 
 						{datasource.isCustom && (
 							<div className={styles.customButtons}>
-								<button type="button" className={styles.showAll} onClick={this.showAllItems.bind(this)}>Show all items</button>
-								<button type="button" className={styles.delete} onClick={this.deleteCustomDatasource.bind(this)}>Delete datasource</button>
+								<button type="button" className={styles.showAll} onClick={this.showAllItems.bind(this)}><FormattedMessage id="show_all_items"/></button>
+								<button type="button" className={styles.delete} onClick={this.deleteCustomDatasource.bind(this)}><FormattedMessage id="delete_datasource"/></button>
 							</div>
 						)}
 					</main>

@@ -4,10 +4,10 @@ import {
 	CLOSE_LIGHTBOX,
 	CLOSE_PANE,
 	MOVE_PANE_TO_TOP, OPEN_LIGHTBOX,
-	OPEN_PANE, RECEIVE_WORKSPACE, SET_EXPERIMENTAL_FEATURES,
+	OPEN_PANE, RECEIVE_WORKSPACE, SET_EXPERIMENTAL_FEATURES, SET_LANG,
 	SET_PANE_CONFIG, SET_REDUCER_ERROR, WORKSPACE_CREATED
 } from './uiConstants';
-import {UiState} from "./interfaces/uiState";
+import { Language, UiState } from "./interfaces/uiState";
 import {PaneInterface} from "./interfaces/paneInterface";
 import { Workspace } from './interfaces/workspace';
 
@@ -85,7 +85,8 @@ export const defaultUiState: UiState = {
 	lightboxImageUrl: null,
 	reducerError: null,
     reducerErrorState: null,
-    reducerErrorLastAction: null
+    reducerErrorLastAction: null,
+    lang: 'en'
 };
 
 export default function uiReducer(state: UiState = defaultUiState, action): UiState {
@@ -187,6 +188,15 @@ export default function uiReducer(state: UiState = defaultUiState, action): UiSt
 				reducerErrorLastAction: action.payload.reducerErrorLastAction
 			};
 		}
+
+        case SET_LANG: {
+            const lang: Language = action.payload.lang;
+
+            return {
+                ...state,
+                lang
+            }
+        }
 
         default:
             return state;

@@ -33,6 +33,7 @@ import { getHistory } from './helpers/getHistory';
 import ErrorPage from './components/errorPage/errorPage';
 import { errorMiddleware } from './helpers/errorMiddleware';
 import ErrorBoundary, { ErrorDetails } from './components/errorBoundary/errorBoundary';
+import Translate from './components/translate/translate';
 
 require('../../scss/app.scss');
 require('../../images/favicon.png');
@@ -70,7 +71,7 @@ function configureStore() {
 }
 
 const store = configureStore();
-const history = getHistory(); //syncHistoryWithStore(getHistory(), store);
+const history = getHistory();
 
 interface Props {
     backendUri?: string;
@@ -115,16 +116,18 @@ class App extends React.Component<Props, State> {
 
         return (
             <div className="applicationWrapper">
-                <Provider store={store}>
+				<Provider store={store}>
 					<ErrorBoundary onError={this.onError.bind(this)}>
-						<Router history={history}>
-							<div className="routerWrapper">
-								<Route path='/create-custom-datasource' component={CreateCustomDatasource} />
-								<Route path='*' component={RootView} />
-							</div>
-						</Router>
+						<Translate>
+							<Router history={history}>
+								<div className="routerWrapper">
+									<Route path='/create-custom-datasource' component={CreateCustomDatasource} />
+									<Route path='*' component={RootView} />
+								</div>
+							</Router>
+						</Translate>
 					</ErrorBoundary>
-                </Provider>
+				</Provider>
             </div>
         );
     }

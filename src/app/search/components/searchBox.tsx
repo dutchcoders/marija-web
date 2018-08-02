@@ -9,6 +9,7 @@ import Query from './query';
 import * as styles from './searchBox.scss';
 import { getActiveNonLiveDatasources } from '../../datasources/datasourcesSelectors';
 import DateFilter from './dateFilter/dateFilter';
+import { injectIntl, InjectedIntl, FormattedMessage } from 'react-intl';
 
 interface Props {
     onSubmit: Function;
@@ -20,6 +21,7 @@ interface Props {
     datasources: Datasource[];
     experimentalFeatures: boolean;
     queryHistory: string[];
+    intl: InjectedIntl;
 }
 
 interface State {
@@ -213,7 +215,7 @@ class SearchBox extends React.Component<Props, State> {
 	}
 
     render() {
-        const { connected, searches, nodes, experimentalFeatures } = this.props;
+        const { connected, searches, nodes, experimentalFeatures, intl } = this.props;
         const { query, searchAroundOpen, noDatasourcesError, formExpanded, dateFilter, autoComplete, activeAutoCompleteIndex } = this.state;
 
         const userQueries = searches
@@ -265,7 +267,7 @@ class SearchBox extends React.Component<Props, State> {
 							<textarea
 								ref={ref => this.queryInput = ref}
 								className={styles.queryInput + (noDatasourcesError ? ' ' + styles.noDatasources : '')}
-								placeholder="Search"
+								placeholder={intl.formatMessage({ id: 'search' })}
 								rows={1}
 								value={ query }
 								onChange={this.handleQueryChange.bind(this)}
@@ -299,7 +301,7 @@ class SearchBox extends React.Component<Props, State> {
 
 							<Icon name="ion-ios-search" className={'ion-ios-search ' + styles.searchIcon} />
 							{noDatasourcesError && (
-								<span className={styles.noDatasourcesMessage}>Activate at least one datasource above</span>
+								<span className={styles.noDatasourcesMessage}><FormattedMessage id="activate_at_least_one_datasource" /></span>
 							)}
                         </form>
                     </div>
@@ -323,4 +325,4 @@ const select = (state: AppState, ownProps) => {
     };
 };
 
-export default connect(select)(SearchBox);
+export default injectIntl(connect(select)(SearchBox));

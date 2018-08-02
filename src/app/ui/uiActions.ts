@@ -1,9 +1,18 @@
 import {
 	CLOSE_LIGHTBOX,
-	CLOSE_PANE, CREATE_WORKSPACE,
-	MOVE_PANE_TO_TOP, OPEN_LIGHTBOX,
-	OPEN_PANE, RECEIVE_WORKSPACE, REQUEST_WORKSPACE, SET_EXPERIMENTAL_FEATURES,
-	SET_PANE_CONFIG, SET_REDUCER_ERROR, UPDATE_WORKSPACE, WORKSPACE_CREATED
+	CLOSE_PANE,
+	CREATE_WORKSPACE,
+	MOVE_PANE_TO_TOP,
+	OPEN_LIGHTBOX,
+	OPEN_PANE,
+	RECEIVE_WORKSPACE,
+	REQUEST_WORKSPACE,
+	SET_EXPERIMENTAL_FEATURES,
+	SET_LANG,
+	SET_PANE_CONFIG,
+	SET_REDUCER_ERROR,
+	UPDATE_WORKSPACE,
+	WORKSPACE_CREATED
 } from './uiConstants';
 import { webSocketSend } from '../connection/connectionActions';
 import { AppState } from '../main/interfaces/appState';
@@ -11,6 +20,7 @@ import { Workspace } from './interfaces/workspace';
 import Url from '../main/helpers/url';
 import { uniqueId } from 'lodash';
 import { Field } from '../fields/interfaces/field';
+import { Language } from './interfaces/uiState';
 
 export function openPane(pane) {
     return {
@@ -181,4 +191,13 @@ export function setReducerError(reducerError, reducerErrorState, reducerErrorLas
 			reducerErrorLastAction,
 		}
 	}
+}
+
+export function setLang(lang: Language) {
+	return {
+		type: SET_LANG,
+		payload: {
+			lang
+		}
+	};
 }
