@@ -108,3 +108,112 @@ export const getSelectedDateFields = createSelector(
 		);
 	}
 );
+
+const selectFieldsInData = createSelector(
+	(state: AppState) => state.fields.availableFields,
+	(state: AppState) => state.graph.items,
+
+	(fields, items): Field[] => {
+		const active = new Map<string, true>();
+
+		items.forEach(item => {
+			Object.keys(item.fields).forEach(field => {
+				active.set(field, true);
+			});
+		});
+
+		return fields.filter(field =>
+			active.has(field.path)
+		);
+	}
+);
+
+export interface TypeLabel {
+	label: string,
+	types: string[];
+}
+
+export const selectTypeLabels = createSelector(
+	(state: AppState) => selectFieldsInData(state),
+
+	(fields): TypeLabel[] => {
+		const typeLabelOptions: TypeLabel[] = [
+			{
+				label: 'yes/no',
+				types: ['boolean']
+			},
+			{
+				label: 'date',
+				types: ['date']
+			},
+			{
+				label: 'text',
+				types: ['text', 'keyword']
+			},
+			{
+				label: 'number',
+				types: ['long', 'double', 'int']
+			},
+			{
+				label: 'location',
+				types: ['geo_point']
+			},
+		];
+
+		const types = [];
+
+		fields.forEach(field => {
+			if (types.indexOf(field.type) === -1) {
+				types.push(field.type);
+			}
+		});
+
+		const activeTypeLabels: TypeLabel[] = [];
+		types.forEach(type => {
+			const alreadyUsed = activeTypeLabels.reduce((prev, item) => prev.concat(item.types), []);
+
+			if (alreadyUsed.indexOf(type) !== -1) {
+				return;
+			}
+
+			const typeLabel = typeLabelOptions.find(search => search.types.indexOf(type) !== -1);
+
+			if (typeLabel) {
+				activeTypeLabels.push(typeLabel);
+			} else {
+				activeTypeLabels.push({
+					label: type,
+					types: [type]
+				});
+			}
+		});
+
+		return [{
+			label: 'all types',
+			types: []
+		}].concat(activeTypeLabels);
+	}
+);
+
+export const selectFieldList = createSelector(
+	(state: AppState, query: string, types: string[], datasourceId: string) => selectFieldsInData(state),
+	(state: AppState, query: string, types: string[], datasourceId: string) => query,
+	(state: AppState, query: string, types: string[], datasourceId: string) => types,
+	(state: AppState, query: string, types: string[], datasourceId: string) => datasourceId,
+
+	(fields, query, types, datasourceId): Field[] => {
+		if (query) {
+			fields = fields.filter(field => field.path.includes(query));
+		}
+
+		if (types.length) {
+			fields = fields.filter(field => types.indexOf(field.type) !== -1);
+		}
+
+		if (datasourceId) {
+			fields = fields.filter(field => field.datasourceId === datasourceId);
+		}
+
+		return fields;
+	}
+);

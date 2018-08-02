@@ -8,96 +8,44 @@ import Loader from '../ui/components/loader';
 import FieldRow from './components/fieldRow/fieldRow';
 import * as styles from './fields.scss';
 import { Field } from './interfaces/field';
-import { getNonDateFields } from './fieldsSelectors';
-
-interface State {
-    currentFieldSearchValue: string;
-    currentDateFieldSearchValue: string;
-    searchTypes: any[],
-    maxSearchResults: number;
-    iconSelectorField: string | null;
-    datasourceFilter: string | null;
-}
+import {
+	getNonDateFields,
+	selectTypeLabels,
+	TypeLabel
+} from './fieldsSelectors';
+import FieldList from './components/fieldList/fieldList';
+import { selectDatasourcesInData } from '../datasources/datasourcesSelectors';
 
 interface Props {
     dispatch: Dispatch<any>;
     availableFields: Field[];
     datasources: Datasource[];
     fieldsFetching: boolean;
+    typeLabels: TypeLabel[];
+}
+
+interface State {
+	query: string;
+	currentDateFieldSearchValue: string;
+	searchTypes: any[];
+	iconSelectorField: string | null;
+	datasourceFilter: string | null;
 }
 
 class Fields extends React.Component<Props, State> {
-    defaultMaxSearchResults = 10;
     searchInput: HTMLElement;
     state: State = {
-        currentFieldSearchValue: '',
+        query: '',
         currentDateFieldSearchValue: '',
         searchTypes: [],
-        maxSearchResults: this.defaultMaxSearchResults,
         iconSelectorField: null,
         datasourceFilter: null
     };
 
     handleFieldSearchChange(event) {
         this.setState({
-            currentFieldSearchValue: event.target.value,
-            maxSearchResults: this.defaultMaxSearchResults
+            query: event.currentTarget.value
         });
-    }
-
-    types = [
-        {
-            label: 'yes/no',
-            types: ['boolean']
-        },
-        {
-            label: 'date',
-            types: ['date']
-        },
-        {
-            label: 'text',
-            types: ['text', 'keyword']
-        },
-        {
-            label: 'number',
-            types: ['long', 'double', 'int']
-        },
-        {
-            label: 'location',
-            types: ['geo_point']
-        },
-    ];
-
-    getTypes(fields) {
-        const types = [];
-
-        fields.forEach(field => {
-            if (types.indexOf(field.type) === -1) {
-                types.push(field.type);
-            }
-        });
-
-        const typeItems = [];
-        types.forEach(type => {
-            const alreadyUsed = typeItems.reduce((prev, item) => prev.concat(item.types), []);
-
-            if (alreadyUsed.indexOf(type) !== -1) {
-                return;
-            }
-
-            const typeItem = this.types.find(search => search.types.indexOf(type) !== -1);
-
-            if (typeItem) {
-                typeItems.push(typeItem);
-            } else {
-                typeItems.push({
-                    label: type,
-                    types: [type]
-                });
-            }
-        });
-
-        return typeItems;
     }
 
     handleTypeChange(e, type) {
@@ -106,26 +54,15 @@ class Fields extends React.Component<Props, State> {
         });
     }
 
-    handleMaxSearchResultsChange(max) {
-        this.setState({
-            maxSearchResults: max
-        });
-    }
-
     renderTypeFilter() {
-        const { availableFields } = this.props;
+        const { typeLabels } = this.props;
         const { searchTypes } = this.state;
-
-        const types = [{
-            label: 'all types',
-            types: []
-        }].concat(this.getTypes(availableFields));
 
         return (
             <div className={'row ' + styles.filter}>
                 <div className="col-xs-12">
                     <div className={styles.filterContent}>
-                        {types.map(type => {
+                        {typeLabels.map(type => {
                             const key = 'search_types_' + type.types.join(',');
 
                             return (
@@ -207,136 +144,9 @@ class Fields extends React.Component<Props, State> {
         );
     }
 
-    renderFields() {
-        const { currentFieldSearchValue, searchTypes, maxSearchResults, datasourceFilter } = this.state;
-        const { availableFields } = this.props;
-
-        let filteredFields = availableFields.concat([]);
-
-        // Filter by type, if we are searching on a certain type
-        if (searchTypes.length > 0) {
-            filteredFields = filteredFields.filter(item =>
-                searchTypes.indexOf(item.type) !== -1
-            );
-        }
-
-        if (datasourceFilter !== null) {
-            filteredFields = filteredFields.filter(field =>
-                field.datasourceId === datasourceFilter
-            );
-        }
-
-        const search = (
-            <form>
-                <div className="row">
-                    <div className="col-xs-12">
-                        <input
-                            className="form-control searchInput"
-                            ref={searchInput => this.searchInput = searchInput}
-                            value={this.state.currentFieldSearchValue}
-                            onChange={this.handleFieldSearchChange.bind(this)} type="text"
-                            placeholder={'Search ' + filteredFields.length + ' fields'} />
-                    </div>
-                </div>
-                <div className={styles.filters}>
-                    {this.renderTypeFilter()}
-                    {this.renderDatasourceFilter()}
-                </div>
-            </form>
-        );
-
-        let searchResults = filteredFields.concat([]);
-
-        if (currentFieldSearchValue) {
-            searchResults = [];
-
-            filteredFields.forEach((item) => {
-                const copy: any = Object.assign({}, item);
-                copy.occurrenceIndex = copy.path.toLowerCase().indexOf(currentFieldSearchValue.toLowerCase());
-
-                if (copy.occurrenceIndex !== -1) {
-                    searchResults.push(copy);
-                }
-            });
-
-            // Sort by when the search term occurs in the field name (the earlier the better)
-            searchResults.sort((a: any, b: any) => a.occurrenceIndex - b.occurrenceIndex);
-        }
-
-        let numMore = null;
-        let showMore = null;
-        if (searchResults.length > maxSearchResults) {
-            numMore = (
-                <p key={1}>
-                    {searchResults.length - maxSearchResults} more fields
-                </p>
-            );
-
-            showMore = (
-                <button onClick={() => this.handleMaxSearchResultsChange(maxSearchResults + 20)} key={2}>
-                    Show more
-                </button>
-            );
-        }
-
-        let showLess = null;
-        if (maxSearchResults > this.defaultMaxSearchResults) {
-            showLess = (
-                <button
-                    className="showLess"
-                    onClick={() => this.handleMaxSearchResultsChange(this.defaultMaxSearchResults)}
-                    key={3}>
-                    Show less
-                </button>
-            );
-        }
-
-        let noResults = null;
-        if (searchResults.length === 0) {
-            noResults = (
-                <p>No fields found</p>
-            );
-        }
-
-        const firstX = searchResults.slice(0, maxSearchResults);
-
-        const available = ([
-            <table key={1} className={styles.fieldTable}>
-                <thead>
-                    <tr>
-                        <td className={styles.fieldHead}>Type</td>
-                        <td className={styles.fieldHead}>Field</td>
-                        <td className={styles.fieldHead}>Datasource</td>
-                        <td />
-                    </tr>
-                </thead>
-                <tbody>
-                    {firstX.map((item, i) =>
-                        <FieldRow
-                            key={'available_fields_' + item.path + i}
-                            field={item}
-                        />
-                    )}
-                </tbody>
-            </table>,
-            <div className="searchResultsFooter" key={2}>
-                {numMore}
-                {showMore}
-                {showLess}
-                {noResults}
-            </div>
-        ]);
-
-        return (
-            <div>
-                { availableFields.length > 0 ? search : null }
-                { availableFields.length > 0 ? available : null }
-            </div>
-        );
-    }
-
     render() {
         const { fieldsFetching } = this.props;
+        const { query, datasourceFilter, searchTypes } = this.state;
 
         return (
             <div>
@@ -346,7 +156,24 @@ class Fields extends React.Component<Props, State> {
                 </h2>
 
 				<div className="form-group">
-                	{ this.renderFields() }
+					<form>
+						<div className="row">
+							<div className="col-xs-12">
+								<input
+									className="form-control searchInput"
+									ref={searchInput => this.searchInput = searchInput}
+									value={this.state.query}
+									onChange={this.handleFieldSearchChange.bind(this)} type="text"
+									placeholder={'Search fields'} />
+							</div>
+						</div>
+						<div className={styles.filters}>
+							{this.renderTypeFilter()}
+							{this.renderDatasourceFilter()}
+						</div>
+					</form>
+
+                	<FieldList query={query} types={searchTypes} datasourceId={datasourceFilter}/>
 				</div>
             </div>
         );
@@ -357,8 +184,9 @@ class Fields extends React.Component<Props, State> {
 function select(state: AppState) {
     return {
         availableFields: getNonDateFields(state),
+		typeLabels: selectTypeLabels(state),
         fieldsFetching: state.fields.fieldsFetching,
-        datasources: state.datasources.datasources
+        datasources: selectDatasourcesInData(state)
     };
 }
 

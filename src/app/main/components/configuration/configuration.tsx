@@ -312,15 +312,7 @@ class Configuration extends React.Component<Props, State> {
 				<DatasourceList />
 				<ConnectorList />
                 <SuggestedConnectorList />
-
                 <Fields />
-
-                {/*<div className="form-group">*/}
-                    {/*<h2>Normalizations</h2>*/}
-                    {/*<p>Normalizations are regular expressions being used to normalize the node identifiers and*/}
-                        {/*fields.</p>*/}
-                    {/*{ this.renderNormalizations(normalizations) }*/}
-                {/*</div>*/}
 
                 {/*<div className="form-group">*/}
                     {/*<h2>Via</h2>*/}

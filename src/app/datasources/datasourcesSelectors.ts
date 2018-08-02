@@ -17,3 +17,18 @@ export const getNonLiveDatasources = createSelector(
 		datasource.type !== 'live'
 	)
 );
+
+export const selectDatasourcesInData = createSelector(
+	(state: AppState) => state.datasources.datasources,
+	(state: AppState) => state.graph.items,
+
+	(datasources, items): Datasource[] => {
+		const active = new Map<string, true>();
+
+		items.forEach(item => active.set(item.datasourceId, true));
+
+		return datasources.filter(datasource =>
+			active.has(datasource.id)
+		);
+	}
+);
