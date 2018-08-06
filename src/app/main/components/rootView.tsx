@@ -93,9 +93,9 @@ class RootView extends React.Component<any, any> {
 
                     <Pane
 						name={intl.formatMessage({ id: 'table' })}
-                        description={'data for ' + selectedNodes + ' nodes'}
+                        description={intl.formatMessage({ id: 'data_for_x_nodes'}, {nodes: selectedNodes})}
 						alignHeaderRight={true}
-                        buttonText="Export as CSV"
+                        buttonText={intl.formatMessage({ id: 'export_as_csv' })}
                         onButtonClick={() => this.exportTableEvents.emit('export')}
                         handle="table"
                         config={panes.table}

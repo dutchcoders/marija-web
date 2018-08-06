@@ -15,10 +15,12 @@ import CustomFieldList from '../customFieldList/customFieldList';
 import { Field } from '../../../fields/interfaces/field';
 import { createFieldsFromData } from '../../helpers/createFieldsFromData';
 import Modal from '../../../ui/components/modal/modal';
+import { FormattedMessage, FormattedHTMLMessage, InjectedIntl, injectIntl } from 'react-intl';
 
 interface Props {
 	dispatch: any;
 	datasources: Datasource[];
+	intl: InjectedIntl;
 }
 
 interface State {
@@ -199,6 +201,7 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 
 	render() {
 		const { activeStep, fileContents, delimiter, name, parsedItems, isNameAvailable, isLoading, fileError, parseError, fields } = this.state;
+		const { intl } = this.props;
 
 		const loader = isLoading ? (
 			<div className={styles.loaderOverlay}>
@@ -207,19 +210,19 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 		): null;
 
 		return (
-			<Modal title="Create a CSV datasource">
+			<Modal title={intl.formatMessage({ id: 'create_csv_datasource' })}>
 
 				{activeStep === 1 && (
 					<main className={styles.main}>
-						<h2 className={styles.stepTitle}>Step 1/3 &mdash; Choose a CSV file</h2>
+						<h2 className={styles.stepTitle}><FormattedHTMLMessage id="csv_datasource_step_1"/></h2>
 
 						<p>
-							The first line of the CSV should contain the header information (the titles of the columns).
+							<FormattedMessage id="csv_header_info"/>
 						</p>
 
 						<div className={styles.formItem}>
 							<input className={styles.hidden} type="file" ref={ref => this.fileSelector = ref} onChange={this.loadFile.bind(this)} />
-							<button className={styles.chooseFile} onClick={this.selectFile.bind(this)}>Select file</button><br />
+							<button className={styles.chooseFile} onClick={this.selectFile.bind(this)}><FormattedMessage id="select_file"/></button><br />
 
 							{fileError && (
 								<p className={styles.error}>{fileError}</p>
@@ -232,25 +235,25 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 
 				{activeStep === 2 && (
 					<main className={styles.main}>
-						<h2 className={styles.stepTitle}>Step 2/3 &mdash; Settings</h2>
+						<h2 className={styles.stepTitle}><FormattedHTMLMessage id="csv_datasource_step_2"/></h2>
 
 						<div className={styles.formItem}>
-							<label className={styles.label}>Choose a datasource name</label>
+							<label className={styles.label}><FormattedMessage id="choose_datasource_name"/></label>
 							<input className={styles.input} value={name} onChange={this.onNameChange.bind(this)} />
 							{!isNameAvailable && (
-								<p className={styles.error}>This name is already used for another datasource. Choose a different name.</p>
+								<p className={styles.error}><FormattedMessage id="datasource_name_exists"/></p>
 							)}
 						</div>
 
 						<div className={styles.formItem}>
-							<label className={styles.label}>Delimiter</label>
-							<p className={styles.description}>The symbol that separates the values.</p>
+							<label className={styles.label}><FormattedMessage id="delimiter"/></label>
+							<p className={styles.description}><FormattedMessage id="delimiter_explanation"/></p>
 							<input className={styles.input + ' ' + styles.delimiter} value={delimiter} onChange={this.onDelimiterChange.bind(this)} />
 						</div>
 
 						<div className={styles.formItem}>
-							<label className={styles.label}>File contents</label>
-							<p className={styles.description}>The first line should contain the header information (the titles of the columns).</p>
+							<label className={styles.label}><FormattedMessage id="file_contents"/></label>
+							<p className={styles.description}><FormattedMessage id="csv_header_info"/></p>
 							<textarea className={styles.input + ' ' + styles.fileContents} value={fileContents} onChange={this.onFileContentsChange.bind(this)} />
 							{parseError && (
 								<p className={styles.error}>{parseError}</p>
@@ -258,8 +261,8 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 						</div>
 
 						<div className={styles.footer}>
-							<button className={styles.prev} onClick={this.backToStep1.bind(this)}>Back</button>
-							<button className={styles.next} onClick={this.continueToStep3.bind(this)} disabled={!isNameAvailable}>Continue</button>
+							<button className={styles.prev} onClick={this.backToStep1.bind(this)}><FormattedMessage id="back"/></button>
+							<button className={styles.next} onClick={this.continueToStep3.bind(this)} disabled={!isNameAvailable}><FormattedMessage id="continue"/></button>
 						</div>
 
 						{loader}
@@ -268,14 +271,14 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 
 				{activeStep === 3 && (
 					<main className={styles.main}>
-						<h2 className={styles.stepTitle}>Step 3/3 &mdash; Preview</h2>
-						<h3 className={styles.subTitle}>Found {fields.length} fields</h3>
+						<h2 className={styles.stepTitle}><FormattedHTMLMessage id="csv_datasource_step_3"/></h2>
+						<h3 className={styles.subTitle}><FormattedMessage id="found_x_fields" values={{ fields: fields.length}}/></h3>
 
 						<CustomFieldList fields={fields} onTypeChange={(field, type) => this.onFieldTypeChange(field, type)}/>
 
-						<h3 className={styles.subTitle}>Found {parsedItems.length} items</h3>
+						<h3 className={styles.subTitle}><FormattedMessage id="found_x_items" values={{ items: parsedItems.length}}/></h3>
 						{parsedItems.length > 10 && (
-							<p>Displaying the first 10.</p>
+							<p><FormattedMessage id="display_first_10"/></p>
 						)}
 
 						<table className={styles.table}>
@@ -298,8 +301,8 @@ class CreateCustomDatasource extends React.Component<Props, State> {
 						</table>
 
 						<div className={styles.footer}>
-							<button className={styles.prev} onClick={this.backToStep2.bind(this)}>Back</button>
-							<button className={styles.next} onClick={this.finish.bind(this)}>Create datasource {name}</button>
+							<button className={styles.prev} onClick={this.backToStep2.bind(this)}><FormattedMessage id="back"/></button>
+							<button className={styles.next} onClick={this.finish.bind(this)}><FormattedMessage id="create_datasource" values={{datasource: name}}/></button>
 						</div>
 					</main>
 				)}
@@ -312,4 +315,4 @@ const select = (state: AppState) => ({
 	datasources: state.datasources.datasources
 });
 
-export default connect(select)(CreateCustomDatasource);
+export default injectIntl(connect(select)(CreateCustomDatasource));

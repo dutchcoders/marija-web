@@ -68,7 +68,7 @@ class FieldList extends React.Component<Props, State> {
 		let noResults = null;
 		if (fields.length === 0) {
 			noResults = (
-				<p>No fields found</p>
+				<p><FormattedMessage id="no_fields_found"/></p>
 			);
 		}
 

@@ -2,6 +2,7 @@ import * as React from 'react';
 import CustomField from '../customField/customField';
 import * as styles from './customFieldList.scss';
 import { Field } from '../../../fields/interfaces/field';
+import { FormattedMessage } from 'react-intl';
 
 interface Props {
 	fields: Field[];
@@ -25,9 +26,9 @@ class CustomFieldList extends React.Component<Props, State> {
 			<table className={styles.table}>
 				<thead className={styles.thead}>
 				<tr>
-					<td className={styles.td}>Field</td>
-					<td className={styles.td}>Type</td>
-					<td className={styles.td}>Unique values (displaying max. 10)</td>
+					<td className={styles.td}><FormattedMessage id="field" /></td>
+					<td className={styles.td}><FormattedMessage id="type"/></td>
+					<td className={styles.td}><FormattedMessage id="unique_values_max_10"/></td>
 				</tr>
 				</thead>
 				<tbody>

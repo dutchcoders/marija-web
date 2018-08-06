@@ -9,6 +9,7 @@ import Filter from '../../../graph/components/filter/filter';
 import * as styles from './navigation.scss';
 import { isMapAvailable } from '../../../graph/graphSelectors';
 import RcTooltip from 'rc-tooltip';
+import { FormattedHTMLMessage } from 'react-intl';
 
 class Navigation extends React.Component<any, any> {
     togglePane(handle) {
@@ -59,8 +60,8 @@ class Navigation extends React.Component<any, any> {
             <div>
                 <h1 className={styles.helpTitle}>Tips</h1>
                 <ul className={styles.tips}>
-                    <li>Hold <strong>shift</strong> while dragging to select an area of nodes.</li>
-                    <li>Hold <strong>alt</strong> to drag an entire cluster of nodes.</li>
+                    <li><FormattedHTMLMessage id="hold_shift_to_select_area"/></li>
+                    <li><FormattedHTMLMessage id="hold_alt_to_drag_cluster"/></li>
                 </ul>
             </div>
         );
