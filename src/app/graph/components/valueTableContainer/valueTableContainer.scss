@@ -1,3 +1,5 @@
+@import '../../../../scss/mixins/primaryButton';
+
 .container {
   margin-top: 20px;
 }
@@ -46,4 +48,12 @@
   top: 6px;
   font-size: 18px;
   right: 7px;
+}
+
+.noNodes {
+  margin-top: 20px;
+}
+
+.button {
+  @include primaryButton();
 }

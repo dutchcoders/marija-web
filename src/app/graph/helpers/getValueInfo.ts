@@ -1,5 +1,4 @@
 import { Node } from '../interfaces/node';
-import { Item } from '../interfaces/item';
 import { Field } from '../../fields/interfaces/field';
 
 export interface ValueInfo {
@@ -9,7 +8,7 @@ export interface ValueInfo {
 	fields: string[];
 }
 
-export function getValueInfo(items: Item[], nodes: Node[], fields: Field[]): ValueInfo[] {
+export function getValueInfo(nodes: Node[], fields: Field[]): ValueInfo[] {
 	const list: ValueInfo[] = [];
 	const dateFields = new Map<string, true>();
 
@@ -19,17 +18,15 @@ export function getValueInfo(items: Item[], nodes: Node[], fields: Field[]): Val
 		}
 	});
 
-	items.forEach(item => {
-		Object.keys(item.fields).forEach(key => {
+	const itemNodes = nodes.filter(node => node.type === 'item');
+
+	itemNodes.forEach(node => {
+		Object.keys(node.childData).forEach(key => {
 			if (dateFields.has(key)) {
 				return;
 			}
 
-			let values = item.fields[key];
-
-			if (!Array.isArray(values)) {
-				values = [values];
-			}
+			let values = node.childData[key];
 
 			values.forEach(value => {
 				if (value === null || typeof value === 'undefined' || value === '') {

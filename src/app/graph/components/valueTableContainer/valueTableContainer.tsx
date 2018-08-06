@@ -1,14 +1,19 @@
 import * as React from 'react';
 import { AppState } from '../../../main/interfaces/appState';
 import { connect } from 'react-redux';
-import { selectItemFields } from '../../graphSelectors';
+import { getSelectedNodes, selectItemFields } from '../../graphSelectors';
 import ValueTable from '../valueTable/valueTable';
 import * as styles from './valueTableContainer.scss';
 import { FormEvent } from 'react';
 import Icon from '../../../ui/components/icon';
+import { Node } from '../../interfaces/node';
+import { nodesSelect } from '../../graphActions';
 
 interface Props {
-	fields: string[]
+	fields: string[];
+	selectedNodes: Node[];
+	nodes: Node[];
+	dispatch: any;
 }
 
 interface State {
@@ -34,8 +39,14 @@ class ValueTableContainer extends React.Component<Props, State> {
 		});
 	}
 
+	selectAllNodes() {
+		const { dispatch, nodes } = this.props;
+
+		dispatch(nodesSelect(nodes));
+	}
+
 	render() {
-		const { fields } = this.props;
+		const { fields, selectedNodes } = this.props;
 		const { field, search } = this.state;
 
 		return (
@@ -63,14 +74,24 @@ class ValueTableContainer extends React.Component<Props, State> {
 					</div>
 				</div>
 
-				<ValueTable field={field} search={search} />
+				{selectedNodes.length > 0
+					? <ValueTable field={field} search={search} />
+					: (
+						<div className={styles.noNodes}>
+							<p className={styles.noNodes}>Select nodes to display the unique values found in their data.</p>
+							<button onClick={this.selectAllNodes.bind(this)} className={styles.button}>Select all nodes</button>
+						</div>
+					)
+				}
 			</div>
 		)
 	}
 }
 
 const select = (state: AppState) => ({
-	fields: selectItemFields(state)
+	fields: selectItemFields(state),
+	selectedNodes: getSelectedNodes(state),
+	nodes: state.graph.nodes
 });
 
 export default connect(select)(ValueTableContainer);

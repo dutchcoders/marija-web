@@ -1,24 +1,27 @@
 import { getValueInfo } from './getValueInfo';
 
 test('get value info', () => {
-	const items: any = [
+	const nodes: any = [
 		{
-			fields: {
-				a: 'hello',
-				b: 'bye'
-			}
+			childData: {
+				a: ['hello'],
+				b: ['bye']
+			},
+			type: 'item'
 		},
 		{
-			fields: {
-				a: 'hello',
-				b: 'bye2'
-			}
+			childData: {
+				a: ['hello'],
+				b: ['bye2']
+			},
+			type: 'item'
 		},
 		{
-			fields: {
-				a: 'hello',
-				b: 'bye3'
-			}
+			childData: {
+				a: ['hello'],
+				b: ['bye3']
+			},
+			type: 'item'
 		}
 	];
 
@@ -33,7 +36,7 @@ test('get value info', () => {
 		}
 	];
 
-	const valueInfo = getValueInfo(items, [], fields);
+	const valueInfo = getValueInfo(nodes, fields);
 
 	expect(valueInfo.length).toBe(4);
 
@@ -44,12 +47,13 @@ test('get value info', () => {
 });
 
 test('get value info should skip date fields', () => {
-	const items: any = [
+	const nodes: any = [
 		{
-			fields: {
-				a: 'hello',
-				b: '2018-10-10'
-			}
+			childData: {
+				a: ['hello'],
+				b: ['2018-10-10']
+			},
+			type: 'item'
 		}
 	];
 
@@ -64,7 +68,7 @@ test('get value info should skip date fields', () => {
 		}
 	];
 
-	const valueInfo = getValueInfo(items, [], fields);
+	const valueInfo = getValueInfo(nodes, fields);
 
 	expect(valueInfo.length).toBe(1);
 });
