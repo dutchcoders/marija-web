@@ -15,6 +15,8 @@ import fieldLocator from '../fields/helpers/fieldLocator';
 import { Field } from '../fields/interfaces/field';
 import { getSelectedDateFields } from '../fields/fieldsSelectors';
 import { getValueInfo } from './helpers/getValueInfo';
+import * as Fuse from 'fuse.js';
+import filter from './components/filter/filter';
 
 export const getSelectedNodes = createSelector(
     (state: AppState) => state.graph.nodes,
@@ -251,23 +253,23 @@ export const selectFilteredNodes = createSelector(
 			return nodes;
 		}
 
-		const query = filterNodesBy.toLowerCase();
+		const fields: string[] = [];
 
-		return nodes.filter(node => {
-			const fields = Object.keys(node.childData);
+		nodes.forEach(node => {
+			const nodeFields = Object.keys(node.childData);
 
-			for (let i = 0; i < fields.length; i ++) {
-				const values = node.childData[fields[i]];
-
-				for (let j = 0; j < values.length; j ++) {
-					if (values[j].toLowerCase().includes(query)) {
-						return true;
-					}
+			nodeFields.forEach(field => {
+				if (fields.indexOf(field) === -1) {
+					fields.push(field);
 				}
-			}
-
-			return false;
+			});
 		});
+
+		const fuse = new Fuse(nodes, {
+			keys: fields.map(field => 'childData.' + field)
+		});
+
+		return fuse.search(filterNodesBy);
 	}
 );
 
