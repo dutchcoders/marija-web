@@ -648,6 +648,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 				...state,
 				filterSecondaryQueries: workspace.filterSecondaryQueries,
 				filterBoringNodes: workspace.filterBoringNodes,
+				automaticallyCreateConnectors: workspace.automaticallyCreateConnectors,
 				queryHistory: workspace.queryHistory
 			};
 		}

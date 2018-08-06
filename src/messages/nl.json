@@ -99,5 +99,7 @@
   "all_time": "Elke periode",
   "1_month": "Afgelopen maand",
   "1_week": "Afgelopen week",
-  "1_day": "Afgelopen dag"
+  "1_day": "Afgelopen dag",
+  "suggested_connectors": "Voorgestelde connectoren",
+  "suggested_connector_info": "Maak {nodes} connector nodes die {links} items verbinden.<br />Voorbeeld waarden: {values}"
 }

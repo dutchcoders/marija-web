@@ -98,5 +98,7 @@
   "all_time": "All",
   "1_month": "1 Month",
   "1_week": "1 Week",
-  "1_day": "1 Day"
+  "1_day": "1 Day",
+  "suggested_connectors": "Suggested connectors",
+  "suggested_connector_info": "Create {nodes} connector nodes, connecting {links} items.<br />Example values: {values}"
 }

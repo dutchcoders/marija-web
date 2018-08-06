@@ -11,8 +11,9 @@ export interface Workspace {
 	connectors: Connector[];
 	experimentalFeatures: boolean;
 	queryHistory: string[];
-	columns: string[],
-	sortColumn: string,
-	sortType: 'asc' | 'desc'
+	columns: string[];
+	sortColumn: string;
+	sortType: 'asc' | 'desc';
 	lang: Language;
+	automaticallyCreateConnectors: boolean;
 }

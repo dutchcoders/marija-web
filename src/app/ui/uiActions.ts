@@ -89,7 +89,8 @@ function getWorkspace(state: AppState): Workspace {
 		columns: state.table.columns,
 		sortColumn: state.table.sortColumn,
 		sortType: state.table.sortType,
-		lang: state.ui.lang
+		lang: state.ui.lang,
+		automaticallyCreateConnectors: state.graph.automaticallyCreateConnectors
 	};
 }
 

@@ -5,6 +5,7 @@ import { Connector } from '../../../graph/interfaces/connector';
 import * as styles from './suggestedConnectorList.scss';
 import { createNewConnector } from '../../fieldsActions';
 import Icon from '../../../ui/components/icon';
+import { FormattedMessage, FormattedHTMLMessage } from 'react-intl';
 
 interface Props {
 	suggestedConnectors: Connector[];
@@ -50,7 +51,7 @@ class SuggestedConnectorList extends React.Component<Props> {
 
 		return (
 			<div className={styles.container}>
-				<h2 className={styles.title}>Suggested connectors</h2>
+				<h2 className={styles.title}><FormattedMessage id="suggested_connectors"/></h2>
 				<ul className={styles.connectors}>
 					{suggestedConnectors.map(suggested =>
 						<li className={styles.connector} key={suggested.name}>
@@ -63,8 +64,11 @@ class SuggestedConnectorList extends React.Component<Props> {
 								<Icon name={'ion-ios-plus ' + styles.create} onClick={() => this.create(suggested)} />
 							</div>
 							<div className={styles.info}>
-								Create {Object.keys(suggested.suggestionPotential).length} connector nodes, connecting {this.getTotalLinks(suggested)} items.<br />
-								Example values: {this.getExampleValues(suggested).join(', ')}
+								<FormattedHTMLMessage id="suggested_connector_info" values={{
+									nodes: Object.keys(suggested.suggestionPotential).length,
+									links: this.getTotalLinks(suggested),
+									values: this.getExampleValues(suggested).join(', ')
+								}}/>
 							</div>
 						</li>
 					)}
