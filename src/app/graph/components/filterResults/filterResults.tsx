@@ -6,6 +6,7 @@ import { selectFilteredNodes } from '../../graphSelectors';
 import * as styles from './filterResults.scss';
 import FilteredNode from '../filteredNode/filteredNode';
 import { deselectNodes, nodesSelect } from '../../graphActions';
+import { FormattedMessage } from 'react-intl';
 
 interface Props {
 	nodes: Node[];
@@ -39,16 +40,16 @@ class FilterResults extends React.Component<Props> {
 				</ul>
 				<div className={styles.actions}>
 					<p className={styles.count}>
-						{nodes.length} Nodes found. Selected {selected}.
+						<FormattedMessage id="x_nodes_found_selected_x" values={{ found: nodes.length, selected: selected }}/>
 					</p>
 					<button
 						className={styles.button}
 						onClick={this.selectAll.bind(this)}
-					>Select all</button>
+					><FormattedMessage id="select_all"/></button>
 					<button
 						className={styles.button}
 						onClick={this.deselectAll.bind(this)}
-					>Deselect all</button>
+					><FormattedMessage id="deselect_all"/></button>
 				</div>
 			</div>
 		);

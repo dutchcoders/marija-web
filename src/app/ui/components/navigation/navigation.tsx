@@ -1,7 +1,6 @@
-import Tooltip from 'rc-tooltip';
 import * as React from 'react';
 import { connect } from 'react-redux';
-
+import Tooltip from '../tooltip/tooltip';
 import { AppState } from '../../../main/interfaces/appState';
 import Icon from '../icon';
 import { closePane, openPane } from '../../uiActions';
@@ -9,6 +8,7 @@ import { setMapActive, toggleLabels } from '../../../graph/graphActions';
 import Filter from '../../../graph/components/filter/filter';
 import * as styles from './navigation.scss';
 import { isMapAvailable } from '../../../graph/graphSelectors';
+import RcTooltip from 'rc-tooltip';
 
 class Navigation extends React.Component<any, any> {
     togglePane(handle) {
@@ -47,10 +47,7 @@ class Navigation extends React.Component<any, any> {
         return (
             <li className={(active ? 'active': '') + ' ' + (disabled ? 'disabled' : '')}>
                 <Tooltip
-                    overlay={tooltip}
-                    placement="bottom"
-                    mouseLeaveDelay={0}
-                    arrowContent={<div className="rc-tooltip-arrow-inner" />}>
+                    messageId={tooltip}>
                     <Icon name={icon} onClick={clickHandler} />
                 </Tooltip>
             </li>
@@ -80,90 +77,78 @@ class Navigation extends React.Component<any, any> {
                 <ul className="paneToggles">
                     {this.getButton(
                         'ion-ios-gear',
-                        'Configuration',
+                        'configuration',
                         () => this.togglePane('configuration'),
                         this.isActive('configuration')
                     )}
                     {this.getButton(
                         'ion-android-share-alt',
-                        'Selected nodes',
+                        'selected_nodes',
                         () => this.togglePane('nodes'),
                         this.isActive('nodes')
                     )}
                     {this.getButton(
                         'ion-ios-grid-view',
-                        'Table',
+                        'table',
                         () => this.togglePane('table'),
                         this.isActive('table')
                     )}
                     {this.getButton(
                         'ion-android-list',
-                        'Unique values',
+                        'unique_values',
                         () => this.togglePane('valueTable'),
                         this.isActive('valueTable')
                     )}
                     {this.getButton(
                         'ion-ios-clock',
-                        'Timeline',
+                        'timeline',
                         () => this.togglePane('timeline'),
                         this.isActive('timeline')
                     )}
-                    {/*{this.getButton(*/}
-                        {/*'ion-ios-circle-filled',*/}
-                        {/*'Chord diagram',*/}
-                        {/*() => this.togglePane('chordDiagram'),*/}
-                        {/*this.isActive('chordDiagram')*/}
-                    {/*)}*/}
-                    {/*{this.getButton(*/}
-                        {/*'ion-grid',*/}
-                        {/*'Adjacency matrix',*/}
-                        {/*() => this.togglePane('adjacencyMatrix'),*/}
-                        {/*this.isActive('adjacencyMatrix')*/}
-                    {/*)}*/}
                 </ul>
                 <ul className="mapControls">
                     {this.getButton(
 						'ion-android-globe',
-						isMapDisabled ? 'Map is unavailable for this data' : 'Map',
+						isMapDisabled ? 'map_unavailable' : 'map',
 						() => this.toggleMapActive(),
 						isMapActive,
                         isMapDisabled
 					)}
                     {this.getButton(
                         'ion-ios-pricetag',
-                        'Labels',
+                        'labels',
                         () => this.toggleLabels(),
                         showLabels
                     )}
                     {this.getButton(
                         'ion-ios-minus',
-                        'Zoom out',
+                        'zoom_out',
                         () => zoomOut(),
                         false
                     )}
                     {this.getButton(
                         'ion-ios-plus',
-                        'Zoom in',
+                        'zoom_in',
                         () => zoomIn(),
                         false
                     )}
                     {this.getButton(
                         'ion-android-locate',
-                        'Center',
+                        'center',
                         () => center(),
                         false
                     )}
                 </ul>
                 <ul className="mapControls">
                     <li>
-                        <Tooltip
+                        <RcTooltip
                             overlay={this.getHelp.bind(this)}
                             placement="bottom"
                             mouseLeaveDelay={0}
                             overlayClassName={styles.help}
                             arrowContent={<div className="rc-tooltip-arrow-inner" />}>
                             <Icon name={'ion-ios-help ' + styles.helpButton} />
-                        </Tooltip>
+                        </RcTooltip>
                     </li>
                 </ul>
             </nav>

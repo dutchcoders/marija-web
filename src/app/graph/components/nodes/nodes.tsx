@@ -18,6 +18,7 @@ import { Link } from '../../interfaces/link';
 import { Node } from '../../interfaces/node';
 import { getSelectedNodes } from '../../graphSelectors';
 import SelectedNode from  '../selectedNode/selectedNode';
+import { FormattedMessage } from 'react-intl';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -155,7 +156,7 @@ class Nodes extends React.Component<Props, State> {
                     className="nodesButton"
                     aria-label="Mark important"
                     onClick={() => this.markImportant()}>
-                    mark important
+					<FormattedMessage id="mark_important"/>
                 </button>
             );
         } else {
@@ -165,7 +166,7 @@ class Nodes extends React.Component<Props, State> {
                     className="nodesButton"
                     aria-label="Undo important mark"
                     onClick={() => this.markNotImportant()}>
-                    undo important mark
+					<FormattedMessage id="undo_mark_important"/>
                 </button>
             );
         }
@@ -175,21 +176,21 @@ class Nodes extends React.Component<Props, State> {
         return (
             <div className="form-group toolbar selectedNodesContent">
                 <div className="nodesBtnGroupTop" role="group">
-                    <button type="button" className="nodesButton" aria-label="Select related nodes" onClick={() => this.handleSelectRelatedNodes()}>related</button>
-                    <button type="button" className="nodesButton" aria-label="Select directly related nodes" onClick={() => this.handleSelectDirectlyRelatedNodes()}>directly related</button>
-                    <button type="button" className="nodesButton" aria-label="Delete selected nodes" onClick={() => this.handleDeleteAllNodes()}>delete</button>
-                    <button type="button" className="nodesButton" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}>delete others</button>
-                    <button type="button" className="nodesButton" aria-label="Search around" onClick={() => this.searchAround()} disabled={!searchAroundPossible}>search around</button>
-                    <button type="button" className="nodesButton" aria-label="Reset position" onClick={() => this.resetPosition()}>reset position</button>
+                    <button type="button" className="nodesButton" aria-label="Select related nodes" onClick={() => this.handleSelectRelatedNodes()}><FormattedMessage id="related"/></button>
+                    <button type="button" className="nodesButton" aria-label="Select directly related nodes" onClick={() => this.handleSelectDirectlyRelatedNodes()}><FormattedMessage id="directly_related"/></button>
+                    <button type="button" className="nodesButton" aria-label="Delete selected nodes" onClick={() => this.handleDeleteAllNodes()}><FormattedMessage id="delete"/></button>
+                    <button type="button" className="nodesButton" aria-label="Delete but selected nodes" onClick={() => this.handleDeleteAllButSelectedNodes()}><FormattedMessage id="delete_others"/></button>
+                    <button type="button" className="nodesButton" aria-label="Search around" onClick={() => this.searchAround()} disabled={!searchAroundPossible}><FormattedMessage id="search_around"/></button>
+                    <button type="button" className="nodesButton" aria-label="Reset position" onClick={() => this.resetPosition()}><FormattedMessage id="reset_position"/></button>
                     {important}
                 </div>
 				<ul onMouseLeave={this.hideTooltip.bind(this)} className="nodesList">
 					{this.renderSelected()}
 				</ul>
 				<div className="nodesBtnGroupBottom" role="group">
-					<button type="button" className="nodesButton" aria-label="Clear selection" onClick={() => this.handleClearSelection()}>deselect all</button>
-					<button type="button" className="nodesButton" aria-label="Select all nodes" onClick={() => this.handleSelectAllNodes()}>select all</button>
-					<button type="button" className="nodesButton" aria-label="Select important nodes" onClick={() => this.selectImportant()}>select important</button>
+					<button type="button" className="nodesButton" aria-label="Clear selection" onClick={() => this.handleClearSelection()}><FormattedMessage id="deselect_all"/></button>
+					<button type="button" className="nodesButton" aria-label="Select all nodes" onClick={() => this.handleSelectAllNodes()}><FormattedMessage id="select_all"/></button>
+					<button type="button" className="nodesButton" aria-label="Select important nodes" onClick={() => this.selectImportant()}><FormattedMessage id="select_important"/></button>
 				</div>
             </div>
         );

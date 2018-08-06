@@ -2,6 +2,7 @@ import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import * as styles from './timelineSlider.scss';
 import Icon from '../../../ui/components/icon';
+import { FormattedMessage } from 'react-intl';
 
 interface Props {
 	onChange: (minFraction: number, maxFraction: number) => void;
@@ -227,7 +228,7 @@ class TimelineSlider extends React.Component<Props, State> {
 						<Icon name="ion-arrow-swap" />
 					</button>
 					<button className={styles.select} onClick={() => onSelect(this.minFraction, this.maxFraction)}>
-						Select nodes
+						<FormattedMessage id="select_nodes"/>
 					</button>
 				</div>
 				<nav className={styles.actions}>
@@ -235,18 +236,18 @@ class TimelineSlider extends React.Component<Props, State> {
 						<button className={styles.stop}
 								onClick={this.finishPlaying.bind(this)}>
 							<Icon name="ion-stop"/>
-							Stop
+							<FormattedMessage id="stop"/>
 						</button>
 					)}
 
 					{!isPlaying && (
 						<button className={styles.play} onClick={this.startPlaying.bind(this)}>
 							<Icon name="ion-ios-play" />
-							Play
+							<FormattedMessage id="play"/>
 						</button>
 					)}
 
-					<button className={styles.reset} onClick={this.reset.bind(this)}>Reset</button>
+					<button className={styles.reset} onClick={this.reset.bind(this)}><FormattedMessage id="reset"/></button>
 				</nav>
 			</div>
 		);

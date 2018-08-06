@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import FieldRow from '../fieldRow/fieldRow';
 import * as styles from './fieldList.scss';
 import { FieldStatList } from '../../helpers/getFieldStats';
+import { FormattedMessage } from 'react-intl';
 
 interface Props {
 	fields: Field[];
@@ -78,8 +79,8 @@ class FieldList extends React.Component<Props, State> {
 				<table key={1} className={styles.fieldTable}>
 					<thead>
 					<tr>
-						<td className={styles.fieldHead}>Field</td>
-						<td className={styles.fieldHead}>Unique/total</td>
+						<td className={styles.fieldHead}><FormattedMessage id="field"/></td>
+						<td className={styles.fieldHead}><FormattedMessage id="unique_total"/></td>
 						<td />
 						<td />
 					</tr>

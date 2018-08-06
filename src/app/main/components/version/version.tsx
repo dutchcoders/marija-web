@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { AppState } from '../../interfaces/appState';
+import { FormattedMessage } from 'react-intl';
 
 interface Props {
 	serverVersion: string;
@@ -17,7 +18,7 @@ class Version extends React.Component<Props, State> {
 
 		return (
 			<div>
-				<h2>Version</h2>
+				<h2><FormattedMessage id="version"/></h2>
 				<p>
 					Server: {serverVersion}<br />
 					Client: {clientVersion} ({lastCommitDate})

@@ -6,10 +6,12 @@ import { connect } from 'react-redux';
 import { AppState } from '../../../main/interfaces/appState';
 import { setFilterNodesBy } from '../../graphActions';
 import FilterResults from '../filterResults/filterResults';
+import { injectIntl, InjectedIntl } from 'react-intl';
 
 interface Props {
 	filterNodesBy: string;
 	dispatch: any;
+	intl: InjectedIntl;
 }
 
 interface State {
@@ -52,7 +54,7 @@ class Filter extends React.Component<Props, State> {
 	}
 
 	render() {
-		const { filterNodesBy } = this.props;
+		const { filterNodesBy, intl } = this.props;
 		const { opened } = this.state;
 
 		return (
@@ -63,7 +65,7 @@ class Filter extends React.Component<Props, State> {
 							type="text"
 							value={filterNodesBy}
 							onChange={ this.onFilterChange.bind(this) }
-							placeholder="Type to filter"
+							placeholder={intl.formatMessage({ id: 'type_to_filter' })}
 							className={styles.input}
 							ref={ref => this.input = ref}
 							onKeyDown={this.onKeyDown.bind(this)}
@@ -82,8 +84,9 @@ class Filter extends React.Component<Props, State> {
 	}
 }
 
-const select = (state: AppState) => ({
+const select = (state: AppState, ownProps) => ({
+	...ownProps,
 	filterNodesBy: state.graph.filterNodesBy
 });
 
-export default connect(select)(Filter);
+export default injectIntl(connect(select)(Filter));

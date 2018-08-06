@@ -7,6 +7,7 @@ import {
 } from '../../graphSelectors';
 import ValueTableRow from '../valueTableRow/valueTableRow';
 import * as styles from './valuetable.scss';
+import { FormattedMessage } from 'react-intl';
 
 interface Props {
 	valueInfoList: ValueInfo[];
@@ -22,10 +23,10 @@ class ValueTable extends React.Component<Props> {
 			<table className={styles.table}>
 				<thead>
 				<tr>
-					<td className={styles.columnTitle}>Value</td>
-					<td className={styles.columnTitle + ' ' + styles.occurences}>Occurences</td>
-					<td className={styles.columnTitle + ' ' + styles.fields}>Fields</td>
-					<td className={styles.columnTitle + ' ' + styles.nodes}>Nodes</td>
+					<td className={styles.columnTitle}><FormattedMessage id="value"/></td>
+					<td className={styles.columnTitle + ' ' + styles.occurences}><FormattedMessage id="occurences"/></td>
+					<td className={styles.columnTitle + ' ' + styles.fields}><FormattedMessage id="fields"/></td>
+					<td className={styles.columnTitle + ' ' + styles.nodes}><FormattedMessage id="nodes"/></td>
 				</tr>
 				</thead>
 				<tbody>

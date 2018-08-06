@@ -20,6 +20,7 @@ import ColorPicker from '../../../ui/components/colorPicker/colorPicker';
 import IconSelector from '../iconSelector/iconSelector';
 import MagicWand from '../../../graph/components/magicWand/magicWand';
 import Icon from '../../../ui/components/icon';
+import { FormattedMessage } from 'react-intl';
 
 interface State {
 	isHoveringOnDropArea: boolean;
@@ -155,11 +156,11 @@ class ConnectorComponent extends React.Component<Props, State> {
 						<form className={styles.strategy}>
 							<label>
 								<input type="radio" name="strategy" checked={connector.strategy === 'OR'} value="OR" onChange={this.onStrategyChange.bind(this)}/>
-								<span>Match at least one</span>
+								<span><FormattedMessage id="match_at_least_one" /></span>
 							</label>
 							<label>
 								<input type="radio" name="strategy" checked={connector.strategy === 'AND'} value="AND" onChange={this.onStrategyChange.bind(this)}/>
-								<span>Match all</span>
+								<span><FormattedMessage id="match_all" /></span>
 							</label>
 							<Icon name={styles.delete + ' ion-ios-close'} onClick={this.deleteConnector.bind(this)}/>
 						</form>
@@ -178,7 +179,9 @@ class ConnectorComponent extends React.Component<Props, State> {
 						 onDragEnter={this.onDragEnter.bind(this)}
 						 onDragLeave={this.onDragLeave.bind(this)}
 						 onDrop={this.onDrop.bind(this)}>
-						{connector === null ? 'Drop field here to create new connector' : 'Drop field here to make part of connector'}
+						{connector === null
+							? <FormattedMessage id="drop_field_new_connector" />
+							: <FormattedMessage id="drop_field_existing_connector" />}
 					</div>
 				</div>
 

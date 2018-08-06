@@ -15,7 +15,7 @@ import {
 } from './fieldsSelectors';
 import FieldList from './components/fieldList/fieldList';
 import { selectDatasourcesInData } from '../datasources/datasourcesSelectors';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, InjectedIntl, injectIntl } from 'react-intl';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -23,6 +23,7 @@ interface Props {
     datasources: Datasource[];
     fieldsFetching: boolean;
     typeLabels: TypeLabel[];
+	intl: InjectedIntl;
 }
 
 interface State {
@@ -146,7 +147,7 @@ class Fields extends React.Component<Props, State> {
     }
 
     render() {
-        const { fieldsFetching } = this.props;
+        const { fieldsFetching, intl } = this.props;
         const { query, datasourceFilter, searchTypes } = this.state;
 
         return (
@@ -165,7 +166,7 @@ class Fields extends React.Component<Props, State> {
 									ref={searchInput => this.searchInput = searchInput}
 									value={this.state.query}
 									onChange={this.handleFieldSearchChange.bind(this)} type="text"
-									placeholder={'Search fields'} />
+									placeholder={intl.formatMessage({ id: 'search_fields' })} />
 							</div>
 						</div>
 						<div className={styles.filters}>
@@ -182,8 +183,9 @@ class Fields extends React.Component<Props, State> {
 }
 
 
-function select(state: AppState) {
+function select(state: AppState, ownProps) {
     return {
+		...ownProps,
         availableFields: getNonDateFields(state),
 		typeLabels: selectTypeLabels(state),
         fieldsFetching: state.fields.fieldsFetching,
@@ -191,4 +193,4 @@ function select(state: AppState) {
     };
 }
 
-export default connect(select)(Fields);
+export default injectIntl(connect(select)(Fields));

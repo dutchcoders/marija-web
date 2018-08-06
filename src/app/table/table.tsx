@@ -21,6 +21,7 @@ import { getSelectedFields } from '../fields/fieldsSelectors';
 import { createNewConnector } from '../fields/fieldsActions';
 import { selectSortedItems } from './tableSelectors';
 import * as Fuse from 'fuse.js';
+import { FormattedMessage } from 'react-intl';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -278,11 +279,11 @@ class Table extends React.Component<Props, State> {
         const { selectedNodes } = this.props;
 
         if (!selectedNodes.length) {
-            return <p className="noNodes">Select some nodes first</p>;
+            return <p className="noNodes"><FormattedMessage id="select_nodes_first"/></p>;
         }
 
         if (!items.length) {
-            return <p className="noNodes">No items found for these nodes</p>;
+            return <p className="noNodes"><FormattedMessage id="no_items_for_nodes" /></p>;
         }
 
         return (

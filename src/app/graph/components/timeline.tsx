@@ -22,6 +22,7 @@ import * as styles from './timeline.scss';
 import { EventEmitter } from 'fbemitter';
 import { TimelineGrouping } from '../interfaces/graphState';
 import { getSelectedDateFields } from '../../fields/fieldsSelectors';
+import { FormattedMessage } from 'react-intl';
 
 interface Props {
 	onPaneEvent?: EventEmitter;
@@ -280,14 +281,14 @@ class Timeline extends React.Component<Props, State> {
         let noDateFields = null;
         if (dateFields.length === 0) {
             noDateFields = (
-                <p>Select at least one date field in the datasource config.</p>
+                <p><FormattedMessage id="select_one_date_field"/></p>
             );
         }
 
         let noDates = null;
         if (!noNodes && !noDateFields && periods.length === 0) {
         	noDates = (
-        		<p>No date information was found in the search results.</p>
+        		<p><FormattedMessage id="no_date_information"/></p>
 			);
 		}
 
@@ -306,7 +307,7 @@ class Timeline extends React.Component<Props, State> {
         if (!noNodes && !noDateFields && !noDates) {
         	grouping = (
 				<div className={styles.grouping}>
-					<label className={styles.groupingLabel}>Group by</label>
+					<label className={styles.groupingLabel}><FormattedMessage id="group_by"/></label>
 					<select onChange={this.onGroupingChange.bind(this)} defaultValue={timelineGrouping} className={styles.selectGrouping}>
 						{groupOptions.map(option => (
 							<option value={option} key={option}>{option}</option>
