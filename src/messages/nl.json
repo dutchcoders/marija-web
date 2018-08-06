@@ -94,5 +94,10 @@
   "found_x_items": "{items} Items gevonden",
   "found_x_fields": "{fields} Velden gevonden",
   "unique_values_max_10": "Unieke waarden (max. 10 worden weergegeven)",
-  "type": "Type"
+  "type": "Type",
+  "maximum_age": "Periode",
+  "all_time": "Elke periode",
+  "1_month": "Afgelopen maand",
+  "1_week": "Afgelopen week",
+  "1_day": "Afgelopen dag"
 }

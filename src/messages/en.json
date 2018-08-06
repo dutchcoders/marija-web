@@ -93,5 +93,10 @@
   "found_x_items": "Found {items} items",
   "found_x_fields": "Found {fields} fields",
   "unique_values_max_10": "Unique values (displaying max. 10)",
-  "type": "Type"
+  "type": "Type",
+  "maximum_age": "Maximum age",
+  "all_time": "All",
+  "1_month": "1 Month",
+  "1_week": "1 Week",
+  "1_day": "1 Day"
 }
