@@ -10,6 +10,7 @@ import * as styles from './searchBox.scss';
 import { getActiveNonLiveDatasources } from '../../datasources/datasourcesSelectors';
 import DateFilter from './dateFilter/dateFilter';
 import { injectIntl, InjectedIntl, FormattedMessage } from 'react-intl';
+import * as Fuse from 'fuse.js';
 
 interface Props {
     onSubmit: Function;
@@ -47,6 +48,7 @@ class SearchBox extends React.Component<Props, State> {
     searchForm: HTMLFormElement;
     queryInput: HTMLTextAreaElement;
     clickHandlerRef;
+    queryHistorySearch: Fuse;
 
     setNoDatasourcesError(datasources: Datasource[]) {
         const { query } = this.state;
@@ -128,9 +130,9 @@ class SearchBox extends React.Component<Props, State> {
     	let autoComplete = [];
 
     	if (value) {
-    		autoComplete = queryHistory.filter(query =>
-				query.toLowerCase().includes(value.toLowerCase())
-			).slice(0, 10);
+    		const results: any = this.queryHistorySearch.search(value).slice(0, 10);
+
+    		autoComplete = results.map(result => result.query);
 		} else {
     		autoComplete = queryHistory.slice(0, 5);
 		}
@@ -188,6 +190,14 @@ class SearchBox extends React.Component<Props, State> {
 
     componentWillReceiveProps(nextProps: Props) {
 		this.setNoDatasourcesError(nextProps.datasources);
+
+		const searchable = nextProps.queryHistory.map(query => ({
+			query
+		}));
+
+		this.queryHistorySearch = new Fuse(searchable, {
+			keys: ['query']
+		});
 	}
 
 	toggleFormExpanded() {
