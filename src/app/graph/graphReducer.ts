@@ -18,7 +18,7 @@ import {
 	SEARCH_EDIT,
 	SEARCH_FIELDS_UPDATE,
 	SEARCH_RECEIVE,
-	SEARCH_REQUEST
+	SEARCH_REQUEST, SET_SEARCH_TOTAL
 } from '../search/searchConstants';
 import {
 	DEFAULT_DISPLAY_ITEMS_PER_SEARCH, DELETE_SEARCH_NODES, DONT_GROUP_NODE,
@@ -772,6 +772,30 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 					error: 'Connection lost'
 				};
 			});
+
+			return {
+				...state,
+				searches
+			};
+		}
+
+		case SET_SEARCH_TOTAL: {
+			const requestId: string = action.payload.requestId;
+			const total: number = action.payload.total;
+
+			const index = state.searches.findIndex(search =>
+				search.requestId === requestId
+			);
+
+			if (index === -1) {
+				return state;
+			}
+
+			const searches = state.searches.concat([]);
+			searches[index] = {
+				...searches[index],
+				total
+			};
 
 			return {
 				...state,

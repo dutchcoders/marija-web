@@ -21,7 +21,7 @@ import {
 	SEARCH_EDIT,
 	SEARCH_FIELDS_UPDATE,
 	SEARCH_RECEIVE,
-	SEARCH_REQUEST
+	SEARCH_REQUEST, SET_SEARCH_TOTAL
 } from './searchConstants';
 import { getGraphWorkerPayload } from '../graph/helpers/getGraphWorkerPayload';
 import { getSelectedFields } from '../fields/fieldsSelectors';
@@ -415,4 +415,14 @@ export function dismissItemsToConfirm(search: Search) {
 
 		cancelRequest(search.requestId);
 	};
+}
+
+export function setSearchTotal(requestId: string, total: number) {
+	return {
+		type: SET_SEARCH_TOTAL,
+		payload: {
+			requestId,
+			total
+		}
+	}
 }

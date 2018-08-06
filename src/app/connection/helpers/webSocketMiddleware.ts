@@ -6,7 +6,11 @@ import * as ReconnectingWebsocket from 'reconnecting-websocket';
 import {Dispatch, Middleware} from 'redux';
 import {authConnected, error} from "../connectionActions";
 import {Item} from "../../graph/interfaces/item";
-import {liveReceive, searchReceive} from "../../search/searchActions";
+import {
+	liveReceive,
+	searchReceive,
+	setSearchTotal
+} from "../../search/searchActions";
 import {requestCompleted} from "../connectionActions";
 import {FIELDS_RECEIVE} from "../../fields/fieldsConstants";
 import {receiveFields} from "../../fields/fieldsActions";
@@ -72,6 +76,8 @@ function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {
 
     switch (data.type) {
         case SEARCH_RECEIVE: {
+            dispatch(setSearchTotal(data['request-id'], data.total_count));
+
         	debounceItems(
                 data.results,
                 data['request-id'],

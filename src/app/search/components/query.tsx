@@ -206,7 +206,7 @@ class Query extends React.Component<Props, State> {
         if (!search.liveDatasource || !search.paused) {
             count = (
                 <span className="count">
-                    {displayItems}/{items}
+                    {displayItems}/{search.total}
                 </span>
             );
         }
