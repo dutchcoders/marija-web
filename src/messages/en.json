@@ -100,5 +100,9 @@
   "1_week": "1 Week",
   "1_day": "1 Day",
   "suggested_connectors": "Suggested connectors",
-  "suggested_connector_info": "Create {nodes} connector nodes, connecting {links} items.<br />Example values: {values}"
+  "suggested_connector_info": "Create {nodes} connector nodes, connecting {links} items.<br />Example values: {values}",
+  "select_nodes_for_unique_values": "Select nodes to display the unique values found in their data.",
+  "select_all_nodes": "Select all nodes",
+  "filter_by_field": "Filter by field:",
+  "all_fields": "All fields"
 }

@@ -8,12 +8,14 @@ import { FormEvent } from 'react';
 import Icon from '../../../ui/components/icon';
 import { Node } from '../../interfaces/node';
 import { nodesSelect } from '../../graphActions';
+import { FormattedMessage, injectIntl, InjectedIntl } from 'react-intl';
 
 interface Props {
 	fields: string[];
 	selectedNodes: Node[];
 	nodes: Node[];
 	dispatch: any;
+	intl?: InjectedIntl;
 }
 
 interface State {
@@ -46,7 +48,7 @@ class ValueTableContainer extends React.Component<Props, State> {
 	}
 
 	render() {
-		const { fields, selectedNodes } = this.props;
+		const { fields, selectedNodes, intl } = this.props;
 		const { field, search } = this.state;
 
 		return (
@@ -54,9 +56,9 @@ class ValueTableContainer extends React.Component<Props, State> {
 
 				<div className={styles.filters}>
 					<div className={styles.filter}>
-						<label className={styles.label}>Filter by field: </label>
+						<label className={styles.label}><FormattedMessage id="filter_by_field"/></label>
 						<select value={field} onChange={this.onFieldChange.bind(this)} className={styles.select}>
-							<option value="">All fields</option>
+							<option value="">{intl.formatMessage({ id: 'all_fields' })}</option>
 							{fields.map(fieldLoop =>
 								<option key={fieldLoop} value={fieldLoop}>{fieldLoop}</option>
 							)}
@@ -68,7 +70,7 @@ class ValueTableContainer extends React.Component<Props, State> {
 							value={search}
 							onChange={this.onSearchChange.bind(this)}
 							className={styles.searchInput}
-							placeholder="Type to filter"
+							placeholder={intl.formatMessage({ id: 'type_to_filter' })}
 						/>
 						<Icon name={'ion-ios-search ' + styles.searchIcon} />
 					</div>
@@ -78,8 +80,8 @@ class ValueTableContainer extends React.Component<Props, State> {
 					? <ValueTable field={field} search={search} />
 					: (
 						<div className={styles.noNodes}>
-							<p className={styles.noNodes}>Select nodes to display the unique values found in their data.</p>
-							<button onClick={this.selectAllNodes.bind(this)} className={styles.button}>Select all nodes</button>
+							<p className={styles.noNodes}><FormattedMessage id="select_nodes_for_unique_values"/></p>
+							<button onClick={this.selectAllNodes.bind(this)} className={styles.button}><FormattedMessage id="select_all_nodes"/></button>
 						</div>
 					)
 				}
@@ -91,7 +93,8 @@ class ValueTableContainer extends React.Component<Props, State> {
 const select = (state: AppState) => ({
 	fields: selectItemFields(state),
 	selectedNodes: getSelectedNodes(state),
-	nodes: state.graph.nodes
+	nodes: state.graph.nodes,
 });
 
-export default connect(select)(ValueTableContainer);
+//@ts-ignore
+export default injectIntl(connect(select)(ValueTableContainer));

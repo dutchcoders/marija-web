@@ -101,5 +101,9 @@
   "1_week": "Afgelopen week",
   "1_day": "Afgelopen dag",
   "suggested_connectors": "Voorgestelde connectoren",
-  "suggested_connector_info": "Maak {nodes} connector nodes die {links} items verbinden.<br />Voorbeeld waarden: {values}"
+  "suggested_connector_info": "Maak {nodes} connector nodes die {links} items verbinden.<br />Voorbeeld waarden: {values}",
+  "select_nodes_for_unique_values": "Selecteer nodes om hun unieke waarden weer te geven.",
+  "select_all_nodes": "Selecteer alle nodes",
+  "filter_by_field": "Filter op veld:",
+  "all_fields": "Alle velden"
 }
