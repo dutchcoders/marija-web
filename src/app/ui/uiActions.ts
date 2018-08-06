@@ -182,12 +182,11 @@ export function setExperimentalFeatures(enabled: boolean) {
 	};
 }
 
-export function setReducerError(reducerError, reducerErrorState, reducerErrorLastAction) {
+export function setReducerError(reducerError, reducerErrorLastAction) {
 	return {
 		type: SET_REDUCER_ERROR,
 		payload: {
 			reducerError,
-			reducerErrorState,
 			reducerErrorLastAction,
 		}
 	}

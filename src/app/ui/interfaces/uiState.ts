@@ -12,7 +12,6 @@ export interface UiState {
     lightboxImageUrl: string | null;
     experimentalFeatures: boolean;
     reducerError: any;
-    reducerErrorState: any;
     reducerErrorLastAction: any;
     lang: Language
 }

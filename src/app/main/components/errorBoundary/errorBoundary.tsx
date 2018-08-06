@@ -6,14 +6,12 @@ export interface ErrorDetails {
 	componentError?: any;
 	componentErrorInfo?: any;
 	reducerError?: any;
-	reducerErrorState?: any;
 	reducerErrorLastAction?: any;
 }
 
 interface Props {
 	onError: (errorDetails: ErrorDetails) => void;
 	reducerError: any;
-	reducerErrorState: any;
 	reducerErrorLastAction: any;
 	children: any;
 }
@@ -29,12 +27,11 @@ class ErrorBoundary extends React.Component<Props> {
 	}
 
 	componentWillReceiveProps(nextProps: Props) {
-		const { onError, reducerError, reducerErrorState, reducerErrorLastAction } = nextProps;
+		const { onError, reducerError, reducerErrorLastAction } = nextProps;
 
 		onError({
 			reducerError,
-			reducerErrorLastAction,
-			reducerErrorState,
+			reducerErrorLastAction
 		});
 	}
 
@@ -48,7 +45,6 @@ class ErrorBoundary extends React.Component<Props> {
 const select = (state: AppState, ownProps) => ({
 	...ownProps,
 	reducerError: state.ui.reducerError,
-	reducerErrorState: state.ui.reducerErrorState,
 	reducerErrorLastAction: state.ui.reducerErrorLastAction
 });
 

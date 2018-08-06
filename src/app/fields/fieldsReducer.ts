@@ -184,6 +184,11 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 		case DELETE_FROM_CONNECTOR: {
 			let connectors = state.connectors.concat([]);
 			const index = connectors.findIndex(matcher => matcher.name === action.payload.connectorName);
+
+			if (index === -1) {
+				throw new Error('Trying to delete not-existing connector: ' + action.payload.connectorName);
+			}
+
 			const fieldPath = connectors[index].rules.find(rule => rule.id === action.payload.ruleId).field.path;
 
 			connectors[index] = {

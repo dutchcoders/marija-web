@@ -8,6 +8,6 @@ export function errorMiddleware() {
 		console.error('current state', getState());
 		console.error('last action was', lastAction);
 
-		dispatch(setReducerError(error.toString(), getState(), lastAction));
+		dispatch(setReducerError(error.toString(), lastAction));
 	});
 }

@@ -84,7 +84,6 @@ export const defaultUiState: UiState = {
     },
 	lightboxImageUrl: null,
 	reducerError: null,
-    reducerErrorState: null,
     reducerErrorLastAction: null,
     lang: 'en'
 };
@@ -184,7 +183,6 @@ export default function uiReducer(state: UiState = defaultUiState, action): UiSt
 			return {
 				...state,
 				reducerError: action.payload.reducerError,
-				reducerErrorState: action.payload.reducerErrorState,
 				reducerErrorLastAction: action.payload.reducerErrorLastAction
 			};
 		}
