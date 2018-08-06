@@ -344,21 +344,19 @@ class Configuration extends React.Component<Props, State> {
 					</label>
                 </div>
 
-				{experimentalFeatures && (
-					<div>
-						<h2><FormattedMessage id="language"/></h2>
-						<div className="form-group">
-							<label className="graph-option">
-								<input type="radio" name="lang" onChange={this.onLangChange.bind(this)} defaultChecked={lang === 'en'} value={'en'} />
-								English
-							</label>
-							<label className="graph-option">
-								<input type="radio" name="lang" onChange={this.onLangChange.bind(this)} defaultChecked={lang === 'nl'} value={'nl'} />
-								Nederlands
-							</label>
-						</div>
-					</div>
-				)}
+                <div>
+                    <h2><FormattedMessage id="language"/></h2>
+                    <div className="form-group">
+                        <label className="graph-option">
+                            <input type="radio" name="lang" onChange={this.onLangChange.bind(this)} defaultChecked={lang === 'en'} value={'en'} />
+                            English
+                        </label>
+                        <label className="graph-option">
+                            <input type="radio" name="lang" onChange={this.onLangChange.bind(this)} defaultChecked={lang === 'nl'} value={'nl'} />
+                            Nederlands
+                        </label>
+                    </div>
+                </div>
 
                 <div className="form-group">
                     <button className="btn btn-primary" onClick={this.exportJson.bind(this)}><FormattedMessage id="export"/></button>
