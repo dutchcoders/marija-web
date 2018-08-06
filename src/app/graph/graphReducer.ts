@@ -1,5 +1,9 @@
 import {concat, isEqual, uniqueId, without} from 'lodash';
-import { ERROR, REQUEST_COMPLETED } from '../connection/connectionConstants';
+import {
+	AUTH_CONNECTED,
+	ERROR,
+	REQUEST_COMPLETED
+} from '../connection/connectionConstants';
 import darkenColor from '../search/helpers/darkenColor';
 import getQueryColor from '../search/helpers/getQueryColor';
 import {Search} from '../search/interfaces/search';
@@ -749,6 +753,29 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 			return {
 				...state,
 				filterNodesBy: action.payload.query
+			};
+		}
+
+		case AUTH_CONNECTED: {
+			if (action.payload.connected) {
+				return state;
+			}
+
+			const searches: Search[] = state.searches.map(search => {
+				if (search.completed) {
+					return search;
+				}
+
+				return {
+					...search,
+					completed: true,
+					error: 'Connection lost'
+				};
+			});
+
+			return {
+				...state,
+				searches
 			};
 		}
 
