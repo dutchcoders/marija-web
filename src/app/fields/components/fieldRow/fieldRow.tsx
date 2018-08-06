@@ -32,18 +32,12 @@ class FieldRow extends React.Component<Props, State> {
 		expanded: false
     };
 
-    add() {
+    add(event: MouseEvent) {
+    	event.stopPropagation();
+
         const { field, dispatch } = this.props;
 
-        // Url.addQueryParam('fields', field.path);
-
         dispatch(createNewConnector([field]));
-        // dispatch(searchFieldsUpdate());
-
-        // If we add a field for a datasource, we assume that a user wants to
-        // search in it, so we go ahead and activate it for the user, saving him
-        // a click.
-        // dispatch(datasourceActivated(field.datasourceId));
     }
 
     toggleExpanded() {
@@ -81,16 +75,14 @@ class FieldRow extends React.Component<Props, State> {
 		}
 
 		const rows = [
-			<tr className={styles.tr + (expanded ? ' ' + styles.mainExpanded : '')}
-				key="main">
+			<tr className={styles.fieldRow + (expanded ? ' ' + styles.mainExpanded : '')}
+				key="main"
+				onClick={this.toggleExpanded.bind(this)}>
 
 				<td className={styles.td}>{field.path}</td>
 				<td className={styles.td}>{fieldStats.uniqueValues.length}/{fieldStats.values}</td>
 				<td className={styles.td}>
-					<Icon
-						onClick={this.toggleExpanded.bind(this)}
-						name={styles.add + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')}
-					/>
+					<Icon name={styles.add + ' ' + (expanded ? 'ion-ios-arrow-up' : 'ion-ios-arrow-down')} />
 				</td>
 				{addButton}
 			</tr>
