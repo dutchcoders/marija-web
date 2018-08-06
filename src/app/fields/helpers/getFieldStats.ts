@@ -19,7 +19,7 @@ export function getFieldStats(fields: Field[], items: Item[]): FieldStatList {
 			let values = item.fields[key];
 
 			if (values === null || values === '' || typeof values === 'undefined') {
-				return;
+				values = [];
 			}
 
 			if (!Array.isArray(values)) {

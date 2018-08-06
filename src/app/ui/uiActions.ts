@@ -66,7 +66,7 @@ export function closeLightbox() {
     };
 }
 
-const workspaceVersion: number = 5;
+const workspaceVersion: number = 6;
 
 function getWorkspace(state: AppState): Workspace {
 	// Only save the fields of custom datasources, we get the other fields from the server
@@ -84,7 +84,6 @@ function getWorkspace(state: AppState): Workspace {
 		filterBoringNodes: state.graph.filterBoringNodes,
 		filterSecondaryQueries: state.graph.filterSecondaryQueries,
 		connectors: state.fields.connectors,
-		availableFields: customFields,
 		experimentalFeatures: state.ui.experimentalFeatures,
 		queryHistory: state.graph.queryHistory,
 		columns: state.table.columns,
