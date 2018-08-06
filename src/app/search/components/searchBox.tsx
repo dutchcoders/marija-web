@@ -15,12 +15,10 @@ import * as Fuse from 'fuse.js';
 interface Props {
     onSubmit: Function;
     dispatch: Dispatch<any>;
-    connected: boolean;
     enabled: boolean;
     searches: Search[];
     nodes: Node[];
     datasources: Datasource[];
-    experimentalFeatures: boolean;
     queryHistory: string[];
     intl: InjectedIntl;
 }
@@ -71,6 +69,10 @@ class SearchBox extends React.Component<Props, State> {
 			});
 		}
 
+		this.setState({
+			formExpanded: true
+		});
+
         window.addEventListener('click', this.clickHandlerRef)
     }
 
@@ -116,7 +118,8 @@ class SearchBox extends React.Component<Props, State> {
         this.setState({
 			query: '',
 			formExpanded: false,
-			autoComplete: []
+			autoComplete: [],
+			activeAutoCompleteIndex: 0
         });
 		this.adjustInputHeight();
         this.props.onSubmit(trimmed, dateFilter);
@@ -225,7 +228,7 @@ class SearchBox extends React.Component<Props, State> {
 	}
 
     render() {
-        const { connected, searches, nodes, experimentalFeatures, intl } = this.props;
+        const { searches, nodes, intl } = this.props;
         const { query, searchAroundOpen, noDatasourcesError, formExpanded, dateFilter, autoComplete, activeAutoCompleteIndex } = this.state;
 
         const userQueries = searches
@@ -298,11 +301,6 @@ class SearchBox extends React.Component<Props, State> {
 								</ul>
 							)}
 
-							{experimentalFeatures &&
-								<Icon name={'ion-ios-clock ' + styles.toggleExpand}
-								  onClick={this.toggleFormExpanded.bind(this)}/>
-							}
-
 							{formExpanded && (
 								<div className={styles.dates}>
 									<DateFilter date={dateFilter} onChange={this.handleDateFilterChange.bind(this)}/>
@@ -330,7 +328,6 @@ const select = (state: AppState, ownProps) => {
         searches: state.graph.searches,
         datasources: getActiveNonLiveDatasources(state),
         nodes: state.graph.nodes,
-		experimentalFeatures: state.ui.experimentalFeatures,
 		queryHistory: state.graph.queryHistory
     };
 };
