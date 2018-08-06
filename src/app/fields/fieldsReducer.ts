@@ -189,7 +189,13 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 				throw new Error('Trying to delete rule from not-existing connector: ' + action.payload.connectorName);
 			}
 
-			const fieldPath = connectors[index].rules.find(rule => rule.id === action.payload.ruleId).field.path;
+			const rule = connectors[index].rules.find(rule => rule.id === action.payload.ruleId);
+
+			if (!rule) {
+				throw new Error('Trying to delete field from non-existing rule: ' + action.payload.ruleId);
+			}
+
+			const fieldPath = rule.field.path;
 
 			connectors[index] = {
 				...connectors[index],

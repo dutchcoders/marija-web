@@ -10,6 +10,7 @@ import {
 import { Field } from '../interfaces/field';
 import { createConnector } from './createConnector';
 import { getFieldStats } from './getFieldStats';
+import { getConnectorName } from './getConnectorName';
 
 interface SuggestedConnector {
 	fields: Field[];
@@ -255,7 +256,8 @@ export function getSuggestedConnectors(items: Item[], fields: Field[], existingC
 	const newConnectors: Connector[] = [];
 
 	suggestedConnectors.forEach(suggested => {
-		const newConnector = createConnector(existingConnectors, uniqueId(), suggested.fields);
+		const name = getConnectorName(existingConnectors);
+		const newConnector = createConnector(existingConnectors, name, suggested.fields);
 
 		newConnector.suggestionPotential = suggested.valueCounter;
 
