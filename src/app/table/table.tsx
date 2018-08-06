@@ -20,6 +20,7 @@ import { FormEvent } from 'react';
 import { getSelectedFields } from '../fields/fieldsSelectors';
 import { createNewConnector } from '../fields/fieldsActions';
 import { selectSortedItems } from './tableSelectors';
+import * as Fuse from 'fuse.js';
 
 interface Props {
     dispatch: Dispatch<any>;
@@ -41,6 +42,7 @@ interface State {
 }
 
 class Table extends React.Component<Props, State> {
+    search: Fuse;
     state: State = {
         items: [],
         expandedItems: [],
@@ -111,7 +113,26 @@ class Table extends React.Component<Props, State> {
         if (selectionChanged || sortChanged) {
             const items = this.getSelectedItems(nextProps.selectedNodes, nextProps.items);
             this.setState({items: items});
+            this.initSearch(items);
         }
+    }
+
+    initSearch(items: Item[]) {
+		const fields: string[] = [];
+
+		items.forEach(item => {
+			const nodeFields = Object.keys(item.fields);
+
+			nodeFields.forEach(field => {
+				if (fields.indexOf(field) === -1) {
+					fields.push(field);
+				}
+			});
+		});
+
+		this.search = new Fuse(items, {
+			keys: fields.map(field => 'fields.' + field)
+		});
     }
 
     componentDidMount() {
@@ -138,29 +159,7 @@ class Table extends React.Component<Props, State> {
         let filteredItems = items;
 
         if (filter.length > 0) {
-        	filteredItems = filteredItems.filter(item => {
-        		const keys = Object.keys(item.fields);
-        		const lowercaseFilter: string = filter.toLowerCase();
-
-        		for (let i = 0; i < keys.length; i ++) {
-        			const value: any = item.fields[keys[i]];
-        			let transformed: string;
-
-        			if (typeof value === 'number') {
-        				transformed = value.toString();
-					} else if (typeof value === 'string') {
-        				transformed = value;
-					} else {
-        				continue;
-					}
-
-        			if (transformed.toLowerCase().includes(lowercaseFilter)) {
-        				return true;
-					}
-				}
-
-				return false;
-			});
+        	filteredItems = this.search.search(filter);
 		}
 
         return map(filteredItems, (record, i) => {
