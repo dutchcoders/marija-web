@@ -222,7 +222,11 @@ export const searchValueInfo = createSelector(
 			return valueInfo;
 		}
 
-		return valueInfo.filter(info => info.value.toLowerCase().includes(search.toLowerCase()));
+		const fuse = new Fuse(valueInfo, {
+			keys: ['value']
+		});
+
+		return fuse.search(search);
 	}
 );
 
