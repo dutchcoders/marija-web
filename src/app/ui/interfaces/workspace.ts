@@ -1,6 +1,6 @@
 import { Datasource } from '../../datasources/interfaces/datasource';
 import { Connector } from '../../graph/interfaces/connector';
-import { PaneCollection } from './uiState';
+import { Language, PaneCollection } from './uiState';
 
 export interface Workspace {
 	version: number;
@@ -14,4 +14,5 @@ export interface Workspace {
 	columns: string[],
 	sortColumn: string,
 	sortType: 'asc' | 'desc'
+	lang: Language;
 }

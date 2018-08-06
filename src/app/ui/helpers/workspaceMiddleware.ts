@@ -18,7 +18,11 @@ import {
 	SET_FILTER_BORING_NODES,
 	SET_FILTER_SECONDARY_QUERIES
 } from '../../graph/graphConstants';
-import { SET_EXPERIMENTAL_FEATURES, SET_PANE_CONFIG } from '../uiConstants';
+import {
+	SET_EXPERIMENTAL_FEATURES,
+	SET_LANG,
+	SET_PANE_CONFIG
+} from '../uiConstants';
 import { SEARCH_REQUEST } from '../../search/searchConstants';
 import {
 	TABLE_COLUMN_ADD,
@@ -49,7 +53,8 @@ export const workspaceMiddleware: Middleware = ({dispatch}) => next => action =>
 		SEARCH_REQUEST,
 		TABLE_COLUMN_ADD,
 		TABLE_COLUMN_REMOVE,
-		TABLE_SORT
+		TABLE_SORT,
+		SET_LANG
 	];
 
 	if (updateForActions.indexOf(action.type) !== -1) {

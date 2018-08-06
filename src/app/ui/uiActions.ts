@@ -66,7 +66,7 @@ export function closeLightbox() {
     };
 }
 
-const workspaceVersion: number = 6;
+const workspaceVersion: number = 7;
 
 function getWorkspace(state: AppState): Workspace {
 	// Only save the fields of custom datasources, we get the other fields from the server
@@ -88,7 +88,8 @@ function getWorkspace(state: AppState): Workspace {
 		queryHistory: state.graph.queryHistory,
 		columns: state.table.columns,
 		sortColumn: state.table.sortColumn,
-		sortType: state.table.sortType
+		sortType: state.table.sortType,
+		lang: state.ui.lang
 	};
 }
 
