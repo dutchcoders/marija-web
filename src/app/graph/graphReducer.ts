@@ -432,7 +432,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
         }
         case SEARCH_EDIT: {
             const searches = concat([], state.searches);
-
+			const datasources = action.datasources;
             const search = state.searches.find(search => search.searchId === action.searchId);
             const newSearch = Object.assign({}, search, action.opts);
 
@@ -444,7 +444,7 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
             };
 
             if (search.displayItems !== newSearch.displayItems) {
-                updates.items = markItemsForDisplay(state.items, searches);
+                updates.items = markItemsForDisplay(state.items, searches, datasources);
             }
 
             return Object.assign({}, state, updates);

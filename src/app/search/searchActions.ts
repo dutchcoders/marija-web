@@ -203,7 +203,7 @@ export function searchReceive(items: Item[], requestId: string, hasConfirmed: bo
 			item.searchId = search.searchId;
 		});
 
-        const allMarkedItems = markItemsForDisplay(state.graph.items.concat(items), [search]);
+        const allMarkedItems = markItemsForDisplay(state.graph.items.concat(items), [search], state.datasources.datasources);
         const ids = new Map<string, true>();
         items.forEach(item => ids.set(item.id, true));
         items = allMarkedItems.filter(item => ids.has(item.id));
@@ -278,11 +278,14 @@ export function deleteSearch(search: Search) {
 }
 
 export function editSearch(searchId: string, opts) {
-	return (dispatch) => {
+	return (dispatch, getState) => {
+		const state: AppState = getState();
+
 		dispatch({
 			type: SEARCH_EDIT,
 			receivedAt: Date.now(),
 			searchId: searchId,
+			datasources: state.datasources.datasources,
 			opts: opts
 		});
 
