@@ -25,7 +25,8 @@ const generateItem = (fields: any = undefined) => {
         requestedExtraData: false,
         nodes: [],
         receivedExtraData: false,
-		datasourceId: '1'
+		datasourceId: '1',
+		display: true
     } as Item;
 };
 
@@ -83,6 +84,7 @@ test('node templates 1', () => {
 				last_name: 'Kuipers',
 			},
 			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
@@ -90,7 +92,8 @@ test('node templates 1', () => {
 				first_name: 'Harry',
 				last_name: 'Kuipers'
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -124,7 +127,8 @@ test('node templates 2', () => {
 				first_name: 'Thomas',
 				last_name: 'Kuipers',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
@@ -132,7 +136,8 @@ test('node templates 2', () => {
 				first_name: 'Harry',
 				last_name: 'Kuipers'
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '3',
@@ -140,7 +145,8 @@ test('node templates 2', () => {
 				first_name: 'Barry',
 				last_name: 'Kuipers'
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -174,7 +180,8 @@ test('node templates 3', () => {
 				first_name: 'Thomas',
 				last_name: 'Kuipers',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
@@ -182,7 +189,8 @@ test('node templates 3', () => {
 				first_name: ['Harry', 'Barry'],
 				last_name: 'Kuipers'
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -216,7 +224,8 @@ test('node templates 4', () => {
 				first_name: 'Thomas',
 				last_name: 'Kuipers',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
@@ -224,7 +233,8 @@ test('node templates 4', () => {
 				first_name: 'Harry',
 				last_name: ['Boer', 'Kuipers']
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -259,7 +269,8 @@ test('node templates 5', () => {
 				born: 1990,
 				last_name: 'Kuipers',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
@@ -268,7 +279,8 @@ test('node templates 5', () => {
 				born: 1990,
 				last_name: 'Kuipers'
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -303,7 +315,8 @@ test('node templates 6', () => {
 				first_name: 'Thomas',
 				last_name: 'Kuipers',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
@@ -311,7 +324,8 @@ test('node templates 6', () => {
 				first_name: 'Harry',
 				last_name: 'Kuipers'
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '3',
@@ -319,7 +333,8 @@ test('node templates 6', () => {
 				first_name: 'Henk',
 				last_name: 'Boer'
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -356,7 +371,8 @@ test('node templates 7', () => {
 				last_name: 'Kuipers',
 				born: 1990
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
@@ -365,7 +381,8 @@ test('node templates 7', () => {
 				last_name: 'Kuipers',
 				born: 1980
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '3',
@@ -374,7 +391,8 @@ test('node templates 7', () => {
 				last_name: 'Boer',
 				born: 1980
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -410,7 +428,8 @@ test('should output separate connectors for each connecting array value', () => 
 				name: 'Thomas',
 				nicknames: ['Dude', 'Man'],
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
@@ -418,7 +437,8 @@ test('should output separate connectors for each connecting array value', () => 
 				name: 'Barry',
 				nicknames: ['Dude', 'Man'],
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -447,14 +467,16 @@ test('connector nodes should contain item ids of all related items', () => {
 			fields: {
 				name: 'Thomas',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
 			fields: {
 				name: 'Thomas',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -479,21 +501,24 @@ test('connector nodes should contain item ids of all related items when there ar
 			fields: {
 				name: 'Thomas',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
 			fields: {
 				name: 'Thomas',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '3',
 			fields: {
 				name: 'Thomas',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -518,14 +543,16 @@ test('should work with word similarity percentages', () => {
 			fields: {
 				name: 'Thomas',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
 			fields: {
 				name: 'Thomat',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -559,21 +586,24 @@ test('connector should contain all values when working with word similarity perc
 			fields: {
 				name: 'Thomas',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
 			fields: {
 				name: 'Thomat',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '3',
 			fields: {
 				name: 'Thomab',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -612,7 +642,8 @@ test('should find relations with nodes that already existed', () => {
 				name: 'thomas',
 			},
 			searchId: 'q',
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -632,7 +663,8 @@ test('should find relations with nodes that already existed', () => {
 				name: 'thomas',
 			},
 			searchId: 'q',
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -653,7 +685,8 @@ test('should work with OR match when one of the values is null', () => {
 				city: 'utrecht'
 			},
 			searchId: 'q',
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
@@ -663,7 +696,8 @@ test('should work with OR match when one of the values is null', () => {
 				city: null
 			},
 			searchId: 'q',
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -694,7 +728,8 @@ test('should not create connector nodes for null values', () => {
 				lastName: null,
 			},
 			searchId: 'q',
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
@@ -703,7 +738,8 @@ test('should not create connector nodes for null values', () => {
 				lastName: null,
 			},
 			searchId: 'q',
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -732,7 +768,8 @@ test('should not create connector nodes for empty values', () => {
 				lastName: '',
 			},
 			searchId: 'q',
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
@@ -741,7 +778,8 @@ test('should not create connector nodes for empty values', () => {
 				lastName: '',
 			},
 			searchId: 'q',
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -798,6 +836,7 @@ test('real world case', () => {
 			datasource: 'a',
 			datasourceId: '1',
 			searchId: '3',
+			display: true
 		},
 		{
 			id: '2',
@@ -809,7 +848,8 @@ test('real world case', () => {
 			count: 1,
 			datasource: 'a',
 			datasourceId: '1',
-			searchId: '3'
+			searchId: '3',
+			display: true
 		}];
 
 	const { nodes, links } = getNodesAndLinks([], [], items, [connector], ...defaultArguments);
@@ -827,7 +867,8 @@ test('boukes case', () => {
 				brother: 'harry',
 			},
 			searchId: 'q',
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
@@ -836,7 +877,8 @@ test('boukes case', () => {
 				brother: 'karel',
 			},
 			searchId: 'q',
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -867,7 +909,8 @@ test('boukes case 2', () => {
 				brother: 'harry',
 			},
 			searchId: 'q',
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
@@ -876,7 +919,8 @@ test('boukes case 2', () => {
 				brother: 'karel',
 			},
 			searchId: 'q',
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '3',
@@ -885,7 +929,8 @@ test('boukes case 2', () => {
 				brother: 'harry',
 			},
 			searchId: 'q',
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -917,7 +962,8 @@ test('real world case - one valueset can have multiple connectors', () => {
 			count: 1,
 			datasource: 'twitter-tweets',
 			datasourceId: 'twitter-tweets',
-			searchId: '3'
+			searchId: '3',
+			display: true
 		},
 		{
 			id: '2',
@@ -927,7 +973,8 @@ test('real world case - one valueset can have multiple connectors', () => {
 			count: 1,
 			datasource: 'twitter-tweets',
 			datasourceId: 'twitter-tweets',
-			searchId: '3'
+			searchId: '3',
+			display: true
 		},
 		{
 			id: '3',
@@ -937,7 +984,8 @@ test('real world case - one valueset can have multiple connectors', () => {
 			count: 1,
 			datasource: 'twitter-tweets',
 			datasourceId: 'twitter-tweets',
-			searchId: '3'
+			searchId: '3',
+			display: true
 		},
 	];
 
@@ -989,6 +1037,7 @@ test('node templates 10', () => {
 				last_name: 'Kuipers',
 			},
 			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
@@ -996,7 +1045,8 @@ test('node templates 10', () => {
 				first_name: ['Harry', 'barry'],
 				last_name: 'Kuipers'
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -1029,13 +1079,15 @@ test('should match with OR connector when 1 of the fields is undefined', () => {
 				last_name: 'Kuipers',
 			},
 			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
 			fields: {
 				last_name: 'Kuipers'
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
@@ -1066,14 +1118,16 @@ test('should work with distances', () => {
 			fields: {
 				location: '51,5',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		},
 		{
 			id: '2',
 			fields: {
 				location: '51,4',
 			},
-			datasourceId: '1'
+			datasourceId: '1',
+			display: true
 		}
 	];
 
