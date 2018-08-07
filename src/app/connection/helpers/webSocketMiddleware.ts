@@ -76,7 +76,9 @@ function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {
 
     switch (data.type) {
         case SEARCH_RECEIVE: {
-            dispatch(setSearchTotal(data['request-id'], data.total_count));
+        	if (typeof data.total_count === 'number') {
+				dispatch(setSearchTotal(data['request-id'], data.total_count));
+			}
 
         	debounceItems(
                 data.results,

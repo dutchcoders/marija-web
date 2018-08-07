@@ -107,9 +107,14 @@ class Query extends React.Component<Props, State> {
     }
 
     countDisplayItems() {
-        const { items } = this.props;
+        const { items, search } = this.props;
 
-        return items.filter(item => item.display).length;
+        const filtered = items.filter(item =>
+			item.display
+			&& search.datasources.indexOf(item.datasourceId) !== -1
+		);
+
+        return filtered.length;
     }
 
     selectNodes() {
