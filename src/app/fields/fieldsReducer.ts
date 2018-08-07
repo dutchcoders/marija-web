@@ -1,10 +1,15 @@
 import {
-	CREATE_NEW_CONNECTOR, DELETE_CONNECTOR, DELETE_FROM_CONNECTOR,
+	CREATE_NEW_CONNECTOR,
+	DELETE_CONNECTOR,
+	DELETE_FROM_CONNECTOR,
 	FIELDS_RECEIVE,
 	FIELDS_REQUEST,
 	MOVE_RULE_BETWEEN_CONNECTORS,
-	MOVE_RULE_TO_NEW_CONNECTOR, SET_FIELD_COUNT_IN_GRAPH_WORKER,
-	SET_MATCHING_STRATEGY, UPDATE_CONNECTOR, UPDATE_RULE
+	MOVE_RULE_TO_NEW_CONNECTOR,
+	RECEIVE_FIELD_MAPPING,
+	SET_MATCHING_STRATEGY,
+	UPDATE_CONNECTOR,
+	UPDATE_RULE
 } from './fieldsConstants';
 import sortFields from './helpers/sortFields';
 import {Field} from './interfaces/field';
@@ -24,6 +29,7 @@ import {
 import { GraphWorkerOutput } from '../graph/helpers/graphWorkerClass';
 import { DELETE_CUSTOM_DATASOURCE } from '../datasources/datasourcesConstants';
 import { Datasource } from '../datasources/interfaces/datasource';
+import { FieldMapping } from './interfaces/fieldMapping';
 
 export const defaultFieldsState: FieldsState = {
     availableFields: [],
@@ -32,8 +38,7 @@ export const defaultFieldsState: FieldsState = {
     connectors: [],
 	suggestedConnectors: [],
 	deletedConnectorFields: [],
-	expectedGraphWorkerOutputId: null,
-	fieldCountInGraphWorker: 0
+	expectedGraphWorkerOutputId: null
 };
 
 export default function fieldsReducer(state: FieldsState = defaultFieldsState, action): FieldsState {
@@ -340,10 +345,34 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 			};
 		}
 
-		case SET_FIELD_COUNT_IN_GRAPH_WORKER: {
+		case RECEIVE_FIELD_MAPPING: {
+			const fieldMapping: FieldMapping = action.payload.fieldMapping;
+			const availableFields: Field[] = state.availableFields.concat([]);
+
+			Object.keys(fieldMapping).forEach(datasource => {
+				Object.keys(fieldMapping[datasource]).forEach(field => {
+					const existing = availableFields.find(search =>
+						search.path === field
+						&& search.datasourceId === datasource
+					);
+
+					if (existing) {
+						return;
+					}
+
+					const type: string = fieldMapping[datasource][field];
+
+					availableFields.push({
+						datasourceId: datasource,
+						path: field,
+						type: type
+					});
+				});
+			});
+
 			return {
 				...state,
-				fieldCountInGraphWorker: action.payload.count
+				availableFields
 			};
 		}
 

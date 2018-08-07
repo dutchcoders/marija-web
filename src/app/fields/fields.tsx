@@ -154,7 +154,6 @@ class Fields extends React.Component<Props, State> {
             <div>
 				<h2>
 					<FormattedMessage id="fields"/>
-                    <Loader show={fieldsFetching} />
                 </h2>
 
 				<div className="form-group">

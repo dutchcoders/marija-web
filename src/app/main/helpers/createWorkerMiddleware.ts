@@ -5,7 +5,6 @@ import { AppState } from '../interfaces/appState';
 import { REBUILD_GRAPH } from '../../graph/graphConstants';
 import { setExpectedGraphWorkerOutputId } from '../../graph/graphActions';
 import { uniqueId } from 'lodash';
-import { setFieldCountInGraphWorker } from '../../fields/fieldsActions';
 const GraphWorker = require('../../graph/helpers/graphWorker.worker');
 
 export function createWorkerMiddleware(worker) {
@@ -83,13 +82,6 @@ export function createWorkerMiddleware(worker) {
 					dispatch(setExpectedGraphWorkerOutputId(outputId));
 
 					payload.outputId = outputId;
-
-					// Field cache in graph worker
-					if (state.fields.fieldCountInGraphWorker === payload.fields.length) {
-						delete payload.fields;
-					} else {
-						dispatch(setFieldCountInGraphWorker(payload.fields.length));
-					}
 
 					worker.postMessage(action);
 

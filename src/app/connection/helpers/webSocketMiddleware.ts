@@ -13,12 +13,13 @@ import {
 } from "../../search/searchActions";
 import {requestCompleted} from "../connectionActions";
 import {FIELDS_RECEIVE} from "../../fields/fieldsConstants";
-import {receiveFields} from "../../fields/fieldsActions";
+import { receiveFieldMapping, receiveFields } from "../../fields/fieldsActions";
 import {LIVE_RECEIVE, SEARCH_RECEIVE} from "../../search/searchConstants";
 import {INITIAL_STATE_RECEIVE} from "../../datasources/datasourcesConstants";
 import {receiveInitialState} from "../../datasources/datasourcesActions";
 import Timer = NodeJS.Timer;
 import { getResponses } from './mockServer';
+import { FieldMapping } from '../../fields/interfaces/fieldMapping';
 
 let opened: Promise<ReconnectingWebsocket>;
 
@@ -80,6 +81,7 @@ function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {
 
         	debounceItems(
                 data.results,
+                data.mapping,
                 data['request-id'],
                 dispatch,
                 false,
@@ -90,6 +92,7 @@ function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {
         case LIVE_RECEIVE: {
             debounceItems(
                 data.graphs,
+                data.mapping,
                 data.datasource,
                 dispatch,
                 true,
@@ -107,7 +110,7 @@ function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {
                 defaultVia = defaults.via;
             }
 
-            dispatch(receiveFields(data.fields, data.datasource, defaultFields, defaultVia));
+            // dispatch(receiveFields(data.fields, data.datasource, defaultFields, defaultVia));
             break;
 
         case INITIAL_STATE_RECEIVE:
@@ -191,9 +194,11 @@ interface ItemsTimeout {
 const debouncedItems: {
     [requestId: string]: Item[]
 } = {};
+let debouncedFields: FieldMapping = {};
 const debounceTimeouts: {
     [requestId: string]: ItemsTimeout
 } = {};
+
 const timeoutMs = 500;
 const maxTimeoutMs = 2000;
 
@@ -205,12 +210,27 @@ const maxTimeoutMs = 2000;
  * Instead, we wait for 500ms and bundle all of the items together.
  *
  * @param newItems
+ * @param fields
  * @param requestId
  * @param dispatch
  * @param isLive
  * @param datasourceId
  */
-function debounceItems(newItems: Item[], requestId: string, dispatch: Dispatch<any>, isLive: boolean, datasourceId: string) {
+function debounceItems(newItems: Item[], fields: FieldMapping, requestId: string, dispatch: Dispatch<any>, isLive: boolean, datasourceId: string) {
+	if (fields) {
+		Object.keys(fields).forEach(datasource => {
+			if (!debouncedFields[datasource]) {
+				debouncedFields[datasource] = {};
+			}
+
+			Object.keys(fields[datasource]).forEach(field => {
+				const type: string = fields[datasource][field];
+
+				debouncedFields[datasource][field] = type;
+			});
+		});
+	}
+
     if (newItems === null) {
         return;
     }
@@ -241,6 +261,9 @@ function debounceItems(newItems: Item[], requestId: string, dispatch: Dispatch<a
     const timeoutFinished = () => {
         clearTimeout(searchTimeout.bundleTimeout);
         clearTimeout(searchTimeout.maxTimeout);
+
+        dispatch(receiveFieldMapping(debouncedFields));
+        debouncedFields = {};
 
         if (isLive) {
             dispatch(liveReceive(debouncedItems[requestId], datasourceId));

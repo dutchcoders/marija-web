@@ -3,12 +3,14 @@ import { Datasource } from '../datasources/interfaces/datasource';
 import { Via } from '../graph/interfaces/via';
 import { AppState } from '../main/interfaces/appState';
 import {
-	CREATE_NEW_CONNECTOR, DELETE_CONNECTOR,
+	CREATE_NEW_CONNECTOR,
+	DELETE_CONNECTOR,
 	DELETE_FROM_CONNECTOR,
 	FIELDS_RECEIVE,
 	FIELDS_REQUEST,
 	MOVE_RULE_BETWEEN_CONNECTORS,
-	MOVE_RULE_TO_NEW_CONNECTOR, SET_FIELD_COUNT_IN_GRAPH_WORKER,
+	MOVE_RULE_TO_NEW_CONNECTOR,
+	RECEIVE_FIELD_MAPPING,
 	SET_MATCHING_STRATEGY,
 	UPDATE_CONNECTOR,
 	UPDATE_RULE
@@ -17,6 +19,7 @@ import { Field } from './interfaces/field';
 import { dispatchAndRebuildGraph, rebuildGraph } from '../graph/graphActions';
 import { MatchingStrategy } from '../graph/interfaces/connector';
 import { getConnectorName } from './helpers/getConnectorName';
+import { FieldMapping } from './interfaces/fieldMapping';
 
 export function receiveFields(fields: Field[], datasource: string, defaultFields: Field[], defaultVia: Via[]) {
     return {
@@ -145,11 +148,11 @@ export function updateRule(ruleId: string, props: RuleProps) {
 	})
 }
 
-export function setFieldCountInGraphWorker(count: number) {
+export function receiveFieldMapping(fieldMapping: FieldMapping) {
 	return {
-		type: SET_FIELD_COUNT_IN_GRAPH_WORKER,
+		type: RECEIVE_FIELD_MAPPING,
 		payload: {
-			count
+			fieldMapping
 		}
 	};
 }

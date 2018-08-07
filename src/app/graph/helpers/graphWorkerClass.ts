@@ -75,9 +75,6 @@ export default class GraphWorkerClass {
 			fieldCache = payload.fields;
 		}
 
-
-
-
 		let search: Search;
 		let useItems: Item[];
 		let connectors: Connector[] = payload.connectors;
