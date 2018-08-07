@@ -36,7 +36,6 @@ interface Props {
     fields: any;
     via: Via[];
     datasources: Datasource[];
-    fieldsFetching: boolean;
     filterBoringNodes: boolean;
     filterSecondaryQueries: boolean;
     experimentalFeatures: boolean;
@@ -386,7 +385,6 @@ function select(state: AppState, ownProps) {
 		...ownProps,
         via: state.graph.via,
         datasources: state.datasources.datasources,
-        fieldsFetching: state.fields.fieldsFetching,
         filterBoringNodes: state.graph.filterBoringNodes,
         filterSecondaryQueries: state.graph.filterSecondaryQueries,
         experimentalFeatures: state.ui.experimentalFeatures,

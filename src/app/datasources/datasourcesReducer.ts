@@ -26,6 +26,8 @@ export const defaultDatasourcesState: DatasourcesState = {
 export default function datasourcesReducer(state: DatasourcesState = defaultDatasourcesState, action) {
     switch (action.type) {
         case INITIAL_STATE_RECEIVE: {
+        	console.log(action);
+
             let datasources: Datasource[] = action.initial_state.datasources.map(datasource => {
                 const existing = state.datasources.find(search => !search.isCustom && search.id === datasource.id);
 
@@ -39,9 +41,30 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
                     labelFieldPath: existing ? existing.labelFieldPath : null,
                     locationFieldPath: existing ? existing.locationFieldPath : null,
                     dateFieldPath: existing ? existing.dateFieldPath : null,
-					chooseFieldsAutomatically: existing ? existing.chooseFieldsAutomatically : true
+					chooseFieldsAutomatically: existing ? existing.chooseFieldsAutomatically : true,
+					isEnricher: false
                 };
             });
+
+            const enrichers = action.initial_state.enrichers.map(enricher => {
+				const existing = state.datasources.find(search => !search.isCustom && search.id === enricher.id);
+
+            	return {
+					id: enricher.id,
+					name: enricher.name,
+					active: typeof existing === 'undefined' ? false : existing.active,
+					type: enricher.type,
+					icon: existing ? existing.icon : getIcon(enricher.name, []),
+					imageFieldPath: existing ? existing.imageFieldPath : null,
+					labelFieldPath: existing ? existing.labelFieldPath : null,
+					locationFieldPath: existing ? existing.locationFieldPath : null,
+					dateFieldPath: existing ? existing.dateFieldPath : null,
+					chooseFieldsAutomatically: existing ? existing.chooseFieldsAutomatically : true,
+					isEnricher: true
+				}
+			});
+
+            datasources = datasources.concat(enrichers);
 
             datasources.sort((a, b) => {
                 if (a.name < b.name) {
@@ -163,7 +186,8 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
 				imageFieldPath: null,
 				locationFieldPath: null,
 				dateFieldPath: null,
-				chooseFieldsAutomatically: true
+				chooseFieldsAutomatically: true,
+				isEnricher: false
 			};
 
 			return {

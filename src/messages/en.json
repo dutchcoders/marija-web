@@ -104,5 +104,6 @@
   "select_nodes_for_unique_values": "Select nodes to display the unique values found in their data.",
   "select_all_nodes": "Select all nodes",
   "filter_by_field": "Filter by field:",
-  "all_fields": "All fields"
+  "all_fields": "All fields",
+  "enrichers": "Enrichers"
 }

@@ -12,6 +12,7 @@ export interface Datasource {
     dateFieldPath?: string;
     chooseFieldsAutomatically: boolean;
     icon?: string;
+    isEnricher: boolean;
 
     // Only relevant for custom datasources
     items?: Item[];

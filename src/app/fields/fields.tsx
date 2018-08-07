@@ -4,8 +4,6 @@ import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 import { Datasource } from '../datasources/interfaces/datasource';
 import { AppState } from '../main/interfaces/appState';
-import Loader from '../ui/components/loader';
-import FieldRow from './components/fieldRow/fieldRow';
 import * as styles from './fields.scss';
 import { Field } from './interfaces/field';
 import {
@@ -21,7 +19,6 @@ interface Props {
     dispatch: Dispatch<any>;
     availableFields: Field[];
     datasources: Datasource[];
-    fieldsFetching: boolean;
     typeLabels: TypeLabel[];
 	intl: InjectedIntl;
 }
@@ -147,7 +144,7 @@ class Fields extends React.Component<Props, State> {
     }
 
     render() {
-        const { fieldsFetching, intl } = this.props;
+        const { intl } = this.props;
         const { query, datasourceFilter, searchTypes } = this.state;
 
         return (
@@ -187,7 +184,6 @@ function select(state: AppState, ownProps) {
 		...ownProps,
         availableFields: getNonDateFields(state),
 		typeLabels: selectTypeLabels(state),
-        fieldsFetching: state.fields.fieldsFetching,
         datasources: selectDatasourcesInData(state)
     };
 }

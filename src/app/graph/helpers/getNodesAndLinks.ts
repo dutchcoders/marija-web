@@ -69,6 +69,11 @@ export default function getNodesAndLinks(
 		const existing = itemNodes.get(hash);
 
     	const datasource = datasources.find(datasource => datasource.id === item.datasourceId);
+
+    	if (!datasource) {
+    		throw new Error('Datasource not found: ' + item.datasourceId);
+		}
+
 		let name: string = '';
 
 		if (datasource.labelFieldPath && item.fields[datasource.labelFieldPath]) {

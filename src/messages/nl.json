@@ -105,5 +105,6 @@
   "select_nodes_for_unique_values": "Selecteer nodes om hun unieke waarden weer te geven.",
   "select_all_nodes": "Selecteer alle nodes",
   "filter_by_field": "Filter op veld:",
-  "all_fields": "Alle velden"
+  "all_fields": "Alle velden",
+  "enrichers": "Data verrijking"
 }
