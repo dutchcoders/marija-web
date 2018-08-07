@@ -46,25 +46,27 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
                 };
             });
 
-            const enrichers = action.initial_state.enrichers.map(enricher => {
-				const existing = state.datasources.find(search => !search.isCustom && search.id === enricher.id);
+            if (action.initial_state.enrichers) {
+				const enrichers = action.initial_state.enrichers.map(enricher => {
+					const existing = state.datasources.find(search => !search.isCustom && search.id === enricher.id);
 
-            	return {
-					id: enricher.id,
-					name: enricher.name,
-					active: typeof existing === 'undefined' ? false : existing.active,
-					type: enricher.type,
-					icon: existing ? existing.icon : getIcon(enricher.name, []),
-					imageFieldPath: existing ? existing.imageFieldPath : null,
-					labelFieldPath: existing ? existing.labelFieldPath : null,
-					locationFieldPath: existing ? existing.locationFieldPath : null,
-					dateFieldPath: existing ? existing.dateFieldPath : null,
-					chooseFieldsAutomatically: existing ? existing.chooseFieldsAutomatically : true,
-					isEnricher: true
-				}
-			});
+					return {
+						id: enricher.id,
+						name: enricher.name,
+						active: typeof existing === 'undefined' ? false : existing.active,
+						type: enricher.type,
+						icon: existing ? existing.icon : getIcon(enricher.name, []),
+						imageFieldPath: existing ? existing.imageFieldPath : null,
+						labelFieldPath: existing ? existing.labelFieldPath : null,
+						locationFieldPath: existing ? existing.locationFieldPath : null,
+						dateFieldPath: existing ? existing.dateFieldPath : null,
+						chooseFieldsAutomatically: existing ? existing.chooseFieldsAutomatically : true,
+						isEnricher: true
+					}
+				});
 
-            datasources = datasources.concat(enrichers);
+				datasources = datasources.concat(enrichers);
+			}
 
             datasources.sort((a, b) => {
                 if (a.name < b.name) {
