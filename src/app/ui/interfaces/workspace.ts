@@ -1,6 +1,7 @@
 import { Datasource } from '../../datasources/interfaces/datasource';
 import { Connector } from '../../graph/interfaces/connector';
 import { Language, PaneCollection } from './uiState';
+import { Field } from '../../fields/interfaces/field';
 
 export interface Workspace {
 	version: number;
@@ -16,4 +17,5 @@ export interface Workspace {
 	sortType: 'asc' | 'desc';
 	lang: Language;
 	automaticallyCreateConnectors: boolean;
+	customDatasourceFields: Field[];
 }

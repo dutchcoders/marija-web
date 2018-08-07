@@ -245,7 +245,8 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 
 			return {
 				...state,
-				connectors: workspace.connectors
+				connectors: workspace.connectors,
+				availableFields: state.availableFields.concat(workspace.customDatasourceFields)
 			}
 		}
 

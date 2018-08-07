@@ -90,7 +90,8 @@ function getWorkspace(state: AppState): Workspace {
 		sortColumn: state.table.sortColumn,
 		sortType: state.table.sortType,
 		lang: state.ui.lang,
-		automaticallyCreateConnectors: state.graph.automaticallyCreateConnectors
+		automaticallyCreateConnectors: state.graph.automaticallyCreateConnectors,
+		customDatasourceFields: customFields
 	};
 }
 
