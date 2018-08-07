@@ -102,6 +102,7 @@ function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {
         case INITIAL_STATE_RECEIVE:
             dispatch(receiveInitialState({
                 datasources: data.datasources,
+				enrichers: data.enrichers,
                 version: data.version
             }));
             break;

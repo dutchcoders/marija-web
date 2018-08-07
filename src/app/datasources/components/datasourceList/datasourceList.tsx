@@ -32,7 +32,7 @@ class DatasourceList extends React.Component<Props, State> {
 
 				{enrichers.length > 0 && (
 					<div>
-						<h3><FormattedMessage id="enrichers"/></h3>
+						<h3 className={styles.enrichersTitle}><FormattedMessage id="enrichers"/></h3>
 						{enrichers.map(datasource => (
 							<DatasourceComponent datasource={datasource} key={datasource.id} />
 						))}
