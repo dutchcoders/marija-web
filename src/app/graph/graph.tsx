@@ -1129,16 +1129,7 @@ class Graph extends React.PureComponent<Props, State> {
 
 		let description = fieldValues.join("\n");
 
-		if (originalFields.length > maxFields) {
-			description += "\n<bold>Plus " + (originalFields.length - maxFields) + " more fields</bold>";
-		}
-
-		if (node.type === 'item') {
-			description += "\n<bold>Queries: </bold>" + queries.join(', ')
-				+ "\n<bold>Datasource: </bold>" + node.datasourceId;
-		}
-
-        const text = new MultiStyleText(description, {
+		const textStyle = {
 			default: {
 				fontFamily: 'Arial',
 				fontSize: '12px',
@@ -1149,13 +1140,31 @@ class Graph extends React.PureComponent<Props, State> {
 			bold: {
 				fontWeight: 'bold'
 			}
-		});
+		};
+
+        const text = new MultiStyleText(description, textStyle);
 
         text.x = 10;
         text.y = 5;
 
-        const backgroundWidth = text.width + 20;
-        const backgroundHeight = text.height + 10;
+        let footerText = '';
+        let footer;
+
+		if (originalFields.length > maxFields) {
+			footerText += "\n<bold>Plus " + (originalFields.length - maxFields) + " more fields</bold>";
+		}
+
+		if (node.type === 'item') {
+			footerText += "\n<bold>Queries: </bold>" + queries.join(', ')
+				+ "\n<bold>Datasource: </bold>" + node.datasourceId;
+		}
+
+		if (footerText) {
+			footer = new MultiStyleText(footerText, textStyle);
+		}
+
+        const backgroundWidth = (footer ? Math.max(footer.width, text.width) : text.width) + 20;
+        const backgroundHeight = text.height + 10 + (footer ? footer.height : 0);
         const background = new PIXI.Graphics();
         background.beginFill(0x35394d, 1);
         background.lineStyle(1, 0x323447, 1);
@@ -1163,6 +1172,19 @@ class Graph extends React.PureComponent<Props, State> {
 
         container.addChild(background);
         container.addChild(text);
+
+        if (footer) {
+			const line = new PIXI.Graphics();
+			line.lineStyle(1, 0xFFFFFF, 1);
+			const y = text.height + 11;
+			line.moveTo(0, y);
+			line.lineTo(backgroundWidth, y);
+			container.addChild(line);
+
+        	footer.x = 10;
+			footer.y = text.height;
+        	container.addChild(footer);
+		}
 
         texture = PIXI.RenderTexture.create(backgroundWidth, backgroundHeight);
         this.renderer.render(container, texture);
