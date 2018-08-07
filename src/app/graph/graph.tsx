@@ -1087,11 +1087,7 @@ class Graph extends React.PureComponent<Props, State> {
         const searches = this.getSearches(node.searchIds);
 
         const queries: string[] = searches.map(search => search.q);
-        const datasources: string[] = searches.reduce((accumulator, search) =>
-            accumulator.concat(search.datasources)
-        , []);
 
-		let description = '';
 		const originalFields = Object.keys(node.childData);
 		const maxFields = 10;
 		let fields: string[];
@@ -1102,6 +1098,8 @@ class Graph extends React.PureComponent<Props, State> {
 			fields = originalFields;
 		}
 
+		const fieldValues: string[] = [];
+
 		fields.forEach(field => {
 			const value = node.childData[field];
 
@@ -1109,7 +1107,6 @@ class Graph extends React.PureComponent<Props, State> {
 				return;
 			}
 
-			description += '<bold>' + field + ': </bold>';
 			let string: string;
 
 			if (Array.isArray(value)) {
@@ -1127,15 +1124,19 @@ class Graph extends React.PureComponent<Props, State> {
 				string = string.replace(/\n|\r/g, ' ');
 			}
 
-			description += string + "\n";
+			fieldValues.push('<bold>' + field + ': </bold>' + string);
 		});
 
+		let description = fieldValues.join("\n");
+
 		if (originalFields.length > maxFields) {
-			description += "<bold>Plus " + (originalFields.length - maxFields) + " more fields</bold>\n";
+			description += "\n<bold>Plus " + (originalFields.length - maxFields) + " more fields</bold>";
 		}
 
-		description += '<bold>Queries: </bold>' + queries.join(', ') + "\n"
-			+ '<bold>Datasources: </bold>' + datasources.join(', ');
+		if (node.type === 'item') {
+			description += "\n<bold>Queries: </bold>" + queries.join(', ')
+				+ "\n<bold>Datasource: </bold>" + node.datasourceId;
+		}
 
         const text = new MultiStyleText(description, {
 			default: {
