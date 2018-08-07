@@ -1,20 +1,54 @@
-.selectedField {
-  position: relative;
-}
-
-.filterContent {
-  padding: 3px 5px 5px;
-  background: rgba(255,255,255,.9);
-  color: rgba(0,0,0,.8);
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.12)
-}
-
-.filter:last-child {
+.form {
+  background: #435266;
+  border-radius: 3px;
   margin-bottom: 10px;
+  padding-top: 1px;
+}
 
-  .filterContent {
-    border-radius: 4px;
-    border-top-right-radius: 0;
-    border-top-left-radius: 0;
+.inputWrapper {
+  position: relative;
+  margin: 10px 10px 0;
+}
+
+.input {
+  border: none;
+  padding: 0 25px 0 7px;
+  height: 30px;
+  font-size: 14px;
+  color: white;
+  box-sizing: border-box;
+  width: 100%;
+  background: #3A4555;
+  border-radius: 3px;
+  box-shadow: inset 2px 2px 5px 0px rgba(0, 0, 0, 0.4);
+  outline: none;
+
+  &::placeholder {
+    color: white;
   }
+}
+
+.searchIcon {
+  position: absolute;
+  top: 5px;
+  font-size: 18px;
+  right: 7px;
+}
+
+.filter {
+  padding: 10px;
+  border-bottom: 1px solid #455B73;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.filterLabel {
+  margin-right: 10px;
+  font-weight: 300;
+}
+
+.filterRadio {
+  margin-right: 3px !important;
 }

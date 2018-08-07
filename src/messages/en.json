@@ -36,7 +36,7 @@
   "drop_field_existing_connector": "Drop field here to make part of connector",
   "match_at_least_one": "Match at least one",
   "match_all": "Match all",
-  "search_fields": "Search fields",
+  "search_fields": "Filter fields",
   "field": "Field",
   "unique_total": "Unique/total",
   "version": "Version",
