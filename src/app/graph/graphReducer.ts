@@ -66,7 +66,9 @@ import { markHighlightedLinks } from './helpers/markHighlightedLinks';
 import { GraphWorkerOutput } from './helpers/graphWorkerClass';
 import {
 	DELETE_CONNECTOR,
-	DELETE_FROM_CONNECTOR
+	DELETE_FROM_CONNECTOR,
+	MOVE_RULE_BETWEEN_CONNECTORS,
+	MOVE_RULE_TO_NEW_CONNECTOR
 } from '../fields/fieldsConstants';
 import removeDeadLinks from './helpers/removeDeadLinks';
 import { markItemsForDisplay } from './helpers/markItemsForDisplay';
@@ -729,7 +731,9 @@ export default function graphReducer(state: GraphState = defaultGraphState, acti
 		}
 
 		case DELETE_FROM_CONNECTOR:
-		case DELETE_CONNECTOR: {
+		case DELETE_CONNECTOR:
+		case MOVE_RULE_BETWEEN_CONNECTORS:
+		case MOVE_RULE_TO_NEW_CONNECTOR: {
 			return {
 				...state,
 				automaticallyCreateConnectors: false

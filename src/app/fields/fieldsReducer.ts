@@ -184,7 +184,7 @@ export default function fieldsReducer(state: FieldsState = defaultFieldsState, a
 			return {
 				...state,
 				connectors: connectors,
-				deletedConnectorFields: state.deletedConnectorFields.concat(fieldPaths)
+				deletedConnectorFields: state.deletedConnectorFields.concat(fieldPaths),
 			};
 		}
 

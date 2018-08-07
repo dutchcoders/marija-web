@@ -54,9 +54,6 @@ class ConnectorComponent extends React.Component<Props, State> {
 	}
 
 	onDragEnter(event: DragEvent) {
-		const { connector } = this.props;
-		const data = this.getDragData(event);
-
 		this.setState({
 			isHoveringOnDropArea: true
 		});
