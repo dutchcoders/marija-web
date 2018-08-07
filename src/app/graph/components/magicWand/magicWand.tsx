@@ -12,7 +12,9 @@ interface Props {
 }
 
 class MagicWand extends React.Component<Props> {
-	selectNodes() {
+	selectNodes(event: MouseEvent) {
+		event.stopPropagation();
+		
 		const { nodes, dispatch } = this.props;
 
 		let allSelected = true;
@@ -46,6 +48,7 @@ class MagicWand extends React.Component<Props> {
 
 		return (
 			<button
+				type="button"
 				className={styles.button + ' ' + cssClass}
 				onClick={this.selectNodes.bind(this)}
 				onMouseEnter={this.highlightNodes.bind(this)}
