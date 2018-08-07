@@ -104,12 +104,23 @@ export default class GraphWorkerClass {
 			return chooseDatasourceFields(datasource, fieldCache, items);
 		});
 
+		const automaticallyCreateConnectors = payload.automaticallyCreateConnectors || isLive;
+
+		// First see if there are connectors without nodes, we can delete those
+		if (automaticallyCreateConnectors) {
+			connectors = connectors.filter(connector => {
+				const nodes = prevNodeCache.filter(node =>
+					node.connector === connector.name
+				);
+
+				return nodes.length > 0;
+			});
+		}
+
 		const startSuggesting = performance.now();
 		let suggested: Connector[] = getSuggestedConnectors(useItems, fieldCache, connectors, payload.deletedConnectorFields);
 		const suggestingTime = performance.now() - startSuggesting;
 		console.log('getSuggestedConnectors took ' + suggestingTime + 'ms');
-
-		const automaticallyCreateConnectors = payload.automaticallyCreateConnectors || isLive;
 
 		if (automaticallyCreateConnectors) {
 			const toAdd = MAX_AUTOMATIC_CONNECTORS - connectors.length;
