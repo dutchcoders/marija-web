@@ -287,6 +287,9 @@ class SearchBox extends React.Component<Props, State> {
 								onKeyDown={this.handleQueryKeyDown.bind(this)}
 								onFocus={this.onInputFocus.bind(this)}
 							/>
+							{noDatasourcesError && (
+								<span className={styles.noDatasourcesMessage}><FormattedMessage id="activate_at_least_one_datasource" /></span>
+							)}
 
 							{autoComplete.length > 0 && (
 								<ul className={styles.autoComplete}>
@@ -308,9 +311,6 @@ class SearchBox extends React.Component<Props, State> {
 							)}
 
 							<Icon name="ion-ios-search" className={'ion-ios-search ' + styles.searchIcon} />
-							{noDatasourcesError && (
-								<span className={styles.noDatasourcesMessage}><FormattedMessage id="activate_at_least_one_datasource" /></span>
-							)}
                         </form>
                     </div>
 
