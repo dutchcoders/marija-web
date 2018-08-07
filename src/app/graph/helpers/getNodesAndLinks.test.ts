@@ -1153,3 +1153,38 @@ test('should work with distances', () => {
 
 	expect(nodes.length).toBe(3);
 });
+
+test('OR connector with 3 fields should work', () => {
+	const items = [
+		{
+			id: '1',
+			fields: {
+				ip: 'a',
+			},
+			datasourceId: '1',
+			display: true
+		},
+		{
+			id: '2',
+			fields: {
+				sourceIp: 'a',
+			},
+			datasourceId: '1',
+			display: true
+		},
+		{
+			id: '3',
+			fields: {
+				destIp: 'a',
+			},
+			datasourceId: '1',
+			display: true
+		}
+	];
+
+	const connectors = [
+		generateNodeTemplate('names', ['ip', 'sourceIp', 'destIp']),
+	];
+
+	const { nodes, links } = getNodesAndLinks([], [], items as any, connectors as any, ...defaultArguments);
+});

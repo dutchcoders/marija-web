@@ -327,10 +327,10 @@ export default function getNodesAndLinks(
 	itemNodes.forEach(node => node.r = getItemRadius(node));
 
     const nodes = Array.from(itemNodes.values()).concat(connectorNodes);
+    const newLinks = Array.from(links.values());
 
-	// console.log('items:', itemNodes.map(node => [node.items.join(','), node.childData]));
-	// console.log('connectors:', connectorNodes.map(node => node.childData));
-	// console.log('links: ', links.map(link => {
+	// console.log('nodes:', nodes.map(node => [node.items.join(','), node.childData]));
+	// console.log('links: ', newLinks.map(link => {
 	// 	const source = nodes.find(node => node.id === link.source);
 	// 	const target = nodes.find(node => node.id === link.target);
 	//
@@ -341,8 +341,8 @@ export default function getNodesAndLinks(
 	// }));
 
 	return {
-        nodes: nodes,
-        links: Array.from(links.values())
+        nodes,
+        links: newLinks
     };
 }
 
