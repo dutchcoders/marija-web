@@ -10,6 +10,7 @@ export interface Datasource {
     locationFieldPath?: string;
     labelFieldPath?: string;
     dateFieldPath?: string;
+    chooseFieldsAutomatically: boolean;
     icon?: string;
 
     // Only relevant for custom datasources

@@ -15,6 +15,7 @@ import { Datasource } from '../../datasources/interfaces/datasource';
 import { getSuggestedConnectors } from '../../fields/helpers/getSuggestedConnectors';
 import { Field } from '../../fields/interfaces/field';
 import { groupNodes } from './groupNodes';
+import { chooseDatasourceFields } from './chooseDatasourceFields';
 
 export interface GraphWorkerPayload {
     items: Item[];
@@ -42,6 +43,7 @@ export interface GraphWorkerOutput {
     links: Link[];
     connectors: Connector[];
     suggestedConnectors: Connector[];
+    datasources: Datasource[];
 	outputId: string;
 }
 
@@ -73,6 +75,9 @@ export default class GraphWorkerClass {
 			fieldCache = payload.fields;
 		}
 
+
+
+
 		let search: Search;
 		let useItems: Item[];
 		let connectors: Connector[] = payload.connectors;
@@ -90,6 +95,17 @@ export default class GraphWorkerClass {
 			useItems = prevItemCache.concat(payload.items);
 			prevItemCache = useItems;
 		}
+
+
+		const datasources: Datasource[] = payload.datasources.map(datasource => {
+			if (!datasource.chooseFieldsAutomatically) {
+				return datasource;
+			}
+
+			const items = useItems.filter(item => item.datasourceId === datasource.id);
+
+			return chooseDatasourceFields(datasource, fieldCache, items);
+		});
 
 		const startSuggesting = performance.now();
 		let suggested: Connector[] = getSuggestedConnectors(useItems, fieldCache, connectors, payload.deletedConnectorFields);
@@ -117,7 +133,7 @@ export default class GraphWorkerClass {
             connectors,
             search ? search.aroundNodeId : null,
             payload.deletedNodeIds,
-			payload.datasources
+			datasources
         );
 
         const getNodesAndLinksTime = performance.now() - startGetNodesAndLinks;
@@ -157,7 +173,8 @@ export default class GraphWorkerClass {
             links: result.links,
             connectors: connectors,
 			outputId: payload.outputId,
-			suggestedConnectors: suggested
+			suggestedConnectors: suggested,
+			datasources: datasources
         };
 
         prevNodeCache = result.nodes;

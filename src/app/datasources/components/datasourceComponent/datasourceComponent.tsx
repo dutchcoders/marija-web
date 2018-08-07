@@ -19,6 +19,7 @@ import MagicWand from '../../../graph/components/magicWand/magicWand';
 import Tooltip from 'rc-tooltip';
 import { showAllItemsOfCustomDatasource } from '../../../search/searchActions';
 import { FormattedMessage } from 'react-intl';
+import { FormEvent } from 'react';
 
 interface Props {
 	datasource: Datasource;
@@ -49,7 +50,8 @@ class DatasourceComponent extends React.Component<Props, State> {
 		const { dispatch, datasource } = this.props;
 
 		dispatch(updateDatasource(datasource.id, {
-			imageFieldPath: field ? field.path : false
+			imageFieldPath: field ? field.path : false,
+			chooseFieldsAutomatically: false
 		}));
 	}
 
@@ -57,7 +59,8 @@ class DatasourceComponent extends React.Component<Props, State> {
 		const { dispatch, datasource } = this.props;
 
 		dispatch(updateDatasource(datasource.id, {
-			labelFieldPath: field ? field.path : false
+			labelFieldPath: field ? field.path : false,
+			chooseFieldsAutomatically: false
 		}));
 	}
 
@@ -65,7 +68,8 @@ class DatasourceComponent extends React.Component<Props, State> {
 		const { dispatch, datasource } = this.props;
 
 		dispatch(updateDatasource(datasource.id, {
-			locationFieldPath: field ? field.path : false
+			locationFieldPath: field ? field.path : false,
+			chooseFieldsAutomatically: false
 		}));
 	}
 
@@ -73,7 +77,8 @@ class DatasourceComponent extends React.Component<Props, State> {
 		const { dispatch, datasource } = this.props;
 
 		dispatch(updateDatasource(datasource.id, {
-			dateFieldPath: field ? field.path : false
+			dateFieldPath: field ? field.path : false,
+			chooseFieldsAutomatically: false
 		}));
 	}
 
@@ -111,6 +116,14 @@ class DatasourceComponent extends React.Component<Props, State> {
 		dispatch(showAllItemsOfCustomDatasource(datasource));
 	}
 
+	toggleChooseFieldsAutomatically() {
+		const { dispatch, datasource } = this.props;
+
+		dispatch(updateDatasource(datasource.id, {
+			chooseFieldsAutomatically: !datasource.chooseFieldsAutomatically
+		}));
+	}
+
 	render() {
 		const { datasource, nodes } = this.props;
 		const { expanded, iconSelectorOpen } = this.state;
@@ -132,6 +145,15 @@ class DatasourceComponent extends React.Component<Props, State> {
 
 				{expanded && (
 					<main className={styles.main}>
+						<p className={styles.chooseFieldsAutomatically} onClick={this.toggleChooseFieldsAutomatically.bind(this)}>
+							<input
+								type="checkbox"
+								checked={datasource.chooseFieldsAutomatically}
+								readOnly
+							/>
+							Choose fields automatically based on data.
+						</p>
+
 						<h4 className={styles.optionTitle}><FormattedMessage id="label"/></h4>
 						<FieldSelector
 							datasourceId={datasource.id}

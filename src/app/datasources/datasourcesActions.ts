@@ -62,6 +62,7 @@ export interface DatasourceProps {
 	locationFieldPath?: string | false;
 	labelFieldPath?: string | false;
 	dateFieldPath?: string | false;
+	chooseFieldsAutomatically?: boolean;
 	icon?: string;
 }
 

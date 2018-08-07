@@ -83,3 +83,13 @@
 .showAll {
   background: #6C9FE0;
 }
+
+.chooseFieldsAutomatically {
+  font-weight: 300;
+  margin-bottom: 20px;
+  cursor: pointer;
+
+  input {
+    margin-right: 3px !important;
+  }
+}

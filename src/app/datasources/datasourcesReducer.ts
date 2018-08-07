@@ -14,9 +14,16 @@ import { Workspace } from '../ui/interfaces/workspace';
 import { FIELDS_RECEIVE } from '../fields/fieldsConstants';
 import { Field } from '../fields/interfaces/field';
 import { Item } from '../graph/interfaces/item';
+import {
+	GRAPH_WORKER_OUTPUT,
+	SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID
+} from '../graph/graphConstants';
+import { GraphWorkerOutput } from '../graph/helpers/graphWorkerClass';
+import { FieldsState } from '../fields/interfaces/fieldsState';
 
 export const defaultDatasourcesState: DatasourcesState = {
-    datasources: []
+    datasources: [],
+	expectedGraphWorkerOutputId: null
 };
 
 export default function datasourcesReducer(state: DatasourcesState = defaultDatasourcesState, action) {
@@ -35,6 +42,7 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
                     labelFieldPath: existing ? existing.labelFieldPath : null,
                     locationFieldPath: existing ? existing.locationFieldPath : null,
                     dateFieldPath: existing ? existing.dateFieldPath : null,
+					chooseFieldsAutomatically: existing ? existing.chooseFieldsAutomatically : true
                 };
             });
 
@@ -214,7 +222,8 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
 				labelFieldPath: null,
 				imageFieldPath: null,
 				locationFieldPath: null,
-				dateFieldPath: null
+				dateFieldPath: null,
+				chooseFieldsAutomatically: true
 			};
 
 			return {
@@ -229,6 +238,27 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
 			return {
 				...state,
 				datasources: state.datasources.filter(search => search.id !== datasource.id)
+			};
+		}
+
+		case SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID: {
+			return {
+				...state,
+				expectedGraphWorkerOutputId: action.payload.id
+			};
+		}
+
+		case GRAPH_WORKER_OUTPUT: {
+			const output: GraphWorkerOutput = action.payload;
+
+			if (output.outputId !== state.expectedGraphWorkerOutputId) {
+				// Graph is outdated, soon the next update will follow so we can skip this one
+				return state;
+			}
+
+			return {
+				...state,
+				datasources: output.datasources
 			};
 		}
 
