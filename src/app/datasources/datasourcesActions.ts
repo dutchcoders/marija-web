@@ -1,6 +1,5 @@
-import { getFields } from '../fields/fieldsActions';
 import {
-	addLiveDatasourceSearch
+	addLiveDatasourceSearch, searchRequest
 } from '../search/searchActions';
 import {
 	CREATE_CUSTOM_DATASOURCE,
@@ -12,8 +11,11 @@ import {
 import { Datasource } from './interfaces/datasource';
 import { rebuildGraph } from '../graph/graphActions';
 import { Item } from '../graph/interfaces/item';
-import { FIELDS_RECEIVE } from '../fields/fieldsConstants';
 import { Field } from '../fields/interfaces/field';
+import { FieldMapping } from '../fields/interfaces/fieldMapping';
+import { receiveFieldMapping } from '../fields/fieldsActions';
+import Url from '../main/helpers/url';
+import { AppState } from '../main/interfaces/appState';
 
 export function datasourceActivated(datasource: Datasource) {
     return {
@@ -41,12 +43,6 @@ export function receiveInitialState(initialState) {
             initial_state: initialState
         });
 
-        const normal: Datasource[] = initialState.datasources.filter((datasource: Datasource) =>
-            datasource.type !== 'live'
-        );
-
-        dispatch(getFields(normal));
-
         const live: Datasource[] = initialState.datasources.filter((datasource: Datasource) =>
             datasource.type === 'live'
         );
@@ -54,6 +50,24 @@ export function receiveInitialState(initialState) {
         live.forEach(datasource => {
             dispatch(addLiveDatasourceSearch(datasource));
         });
+
+        const state: AppState = getState();
+		const active = state.datasources.datasources.filter(datasource =>
+			datasource.active && datasource.type !== 'live'
+		);
+
+		// Check if there are some active datasources
+		if (active.length > 0) {
+			Url.getQueries().forEach(query =>
+				dispatch(searchRequest(query))
+			);
+		} else {
+			// Without active datasources we can remove the queries from the url,
+			// because they have not been executed
+			Url.getQueries().forEach(query =>
+				Url.removeQuery(query)
+			);
+		}
     };
 }
 
@@ -90,13 +104,16 @@ export function createCustomDatasource(name: string, items: Item[], fields: Fiel
 			}
 		});
 
-		dispatch({
-			type: FIELDS_RECEIVE,
-			payload: {
-				datasource: name,
-				fields: fields
+		const mapping: FieldMapping = {};
+		fields.forEach(field => {
+			if (!mapping[field.datasourceId]) {
+				mapping[field.datasourceId] = {};
 			}
+
+			mapping[field.datasourceId][field.path] = field.type;
 		});
+
+		dispatch(receiveFieldMapping(mapping));
 	};
 }
 

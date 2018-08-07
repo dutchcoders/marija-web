@@ -26,7 +26,6 @@ import { createWorkerMiddleware } from './helpers/createWorkerMiddleware';
 import { workspaceMiddleware } from '../ui/helpers/workspaceMiddleware';
 import Url from './helpers/url';
 import { requestWorkspace } from '../ui/uiActions';
-import { queryMiddleware } from '../search/helpers/queryMiddleware';
 import CreateCustomDatasource
 	from '../datasources/components/createCustomDatasource/createCustomDatasource';
 import { getHistory } from './helpers/getHistory';
@@ -61,7 +60,6 @@ function configureStore() {
 			applyMiddleware(
 				webSocketMiddleware,
 				workspaceMiddleware,
-				queryMiddleware,
 				thunk,
 				graphWorkerMiddleware,
 				errorMiddleware()

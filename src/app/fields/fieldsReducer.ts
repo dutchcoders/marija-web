@@ -2,8 +2,6 @@ import {
 	CREATE_NEW_CONNECTOR,
 	DELETE_CONNECTOR,
 	DELETE_FROM_CONNECTOR,
-	FIELDS_RECEIVE,
-	FIELDS_REQUEST,
 	MOVE_RULE_BETWEEN_CONNECTORS,
 	MOVE_RULE_TO_NEW_CONNECTOR,
 	RECEIVE_FIELD_MAPPING,
@@ -33,7 +31,6 @@ import { FieldMapping } from './interfaces/fieldMapping';
 
 export const defaultFieldsState: FieldsState = {
     availableFields: [],
-    fieldsFetching: false,
     defaultConfigs: {},
     connectors: [],
 	suggestedConnectors: [],
@@ -43,51 +40,6 @@ export const defaultFieldsState: FieldsState = {
 
 export default function fieldsReducer(state: FieldsState = defaultFieldsState, action): FieldsState {
     switch (action.type) {
-        case FIELDS_RECEIVE: {
-            if (action.payload.fields === null) {
-                return Object.assign({}, state, {
-                    fieldsFetching: false
-                });
-            }
-
-            const newFields: Field[] = action
-                .payload
-                .fields
-                .map(field => {
-                    field.datasourceId = action.payload.datasource;
-                    return field;
-                });
-
-            let fields = state.availableFields
-                .filter(field => field.datasourceId !== action.payload.datasource)
-                .concat(newFields);
-
-            fields = sortFields(fields);
-
-            let defaultConfigs = state.defaultConfigs;
-
-            if (action.payload.defaultFields || action.payload.defaultVia) {
-                defaultConfigs = Object.assign({}, state.defaultConfigs, {
-                    [action.payload.datasource]: {
-                        fields: action.payload.defaultFields,
-                        via: action.payload.defaultVia,
-                    }
-                });
-            }
-
-            return Object.assign({}, state, {
-                availableFields: fields,
-                fieldsFetching: false,
-                defaultConfigs: defaultConfigs
-            });
-        }
-
-        case FIELDS_REQUEST:
-            return Object.assign({}, state, {
-                fieldsFetching: true
-            });
-
-
 		case MOVE_RULE_BETWEEN_CONNECTORS: {
 			const ruleId: string = action.payload.ruleId;
 			let connectors = state.connectors.concat([]);

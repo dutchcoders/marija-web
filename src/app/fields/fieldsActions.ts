@@ -1,13 +1,8 @@
-import { webSocketSend } from '../connection/connectionActions';
-import { Datasource } from '../datasources/interfaces/datasource';
-import { Via } from '../graph/interfaces/via';
 import { AppState } from '../main/interfaces/appState';
 import {
 	CREATE_NEW_CONNECTOR,
 	DELETE_CONNECTOR,
 	DELETE_FROM_CONNECTOR,
-	FIELDS_RECEIVE,
-	FIELDS_REQUEST,
 	MOVE_RULE_BETWEEN_CONNECTORS,
 	MOVE_RULE_TO_NEW_CONNECTOR,
 	RECEIVE_FIELD_MAPPING,
@@ -20,36 +15,6 @@ import { dispatchAndRebuildGraph, rebuildGraph } from '../graph/graphActions';
 import { MatchingStrategy } from '../graph/interfaces/connector';
 import { getConnectorName } from './helpers/getConnectorName';
 import { FieldMapping } from './interfaces/fieldMapping';
-
-export function receiveFields(fields: Field[], datasource: string, defaultFields: Field[], defaultVia: Via[]) {
-    return {
-        type: FIELDS_RECEIVE,
-        payload: {
-            fields: fields,
-            datasource: datasource,
-            defaultFields: defaultFields,
-            defaultVia: defaultVia
-        }
-    };
-}
-
-export function getFields(datasources: Datasource[]) {
-    return (dispatch, getState) => {
-        dispatch({
-            type: FIELDS_REQUEST,
-            payload: {
-                datasources: datasources
-            }
-        });
-
-        const datasourceIds: string[] = datasources.map(datasource => datasource.id);
-
-        dispatch(webSocketSend({
-            type: FIELDS_REQUEST,
-            datasources: datasourceIds
-        }));
-    };
-}
 
 export function moveRuleBetweenConnectors(ruleId: string, fromConnectorName: string, toConnectorName: string) {
     return dispatchAndRebuildGraph({

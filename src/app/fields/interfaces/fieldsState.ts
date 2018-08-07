@@ -4,7 +4,6 @@ import { Connector } from '../../graph/interfaces/connector';
 
 export interface FieldsState {
     availableFields: Field[];
-    fieldsFetching: boolean;
     defaultConfigs: DefaultConfigs;
     connectors: Connector[];
     suggestedConnectors: Connector[];

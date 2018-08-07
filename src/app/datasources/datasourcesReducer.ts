@@ -11,15 +11,12 @@ import {DatasourcesState} from "./interfaces/datasourcesState";
 import { getIcon } from '../graph/helpers/getIcon';
 import { RECEIVE_WORKSPACE } from '../ui/uiConstants';
 import { Workspace } from '../ui/interfaces/workspace';
-import { FIELDS_RECEIVE } from '../fields/fieldsConstants';
-import { Field } from '../fields/interfaces/field';
 import { Item } from '../graph/interfaces/item';
 import {
 	GRAPH_WORKER_OUTPUT,
 	SET_EXPECTED_GRAPH_WORKER_OUTPUT_ID
 } from '../graph/graphConstants';
 import { GraphWorkerOutput } from '../graph/helpers/graphWorkerClass';
-import { FieldsState } from '../fields/interfaces/fieldsState';
 
 export const defaultDatasourcesState: DatasourcesState = {
     datasources: [],
@@ -67,63 +64,6 @@ export default function datasourcesReducer(state: DatasourcesState = defaultData
                 datasources: datasources
             });
         }
-
-		case FIELDS_RECEIVE: {
-			const fields: Field[] = action.payload.fields;
-
-			if (!fields) {
-				return state;
-			}
-
-			const datasourceId: string = action.payload.datasource;
-			const datasources = state.datasources.concat([]);
-			const index = datasources.findIndex(datasource => datasource.id === datasourceId);
-
-			if (index === -1) {
-				return state;
-			}
-
-			const datasource = { ...datasources[index] };
-
-			if (datasource.dateFieldPath === null) {
-				const field = fields.find(field => field.type === 'date');
-
-				if (field) {
-					datasource.dateFieldPath = field.path;
-				}
-			}
-
-			if (datasource.imageFieldPath === null) {
-				const field = fields.find(field => field.type === 'image');
-
-				if (field) {
-					datasource.imageFieldPath = field.path;
-				}
-			}
-
-			if (datasource.locationFieldPath === null) {
-				const field = fields.find(field => field.type === 'location');
-
-				if (field) {
-					datasource.locationFieldPath = field.path;
-				}
-			}
-
-			if (datasource.labelFieldPath === null) {
-				const field = fields.find(field => field.type === 'text' || field.type === 'string' || field.type === 'number');
-
-				if (field) {
-					datasource.labelFieldPath = field.path;
-				}
-			}
-
-			datasources[index] = datasource;
-
-			return {
-				...state,
-				datasources
-			};
-		}
 
         case DATASOURCE_ACTIVATED: {
             const index: number = state.datasources.findIndex(datasource => datasource.id === action.payload.datasource.id);

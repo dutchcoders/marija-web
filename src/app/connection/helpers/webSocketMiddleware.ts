@@ -12,8 +12,7 @@ import {
 	setSearchTotal
 } from "../../search/searchActions";
 import {requestCompleted} from "../connectionActions";
-import {FIELDS_RECEIVE} from "../../fields/fieldsConstants";
-import { receiveFieldMapping, receiveFields } from "../../fields/fieldsActions";
+import { receiveFieldMapping } from "../../fields/fieldsActions";
 import {LIVE_RECEIVE, SEARCH_RECEIVE} from "../../search/searchConstants";
 import {INITIAL_STATE_RECEIVE} from "../../datasources/datasourcesConstants";
 import {receiveInitialState} from "../../datasources/datasourcesActions";
@@ -100,19 +99,6 @@ function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {
             );
             break;
         }
-        case FIELDS_RECEIVE:
-            const defaults = data.default;
-            let defaultFields;
-            let defaultVia;
-
-            if (defaults) {
-                defaultFields = defaults.fields;
-                defaultVia = defaults.via;
-            }
-
-            // dispatch(receiveFields(data.fields, data.datasource, defaultFields, defaultVia));
-            break;
-
         case INITIAL_STATE_RECEIVE:
             dispatch(receiveInitialState({
                 datasources: data.datasources,
