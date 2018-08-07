@@ -76,25 +76,28 @@ class FieldList extends React.Component<Props, State> {
 
 		return (
 			<div className={styles.fieldList}>
-				<table key={1} className={styles.fieldTable}>
-					<thead>
-					<tr>
-						<td className={styles.fieldHead}><FormattedMessage id="field"/></td>
-						<td className={styles.fieldHead}><FormattedMessage id="unique_total"/></td>
-						<td />
-						<td />
-					</tr>
-					</thead>
-					<tbody>
-					{firstX.map((item, i) =>
-						<FieldRow
-							key={'available_fields_' + item.path + i}
-							fieldStats={fieldStatList[item.path]}
-							field={item}
-						/>
-					)}
-					</tbody>
-				</table>
+				{firstX.length > 0 && (
+					<table key={1} className={styles.fieldTable}>
+						<thead>
+						<tr>
+							<td className={styles.fieldHead}><FormattedMessage id="field"/></td>
+							<td className={styles.fieldHead}><FormattedMessage id="unique_total"/></td>
+							<td />
+							<td />
+						</tr>
+						</thead>
+						<tbody>
+						{firstX.map((item, i) =>
+							<FieldRow
+								key={'available_fields_' + item.path + i}
+								fieldStats={fieldStatList[item.path]}
+								field={item}
+							/>
+						)}
+						</tbody>
+					</table>
+				)}
+
 				<div className="searchResultsFooter" key={2}>
 					{numMore}
 					{showMore}

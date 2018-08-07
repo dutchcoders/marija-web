@@ -72,7 +72,7 @@
   "center": "Centreer",
   "labels": "Labels",
   "help": "<div><h1>Tips</h1><u><li>Hold <strong>shift</strong> while dragging to select an area of nodes.</li><li>Hold <strong>alt</strong> to drag an entire cluster of nodes.</li></ul></div>",
-  "no_fields_found": "Geen velden gevonden",
+  "no_fields_found": "Geen velden gevonden. Geef eerst een zoekopdracht op.",
   "hold_shift_to_select_area": "Houd <strong>shift</strong> ingedrukt om een gebied van nodes te selecteren.",
   "hold_alt_to_drag_cluster": "Houd <strong>alt</strong> ingedrukt om een cluster van nodes te verslepen.",
   "export_as_csv": "Exporteer CSV",

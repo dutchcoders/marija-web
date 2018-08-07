@@ -7,7 +7,7 @@ import { AppState } from '../main/interfaces/appState';
 import * as styles from './fields.scss';
 import { Field } from './interfaces/field';
 import {
-	getNonDateFields,
+	getNonDateFields, selectFieldsInData,
 	selectTypeLabels,
 	TypeLabel
 } from './fieldsSelectors';
@@ -18,7 +18,7 @@ import Icon from '../ui/components/icon';
 
 interface Props {
     dispatch: Dispatch<any>;
-    availableFields: Field[];
+    fields: Field[];
     datasources: Datasource[];
     typeLabels: TypeLabel[];
 	intl: InjectedIntl;
@@ -127,29 +127,31 @@ class Fields extends React.Component<Props, State> {
     }
 
     render() {
-        const { intl } = this.props;
+        const { intl, fields } = this.props;
         const { query, datasourceFilter, searchTypes } = this.state;
 
         return (
             <div>
 				<h2><FormattedMessage id="fields"/></h2>
 
-				<form className={styles.form}>
-					<div className={styles.inputWrapper}>
-						<input
-							className={styles.input}
-							ref={searchInput => this.searchInput = searchInput}
-							value={this.state.query}
-							onChange={this.handleFieldSearchChange.bind(this)} type="text"
-							placeholder={intl.formatMessage({ id: 'search_fields' })}
-						/>
-						<Icon name={'ion-ios-search ' + styles.searchIcon} />
-					</div>
-					<div className={styles.filters}>
-						{this.renderTypeFilter()}
-						{this.renderDatasourceFilter()}
-					</div>
-				</form>
+				{fields.length > 0 && (
+					<form className={styles.form}>
+						<div className={styles.inputWrapper}>
+							<input
+								className={styles.input}
+								ref={searchInput => this.searchInput = searchInput}
+								value={this.state.query}
+								onChange={this.handleFieldSearchChange.bind(this)} type="text"
+								placeholder={intl.formatMessage({ id: 'search_fields' })}
+							/>
+							<Icon name={'ion-ios-search ' + styles.searchIcon} />
+						</div>
+						<div className={styles.filters}>
+							{this.renderTypeFilter()}
+							{this.renderDatasourceFilter()}
+						</div>
+					</form>
+				)}
 
 				<FieldList query={query} types={searchTypes} datasourceId={datasourceFilter}/>
             </div>
@@ -161,7 +163,7 @@ class Fields extends React.Component<Props, State> {
 function select(state: AppState, ownProps) {
     return {
 		...ownProps,
-        availableFields: getNonDateFields(state),
+        fields: selectFieldsInData(state),
 		typeLabels: selectTypeLabels(state),
         datasources: selectDatasourcesInData(state)
     };

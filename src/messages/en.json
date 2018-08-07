@@ -71,7 +71,7 @@
   "zoom_in": "Zoom in",
   "center": "Center",
   "labels": "Labels",
-  "no_fields_found": "No fields found",
+  "no_fields_found": "No fields found. Perform a search query first.",
   "hold_shift_to_select_area": "Hold <strong>shift</strong> while dragging to select an area of nodes",
   "hold_alt_to_drag_cluster": "Hold <strong>alt</strong> to drag an entire cluster of nodes.",
   "export_as_csv": "Export as CSV",

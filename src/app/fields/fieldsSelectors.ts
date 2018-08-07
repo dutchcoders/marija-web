@@ -110,7 +110,7 @@ export const getSelectedDateFields = createSelector(
 	}
 );
 
-const selectFieldsInData = createSelector(
+export const selectFieldsInData = createSelector(
 	(state: AppState) => state.fields.availableFields,
 	(state: AppState) => state.graph.items,
 
