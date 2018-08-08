@@ -6,7 +6,7 @@ import Navigation from '../../ui/components/navigation/navigation';
 import Nodes from '../../graph/components/nodes/nodes';
 import Timeline from '../../graph/components/timeline';
 import Graph from '../../graph/graph';
-import Header from '../../search/components/header';
+import Header from '../../ui/components/header/header';
 import Stats from '../../stats/stats';
 import Table from '../../table/table';
 import Notifications from '../../connection/components/notifications/notifications';

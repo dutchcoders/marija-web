@@ -1,0 +1,16 @@
+@mixin input() {
+  border: none;
+  padding: 0 7px;
+  height: 30px;
+  font-size: 14px;
+  color: white;
+  box-sizing: border-box;
+  background: #425166;
+  border-radius: 3px;
+  box-shadow: inset 2px 2px 5px 0px rgba(0, 0, 0, 0.3);
+  outline: none;
+
+  &::placeholder {
+    color: white;
+  }
+}

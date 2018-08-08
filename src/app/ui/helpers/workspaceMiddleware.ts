@@ -12,7 +12,7 @@ import {
 	DATASOURCE_ACTIVATED,
 	DATASOURCE_DEACTIVATED, DELETE_CUSTOM_DATASOURCE, UPDATE_DATASOURCE
 } from '../../datasources/datasourcesConstants';
-import { updateWorkspace } from '../uiActions';
+import { saveWorkspaceInLocalStorage } from '../uiActions';
 import {
 	SET_AUTOMATICALLY_CREATE_CONNECTORS,
 	SET_FILTER_BORING_NODES,
@@ -60,7 +60,7 @@ export const workspaceMiddleware: Middleware = ({dispatch}) => next => action =>
 	if (updateForActions.indexOf(action.type) !== -1) {
 		clearTimeout(debouncer);
 		debouncer = setTimeout(
-			() => dispatch(updateWorkspace()),
+			() => dispatch(saveWorkspaceInLocalStorage()),
 			3000
 		);
 	}

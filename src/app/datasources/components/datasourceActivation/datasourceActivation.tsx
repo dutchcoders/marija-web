@@ -9,12 +9,10 @@ import {
 } from '../../datasourcesActions';
 import { getNonLiveDatasources } from '../../datasourcesSelectors';
 import Icon from '../../../ui/components/icon';
-const logo = require('../../../../images/logo.png');
 import { FormattedMessage } from 'react-intl';
 
 interface Props {
 	datasources: Datasource[];
-	connected: boolean;
 	dispatch: any;
 }
 
@@ -30,15 +28,10 @@ class DatasourceActivation extends React.Component<Props> {
 	}
 
 	render() {
-		const { datasources, connected } = this.props;
+		const { datasources } = this.props;
 
 		return (
-			<div className={styles.bar}>
-				<img
-					className={styles.logo + (connected ? '' : ' ' + styles.notConnected)}
-					src={logo}
-					title={connected ? "Marija is connected to the backendservice" : "No connection to Marija backend available" }
-				/>
+			<div className={styles.container}>
 
 				<h2 className={styles.title}><FormattedMessage id="search_in" /></h2>
 
@@ -63,7 +56,6 @@ class DatasourceActivation extends React.Component<Props> {
 
 const select = (state: AppState) => ({
 	datasources: getNonLiveDatasources(state),
-	connected: state.connection.connected,
 });
 
 export default connect(select)(DatasourceActivation);

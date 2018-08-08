@@ -94,6 +94,8 @@ class App extends React.Component<Props, State> {
 
         if (workspaceId) {
 			store.dispatch(requestWorkspace(workspaceId));
+		} else {
+        	Url.setWorkspaceId('0');
 		}
     }
 

@@ -19,6 +19,7 @@ import {receiveInitialState} from "../../datasources/datasourcesActions";
 import Timer = NodeJS.Timer;
 import { getResponses } from './mockServer';
 import { FieldMapping } from '../../fields/interfaces/fieldMapping';
+import { receiveWorkspaceDescriptions } from '../../ui/uiActions';
 
 let opened: Promise<ReconnectingWebsocket>;
 
@@ -67,6 +68,19 @@ export const webSocketMiddleware: Middleware = ({dispatch}) => next => action =>
 
 function onOpen(dispatch: Dispatch<any>) {
     dispatch(authConnected(true, null));
+
+    dispatch(receiveWorkspaceDescriptions([
+		{
+			id: '1',
+			title: 'Research',
+			version: 7
+		},
+		{
+			id: '2',
+			title: 'Malware',
+			version: 7
+		}
+	]));
 }
 
 function onMessage(event: MessageEvent, dispatch: Dispatch<any>) {

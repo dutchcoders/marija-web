@@ -3,6 +3,12 @@ import { Connector } from '../../graph/interfaces/connector';
 import { Language, PaneCollection } from './uiState';
 import { Field } from '../../fields/interfaces/field';
 
+export interface WorkspaceDescription {
+	id: string;
+	title: string;
+	version: number;
+}
+
 export interface Workspace {
 	version: number;
 	panes: PaneCollection;

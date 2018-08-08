@@ -2,14 +2,20 @@ import {each} from 'lodash';
 
 import {
 	CLOSE_LIGHTBOX,
-	CLOSE_PANE,
-	MOVE_PANE_TO_TOP, OPEN_LIGHTBOX,
-	OPEN_PANE, RECEIVE_WORKSPACE, SET_EXPERIMENTAL_FEATURES, SET_LANG,
-	SET_PANE_CONFIG, SET_REDUCER_ERROR, WORKSPACE_CREATED
+	CLOSE_PANE, CURRENT_WORKSPACE_VERSION, EDIT_WORKSPACE_TITLE,
+	MOVE_PANE_TO_TOP,
+	OPEN_LIGHTBOX,
+	OPEN_PANE,
+	RECEIVE_WORKSPACE,
+	RECEIVE_WORKSPACE_DESCRIPTIONS, REQUEST_WORKSPACE,
+	SET_EXPERIMENTAL_FEATURES,
+	SET_LANG,
+	SET_PANE_CONFIG,
+	SET_REDUCER_ERROR
 } from './uiConstants';
 import { Language, UiState } from "./interfaces/uiState";
 import {PaneInterface} from "./interfaces/paneInterface";
-import { Workspace } from './interfaces/workspace';
+import { Workspace, WorkspaceDescription } from './interfaces/workspace';
 
 const defaultPane: PaneInterface = {
     open: false,
@@ -28,7 +34,7 @@ const defaultPane: PaneInterface = {
 
 export const defaultUiState: UiState = {
     experimentalFeatures: false,
-    workspaceId: null,
+    workspaceId: '0',
     panes: {
         configuration: {
             ...defaultPane,
@@ -85,7 +91,13 @@ export const defaultUiState: UiState = {
 	lightboxImageUrl: null,
 	reducerError: null,
     reducerErrorLastAction: null,
-    lang: 'en'
+    lang: 'en',
+    workspaceDescriptions: [{
+		id: '0',
+		title: 'Untitled',
+		version: CURRENT_WORKSPACE_VERSION
+	}],
+	isRequestingWorkspace: false
 };
 
 export default function uiReducer(state: UiState = defaultUiState, action): UiState {
@@ -155,21 +167,17 @@ export default function uiReducer(state: UiState = defaultUiState, action): UiSt
             };
         }
 
-        case WORKSPACE_CREATED: {
-            return {
-                ...state,
-                workspaceId: action.payload.id
-            };
-        }
-
         case RECEIVE_WORKSPACE: {
+        	const workspaceId: string = action.payload.workspaceId;
 			const workspace: Workspace = action.payload.workspace;
 
             return {
                 ...state,
                 panes: workspace.panes,
 				experimentalFeatures: workspace.experimentalFeatures,
-                lang: workspace.lang
+                lang: workspace.lang,
+				workspaceId: workspaceId,
+				isRequestingWorkspace: false
             };
         }
 
@@ -196,6 +204,40 @@ export default function uiReducer(state: UiState = defaultUiState, action): UiSt
                 lang
             }
         }
+
+        case RECEIVE_WORKSPACE_DESCRIPTIONS: {
+
+        	const workspaceDescriptions = state.workspaceDescriptions.concat(action.payload.workspaceDescriptions);
+
+            return {
+                ...state,
+                workspaceDescriptions
+            };
+        }
+
+		case EDIT_WORKSPACE_TITLE: {
+			const workspaceId: string = action.payload.workspaceId;
+			const title: string = action.payload.title;
+			const workspaceDescriptions = state.workspaceDescriptions.concat([]);
+			const index = workspaceDescriptions.findIndex(description => description.id === workspaceId);
+
+			workspaceDescriptions[index] = {
+				...workspaceDescriptions[index],
+				title
+			};
+
+			return {
+				...state,
+				workspaceDescriptions
+			};
+		}
+
+		case REQUEST_WORKSPACE: {
+			return {
+				...state,
+				isRequestingWorkspace: true
+			};
+		}
 
         default:
             return state;

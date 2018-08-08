@@ -1,21 +1,5 @@
-.bar {
+.container {
   display: flex;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-.logo {
-  height: 40px;
-  margin: 5px 10px;
-}
-
-.notConnected {
-  animation: pulse 2s infinite ease-in-out;;
-}
-
-@keyframes pulse {
-  0% { opacity: 0.2; }
-  50% { opacity: 1; }
-  100% { opacity: 0.2; }
 }
 
 .list {
